@@ -1,7 +1,6 @@
 #pragma once
 
 #include <map>
+#include <string>
 
-const std::map<std::string, std::string> nullmap = {};
-
-void inflate(const char* fn, std::map<std::string, std::string> converts = nullmap);
+void inflate(const char* fn, std::map<std::string, std::string> converts = {});

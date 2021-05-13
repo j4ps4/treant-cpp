@@ -32,7 +32,7 @@ struct fmt::formatter<std::vector<T>>
         fmts << "[";
         for (std::size_t i = 0; i < vec.size()-1; i++)
         {
-            auto& elem = vec[i];
+            const auto& elem = vec[i];
             fmts << elem;
             fmts << ", ";
         }

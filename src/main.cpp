@@ -14,5 +14,5 @@ int main(int argc, const char** argv)
     }
 
     auto fn = argv[1];
-    inflate(fn);
+    inflate(fn, {{"SEX", "int"}});
 }

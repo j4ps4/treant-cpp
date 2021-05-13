@@ -1,4 +1,3 @@
-#include <fmt/core.h>
 #include <bzlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -6,10 +5,16 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <charconv>
+
+#include <fmt/core.h>
+#include <DataFrame/DataFrame.h>
 
 #include "util.h"
 
 constexpr int BS = 1048576; // 1 GB
+using IdxT = unsigned long;
+using DataFrame = hmdf::StdDataFrame<IdxT>;
 
 std::vector<std::string> split(const std::string& s)
 {
@@ -37,8 +42,8 @@ void inflate(const char* fn, std::map<std::string, std::string> converts)
     int     bzerror;
     int     nWritten;
 
-    f = fopen (fn, "r" );
-    if ( !f ) {
+    f = fopen(fn, "r");
+    if (!f) {
         perror(fn);
         exit(1);
     }
@@ -66,10 +71,67 @@ void inflate(const char* fn, std::map<std::string, std::string> converts)
     auto sndlne = std::find(fstlne+1, buf+nBuf, '\n');
     auto fstln = std::string(buf, fstlne);
     auto sndln = std::string(fstlne+1, sndlne);
-    auto colnames = split(fstln);
-    auto fields = split(sndln);
-    fmt::print("fst line: {}\n", colnames);
-    fmt::print("snd line: {}\n", fields);
-    auto rows = std::count(buf, buf+nBuf, '\n') - 1;
-    fmt::print("rows: {}\n", rows);
+    const auto colnames = split(fstln);
+    const auto fields = split(sndln);
+    DataFrame df;
+
+    const auto rows = std::count(buf, buf+nBuf, '\n') - 1;
+    std::vector<IdxT> idx(rows);
+    std::iota(idx.begin(), idx.end(), 0);
+    df.load_index(std::move(idx));
+    for (const auto& colname : colnames)
+    {
+        if (converts.count(colname) > 0)
+        {
+            std::vector<int> col;
+            col.reserve(rows);
+            df.load_column(colname.c_str(), std::move(col));
+        }
+        else
+        {
+            std::vector<std::string> col;
+            col.reserve(rows);
+            df.load_column(colname.c_str(), std::move(col));
+        }
+    }
+    auto loc = fstlne+1;
+    const auto chars = {',', '\n'};
+    for (long r = 0; r < rows; r++)
+    {
+        for (std::size_t c = 0; c < colnames.size(); c++)
+        {
+            const auto& colname = colnames[c];
+            auto loc1 = std::find_first_of(loc, buf+nBuf, chars.begin(), chars.end());
+            if (*loc1 == '\n' && c != colnames.size() - 1)
+            {
+                Util::die("malformed line at {}\n", r + 1);
+            }
+            // fmt::print("emplacing {}\n", std::string(loc,loc1));
+            if (converts.count(colname) > 0)
+            {
+                int val;
+                std::from_chars(loc, loc1, val);
+                df.get_column<int>(c).emplace_back(val);
+            }
+            else
+            {
+                df.get_column<std::string>(c).emplace_back(std::string(loc,loc1));
+            }
+            loc = loc1 + 1;
+        }
+    }
+    // for (const auto& col : colnames)
+    //     fmt::print("{},", col);
+    // fmt::print("\n");
+
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     for (const auto& col : colnames)
+    //     {
+    //         fmt::print("{}, ", df.get_column<std::string>(col.c_str())[i]);
+    //     }
+    //     fmt::print("\n");
+    // }
+    fmt::print("{}\n", df.get_column<int>((std::size_t)1));
+    fmt::print("df shape: ({}, {})\n", df.shape().first, df.shape().second);
 }

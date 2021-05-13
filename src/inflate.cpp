@@ -110,13 +110,13 @@ void inflate(const char* fn, std::map<std::string, std::string> converts)
         {
             std::vector<int> col;
             col.reserve(rows);
-            df.load_column(colname.c_str(), std::move(col));
+            df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
         }
         else
         {
             std::vector<std::string> col;
             col.reserve(rows);
-            df.load_column(colname.c_str(), std::move(col));
+            df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
         }
     }
     std::vector<const void*> ptrs;

@@ -10,8 +10,10 @@ endif()
 
 project(treant-cpp CXX)
 set(source_dir "src")
+set(test_dir "test")
 set(main_cpp ${source_dir}/main.cpp)
 set(target_name treant)
+set(test_bin df_test)
 
 file(GLOB_RECURSE src CONFIGURE_DEPENDS ${source_dir}/*.cpp)
 
@@ -27,11 +29,15 @@ CPMAddPackage("gh:hosseinmoein/DataFrame#1.17.0")
 set(CPM_USE_LOCAL_PACKAGES)
 
 add_executable(${target_name} ${main_cpp} ${src})
+add_executable(${test_bin} ${test_dir}/df_test.cpp)
 
 target_link_libraries(${target_name} cxxopts fmt nlopt bz2 DataFrame)
+target_include_directories(${test_bin} PRIVATE ${source_dir})
+target_link_libraries(${test_bin} DataFrame)
 
 target_compile_options(${target_name} PRIVATE $<$<CONFIG:Debug>:-O0 -Wall -Wno-unused-variable -Woverloaded-virtual>)
 target_compile_options(${target_name} PRIVATE $<$<CONFIG:Release>:-O3 -mtune=native -march=native>)
 target_compile_features(${target_name} PRIVATE cxx_std_17)
+target_compile_features(${test_bin} PRIVATE cxx_std_17)
 
 message("Generated with ${CMAKE_BUILD_TYPE}")

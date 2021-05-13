@@ -100,19 +100,19 @@ void print_row(const std::vector<const void*>& ptrs,
         {
             case DataType::String:
             {
-                const auto& vec = *((const std::vector<std::string>*)ptrs[idx]);
+                const auto& vec = *((std::vector<std::string>*)ptrs[idx]);
                 std::cout << vec[row_idx] << ',';
                 break;
             }
             case DataType::Int:
             {
-                const auto& vec = *((const std::vector<int>*)ptrs[idx]);
+                const auto& vec = *((std::vector<int>*)ptrs[idx]);
                 std::cout << vec[row_idx] << ',';
                 break;
             }
             case DataType::Double:
             {
-                const auto& vec = *((const std::vector<double>*)ptrs[idx]);
+                const auto& vec = *((std::vector<double>*)ptrs[idx]);
                 std::cout << vec[row_idx] << ',';
                 break;
             }
@@ -125,8 +125,14 @@ void print_row(const std::vector<const void*>& ptrs,
     std::cout << '\n';
 }
 
+
+}
+
+namespace df
+{
+
 void load_addresses(const DataFrame& df,
-                    const std::map<size_t, std::pair<std::string, DataType>>& colmap,
+                    const ColMap& colmap,
                     std::vector<const void*>& ptrs)
 {
     for (auto& [idx, pair] : colmap)
@@ -157,11 +163,6 @@ void load_addresses(const DataFrame& df,
         }
     }
 }
-
-}
-
-namespace df
-{
 
 void print(const DataFrame& df,
            const std::map<size_t, std::pair<std::string, DataType>>& colmap)

@@ -32,39 +32,6 @@ std::vector<std::string> split(const std::string& s)
     return out;
 }
 
-void load_addresses(const DataFrame& df,
-                    const ColMap& colmap,
-                    std::vector<const void*>& ptrs)
-{
-    for (auto& [idx, pair] : colmap)
-    {
-        auto& colname = pair.first;
-        auto& dtype = pair.second;
-        switch(dtype)
-        {
-            case DataType::String:
-            {
-                ptrs.push_back(&(df.get_column<std::string>(colname.c_str())));
-                break;
-            }
-            case DataType::Int:
-            {
-                ptrs.push_back(&(df.get_column<int>(colname.c_str())));
-                break;
-            }
-            case DataType::Double:
-            {
-                ptrs.push_back(&(df.get_column<double>(colname.c_str())));
-                break;
-            }
-            default:
-            {
-                Util::die("Invalid datatype for column\n");
-            }
-        }
-    }
-}
-
 void inflate(const char* fn, std::map<std::string, std::string> converts)
 {
     FILE*   f;
@@ -152,28 +119,38 @@ void inflate(const char* fn, std::map<std::string, std::string> converts)
             df.load_column(colname.c_str(), std::move(col));
         }
     }
+    std::vector<const void*> ptrs;
+    df::load_addresses(df, colmap, ptrs);
     auto loc = fstlne+1;
     const auto chars = {',', '\n'};
     for (long r = 0; r < rows; r++)
     {
-        for (std::size_t c = 0; c < colnames.size(); c++)
+        for (auto& [idx, pair] : colmap)
         {
-            const auto& colname = colnames[c];
+            const auto& colname = pair.first;
+            const auto dtype = pair.second;
             auto loc1 = std::find_first_of(loc, buf+nBuf, chars.begin(), chars.end());
-            if (*loc1 == '\n' && c != colnames.size() - 1)
+            if (*loc1 == '\n' && idx != colnames.size() - 1)
             {
                 Util::die("malformed line at {}\n", r + 1);
             }
             // fmt::print("emplacing {}\n", std::string(loc,loc1));
-            if (converts.count(colname) > 0)
+            switch(dtype)
             {
-                int val;
-                std::from_chars(loc, loc1, val);
-                df.get_column<int>(c).emplace_back(val);
-            }
-            else
-            {
-                df.get_column<std::string>(c).emplace_back(std::string(loc,loc1));
+                case DataType::Int:
+                {
+                    auto& vec = *((std::vector<int>*)ptrs[idx]);
+                    int val;
+                    std::from_chars(loc, loc1, val);
+                    vec.emplace_back(val);
+                    break;
+                }
+                case DataType::String:
+                {
+                    auto& vec = *((std::vector<std::string>*)ptrs[idx]);
+                    vec.emplace_back(std::string(loc,loc1));
+                    break;
+                }
             }
             loc = loc1 + 1;
         }
@@ -193,7 +170,9 @@ void inflate(const char* fn, std::map<std::string, std::string> converts)
     //fmt::print("{}\n", df.get_column<int>((std::size_t)1));
     DataFrame df2 =
         df.get_data_by_idx<std::string, int>(hmdf::Index2D<IdxT> {0, 10});
+    auto& col = df2.get_column<std::string>((size_t)0);
+    fmt::print("{}\n", col);
     df::print(df2, colmap);
-    df2.write<std::ostream, std::string, int>(std::cout); 
+    df2.write<std::ostream, std::string, int>(std::cout, hmdf::io_format::csv2); 
     fmt::print("df shape: ({}, {})\n", df.shape().first, df.shape().second);
 }

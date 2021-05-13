@@ -11,7 +11,10 @@
 
 #include "def.h"
 #include "util.h"
-#include "print_frame.h"
+#include "df_util.h"
+#include "df_read.h"
+
+namespace {
 
 constexpr int BS = 1048576; // 1 GB
 
@@ -32,7 +35,11 @@ std::vector<std::string> split(const std::string& s)
     return out;
 }
 
-void inflate(const char* fn, std::map<std::string, std::string> converts)
+}
+
+namespace df {
+
+std::variant<DataFrame, std::string> read_bz2(const char* fn)
 {
     FILE*   f;
     BZFILE* b;
@@ -43,25 +50,24 @@ void inflate(const char* fn, std::map<std::string, std::string> converts)
 
     f = fopen(fn, "r");
     if (!f) {
-        perror(fn);
-        exit(1);
+        return "failed to open file";
     }
     b = BZ2_bzReadOpen ( &bzerror, f, 0, 0, NULL, 0);
     if ( bzerror != BZ_OK ) {
         BZ2_bzReadClose ( &bzerror, b );
-        Util::die("bzerror: {}\n", bzerror);
+        return fmt::format("bzerror: {}", bzerror);
     }
 
     bzerror = BZ_OK;
     while ( bzerror == BZ_OK ) {
         nBuf = BZ2_bzRead ( &bzerror, b, buf, BS);
         if (bzerror == BZ_OK) { // returns BZ_STREAM_END when file ends
-            Util::die("buff too small\n");
+            return "buff too small";
         }
     }
     if (bzerror != BZ_STREAM_END) {
         BZ2_bzReadClose( &bzerror, b );
-        Util::die("bzerror: {}\n", bzerror);
+        return fmt::format("bzerror: {}", bzerror);
     } else {
         BZ2_bzReadClose( &bzerror, b );
     }
@@ -104,19 +110,33 @@ void inflate(const char* fn, std::map<std::string, std::string> converts)
     std::vector<IdxT> idx(rows);
     std::iota(idx.begin(), idx.end(), 0);
     df.load_index(std::move(idx));
-    for (const auto& colname : colnames)
+    for (auto& [idx, pair] : colmap)
     {
-        if (converts.count(colname) > 0)
+        const auto& colname = pair.first;
+        const auto dtype = pair.second;
+        switch(dtype)
         {
-            std::vector<int> col;
-            col.reserve(rows);
-            df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
-        }
-        else
-        {
-            std::vector<std::string> col;
-            col.reserve(rows);
-            df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
+            case DataType::Int:
+            {
+                std::vector<int> col;
+                col.reserve(rows);
+                df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
+                break;
+            }
+            case DataType::String:
+            {
+                std::vector<std::string> col;
+                col.reserve(rows);
+                df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
+                break;
+            }
+            case DataType::Double:
+            {
+                std::vector<double> col;
+                col.reserve(rows);
+                df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
+                break;
+            }
         }
     }
     std::vector<const void*> ptrs;
@@ -132,7 +152,7 @@ void inflate(const char* fn, std::map<std::string, std::string> converts)
             auto loc1 = std::find_first_of(loc, buf+nBuf, chars.begin(), chars.end());
             if (*loc1 == '\n' && idx != colnames.size() - 1)
             {
-                Util::die("malformed line at {}\n", r + 1);
+                return fmt::format("malformed line at {}", r + 1);
             }
             // fmt::print("emplacing {}\n", std::string(loc,loc1));
             switch(dtype)
@@ -142,6 +162,14 @@ void inflate(const char* fn, std::map<std::string, std::string> converts)
                     auto& vec = *((std::vector<int>*)ptrs[idx]);
                     int val;
                     std::from_chars(loc, loc1, val);
+                    vec.emplace_back(val);
+                    break;
+                }
+                case DataType::Double:
+                {
+                    auto& vec = *((std::vector<double>*)ptrs[idx]);
+                    char* end;
+                    double val = strtod(loc, &end);
                     vec.emplace_back(val);
                     break;
                 }
@@ -168,11 +196,14 @@ void inflate(const char* fn, std::map<std::string, std::string> converts)
     //     fmt::print("\n");
     // }
     //fmt::print("{}\n", df.get_column<int>((std::size_t)1));
-    DataFrame df2 =
-        df.get_data_by_idx<std::string, int>(hmdf::Index2D<IdxT> {0, 10});
-    auto& col = df2.get_column<std::string>((size_t)0);
-    fmt::print("{}\n", col);
-    df::print(df2, colmap);
-    df2.write<std::ostream, std::string, int>(std::cout, hmdf::io_format::csv2); 
-    fmt::print("df shape: ({}, {})\n", df.shape().first, df.shape().second);
+    // DataFrame df2 =
+    //     df.get_data_by_idx<std::string, int>(hmdf::Index2D<IdxT> {0, 10});
+    // auto& col = df2.get_column<std::string>((size_t)0);
+    // fmt::print("{}\n", col);
+    // df::print(df2, colmap);
+    // df2.write<std::ostream, std::string, int>(std::cout, hmdf::io_format::csv2); 
+    // fmt::print("df shape: ({}, {})\n", df.shape().first, df.shape().second);
+    return df;
+}
+
 }

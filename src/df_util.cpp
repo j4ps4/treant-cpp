@@ -6,6 +6,7 @@
 
 #include "def.h"
 #include "util.h"
+#include "df_util.h"
 
 namespace {
 

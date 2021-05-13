@@ -4,7 +4,8 @@
 #include <assert.h>
 
 #include "util.h"
-#include "inflate.h"
+#include "df_read.h"
+#include "df_util.h"
 
 int main(int argc, const char** argv)
 {
@@ -14,5 +15,9 @@ int main(int argc, const char** argv)
     }
 
     auto fn = argv[1];
-    inflate(fn, {{"SEX", "int"}});
+    auto res = df::read_bz2(fn);
+    if (auto err = std::get_if<std::string>(&res))
+        Util::die("{}\n", *err);
+    auto& df = std::get<DataFrame>(res);
+    df.write<std::ostream, std::string, int>(std::cout, hmdf::io_format::csv2); 
 }

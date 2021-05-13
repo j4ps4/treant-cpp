@@ -8,13 +8,12 @@
 #include <charconv>
 
 #include <fmt/core.h>
-#include <DataFrame/DataFrame.h>
 
+#include "def.h"
 #include "util.h"
+#include "print_frame.h"
 
 constexpr int BS = 1048576; // 1 GB
-using IdxT = unsigned long;
-using DataFrame = hmdf::StdDataFrame<IdxT>;
 
 std::vector<std::string> split(const std::string& s)
 {
@@ -31,6 +30,39 @@ std::vector<std::string> split(const std::string& s)
     } while (pos1 != std::string::npos && pos != 0);
     out.emplace_back(s.substr(pos));
     return out;
+}
+
+void load_addresses(const DataFrame& df,
+                    const ColMap& colmap,
+                    std::vector<const void*>& ptrs)
+{
+    for (auto& [idx, pair] : colmap)
+    {
+        auto& colname = pair.first;
+        auto& dtype = pair.second;
+        switch(dtype)
+        {
+            case DataType::String:
+            {
+                ptrs.push_back(&(df.get_column<std::string>(colname.c_str())));
+                break;
+            }
+            case DataType::Int:
+            {
+                ptrs.push_back(&(df.get_column<int>(colname.c_str())));
+                break;
+            }
+            case DataType::Double:
+            {
+                ptrs.push_back(&(df.get_column<double>(colname.c_str())));
+                break;
+            }
+            default:
+            {
+                Util::die("Invalid datatype for column\n");
+            }
+        }
+    }
 }
 
 void inflate(const char* fn, std::map<std::string, std::string> converts)
@@ -74,6 +106,32 @@ void inflate(const char* fn, std::map<std::string, std::string> converts)
     const auto colnames = split(fstln);
     const auto fields = split(sndln);
     DataFrame df;
+    ColMap colmap = {
+        {0,{"LIMIT_BAL",DataType::String}},
+        {1,{"SEX",DataType::Int}},
+        {2,{"EDUCATION",DataType::String}},
+        {3,{"MARRIAGE",DataType::String}},
+        {4,{"AGE",DataType::String}},
+        {5,{"PAY_0",DataType::String}},
+        {6,{"PAY_2",DataType::String}},
+        {7,{"PAY_3",DataType::String}},
+        {8,{"PAY_4",DataType::String}},
+        {9,{"PAY_5",DataType::String}},
+        {10,{"PAY_6",DataType::String}},
+        {11,{"BILL_AMT1",DataType::String}},
+        {12,{"BILL_AMT2",DataType::String}},
+        {13,{"BILL_AMT3",DataType::String}},
+        {14,{"BILL_AMT4",DataType::String}},
+        {15,{"BILL_AMT5",DataType::String}},
+        {16,{"BILL_AMT6",DataType::String}},
+        {17,{"PAY_AMT1",DataType::String}},
+        {18,{"PAY_AMT2",DataType::String}},
+        {19,{"PAY_AMT3",DataType::String}},
+        {20,{"PAY_AMT4",DataType::String}},
+        {21,{"PAY_AMT5",DataType::String}},
+        {22,{"PAY_AMT6",DataType::String}},
+        {23,{"default.payment.next.month",DataType::String}}
+    };
 
     const auto rows = std::count(buf, buf+nBuf, '\n') - 1;
     std::vector<IdxT> idx(rows);
@@ -132,6 +190,10 @@ void inflate(const char* fn, std::map<std::string, std::string> converts)
     //     }
     //     fmt::print("\n");
     // }
-    fmt::print("{}\n", df.get_column<int>((std::size_t)1));
+    //fmt::print("{}\n", df.get_column<int>((std::size_t)1));
+    DataFrame df2 =
+        df.get_data_by_idx<std::string, int>(hmdf::Index2D<IdxT> {0, 10});
+    df::print(df2, colmap);
+    df2.write<std::ostream, std::string, int>(std::cout); 
     fmt::print("df shape: ({}, {})\n", df.shape().first, df.shape().second);
 }

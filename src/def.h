@@ -12,3 +12,11 @@ enum class DataType
 };
 
 using ColMap = std::map<size_t, std::pair<std::string, DataType>>;
+
+struct DF : public DataFrame
+{
+    DF(DataFrame&& df, ColMap&& colmap) :
+        DataFrame(df), colmap_(colmap) {}
+    DF(DataFrame&& df) : DataFrame(df), colmap_() {}
+    ColMap colmap_;
+};

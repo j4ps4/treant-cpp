@@ -126,17 +126,15 @@ void print_row(const std::vector<const void*>& ptrs,
     std::cout << '\n';
 }
 
-
 }
 
 namespace df
 {
 
-void load_addresses(const DataFrame& df,
-                    const ColMap& colmap,
+void load_addresses(const DF& df,
                     std::vector<const void*>& ptrs)
 {
-    for (auto& [idx, pair] : colmap)
+    for (auto& [idx, pair] : df.colmap_)
     {
         auto& colname = pair.first;
         auto& dtype = pair.second;
@@ -165,12 +163,11 @@ void load_addresses(const DataFrame& df,
     }
 }
 
-void print(const DataFrame& df,
-           const std::map<size_t, std::pair<std::string, DataType>>& colmap)
+void print(const DF& df)
 {
     // load the addresses of columns
     std::vector<const void*> ptrs;
-    load_addresses(df, colmap, ptrs);
+    load_addresses(df, ptrs);
 
     // figure out column widths
     // std::vector<size_t> ws;
@@ -186,7 +183,7 @@ void print(const DataFrame& df,
     // }
     for (size_t i = 0; i < ptrs.size(); i++)
     {
-        std::string col = colmap.at(i).first;
+        std::string col = df.colmap_.at(i).first;
         std::cout << col << ",";
     }
     std::cout << std::endl;
@@ -197,7 +194,7 @@ void print(const DataFrame& df,
 
     const auto [h, w] = df.shape();
     for (size_t r = 0; r < h; r++)
-        print_row(ptrs, colmap, r);
+        print_row(ptrs, df.colmap_, r);
 }
 
 }

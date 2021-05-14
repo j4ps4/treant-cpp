@@ -8,6 +8,6 @@
 namespace df
 {
 
-std::variant<DataFrame, std::string> read_bz2(const char* fn);
+std::variant<DF, std::string> read_bz2(const char* fn);
 
 }

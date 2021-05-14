@@ -52,7 +52,7 @@ ColMap parseColumns(const std::string& s)
 
 namespace df {
 
-std::variant<DataFrame, std::string> read_bz2(const char* fn)
+std::variant<DF, std::string> read_bz2(const char* fn)
 {
     FILE*   f;
     BZFILE* b;
@@ -123,8 +123,9 @@ std::variant<DataFrame, std::string> read_bz2(const char* fn)
             }
         }
     }
+    DF out(std::move(df), std::move(colmap));
     std::vector<const void*> ptrs;
-    df::load_addresses(df, colmap, ptrs);
+    df::load_addresses(out, ptrs);
     auto loc = fstlne+1;
     const auto chars = {',', '\n'};
     const auto ncols = colmap.size();
@@ -187,7 +188,7 @@ std::variant<DataFrame, std::string> read_bz2(const char* fn)
     // df::print(df2, colmap);
     // df2.write<std::ostream, std::string, int>(std::cout, hmdf::io_format::csv2); 
     // fmt::print("df shape: ({}, {})\n", df.shape().first, df.shape().second);
-    return df;
+    return out;
 }
 
 }

@@ -5,12 +5,10 @@
 namespace df
 {
 
-void load_addresses(const DataFrame& df,
-                    const ColMap& colmap,
+void load_addresses(const DF& df,
                     std::vector<const void*>& ptrs);
 
 
-void print(const DataFrame& df,
-           const std::map<size_t, std::pair<std::string, DataType>>& colmap);
+void print(const DF& df);
 
 }

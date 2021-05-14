@@ -18,20 +18,33 @@ namespace {
 
 constexpr int BS = 1048576; // 1 GB
 
-std::vector<std::string> split(const std::string& s)
+ColMap parseColumns(const std::string& s)
 {
-    std::vector<std::string> out;
+    auto splitByColon = [](const std::string& s)->std::pair<std::string,std::string>{
+        auto pos = s.find(':');
+        if (pos != std::string::npos)
+            return {s.substr(0, pos), s.substr(pos+1)};
+        else
+            return {s, ""};
+    };
+    ColMap out;
+    size_t idx = 0;
     std::size_t pos = 0;
     std::size_t pos1 = std::string::npos;
     do {
         pos1 = s.find(',', pos);
         if (pos1 != std::string::npos)
         {
-            out.emplace_back(s.substr(pos, pos1-pos));
+            auto frag = s.substr(pos, pos1-pos);
+            auto [before, after] = splitByColon(frag);
+            out[idx] = {before, Util::readDt(after)};
             pos = pos1+1;
+            idx++;
         }
     } while (pos1 != std::string::npos && pos != 0);
-    out.emplace_back(s.substr(pos));
+    auto frag = s.substr(pos);
+    auto [before, after] = splitByColon(frag);
+    out[idx] = {before, Util::readDt(after)};
     return out;
 }
 
@@ -50,7 +63,7 @@ std::variant<DataFrame, std::string> read_bz2(const char* fn)
 
     f = fopen(fn, "r");
     if (!f) {
-        return "failed to open file";
+        return fmt::format("cannot open {}: {}", fn, strerror(errno));
     }
     b = BZ2_bzReadOpen ( &bzerror, f, 0, 0, NULL, 0);
     if ( bzerror != BZ_OK ) {
@@ -73,38 +86,9 @@ std::variant<DataFrame, std::string> read_bz2(const char* fn)
     }
     fclose(f);
     auto fstlne = std::find(buf, buf+nBuf, '\n');
-    auto sndlne = std::find(fstlne+1, buf+nBuf, '\n');
     auto fstln = std::string(buf, fstlne);
-    auto sndln = std::string(fstlne+1, sndlne);
-    const auto colnames = split(fstln);
-    const auto fields = split(sndln);
+    auto colmap = parseColumns(fstln);
     DataFrame df;
-    ColMap colmap = {
-        {0,{"LIMIT_BAL",DataType::String}},
-        {1,{"SEX",DataType::Int}},
-        {2,{"EDUCATION",DataType::String}},
-        {3,{"MARRIAGE",DataType::String}},
-        {4,{"AGE",DataType::String}},
-        {5,{"PAY_0",DataType::String}},
-        {6,{"PAY_2",DataType::String}},
-        {7,{"PAY_3",DataType::String}},
-        {8,{"PAY_4",DataType::String}},
-        {9,{"PAY_5",DataType::String}},
-        {10,{"PAY_6",DataType::String}},
-        {11,{"BILL_AMT1",DataType::String}},
-        {12,{"BILL_AMT2",DataType::String}},
-        {13,{"BILL_AMT3",DataType::String}},
-        {14,{"BILL_AMT4",DataType::String}},
-        {15,{"BILL_AMT5",DataType::String}},
-        {16,{"BILL_AMT6",DataType::String}},
-        {17,{"PAY_AMT1",DataType::String}},
-        {18,{"PAY_AMT2",DataType::String}},
-        {19,{"PAY_AMT3",DataType::String}},
-        {20,{"PAY_AMT4",DataType::String}},
-        {21,{"PAY_AMT5",DataType::String}},
-        {22,{"PAY_AMT6",DataType::String}},
-        {23,{"default.payment.next.month",DataType::String}}
-    };
 
     const auto rows = std::count(buf, buf+nBuf, '\n') - 1;
     std::vector<IdxT> idx(rows);
@@ -143,6 +127,7 @@ std::variant<DataFrame, std::string> read_bz2(const char* fn)
     df::load_addresses(df, colmap, ptrs);
     auto loc = fstlne+1;
     const auto chars = {',', '\n'};
+    const auto ncols = colmap.size();
     for (long r = 0; r < rows; r++)
     {
         for (auto& [idx, pair] : colmap)
@@ -150,7 +135,7 @@ std::variant<DataFrame, std::string> read_bz2(const char* fn)
             const auto& colname = pair.first;
             const auto dtype = pair.second;
             auto loc1 = std::find_first_of(loc, buf+nBuf, chars.begin(), chars.end());
-            if (*loc1 == '\n' && idx != colnames.size() - 1)
+            if (*loc1 == '\n' && idx != ncols - 1)
             {
                 return fmt::format("malformed line at {}", r + 1);
             }
@@ -168,8 +153,7 @@ std::variant<DataFrame, std::string> read_bz2(const char* fn)
                 case DataType::Double:
                 {
                     auto& vec = *((std::vector<double>*)ptrs[idx]);
-                    char* end;
-                    double val = strtod(loc, &end);
+                    double val = strtod(loc, nullptr);
                     vec.emplace_back(val);
                     break;
                 }

@@ -114,7 +114,7 @@ void print_row(const std::vector<const void*>& ptrs,
             case DataType::Double:
             {
                 const auto& vec = *((std::vector<double>*)ptrs[idx]);
-                std::cout << vec[row_idx] << ',';
+                std::cout << std::setprecision(12) << vec[row_idx] << ',';
                 break;
             }
             default:

@@ -111,10 +111,40 @@ void print_row(const std::vector<const void*>& ptrs,
                 std::cout << vec[row_idx] << ',';
                 break;
             }
+            case DataType::UInt:
+            {
+                const auto& vec = *((std::vector<unsigned int>*)ptrs[idx]);
+                std::cout << vec[row_idx] << ',';
+                break;
+            }
             case DataType::Double:
             {
                 const auto& vec = *((std::vector<double>*)ptrs[idx]);
                 std::cout << std::setprecision(12) << vec[row_idx] << ',';
+                break;
+            }
+            case DataType::Float:
+            {
+                const auto& vec = *((std::vector<float>*)ptrs[idx]);
+                std::cout << vec[row_idx] << ',';
+                break;
+            }
+            case DataType::Short:
+            {
+                const auto& vec = *((std::vector<short>*)ptrs[idx]);
+                std::cout << vec[row_idx] << ',';
+                break;
+            }
+            case DataType::UShort:
+            {
+                const auto& vec = *((std::vector<unsigned short>*)ptrs[idx]);
+                std::cout << vec[row_idx] << ',';
+                break;
+            }
+            case DataType::Bool:
+            {
+                const auto& vec = *((std::vector<bool>*)ptrs[idx]);
+                std::cout << vec[row_idx] << ',';
                 break;
             }
             default:
@@ -150,9 +180,34 @@ void load_addresses(const DF& df,
                 ptrs.push_back(&(df.get_column<int>(colname.c_str())));
                 break;
             }
+            case DataType::UInt:
+            {
+                ptrs.push_back(&(df.get_column<unsigned int>(colname.c_str())));
+                break;
+            }
             case DataType::Double:
             {
                 ptrs.push_back(&(df.get_column<double>(colname.c_str())));
+                break;
+            }
+            case DataType::Float:
+            {
+                ptrs.push_back(&(df.get_column<float>(colname.c_str())));
+                break;
+            }
+            case DataType::Short:
+            {
+                ptrs.push_back(&(df.get_column<short>(colname.c_str())));
+                break;
+            }
+            case DataType::UShort:
+            {
+                ptrs.push_back(&(df.get_column<unsigned short>(colname.c_str())));
+                break;
+            }
+            case DataType::Bool:
+            {
+                ptrs.push_back(&(df.get_column<bool>(colname.c_str())));
                 break;
             }
             default:

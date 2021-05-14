@@ -100,6 +100,13 @@ std::variant<DF, std::string> read_bz2(const char* fn)
         const auto dtype = pair.second;
         switch(dtype)
         {
+            case DataType::String:
+            {
+                std::vector<std::string> col;
+                col.reserve(rows);
+                df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
+                break;
+            }
             case DataType::Int:
             {
                 std::vector<int> col;
@@ -107,9 +114,9 @@ std::variant<DF, std::string> read_bz2(const char* fn)
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
             }
-            case DataType::String:
+            case DataType::UInt:
             {
-                std::vector<std::string> col;
+                std::vector<unsigned int> col;
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
@@ -120,6 +127,38 @@ std::variant<DF, std::string> read_bz2(const char* fn)
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
+            }
+            case DataType::Float:
+            {
+                std::vector<float> col;
+                col.reserve(rows);
+                df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
+                break;
+            }
+            case DataType::Short:
+            {
+                std::vector<short> col;
+                col.reserve(rows);
+                df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
+                break;
+            }
+            case DataType::UShort:
+            {
+                std::vector<unsigned short> col;
+                col.reserve(rows);
+                df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
+                break;
+            }
+            case DataType::Bool:
+            {
+                std::vector<bool> col;
+                col.reserve(rows);
+                df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
+                break;
+            }
+            default:
+            {
+                return "invalid datatype!";
             }
         }
     }
@@ -143,10 +182,24 @@ std::variant<DF, std::string> read_bz2(const char* fn)
             // fmt::print("emplacing {}\n", std::string(loc,loc1));
             switch(dtype)
             {
+                case DataType::String:
+                {
+                    auto& vec = *((std::vector<std::string>*)ptrs[idx]);
+                    vec.emplace_back(std::string(loc,loc1));
+                    break;
+                }
                 case DataType::Int:
                 {
                     auto& vec = *((std::vector<int>*)ptrs[idx]);
                     int val;
+                    std::from_chars(loc, loc1, val);
+                    vec.emplace_back(val);
+                    break;
+                }
+                case DataType::UInt:
+                {
+                    auto& vec = *((std::vector<unsigned int>*)ptrs[idx]);
+                    unsigned int val;
                     std::from_chars(loc, loc1, val);
                     vec.emplace_back(val);
                     break;
@@ -158,11 +211,40 @@ std::variant<DF, std::string> read_bz2(const char* fn)
                     vec.emplace_back(val);
                     break;
                 }
-                case DataType::String:
+                case DataType::Float:
                 {
-                    auto& vec = *((std::vector<std::string>*)ptrs[idx]);
-                    vec.emplace_back(std::string(loc,loc1));
+                    auto& vec = *((std::vector<float>*)ptrs[idx]);
+                    float val = strtof(loc, nullptr);
+                    vec.emplace_back(val);
                     break;
+                }
+                case DataType::Short:
+                {
+                    auto& vec = *((std::vector<short>*)ptrs[idx]);
+                    short val;
+                    std::from_chars(loc, loc1, val);
+                    vec.emplace_back(val);
+                    break;
+                }
+                case DataType::UShort:
+                {
+                    auto& vec = *((std::vector<u_short>*)ptrs[idx]);
+                    u_short val;
+                    std::from_chars(loc, loc1, val);
+                    vec.emplace_back(val);
+                    break;
+                }
+                case DataType::Bool:
+                {
+                    auto& vec = *((std::vector<bool>*)ptrs[idx]);
+                    int val;
+                    std::from_chars(loc, loc1, val);
+                    vec.emplace_back(val > 0 ? true : false);
+                    break;
+                }
+                default:
+                {
+                    return "invalid datatype!";
                 }
             }
             loc = loc1 + 1;

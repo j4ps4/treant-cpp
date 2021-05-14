@@ -20,7 +20,6 @@ int main(int argc, const char** argv)
         Util::die("{}", *err);
     auto& df = std::get<DF>(res);
     DF df2 =
-        df.get_data_by_idx<std::string, int, double>(hmdf::Index2D<IdxT> {0, 10});
-    df2.colmap_ = df.colmap_;
+        df.get_data_by_idx(hmdf::Index2D<IdxT> {0, 10});
     df::print(df2);
 }

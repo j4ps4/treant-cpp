@@ -9,16 +9,16 @@ DataType readDt(const std::string& s)
         return DataType::String;
     else if (s == "i32")
         return DataType::Int;
-    else if (s == "ui32")
+    else if (s == "u32")
         return DataType::UInt;
     else if (s == "f64")
         return DataType::Double;
     else if (s == "f32")
         return DataType::Float;
     else if (s == "i8")
-        return DataType::Short;
-    else if (s == "ui8")
-        return DataType::UShort;
+        return DataType::Char;
+    else if (s == "u8")
+        return DataType::UChar;
     else if (s == "bool")
         return DataType::Bool;
     else if (s.empty())
@@ -45,7 +45,7 @@ std::ostream& operator<<(std::ostream& os, DataType t)
         }
         case DataType::UInt:
         {
-            os << "ui32";
+            os << "u32";
             break;
         }
         case DataType::Double:
@@ -58,14 +58,14 @@ std::ostream& operator<<(std::ostream& os, DataType t)
             os << "f32";
             break;
         }
-        case DataType::Short:
+        case DataType::Char:
         {
             os << "i8";
             break;
         }
-        case DataType::UShort:
+        case DataType::UChar:
         {
-            os << "ui8";
+            os << "u8";
             break;
         }
         case DataType::Bool:

@@ -11,7 +11,7 @@ int main(int argc, const char** argv)
 {
     if (argc < 2)
     {
-        Util::die("usage\n");
+        Util::die("usage");
     }
 
     auto fn = argv[1];
@@ -22,4 +22,5 @@ int main(int argc, const char** argv)
     DF df2 =
         df.get_data_by_idx(hmdf::Index2D<IdxT> {0, 10});
     df::print(df2);
+    fmt::print("shape of df: {}\n", df.shape());
 }

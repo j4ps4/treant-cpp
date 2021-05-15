@@ -86,6 +86,31 @@ struct fmt::formatter<std::map<K,V>>
 };
 
 template<typename F, typename S>
+struct fmt::formatter<std::pair<F,S>>
+{
+
+    constexpr auto parse(format_parse_context& ctx)
+    {
+        return ctx.end();
+    }
+
+    template<typename FormatContext>
+    auto format(const std::pair<F,S>& pair, FormatContext& ctx)
+    {
+        std::stringstream fmts;
+        fmts << "(";
+        fmts << pair.first << ", " << pair.second;
+        fmts << ")";
+            
+        return format_to(
+           ctx.out(),
+           "{}",
+           fmts.str()
+        );
+    }
+};
+
+template<typename F, typename S>
 std::ostream& operator<<(std::ostream& os, const std::pair<F,S>& pair)
 {
     os << "(";

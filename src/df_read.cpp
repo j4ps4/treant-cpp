@@ -135,16 +135,16 @@ std::variant<DF, std::string> read_bz2(const char* fn)
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
             }
-            case DataType::Short:
+            case DataType::Char:
             {
-                std::vector<short> col;
+                std::vector<signed char> col;
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
             }
-            case DataType::UShort:
+            case DataType::UChar:
             {
-                std::vector<unsigned short> col;
+                std::vector<unsigned char> col;
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
@@ -218,20 +218,20 @@ std::variant<DF, std::string> read_bz2(const char* fn)
                     vec.emplace_back(val);
                     break;
                 }
-                case DataType::Short:
+                case DataType::Char:
                 {
-                    auto& vec = *((std::vector<short>*)ptrs[idx]);
-                    short val;
+                    auto& vec = *((std::vector<signed char>*)ptrs[idx]);
+                    signed int val;
                     std::from_chars(loc, loc1, val);
-                    vec.emplace_back(val);
+                    vec.emplace_back(static_cast<signed char>(val));
                     break;
                 }
-                case DataType::UShort:
+                case DataType::UChar:
                 {
-                    auto& vec = *((std::vector<u_short>*)ptrs[idx]);
-                    u_short val;
+                    auto& vec = *((std::vector<unsigned char>*)ptrs[idx]);
+                    unsigned int val;
                     std::from_chars(loc, loc1, val);
-                    vec.emplace_back(val);
+                    vec.emplace_back(static_cast<unsigned char>(val));
                     break;
                 }
                 case DataType::Bool:

@@ -11,8 +11,8 @@ enum class DataType
     UInt,
     Double,
     Float,
-    Short,
-    UShort,
+    Char,
+    UChar,
     Bool
 };
 
@@ -23,9 +23,9 @@ using ColMap = std::map<size_t, std::pair<std::string, DataType>>;
 struct DF
 {
     DF(DataFrame&& df, ColMap&& colmap) :
-        df_(df), colmap_(colmap) {}
+        df_(df), colmap_(colmap) {computeColMagic();}
     DF(DataFrame&& df, const ColMap& colmap) :
-        df_(df), colmap_(colmap) {}
+        df_(df), colmap_(colmap) {computeColMagic();}
 
     DF get_data_by_idx(hmdf::Index2D<IdxT>);
 
@@ -45,4 +45,8 @@ struct DF
 
     DataFrame df_;
     ColMap colmap_;
+private:
+    void computeColMagic();
+    unsigned int colMagic_;
+    size_t nDtypes_;
 };

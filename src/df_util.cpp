@@ -129,15 +129,15 @@ void print_row(const std::vector<const void*>& ptrs,
                 std::cout << vec[row_idx] << ',';
                 break;
             }
-            case DataType::Short:
+            case DataType::Char:
             {
-                const auto& vec = *((std::vector<short>*)ptrs[idx]);
+                const auto& vec = *((std::vector<signed char>*)ptrs[idx]);
                 std::cout << vec[row_idx] << ',';
                 break;
             }
-            case DataType::UShort:
+            case DataType::UChar:
             {
-                const auto& vec = *((std::vector<unsigned short>*)ptrs[idx]);
+                const auto& vec = *((std::vector<unsigned char>*)ptrs[idx]);
                 std::cout << vec[row_idx] << ',';
                 break;
             }
@@ -195,14 +195,14 @@ void load_addresses(const DF& df,
                 ptrs.push_back(&(df.get_column<float>(colname.c_str())));
                 break;
             }
-            case DataType::Short:
+            case DataType::Char:
             {
-                ptrs.push_back(&(df.get_column<short>(colname.c_str())));
+                ptrs.push_back(&(df.get_column<signed char>(colname.c_str())));
                 break;
             }
-            case DataType::UShort:
+            case DataType::UChar:
             {
-                ptrs.push_back(&(df.get_column<unsigned short>(colname.c_str())));
+                ptrs.push_back(&(df.get_column<unsigned char>(colname.c_str())));
                 break;
             }
             case DataType::Bool:

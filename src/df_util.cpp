@@ -132,13 +132,13 @@ void print_row(const std::vector<const void*>& ptrs,
             case DataType::Char:
             {
                 const auto& vec = *((std::vector<signed char>*)ptrs[idx]);
-                std::cout << vec[row_idx] << ',';
+                std::cout << static_cast<int>(vec[row_idx]) << ',';
                 break;
             }
             case DataType::UChar:
             {
                 const auto& vec = *((std::vector<unsigned char>*)ptrs[idx]);
-                std::cout << vec[row_idx] << ',';
+                std::cout << static_cast<unsigned>(vec[row_idx]) << ',';
                 break;
             }
             case DataType::Bool:
@@ -149,7 +149,7 @@ void print_row(const std::vector<const void*>& ptrs,
             }
             default:
             {
-                Util::die("Invalid datatype for column\n");
+                Util::die("Invalid datatype for column");
             }
         }
     }
@@ -212,7 +212,7 @@ void load_addresses(const DF& df,
             }
             default:
             {
-                Util::die("Invalid datatype for column\n");
+                Util::die("Invalid datatype for column");
             }
         }
     }

@@ -1,60 +1,32 @@
 #include <vector>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/archives/binary.hpp>
+#include <fstream>
 
 #include "def.h"
 
 constexpr size_t N = 3;
 
-// int main()
-// {
-    // DataFrame         df;
-    // // std::vector<int>    &col0 =
-    // //     df.create_column<int>(static_cast<const char *>("col_name"));
+void input(const char* fn)
+{
+    std::vector<IdxT> idx(N);
+    std::iota(idx.begin(), idx.end(), 0);
+    DataFrame df;
+    df.load_index(std::move(idx));
 
-    // // std::vector<int>            intvec = { 1, 2, 3, 4, 5 };
-    // std::vector<double>         dblvec =
-    //     { 1.2345, 2.2345, 3.2345, 4.2345, 5.2345 };
-    // // std::vector<double>         dblvec2 =
-    // //     { 0.998, 0.3456, 0.056, 0.15678, 0.00345, 0.923, 0.06743, 0.1 };
-    // // std::vector<std::string>    strvec =
-    // //     { "Col_name", "Col_name", "Col_name", "Col_name", "Col_name" };
-    // std::vector<unsigned long>  idxvec =
-    //     { 1UL, 2UL, 3UL, 4UL, 5UL, 6UL, 7UL, 8UL, 9UL };
-    // // std::vector<unsigned long>  xulgvec = idxvec;
-    // // const size_t                total_count =
-    // //     idxvec.size() +
-    // //     intvec.size() +
-    // //     dblvec.size() +
-    // //     dblvec2.size() +
-    // //     strvec.size() +
-    // //     xulgvec.size() +
-    // //     9;  // NaN inserterd
+    std::ifstream is(fn, std::ios::binary);
+    cereal::BinaryInputArchive iarchive(is);
+    std::vector<int> vec1;
+    std::vector<std::string> vec2;
+    iarchive(vec1, vec2);
 
-    // // DataFrame::size_type  rc =
-    // //     df.load_data(std::move(idxvec),
-    // //                 std::make_pair("int_col", intvec),
-    // //                 std::make_pair("dbl_col", dblvec),
-    // //                 std::make_pair("dbl_col_2", dblvec2),
-    // //                 std::make_pair("str_col", strvec),
-    // //                 std::make_pair("ul_col", xulgvec));
+    df.load_column("intvals", std::move(vec1), hmdf::nan_policy::dont_pad_with_nans);
+    df.load_column("stringvals", std::move(vec2), hmdf::nan_policy::dont_pad_with_nans);
+    df.write<std::ostream, int, std::string>(std::cout, hmdf::io_format::csv2); 
+}
 
-    // // assert(rc == 48);
-
-    // df.load_index(idxvec.begin(), idxvec.end());
-    // // df.load_column<int>("int_col", { intvec.begin(), intvec.end() },
-    // //                     hmdf::nan_policy::pad_with_nans);
-    // // df.load_column<std::string>("str_col", { strvec.begin(), strvec.end() },
-    // //                             hmdf::nan_policy::pad_with_nans);
-    // df.load_column<double>("dbl_col", { dblvec.begin(), dblvec.end() },
-    //                     hmdf::nan_policy::dont_pad_with_nans);
-    // // df.load_column<double>("dbl_col_2", { dblvec2.begin(), dblvec2.end() },
-    // //                     hmdf::nan_policy::dont_pad_with_nans);
-
-    // // df.append_column<std::string>("str_col", "Additional column");
-    // df.append_column("dbl_col", 10.56);
-    // df.write<std::ostream, double>(std::cout, hmdf::io_format::csv2); 
-// }
-
-int main()
+void output(const char* fn)
 {
     std::vector<int> vals;
     std::vector<std::string> vals2;
@@ -72,5 +44,20 @@ int main()
     df.append_column<std::string>("stringvals", "hello");
     // df.get_column<int>((size_t)0).push_back(10);
     // df.get_column<int>((size_t)0).push_back(20);
-    df.write<std::ostream, int, std::string>(std::cout, hmdf::io_format::csv2); 
+
+    std::ofstream os(fn, std::ios::binary);
+    cereal::BinaryOutputArchive archive(os);
+    auto& vec1 = df.get_column<int>("intvals");
+    auto& vec2 = df.get_column<std::string>("stringvals");
+    archive(vec1, vec2);
+}
+
+int main(int argc, char** argv)
+{
+    const char* fn = "out.cereal";
+    if (argc > 1)
+        output(fn);
+    else
+        input(fn);
+
 }

@@ -6,7 +6,6 @@ using DataFrame = hmdf::StdDataFrame<IdxT>;
 
 enum class DataType
 {
-    String,
     Int,
     UInt,
     Double,
@@ -22,11 +21,17 @@ using ColMap = std::map<size_t, std::pair<std::string, DataType>>;
 // DataFrame augmented with bookkeeping info
 struct DF
 {
-    DF(DataFrame&& df, ColMap&& colmap) :
+    explicit DF(DataFrame&& df, ColMap&& colmap) :
         df_(df), colmap_(colmap) {computeColMagic();}
-    DF(DataFrame&& df, const ColMap& colmap) :
+    explicit DF(DataFrame&& df, const ColMap& colmap) :
         df_(df), colmap_(colmap) {computeColMagic();}
 
+private:
+    explicit DF(DataFrame&& df, const ColMap& colmap,
+                unsigned int colMagic, size_t nDtypes) :
+        df_(df), colmap_(colmap), colMagic_(colMagic), nDtypes_(nDtypes) {}
+
+public:
     DF get_data_by_idx(hmdf::Index2D<IdxT>);
 
     auto shape() const {return df_.shape();}

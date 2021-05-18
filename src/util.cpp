@@ -5,9 +5,7 @@ namespace Util {
 
 DataType readDt(const std::string& s)
 {
-    if (s == "str")
-        return DataType::String;
-    else if (s == "i32")
+    if (s == "i32")
         return DataType::Int;
     else if (s == "u32")
         return DataType::UInt;
@@ -33,11 +31,6 @@ std::ostream& operator<<(std::ostream& os, DataType t)
 {
     switch(t)
     {
-        case DataType::String:
-        {
-            os << "str";
-            break;
-        }
         case DataType::Int:
         {
             os << "i32";

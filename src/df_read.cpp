@@ -100,13 +100,6 @@ std::variant<DF, std::string> read_bz2(const char* fn)
         const auto dtype = pair.second;
         switch(dtype)
         {
-            case DataType::String:
-            {
-                std::vector<std::string> col;
-                col.reserve(rows);
-                df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
-                break;
-            }
             case DataType::Int:
             {
                 std::vector<int> col;
@@ -182,12 +175,6 @@ std::variant<DF, std::string> read_bz2(const char* fn)
             // fmt::print("emplacing {}\n", std::string(loc,loc1));
             switch(dtype)
             {
-                case DataType::String:
-                {
-                    auto& vec = *((std::vector<std::string>*)ptrs[idx]);
-                    vec.emplace_back(std::string(loc,loc1));
-                    break;
-                }
                 case DataType::Int:
                 {
                     auto& vec = *((std::vector<int>*)ptrs[idx]);

@@ -99,12 +99,6 @@ void print_row(const std::vector<const void*>& ptrs,
         auto& dtype = pair.second;
         switch(dtype)
         {
-            case DataType::String:
-            {
-                const auto& vec = *((std::vector<std::string>*)ptrs[idx]);
-                std::cout << vec[row_idx] << ',';
-                break;
-            }
             case DataType::Int:
             {
                 const auto& vec = *((std::vector<int>*)ptrs[idx]);
@@ -170,11 +164,6 @@ void load_addresses(const DF& df,
         auto& dtype = pair.second;
         switch(dtype)
         {
-            case DataType::String:
-            {
-                ptrs.push_back(&(df.get_column<std::string>(colname.c_str())));
-                break;
-            }
             case DataType::Int:
             {
                 ptrs.push_back(&(df.get_column<int>(colname.c_str())));

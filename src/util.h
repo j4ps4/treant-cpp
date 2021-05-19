@@ -20,7 +20,7 @@ template<typename... Args>
     exit(1);
 }
 
-DataType readDt(const std::string& s);
+DataTypeWBool readDt(const std::string& s);
 
 }
 

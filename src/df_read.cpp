@@ -18,7 +18,7 @@ namespace {
 
 constexpr int BS = 1048576; // 1 GB
 
-ColMap parseColumns(const std::string& s)
+ColMapWBool parseColumns(const std::string& s)
 {
     auto splitByColon = [](const std::string& s)->std::pair<std::string,std::string>{
         auto pos = s.find(':');
@@ -27,7 +27,7 @@ ColMap parseColumns(const std::string& s)
         else
             return {s, ""};
     };
-    ColMap out;
+    ColMapWBool out;
     size_t idx = 0;
     std::size_t pos = 0;
     std::size_t pos1 = std::string::npos;
@@ -100,51 +100,51 @@ std::variant<DF, std::string> read_bz2(const char* fn)
         const auto dtype = pair.second;
         switch(dtype)
         {
-            case DataType::Int:
+            case DataTypeWBool::Int:
             {
                 std::vector<int> col;
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
             }
-            case DataType::UInt:
+            case DataTypeWBool::UInt:
             {
                 std::vector<unsigned int> col;
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
             }
-            case DataType::Double:
+            case DataTypeWBool::Double:
             {
                 std::vector<double> col;
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
             }
-            case DataType::Float:
+            case DataTypeWBool::Float:
             {
                 std::vector<float> col;
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
             }
-            case DataType::Char:
+            case DataTypeWBool::Char:
             {
                 std::vector<signed char> col;
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
             }
-            case DataType::UChar:
+            case DataTypeWBool::UChar:
             {
                 std::vector<unsigned char> col;
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
             }
-            case DataType::Bool:
+            case DataTypeWBool::Bool:
             {
-                std::vector<bool> col;
+                std::vector<signed char> col;
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
@@ -155,7 +155,8 @@ std::variant<DF, std::string> read_bz2(const char* fn)
             }
         }
     }
-    DF out(std::move(df), std::move(colmap));
+    auto colmapPrime = boolToChar(colmap);
+    DF out(std::move(df), std::move(colmapPrime));
     std::vector<const void*> ptrs;
     df::load_addresses(out, ptrs);
     auto loc = fstlne+1;
@@ -175,7 +176,7 @@ std::variant<DF, std::string> read_bz2(const char* fn)
             // fmt::print("emplacing {}\n", std::string(loc,loc1));
             switch(dtype)
             {
-                case DataType::Int:
+                case DataTypeWBool::Int:
                 {
                     auto& vec = *((std::vector<int>*)ptrs[idx]);
                     int val;
@@ -183,7 +184,7 @@ std::variant<DF, std::string> read_bz2(const char* fn)
                     vec.emplace_back(val);
                     break;
                 }
-                case DataType::UInt:
+                case DataTypeWBool::UInt:
                 {
                     auto& vec = *((std::vector<unsigned int>*)ptrs[idx]);
                     unsigned int val;
@@ -191,21 +192,21 @@ std::variant<DF, std::string> read_bz2(const char* fn)
                     vec.emplace_back(val);
                     break;
                 }
-                case DataType::Double:
+                case DataTypeWBool::Double:
                 {
                     auto& vec = *((std::vector<double>*)ptrs[idx]);
                     double val = strtod(loc, nullptr);
                     vec.emplace_back(val);
                     break;
                 }
-                case DataType::Float:
+                case DataTypeWBool::Float:
                 {
                     auto& vec = *((std::vector<float>*)ptrs[idx]);
                     float val = strtof(loc, nullptr);
                     vec.emplace_back(val);
                     break;
                 }
-                case DataType::Char:
+                case DataTypeWBool::Char:
                 {
                     auto& vec = *((std::vector<signed char>*)ptrs[idx]);
                     signed int val;
@@ -213,7 +214,7 @@ std::variant<DF, std::string> read_bz2(const char* fn)
                     vec.emplace_back(static_cast<signed char>(val));
                     break;
                 }
-                case DataType::UChar:
+                case DataTypeWBool::UChar:
                 {
                     auto& vec = *((std::vector<unsigned char>*)ptrs[idx]);
                     unsigned int val;
@@ -221,12 +222,12 @@ std::variant<DF, std::string> read_bz2(const char* fn)
                     vec.emplace_back(static_cast<unsigned char>(val));
                     break;
                 }
-                case DataType::Bool:
+                case DataTypeWBool::Bool:
                 {
-                    auto& vec = *((std::vector<bool>*)ptrs[idx]);
-                    int val;
+                    auto& vec = *((std::vector<signed char>*)ptrs[idx]);
+                    signed int val;
                     std::from_chars(loc, loc1, val);
-                    vec.emplace_back(val > 0 ? true : false);
+                    vec.emplace_back(static_cast<signed char>(val > 0 ? 1 : 0));
                     break;
                 }
                 default:

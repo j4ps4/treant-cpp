@@ -90,7 +90,7 @@ const size_t MAX_W = 30UL;
 // }
 
 void print_row(const std::vector<const void*>& ptrs,
-               const std::map<size_t, std::pair<std::string, DataType>>& colmap,
+               const ColMap& colmap,
                size_t row_idx)
 {
     for (auto& [idx, pair] : colmap)
@@ -135,12 +135,6 @@ void print_row(const std::vector<const void*>& ptrs,
                 std::cout << static_cast<unsigned>(vec[row_idx]) << ',';
                 break;
             }
-            case DataType::Bool:
-            {
-                const auto& vec = *((std::vector<bool>*)ptrs[idx]);
-                std::cout << vec[row_idx] << ',';
-                break;
-            }
             default:
             {
                 Util::die("Invalid datatype for column");
@@ -158,7 +152,7 @@ namespace df
 void load_addresses(const DF& df,
                     std::vector<const void*>& ptrs)
 {
-    for (auto& [idx, pair] : df.colmap_)
+    for (auto& [idx, pair] : df.get_colmap())
     {
         auto& colname = pair.first;
         auto& dtype = pair.second;
@@ -194,11 +188,6 @@ void load_addresses(const DF& df,
                 ptrs.push_back(&(df.get_column<unsigned char>(colname.c_str())));
                 break;
             }
-            case DataType::Bool:
-            {
-                ptrs.push_back(&(df.get_column<bool>(colname.c_str())));
-                break;
-            }
             default:
             {
                 Util::die("Invalid datatype for column");
@@ -227,7 +216,7 @@ void print(const DF& df)
     // }
     for (size_t i = 0; i < ptrs.size(); i++)
     {
-        std::string col = df.colmap_.at(i).first;
+        std::string col = df.get_colmap().at(i).first;
         std::cout << col << ",";
     }
     std::cout << std::endl;
@@ -238,7 +227,7 @@ void print(const DF& df)
 
     const auto [h, w] = df.shape();
     for (size_t r = 0; r < h; r++)
-        print_row(ptrs, df.colmap_, r);
+        print_row(ptrs, df.get_colmap(), r);
 }
 
 }

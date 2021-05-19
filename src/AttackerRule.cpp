@@ -34,10 +34,10 @@ std::istream& operator>>(std::istream& is, std::pair<double,double>& pr)
     return is;
 }
 
-std::variant<std::list<AttackerRule>, std::string> 
+std::variant<AttkList, std::string> 
 load_attack_rules(const std::string& fn, const ColMap& colmap)
 {
-    std::list<AttackerRule> out;
+    AttkList out;
     std::string err;
     auto json_str = slurp(fn);
     auto json = json11::Json::parse(json_str, err);
@@ -72,4 +72,15 @@ load_attack_rules(const std::string& fn, const ColMap& colmap)
         }
     }
     return out;
+}
+
+std::string AttackerRule::debug_str() const
+{
+    std::stringstream ss;
+    ss << "feature: " << std::get<0>(pre_conditions_) << "\n";
+    ss << "pre: (" << std::get<1>(pre_conditions_) << ", " 
+        << std::get<2>(pre_conditions_) << ")\n";
+    ss << "post: " << std::get<1>(post_condition_) << "\n";
+    ss << "cost: " << cost_ << "\n";
+    return ss.str();
 }

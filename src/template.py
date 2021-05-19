@@ -2,10 +2,9 @@
 from string import Template
 import itertools
 import sys
-dtypes = ["Int", "UInt", "Double", "Float", "Char", "UChar", "Bool"]
+dtypes = ["Int", "UInt", "Double", "Float", "Char", "UChar"]
 dtypeMap = dict(Int="int",UInt="unsigned int",Double="double",
-                Float="float",Char="signed char",UChar="unsigned char",
-                Bool="bool")
+                Float="float",Char="signed char",UChar="unsigned char")
 
 def colMagic(dtypes, n):
     combs = list(itertools.combinations(dtypes,n))
@@ -23,7 +22,7 @@ def fullMagic(dtypes):
         out += Template("  case $im:\n  {\n").substitute(im=i)
         out += colMagic(dtypes,i)
         out += "  }\n"
-    out += "  case 7: {colMagic_ = 0; return;}\n}\nthrow std::runtime_error(\"too many datatypes\");"
+    out += "  case 6: {colMagic_ = 0; return;}\n}\nthrow std::runtime_error(\"too many datatypes\");"
     return(out)
 
 def templatizeBlock(dtypes,i,codeblock1,codeblock2):
@@ -46,14 +45,13 @@ def templatize(dtypes,codeblock1,codeblock2):
         out += templatizeBlock(dtypes,i,codeblock1,codeblock2)
         out += "  }\n"
     out += "}\n"
-    out += """Util::die("invalid magic ({},{})", nDtypes_, colMagic_);"""
     return(out)
 
 
 f = open("def.tpp","r")
 content = f.read()
 tpLoc = content.find("$TPC")
-if tpLoc != -1:
+while tpLoc != -1:
     commaLoc = content.find("\,",tpLoc)
     block1 = content[tpLoc+10:commaLoc]
     endLoc = content.find("\\right)",commaLoc)
@@ -61,9 +59,8 @@ if tpLoc != -1:
     # print("block1: {}, block2: {}".format(block1, block2))
     # sys.exit(1)
     expand = templatize(dtypes,block1,block2)
-    new = content[0:tpLoc]+expand+content[endLoc+7:]
-else:
-    new = content
-out = Template(new).substitute(COL_TP=fullMagic(dtypes))
+    content = content[0:tpLoc]+expand+content[endLoc+7:]
+    tpLoc = content.find("$TPC")
+out = Template(content).substitute(COL_TP=fullMagic(dtypes))
 f2 = open("def.cpp","w")
 f2.write(out)

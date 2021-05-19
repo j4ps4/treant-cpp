@@ -27,6 +27,7 @@ public:
     }
     bool is_applicable(const DF& row) const;
     void apply(DF& row) const;
+    std::string debug_str() const;
 private:
     std::tuple<size_t, double, double> pre_conditions_;
     std::pair<size_t, double> post_condition_;
@@ -34,5 +35,7 @@ private:
     bool is_numerical_;
 };
 
-std::variant<std::list<AttackerRule>, std::string> 
+using AttkList = std::list<AttackerRule>;
+
+std::variant<AttkList, std::string> 
 load_attack_rules(const std::string& fn, const ColMap& colmap);

@@ -1,13 +1,13 @@
 #pragma once
 
 #include <string>
-#include <variant>
 
+#include "result.hpp"
 #include "def.h"
 
 namespace df
 {
 
-std::variant<DF, std::string> read_bz2(const char* fn);
+cpp::result<DF, std::string> read_bz2(const char* fn);
 
 }

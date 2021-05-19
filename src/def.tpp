@@ -1,5 +1,6 @@
 #include <set>
 #include <stdexcept>
+#include <stdint.h>
 
 #include "def.h"
 #include "util.h"
@@ -54,7 +55,7 @@ DF DF::get_data_by_idx(hmdf::Index2D<IdxT> idx) const
     Util::die("invalid magic ({},{})", nDtypes_, colMagic_);
 }
 
-DFView DF::get_view_by_idx(IdxT idx) const
+DFRView DF::get_row_view(IdxT idx) const
 {
     if (idx > shape().first - 1)
     {
@@ -63,8 +64,120 @@ DFView DF::get_view_by_idx(IdxT idx) const
     }
     auto slice = hmdf::Index2D<IdxT>{idx,idx};
     $TPC\left(auto view = df_.get_view_by_idx\,(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);\right)
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);\right)
     Util::die("invalid magic ({},{})", nDtypes_, colMagic_);
+}
+
+double DFRView::get_as_f64(size_t cidx) const
+{
+    auto dtype = colmap_->at(cidx).second;
+    switch(dtype)
+    {
+        case DataType::Int:
+        {
+            auto val = view_.get_column<int32_t>(cidx)[0];
+            return static_cast<double>(val);
+        }
+        case DataType::UInt:
+        {
+            auto val = view_.get_column<uint32_t>(cidx)[0];
+            return static_cast<double>(val);
+        }
+        case DataType::Double:
+        {
+            return view_.get_column<double>(cidx)[0];
+        }
+        case DataType::Float:
+        {
+            auto val = view_.get_column<float>(cidx)[0];
+            return static_cast<double>(val);
+        }
+        case DataType::Char:
+        {
+            auto val = view_.get_column<int8_t>(cidx)[0];
+            return static_cast<double>(val);
+        }
+        case DataType::UChar:
+        {
+            auto val = view_.get_column<uint8_t>(cidx)[0];
+            return static_cast<double>(val);
+        }
+    }
+    throw std::runtime_error("invalid dtype???");
+}
+int32_t DFRView::get_as_i32(size_t cidx) const
+{
+    auto dtype = colmap_->at(cidx).second;
+    switch(dtype)
+    {
+        case DataType::Int:
+        {
+            return view_.get_column<int32_t>(cidx)[0];
+        }
+        case DataType::UInt:
+        {
+            auto val = view_.get_column<uint32_t>(cidx)[0];
+            return static_cast<int32_t>(val);
+        }
+        case DataType::Double:
+        {
+            auto val = view_.get_column<double>(cidx)[0];
+            return static_cast<int32_t>(val);
+        }
+        case DataType::Float:
+        {
+            auto val = view_.get_column<float>(cidx)[0];
+            return static_cast<int32_t>(val);
+        }
+        case DataType::Char:
+        {
+            auto val = view_.get_column<int8_t>(cidx)[0];
+            return static_cast<int32_t>(val);
+        }
+        case DataType::UChar:
+        {
+            auto val = view_.get_column<uint8_t>(cidx)[0];
+            return static_cast<int32_t>(val);
+        }
+    }
+    throw std::runtime_error("invalid dtype???");
+}
+int8_t DFRView::get_as_i8(size_t cidx) const
+{
+    auto dtype = colmap_->at(cidx).second;
+    switch(dtype)
+    {
+        case DataType::Int:
+        {
+            auto val = view_.get_column<int32_t>(cidx)[0];
+            return static_cast<int8_t>(val);
+        }
+        case DataType::UInt:
+        {
+            auto val = view_.get_column<uint32_t>(cidx)[0];
+            return static_cast<int8_t>(val);
+        }
+        case DataType::Double:
+        {
+            auto val = view_.get_column<double>(cidx)[0];
+            return static_cast<int8_t>(val);
+        }
+        case DataType::Float:
+        {
+            auto val = view_.get_column<float>(cidx)[0];
+            return static_cast<int8_t>(val);
+        }
+        case DataType::Char:
+        {
+            return view_.get_column<int8_t>(cidx)[0];
+        }
+        case DataType::UChar:
+        {
+            auto val = view_.get_column<uint8_t>(cidx)[0];
+            return static_cast<int8_t>(val);
+        }
+    }
+    throw std::runtime_error("invalid dtype???");
 }
 
 void DF::computeColMagic()

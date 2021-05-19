@@ -6,6 +6,7 @@
 #include <variant>
 
 #include "def.h"
+#include "result.hpp"
 
 class AttackerRule
 {
@@ -37,5 +38,5 @@ private:
 
 using AttkList = std::list<AttackerRule>;
 
-std::variant<AttkList, std::string> 
+cpp::result<AttkList, std::string> 
 load_attack_rules(const std::string& fn, const ColMap& colmap);

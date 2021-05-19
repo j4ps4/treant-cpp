@@ -1,7 +1,7 @@
 #pragma once
 #include <DataFrame/DataFrame.h>
 
-using IdxT = unsigned long;
+using IdxT = std::size_t;
 using DataFrame = hmdf::StdDataFrame<IdxT>;
 using DataFrameView = hmdf::DataFrameView<IdxT>;
 
@@ -32,9 +32,9 @@ using ColMapWBool = std::map<size_t, std::pair<std::string, DataTypeWBool>>;
 ColMap boolToChar(const ColMapWBool& colmap);
 
 // View into single row
-struct DFView
+struct DFRView
 {
-    explicit DFView(DataFrameView&& view, const ColMap* colmap,
+    explicit DFRView(DataFrameView&& view, const ColMap* colmap,
                     unsigned int colMagic, size_t nDtypes) :
         view_(view), colmap_(colmap), colMagic_(colMagic), nDtypes_(nDtypes) {}
 
@@ -43,6 +43,10 @@ struct DFView
     {
         return view_.template get_column<T>(cidx)[0];
     }
+
+    double get_as_f64(size_t cidx) const;
+    int32_t get_as_i32(size_t cidx) const;
+    int8_t get_as_i8(size_t cidx) const;
 private:
     DataFrameView view_;
     const ColMap* colmap_;
@@ -57,6 +61,7 @@ struct DF
         df_(df), colmap_(colmap) {computeColMagic();}
     explicit DF(DataFrame&& df, const ColMap& colmap) :
         df_(df), colmap_(colmap) {computeColMagic();}
+    DF(DF&& df) = default;
 
 private:
     explicit DF(DataFrame&& df, const ColMap& colmap,
@@ -66,9 +71,9 @@ private:
 public:
     DF get_data_by_idx(hmdf::Index2D<IdxT>) const;
 
-    DFView get_view_by_idx(IdxT idx) const;
+    DFRView get_row_view(IdxT idx) const;
 
-    auto shape() const {return df_.shape();}
+    auto shape() const noexcept {return df_.shape();}
 
     template<typename T>
     const std::vector<T>& get_column(const char* col) const
@@ -82,7 +87,7 @@ public:
         return df_.template get_column<T>(col);
     }
 
-    const ColMap& get_colmap() const
+    const ColMap& get_colmap() const noexcept
     {
         return colmap_;
     }

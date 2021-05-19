@@ -3,8 +3,8 @@ from string import Template
 import itertools
 import sys
 dtypes = ["Int", "UInt", "Double", "Float", "Char", "UChar"]
-dtypeMap = dict(Int="int",UInt="unsigned int",Double="double",
-                Float="float",Char="signed char",UChar="unsigned char")
+dtypeMap = dict(Int="int32_t",UInt="uint32_t",Double="double",
+                Float="float",Char="int8_t",UChar="uint8_t")
 
 def colMagic(dtypes, n):
     combs = list(itertools.combinations(dtypes,n))

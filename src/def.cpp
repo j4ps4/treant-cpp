@@ -1,5 +1,6 @@
 #include <set>
 #include <stdexcept>
+#include <stdint.h>
 
 #include "def.h"
 #include "util.h"
@@ -54,11 +55,11 @@ DF DF::get_data_by_idx(hmdf::Index2D<IdxT> idx) const
   {
     switch(colMagic_){
     case 0:{
-    auto df = df_.get_data_by_idx<int>(idx);
+    auto df = df_.get_data_by_idx<int32_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 1:{
-    auto df = df_.get_data_by_idx<unsigned int>(idx);
+    auto df = df_.get_data_by_idx<uint32_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 2:{
@@ -70,11 +71,11 @@ DF DF::get_data_by_idx(hmdf::Index2D<IdxT> idx) const
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 4:{
-    auto df = df_.get_data_by_idx<signed char>(idx);
+    auto df = df_.get_data_by_idx<int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 5:{
-    auto df = df_.get_data_by_idx<unsigned char>(idx);
+    auto df = df_.get_data_by_idx<uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     }
@@ -83,39 +84,39 @@ DF DF::get_data_by_idx(hmdf::Index2D<IdxT> idx) const
   {
     switch(colMagic_){
     case 0:{
-    auto df = df_.get_data_by_idx<int,unsigned int>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 1:{
-    auto df = df_.get_data_by_idx<int,double>(idx);
+    auto df = df_.get_data_by_idx<int32_t,double>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 2:{
-    auto df = df_.get_data_by_idx<int,float>(idx);
+    auto df = df_.get_data_by_idx<int32_t,float>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 3:{
-    auto df = df_.get_data_by_idx<int,signed char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 4:{
-    auto df = df_.get_data_by_idx<int,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 5:{
-    auto df = df_.get_data_by_idx<unsigned int,double>(idx);
+    auto df = df_.get_data_by_idx<uint32_t,double>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 6:{
-    auto df = df_.get_data_by_idx<unsigned int,float>(idx);
+    auto df = df_.get_data_by_idx<uint32_t,float>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 7:{
-    auto df = df_.get_data_by_idx<unsigned int,signed char>(idx);
+    auto df = df_.get_data_by_idx<uint32_t,int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 8:{
-    auto df = df_.get_data_by_idx<unsigned int,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<uint32_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 9:{
@@ -123,23 +124,23 @@ DF DF::get_data_by_idx(hmdf::Index2D<IdxT> idx) const
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 10:{
-    auto df = df_.get_data_by_idx<double,signed char>(idx);
+    auto df = df_.get_data_by_idx<double,int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 11:{
-    auto df = df_.get_data_by_idx<double,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<double,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 12:{
-    auto df = df_.get_data_by_idx<float,signed char>(idx);
+    auto df = df_.get_data_by_idx<float,int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 13:{
-    auto df = df_.get_data_by_idx<float,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<float,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 14:{
-    auto df = df_.get_data_by_idx<signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     }
@@ -148,83 +149,83 @@ DF DF::get_data_by_idx(hmdf::Index2D<IdxT> idx) const
   {
     switch(colMagic_){
     case 0:{
-    auto df = df_.get_data_by_idx<int,unsigned int,double>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t,double>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 1:{
-    auto df = df_.get_data_by_idx<int,unsigned int,float>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t,float>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 2:{
-    auto df = df_.get_data_by_idx<int,unsigned int,signed char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t,int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 3:{
-    auto df = df_.get_data_by_idx<int,unsigned int,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 4:{
-    auto df = df_.get_data_by_idx<int,double,float>(idx);
+    auto df = df_.get_data_by_idx<int32_t,double,float>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 5:{
-    auto df = df_.get_data_by_idx<int,double,signed char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,double,int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 6:{
-    auto df = df_.get_data_by_idx<int,double,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,double,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 7:{
-    auto df = df_.get_data_by_idx<int,float,signed char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,float,int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 8:{
-    auto df = df_.get_data_by_idx<int,float,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,float,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 9:{
-    auto df = df_.get_data_by_idx<int,signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 10:{
-    auto df = df_.get_data_by_idx<unsigned int,double,float>(idx);
+    auto df = df_.get_data_by_idx<uint32_t,double,float>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 11:{
-    auto df = df_.get_data_by_idx<unsigned int,double,signed char>(idx);
+    auto df = df_.get_data_by_idx<uint32_t,double,int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 12:{
-    auto df = df_.get_data_by_idx<unsigned int,double,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<uint32_t,double,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 13:{
-    auto df = df_.get_data_by_idx<unsigned int,float,signed char>(idx);
+    auto df = df_.get_data_by_idx<uint32_t,float,int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 14:{
-    auto df = df_.get_data_by_idx<unsigned int,float,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<uint32_t,float,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 15:{
-    auto df = df_.get_data_by_idx<unsigned int,signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<uint32_t,int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 16:{
-    auto df = df_.get_data_by_idx<double,float,signed char>(idx);
+    auto df = df_.get_data_by_idx<double,float,int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 17:{
-    auto df = df_.get_data_by_idx<double,float,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<double,float,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 18:{
-    auto df = df_.get_data_by_idx<double,signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<double,int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 19:{
-    auto df = df_.get_data_by_idx<float,signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<float,int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     }
@@ -233,63 +234,63 @@ DF DF::get_data_by_idx(hmdf::Index2D<IdxT> idx) const
   {
     switch(colMagic_){
     case 0:{
-    auto df = df_.get_data_by_idx<int,unsigned int,double,float>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t,double,float>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 1:{
-    auto df = df_.get_data_by_idx<int,unsigned int,double,signed char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t,double,int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 2:{
-    auto df = df_.get_data_by_idx<int,unsigned int,double,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t,double,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 3:{
-    auto df = df_.get_data_by_idx<int,unsigned int,float,signed char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t,float,int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 4:{
-    auto df = df_.get_data_by_idx<int,unsigned int,float,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t,float,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 5:{
-    auto df = df_.get_data_by_idx<int,unsigned int,signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t,int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 6:{
-    auto df = df_.get_data_by_idx<int,double,float,signed char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,double,float,int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 7:{
-    auto df = df_.get_data_by_idx<int,double,float,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,double,float,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 8:{
-    auto df = df_.get_data_by_idx<int,double,signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,double,int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 9:{
-    auto df = df_.get_data_by_idx<int,float,signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,float,int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 10:{
-    auto df = df_.get_data_by_idx<unsigned int,double,float,signed char>(idx);
+    auto df = df_.get_data_by_idx<uint32_t,double,float,int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 11:{
-    auto df = df_.get_data_by_idx<unsigned int,double,float,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<uint32_t,double,float,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 12:{
-    auto df = df_.get_data_by_idx<unsigned int,double,signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<uint32_t,double,int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 13:{
-    auto df = df_.get_data_by_idx<unsigned int,float,signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<uint32_t,float,int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 14:{
-    auto df = df_.get_data_by_idx<double,float,signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<double,float,int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     }
@@ -298,27 +299,27 @@ DF DF::get_data_by_idx(hmdf::Index2D<IdxT> idx) const
   {
     switch(colMagic_){
     case 0:{
-    auto df = df_.get_data_by_idx<int,unsigned int,double,float,signed char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t,double,float,int8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 1:{
-    auto df = df_.get_data_by_idx<int,unsigned int,double,float,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t,double,float,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 2:{
-    auto df = df_.get_data_by_idx<int,unsigned int,double,signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t,double,int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 3:{
-    auto df = df_.get_data_by_idx<int,unsigned int,float,signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t,float,int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 4:{
-    auto df = df_.get_data_by_idx<int,double,float,signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,double,float,int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     case 5:{
-    auto df = df_.get_data_by_idx<unsigned int,double,float,signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<uint32_t,double,float,int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     }
@@ -327,7 +328,7 @@ DF DF::get_data_by_idx(hmdf::Index2D<IdxT> idx) const
   {
     switch(colMagic_){
     case 0:{
-    auto df = df_.get_data_by_idx<int,unsigned int,double,float,signed char,unsigned char>(idx);
+    auto df = df_.get_data_by_idx<int32_t,uint32_t,double,float,int8_t,uint8_t>(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);
     }
     }
@@ -337,7 +338,7 @@ DF DF::get_data_by_idx(hmdf::Index2D<IdxT> idx) const
     Util::die("invalid magic ({},{})", nDtypes_, colMagic_);
 }
 
-DFView DF::get_view_by_idx(IdxT idx) const
+DFRView DF::get_row_view(IdxT idx) const
 {
     if (idx > shape().first - 1)
     {
@@ -350,28 +351,28 @@ DFView DF::get_view_by_idx(IdxT idx) const
   {
     switch(colMagic_){
     case 0:{
-    auto view = df_.get_view_by_idx<int>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 1:{
-    auto view = df_.get_view_by_idx<unsigned int>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 2:{
     auto view = df_.get_view_by_idx<double>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 3:{
     auto view = df_.get_view_by_idx<float>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 4:{
-    auto view = df_.get_view_by_idx<signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 5:{
-    auto view = df_.get_view_by_idx<unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     }
   }
@@ -379,64 +380,64 @@ DFView DF::get_view_by_idx(IdxT idx) const
   {
     switch(colMagic_){
     case 0:{
-    auto view = df_.get_view_by_idx<int,unsigned int>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 1:{
-    auto view = df_.get_view_by_idx<int,double>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,double>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 2:{
-    auto view = df_.get_view_by_idx<int,float>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,float>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 3:{
-    auto view = df_.get_view_by_idx<int,signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 4:{
-    auto view = df_.get_view_by_idx<int,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 5:{
-    auto view = df_.get_view_by_idx<unsigned int,double>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t,double>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 6:{
-    auto view = df_.get_view_by_idx<unsigned int,float>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t,float>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 7:{
-    auto view = df_.get_view_by_idx<unsigned int,signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t,int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 8:{
-    auto view = df_.get_view_by_idx<unsigned int,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 9:{
     auto view = df_.get_view_by_idx<double,float>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 10:{
-    auto view = df_.get_view_by_idx<double,signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<double,int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 11:{
-    auto view = df_.get_view_by_idx<double,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<double,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 12:{
-    auto view = df_.get_view_by_idx<float,signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<float,int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 13:{
-    auto view = df_.get_view_by_idx<float,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<float,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 14:{
-    auto view = df_.get_view_by_idx<signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     }
   }
@@ -444,84 +445,84 @@ DFView DF::get_view_by_idx(IdxT idx) const
   {
     switch(colMagic_){
     case 0:{
-    auto view = df_.get_view_by_idx<int,unsigned int,double>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t,double>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 1:{
-    auto view = df_.get_view_by_idx<int,unsigned int,float>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t,float>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 2:{
-    auto view = df_.get_view_by_idx<int,unsigned int,signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t,int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 3:{
-    auto view = df_.get_view_by_idx<int,unsigned int,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 4:{
-    auto view = df_.get_view_by_idx<int,double,float>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,double,float>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 5:{
-    auto view = df_.get_view_by_idx<int,double,signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,double,int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 6:{
-    auto view = df_.get_view_by_idx<int,double,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,double,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 7:{
-    auto view = df_.get_view_by_idx<int,float,signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,float,int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 8:{
-    auto view = df_.get_view_by_idx<int,float,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,float,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 9:{
-    auto view = df_.get_view_by_idx<int,signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 10:{
-    auto view = df_.get_view_by_idx<unsigned int,double,float>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t,double,float>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 11:{
-    auto view = df_.get_view_by_idx<unsigned int,double,signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t,double,int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 12:{
-    auto view = df_.get_view_by_idx<unsigned int,double,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t,double,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 13:{
-    auto view = df_.get_view_by_idx<unsigned int,float,signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t,float,int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 14:{
-    auto view = df_.get_view_by_idx<unsigned int,float,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t,float,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 15:{
-    auto view = df_.get_view_by_idx<unsigned int,signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t,int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 16:{
-    auto view = df_.get_view_by_idx<double,float,signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<double,float,int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 17:{
-    auto view = df_.get_view_by_idx<double,float,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<double,float,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 18:{
-    auto view = df_.get_view_by_idx<double,signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<double,int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 19:{
-    auto view = df_.get_view_by_idx<float,signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<float,int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     }
   }
@@ -529,64 +530,64 @@ DFView DF::get_view_by_idx(IdxT idx) const
   {
     switch(colMagic_){
     case 0:{
-    auto view = df_.get_view_by_idx<int,unsigned int,double,float>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t,double,float>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 1:{
-    auto view = df_.get_view_by_idx<int,unsigned int,double,signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t,double,int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 2:{
-    auto view = df_.get_view_by_idx<int,unsigned int,double,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t,double,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 3:{
-    auto view = df_.get_view_by_idx<int,unsigned int,float,signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t,float,int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 4:{
-    auto view = df_.get_view_by_idx<int,unsigned int,float,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t,float,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 5:{
-    auto view = df_.get_view_by_idx<int,unsigned int,signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t,int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 6:{
-    auto view = df_.get_view_by_idx<int,double,float,signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,double,float,int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 7:{
-    auto view = df_.get_view_by_idx<int,double,float,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,double,float,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 8:{
-    auto view = df_.get_view_by_idx<int,double,signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,double,int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 9:{
-    auto view = df_.get_view_by_idx<int,float,signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,float,int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 10:{
-    auto view = df_.get_view_by_idx<unsigned int,double,float,signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t,double,float,int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 11:{
-    auto view = df_.get_view_by_idx<unsigned int,double,float,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t,double,float,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 12:{
-    auto view = df_.get_view_by_idx<unsigned int,double,signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t,double,int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 13:{
-    auto view = df_.get_view_by_idx<unsigned int,float,signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t,float,int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 14:{
-    auto view = df_.get_view_by_idx<double,float,signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<double,float,int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     }
   }
@@ -594,28 +595,28 @@ DFView DF::get_view_by_idx(IdxT idx) const
   {
     switch(colMagic_){
     case 0:{
-    auto view = df_.get_view_by_idx<int,unsigned int,double,float,signed char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t,double,float,int8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 1:{
-    auto view = df_.get_view_by_idx<int,unsigned int,double,float,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t,double,float,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 2:{
-    auto view = df_.get_view_by_idx<int,unsigned int,double,signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t,double,int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 3:{
-    auto view = df_.get_view_by_idx<int,unsigned int,float,signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t,float,int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 4:{
-    auto view = df_.get_view_by_idx<int,double,float,signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,double,float,int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     case 5:{
-    auto view = df_.get_view_by_idx<unsigned int,double,float,signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<uint32_t,double,float,int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     }
   }
@@ -623,14 +624,126 @@ DFView DF::get_view_by_idx(IdxT idx) const
   {
     switch(colMagic_){
     case 0:{
-    auto view = df_.get_view_by_idx<int,unsigned int,double,float,signed char,unsigned char>(slice);
-    return DFView(std::move(view), &colmap_, colMagic_, nDtypes_);
+    auto view = df_.get_view_by_idx<int32_t,uint32_t,double,float,int8_t,uint8_t>(slice);
+    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);
     }
     }
   }
 }
 
     Util::die("invalid magic ({},{})", nDtypes_, colMagic_);
+}
+
+double DFRView::get_as_f64(size_t cidx) const
+{
+    auto dtype = colmap_->at(cidx).second;
+    switch(dtype)
+    {
+        case DataType::Int:
+        {
+            auto val = view_.get_column<int32_t>(cidx)[0];
+            return static_cast<double>(val);
+        }
+        case DataType::UInt:
+        {
+            auto val = view_.get_column<uint32_t>(cidx)[0];
+            return static_cast<double>(val);
+        }
+        case DataType::Double:
+        {
+            return view_.get_column<double>(cidx)[0];
+        }
+        case DataType::Float:
+        {
+            auto val = view_.get_column<float>(cidx)[0];
+            return static_cast<double>(val);
+        }
+        case DataType::Char:
+        {
+            auto val = view_.get_column<int8_t>(cidx)[0];
+            return static_cast<double>(val);
+        }
+        case DataType::UChar:
+        {
+            auto val = view_.get_column<uint8_t>(cidx)[0];
+            return static_cast<double>(val);
+        }
+    }
+    throw std::runtime_error("invalid dtype???");
+}
+int32_t DFRView::get_as_i32(size_t cidx) const
+{
+    auto dtype = colmap_->at(cidx).second;
+    switch(dtype)
+    {
+        case DataType::Int:
+        {
+            return view_.get_column<int32_t>(cidx)[0];
+        }
+        case DataType::UInt:
+        {
+            auto val = view_.get_column<uint32_t>(cidx)[0];
+            return static_cast<int32_t>(val);
+        }
+        case DataType::Double:
+        {
+            auto val = view_.get_column<double>(cidx)[0];
+            return static_cast<int32_t>(val);
+        }
+        case DataType::Float:
+        {
+            auto val = view_.get_column<float>(cidx)[0];
+            return static_cast<int32_t>(val);
+        }
+        case DataType::Char:
+        {
+            auto val = view_.get_column<int8_t>(cidx)[0];
+            return static_cast<int32_t>(val);
+        }
+        case DataType::UChar:
+        {
+            auto val = view_.get_column<uint8_t>(cidx)[0];
+            return static_cast<int32_t>(val);
+        }
+    }
+    throw std::runtime_error("invalid dtype???");
+}
+int8_t DFRView::get_as_i8(size_t cidx) const
+{
+    auto dtype = colmap_->at(cidx).second;
+    switch(dtype)
+    {
+        case DataType::Int:
+        {
+            auto val = view_.get_column<int32_t>(cidx)[0];
+            return static_cast<int8_t>(val);
+        }
+        case DataType::UInt:
+        {
+            auto val = view_.get_column<uint32_t>(cidx)[0];
+            return static_cast<int8_t>(val);
+        }
+        case DataType::Double:
+        {
+            auto val = view_.get_column<double>(cidx)[0];
+            return static_cast<int8_t>(val);
+        }
+        case DataType::Float:
+        {
+            auto val = view_.get_column<float>(cidx)[0];
+            return static_cast<int8_t>(val);
+        }
+        case DataType::Char:
+        {
+            return view_.get_column<int8_t>(cidx)[0];
+        }
+        case DataType::UChar:
+        {
+            auto val = view_.get_column<uint8_t>(cidx)[0];
+            return static_cast<int8_t>(val);
+        }
+    }
+    throw std::runtime_error("invalid dtype???");
 }
 
 void DF::computeColMagic()

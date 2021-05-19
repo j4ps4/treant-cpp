@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 #include <charconv>
+#include <stdint.h>
 
 #include <fmt/core.h>
 
@@ -52,7 +53,7 @@ ColMapWBool parseColumns(const std::string& s)
 
 namespace df {
 
-std::variant<DF, std::string> read_bz2(const char* fn)
+cpp::result<DF, std::string> read_bz2(const char* fn)
 {
     FILE*   f;
     BZFILE* b;
@@ -63,24 +64,24 @@ std::variant<DF, std::string> read_bz2(const char* fn)
 
     f = fopen(fn, "r");
     if (!f) {
-        return fmt::format("cannot open {}: {}", fn, strerror(errno));
+        return cpp::failure(fmt::format("cannot open {}: {}", fn, strerror(errno)));
     }
     b = BZ2_bzReadOpen ( &bzerror, f, 0, 0, NULL, 0);
     if ( bzerror != BZ_OK ) {
         BZ2_bzReadClose ( &bzerror, b );
-        return fmt::format("bzerror: {}", bzerror);
+        return cpp::failure(fmt::format("bzerror: {}", bzerror));
     }
 
     bzerror = BZ_OK;
     while ( bzerror == BZ_OK ) {
         nBuf = BZ2_bzRead ( &bzerror, b, buf, BS);
         if (bzerror == BZ_OK) { // returns BZ_STREAM_END when file ends
-            return "buff too small";
+            return cpp::failure(std::string("buff too small"));
         }
     }
     if (bzerror != BZ_STREAM_END) {
         BZ2_bzReadClose( &bzerror, b );
-        return fmt::format("bzerror: {}", bzerror);
+        return cpp::failure(fmt::format("bzerror: {}", bzerror));
     } else {
         BZ2_bzReadClose( &bzerror, b );
     }
@@ -102,14 +103,14 @@ std::variant<DF, std::string> read_bz2(const char* fn)
         {
             case DataTypeWBool::Int:
             {
-                std::vector<int> col;
+                std::vector<int32_t> col;
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
             }
             case DataTypeWBool::UInt:
             {
-                std::vector<unsigned int> col;
+                std::vector<uint32_t> col;
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
@@ -130,28 +131,28 @@ std::variant<DF, std::string> read_bz2(const char* fn)
             }
             case DataTypeWBool::Char:
             {
-                std::vector<signed char> col;
+                std::vector<int8_t> col;
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
             }
             case DataTypeWBool::UChar:
             {
-                std::vector<unsigned char> col;
+                std::vector<uint8_t> col;
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
             }
             case DataTypeWBool::Bool:
             {
-                std::vector<signed char> col;
+                std::vector<int8_t> col;
                 col.reserve(rows);
                 df.load_column(colname.c_str(), std::move(col), hmdf::nan_policy::dont_pad_with_nans);
                 break;
             }
             default:
             {
-                return "invalid datatype!";
+                return cpp::failure(std::string("invalid datatype!"));
             }
         }
     }
@@ -171,23 +172,23 @@ std::variant<DF, std::string> read_bz2(const char* fn)
             auto loc1 = std::find_first_of(loc, buf+nBuf, chars.begin(), chars.end());
             if (*loc1 == '\n' && idx != ncols - 1)
             {
-                return fmt::format("malformed line at {}", r + 1);
+                return cpp::failure(fmt::format("malformed line at {}", r + 1));
             }
             // fmt::print("emplacing {}\n", std::string(loc,loc1));
             switch(dtype)
             {
                 case DataTypeWBool::Int:
                 {
-                    auto& vec = *((std::vector<int>*)ptrs[idx]);
-                    int val;
+                    auto& vec = *((std::vector<int32_t>*)ptrs[idx]);
+                    int32_t val;
                     std::from_chars(loc, loc1, val);
                     vec.emplace_back(val);
                     break;
                 }
                 case DataTypeWBool::UInt:
                 {
-                    auto& vec = *((std::vector<unsigned int>*)ptrs[idx]);
-                    unsigned int val;
+                    auto& vec = *((std::vector<uint32_t>*)ptrs[idx]);
+                    uint32_t val;
                     std::from_chars(loc, loc1, val);
                     vec.emplace_back(val);
                     break;
@@ -208,31 +209,31 @@ std::variant<DF, std::string> read_bz2(const char* fn)
                 }
                 case DataTypeWBool::Char:
                 {
-                    auto& vec = *((std::vector<signed char>*)ptrs[idx]);
-                    signed int val;
+                    auto& vec = *((std::vector<int8_t>*)ptrs[idx]);
+                    int8_t val;
                     std::from_chars(loc, loc1, val);
-                    vec.emplace_back(static_cast<signed char>(val));
+                    vec.emplace_back(val);
                     break;
                 }
                 case DataTypeWBool::UChar:
                 {
-                    auto& vec = *((std::vector<unsigned char>*)ptrs[idx]);
-                    unsigned int val;
+                    auto& vec = *((std::vector<uint8_t>*)ptrs[idx]);
+                    uint8_t val;
                     std::from_chars(loc, loc1, val);
-                    vec.emplace_back(static_cast<unsigned char>(val));
+                    vec.emplace_back(val);
                     break;
                 }
                 case DataTypeWBool::Bool:
                 {
-                    auto& vec = *((std::vector<signed char>*)ptrs[idx]);
-                    signed int val;
+                    auto& vec = *((std::vector<int8_t>*)ptrs[idx]);
+                    int8_t val;
                     std::from_chars(loc, loc1, val);
-                    vec.emplace_back(static_cast<signed char>(val > 0 ? 1 : 0));
+                    vec.emplace_back(val > 0 ? 1 : 0);
                     break;
                 }
                 default:
                 {
-                    return "invalid datatype!";
+                    return cpp::failure(std::string("invalid datatype!"));
                 }
             }
             loc = loc1 + 1;
@@ -258,7 +259,7 @@ std::variant<DF, std::string> read_bz2(const char* fn)
     // df::print(df2, colmap);
     // df2.write<std::ostream, std::string, int>(std::cout, hmdf::io_format::csv2); 
     // fmt::print("df shape: ({}, {})\n", df.shape().first, df.shape().second);
-    return out;
+    return std::move(out);
 }
 
 }

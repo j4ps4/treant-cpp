@@ -34,7 +34,7 @@ std::istream& operator>>(std::istream& is, std::pair<double,double>& pr)
     return is;
 }
 
-std::variant<AttkList, std::string> 
+cpp::result<AttkList, std::string> 
 load_attack_rules(const std::string& fn, const ColMap& colmap)
 {
     AttkList out;
@@ -42,10 +42,10 @@ load_attack_rules(const std::string& fn, const ColMap& colmap)
     auto json_str = slurp(fn);
     auto json = json11::Json::parse(json_str, err);
     if (!err.empty())
-        return fmt::format("while parsing {}: {}", fn, err);
+        return cpp::failure(fmt::format("while parsing {}: {}", fn, err));
     auto& attacks = json["attacks"];
     if (attacks == json11::Json())
-        return fmt::format("{}: not valid attacks file", fn);
+        return cpp::failure(fmt::format("{}: not valid attacks file", fn));
     auto& attacks_v = attacks.array_items();
     for (auto& attack : attacks_v)
     {

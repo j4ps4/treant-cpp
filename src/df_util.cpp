@@ -230,7 +230,8 @@ void print(const DF& df)
         print_row(ptrs, df.get_colmap(), r);
 }
 
-void print(const DFRView& df)
+template<typename Type>
+void print_template(const Type& df)
 {
     for (auto& [idx, pair] : df.get_colmap())
     {
@@ -240,32 +241,32 @@ void print(const DFRView& df)
         {
             case DataType::Int:
             {
-                std::cout << df.get<int32_t>(idx) << ',';
+                std::cout << df.template get<int32_t>(idx) << ',';
                 break;
             }
             case DataType::UInt:
             {
-                std::cout << df.get<uint32_t>(idx) << ',';
+                std::cout << df.template get<uint32_t>(idx) << ',';
                 break;
             }
             case DataType::Double:
             {
-                std::cout << df.get<double>(idx) << ',';
+                std::cout << df.template get<double>(idx) << ',';
                 break;
             }
             case DataType::Float:
             {
-                std::cout << df.get<float>(idx) << ',';
+                std::cout << df.template get<float>(idx) << ',';
                 break;
             }
             case DataType::Char:
             {
-                std::cout << static_cast<int>(df.get<int8_t>(idx)) << ',';
+                std::cout << static_cast<int>(df.template get<int8_t>(idx)) << ',';
                 break;
             }
             case DataType::UChar:
             {
-                std::cout << static_cast<unsigned>(df.get<uint8_t>(idx)) << ',';
+                std::cout << static_cast<unsigned>(df.template get<uint8_t>(idx)) << ',';
                 break;
             }
             default:
@@ -275,6 +276,15 @@ void print(const DFRView& df)
         }
     }
     std::cout << '\n';
+}
+
+void print(const DFR& df)
+{
+    print_template(df);
+}
+void print(const DFRView& df)
+{
+    print_template(df);
 }
 
 }

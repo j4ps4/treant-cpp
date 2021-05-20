@@ -56,26 +56,32 @@ void DFR::modify_value(size_t cidx, double inval)
         case DataType::Int:
         {
             row_.get_column<int32_t>(cidx)[0] += inval;
+            return;
         }
         case DataType::UInt:
         {
             row_.get_column<uint32_t>(cidx)[0] += inval;
+            return;
         }
         case DataType::Double:
         {
             row_.get_column<double>(cidx)[0] += inval;
+            return;
         }
         case DataType::Float:
         {
             row_.get_column<float>(cidx)[0] += inval;
+            return;
         }
         case DataType::Char:
         {
             row_.get_column<int8_t>(cidx)[0] += inval;
+            return;
         }
         case DataType::UChar:
         {
             row_.get_column<uint8_t>(cidx)[0] += inval;
+            return;
         }
     }
     throw std::runtime_error("invalid dtype???");
@@ -107,7 +113,7 @@ DFR DFRView::copy() const
 {
     auto idx = hmdf::Index2D<IdxT>{idx_,idx_};
     $TPC2\left(auto df = parent_->df_.get_data_by_idx\,(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);\right)
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);\right)
     auto s = fmt::format("invalid magic ({},{})", parent_->nDtypes_, parent_->colMagic_);
     throw std::runtime_error(s);
 }

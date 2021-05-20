@@ -40,7 +40,7 @@ target_include_directories(${df_test_bin} PRIVATE ${source_dir})
 target_link_libraries(${df_test_bin} DataFrame cereal)
 target_link_libraries(${json_test_bin} json11)
 
-target_compile_options(${target_name} PRIVATE $<$<CONFIG:Debug>:-O0 -Wall -Wno-unused-variable -Woverloaded-virtual>)
+target_compile_options(${target_name} PRIVATE $<$<CONFIG:Debug>:-Og -Wall -Wno-unused-variable -Woverloaded-virtual>)
 target_compile_options(${target_name} PRIVATE $<$<CONFIG:Release>:-O3 -mtune=native -march=native>)
 target_compile_features(${target_name} PRIVATE cxx_std_17)
 target_compile_features(${df_test_bin} PRIVATE cxx_std_17)

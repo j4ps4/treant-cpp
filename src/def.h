@@ -42,6 +42,17 @@ struct DFR
 
     void modify_value(size_t cidx, double inval);
 
+    template<typename T>
+    const T& get(size_t cidx) const
+    {
+        return row_.template get_column<T>(cidx)[0];
+    }
+
+    const ColMap& get_colmap() const noexcept
+    {
+        return *colmap_;
+    }
+
 private:
     DataFrame row_;
     const ColMap* colmap_;

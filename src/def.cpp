@@ -56,26 +56,32 @@ void DFR::modify_value(size_t cidx, double inval)
         case DataType::Int:
         {
             row_.get_column<int32_t>(cidx)[0] += inval;
+            return;
         }
         case DataType::UInt:
         {
             row_.get_column<uint32_t>(cidx)[0] += inval;
+            return;
         }
         case DataType::Double:
         {
             row_.get_column<double>(cidx)[0] += inval;
+            return;
         }
         case DataType::Float:
         {
             row_.get_column<float>(cidx)[0] += inval;
+            return;
         }
         case DataType::Char:
         {
             row_.get_column<int8_t>(cidx)[0] += inval;
+            return;
         }
         case DataType::UChar:
         {
             row_.get_column<uint8_t>(cidx)[0] += inval;
+            return;
         }
     }
     throw std::runtime_error("invalid dtype???");
@@ -676,27 +682,27 @@ DFR DFRView::copy() const
     switch(parent_->colMagic_){
     case 0:{
     auto df = parent_->df_.get_data_by_idx<int32_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 1:{
     auto df = parent_->df_.get_data_by_idx<uint32_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 2:{
     auto df = parent_->df_.get_data_by_idx<double>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 3:{
     auto df = parent_->df_.get_data_by_idx<float>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 4:{
     auto df = parent_->df_.get_data_by_idx<int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 5:{
     auto df = parent_->df_.get_data_by_idx<uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     }
   }
@@ -705,63 +711,63 @@ DFR DFRView::copy() const
     switch(parent_->colMagic_){
     case 0:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 1:{
     auto df = parent_->df_.get_data_by_idx<int32_t,double>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 2:{
     auto df = parent_->df_.get_data_by_idx<int32_t,float>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 3:{
     auto df = parent_->df_.get_data_by_idx<int32_t,int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 4:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 5:{
     auto df = parent_->df_.get_data_by_idx<uint32_t,double>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 6:{
     auto df = parent_->df_.get_data_by_idx<uint32_t,float>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 7:{
     auto df = parent_->df_.get_data_by_idx<uint32_t,int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 8:{
     auto df = parent_->df_.get_data_by_idx<uint32_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 9:{
     auto df = parent_->df_.get_data_by_idx<double,float>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 10:{
     auto df = parent_->df_.get_data_by_idx<double,int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 11:{
     auto df = parent_->df_.get_data_by_idx<double,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 12:{
     auto df = parent_->df_.get_data_by_idx<float,int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 13:{
     auto df = parent_->df_.get_data_by_idx<float,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 14:{
     auto df = parent_->df_.get_data_by_idx<int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     }
   }
@@ -770,83 +776,83 @@ DFR DFRView::copy() const
     switch(parent_->colMagic_){
     case 0:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t,double>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 1:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t,float>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 2:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t,int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 3:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 4:{
     auto df = parent_->df_.get_data_by_idx<int32_t,double,float>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 5:{
     auto df = parent_->df_.get_data_by_idx<int32_t,double,int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 6:{
     auto df = parent_->df_.get_data_by_idx<int32_t,double,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 7:{
     auto df = parent_->df_.get_data_by_idx<int32_t,float,int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 8:{
     auto df = parent_->df_.get_data_by_idx<int32_t,float,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 9:{
     auto df = parent_->df_.get_data_by_idx<int32_t,int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 10:{
     auto df = parent_->df_.get_data_by_idx<uint32_t,double,float>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 11:{
     auto df = parent_->df_.get_data_by_idx<uint32_t,double,int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 12:{
     auto df = parent_->df_.get_data_by_idx<uint32_t,double,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 13:{
     auto df = parent_->df_.get_data_by_idx<uint32_t,float,int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 14:{
     auto df = parent_->df_.get_data_by_idx<uint32_t,float,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 15:{
     auto df = parent_->df_.get_data_by_idx<uint32_t,int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 16:{
     auto df = parent_->df_.get_data_by_idx<double,float,int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 17:{
     auto df = parent_->df_.get_data_by_idx<double,float,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 18:{
     auto df = parent_->df_.get_data_by_idx<double,int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 19:{
     auto df = parent_->df_.get_data_by_idx<float,int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     }
   }
@@ -855,63 +861,63 @@ DFR DFRView::copy() const
     switch(parent_->colMagic_){
     case 0:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t,double,float>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 1:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t,double,int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 2:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t,double,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 3:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t,float,int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 4:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t,float,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 5:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t,int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 6:{
     auto df = parent_->df_.get_data_by_idx<int32_t,double,float,int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 7:{
     auto df = parent_->df_.get_data_by_idx<int32_t,double,float,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 8:{
     auto df = parent_->df_.get_data_by_idx<int32_t,double,int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 9:{
     auto df = parent_->df_.get_data_by_idx<int32_t,float,int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 10:{
     auto df = parent_->df_.get_data_by_idx<uint32_t,double,float,int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 11:{
     auto df = parent_->df_.get_data_by_idx<uint32_t,double,float,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 12:{
     auto df = parent_->df_.get_data_by_idx<uint32_t,double,int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 13:{
     auto df = parent_->df_.get_data_by_idx<uint32_t,float,int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 14:{
     auto df = parent_->df_.get_data_by_idx<double,float,int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     }
   }
@@ -920,27 +926,27 @@ DFR DFRView::copy() const
     switch(parent_->colMagic_){
     case 0:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t,double,float,int8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 1:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t,double,float,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 2:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t,double,int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 3:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t,float,int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 4:{
     auto df = parent_->df_.get_data_by_idx<int32_t,double,float,int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     case 5:{
     auto df = parent_->df_.get_data_by_idx<uint32_t,double,float,int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     }
   }
@@ -949,7 +955,7 @@ DFR DFRView::copy() const
     switch(parent_->colMagic_){
     case 0:{
     auto df = parent_->df_.get_data_by_idx<int32_t,uint32_t,double,float,int8_t,uint8_t>(idx);
-    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);
+    return DFR(df, &(parent_->colmap_), parent_->colMagic_, parent_->nDtypes_);
     }
     }
   }

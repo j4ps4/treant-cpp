@@ -26,13 +26,23 @@ int main(int argc, const char** argv)
         Util::die("{}", res2.error());
     auto& attkl = res2.value();
     auto height = df.shape().first;
+    int counter = 0;
     for (size_t i = 0; i < height; i++)
     {
         auto rw = df.get_row_view(i);
-        if (std::none_of(attkl.cbegin(), attkl.cend(), [&](const auto atk){
-            return atk.is_applicable(rw);
-        }))
-            df::print(rw);
+        std::for_each(attkl.cbegin(), attkl.cend(), [&](const auto& atk){
+            if (atk.is_applicable(rw))
+            {
+                auto xprime = atk.apply(rw);
+                fmt::print("original:\n");
+                df::print(rw);
+                fmt::print("attacking feature {}:\n", atk.get_target_feature());
+                df::print(xprime);
+                counter++;
+            }
+        });
+        if (counter > 10)
+            break;
     }
 
 }

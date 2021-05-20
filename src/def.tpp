@@ -48,11 +48,45 @@ ColMap boolToChar(const ColMapWBool& colmap)
     return out;
 }
 
+void DFR::modify_value(size_t cidx, double inval)
+{
+    auto dtype = colmap_->at(cidx).second;
+    switch(dtype)
+    {
+        case DataType::Int:
+        {
+            row_.get_column<int32_t>(cidx)[0] += inval;
+        }
+        case DataType::UInt:
+        {
+            row_.get_column<uint32_t>(cidx)[0] += inval;
+        }
+        case DataType::Double:
+        {
+            row_.get_column<double>(cidx)[0] += inval;
+        }
+        case DataType::Float:
+        {
+            row_.get_column<float>(cidx)[0] += inval;
+        }
+        case DataType::Char:
+        {
+            row_.get_column<int8_t>(cidx)[0] += inval;
+        }
+        case DataType::UChar:
+        {
+            row_.get_column<uint8_t>(cidx)[0] += inval;
+        }
+    }
+    throw std::runtime_error("invalid dtype???");
+}
+
 DF DF::get_data_by_idx(hmdf::Index2D<IdxT> idx) const
 {
-    $TPC\left(auto df = df_.get_data_by_idx\,(idx);
+    $TPC1\left(auto df = df_.get_data_by_idx\,(idx);
     return DF(std::move(df), colmap_, colMagic_, nDtypes_);\right)
-    Util::die("invalid magic ({},{})", nDtypes_, colMagic_);
+    auto s = fmt::format("invalid magic ({},{})", nDtypes_, colMagic_);
+    throw std::runtime_error(s);
 }
 
 DFRView DF::get_row_view(IdxT idx) const
@@ -63,14 +97,29 @@ DFRView DF::get_row_view(IdxT idx) const
         throw std::out_of_range(s);
     }
     auto slice = hmdf::Index2D<IdxT>{idx,idx};
-    $TPC\left(auto view = df_.get_view_by_idx\,(slice);
-    return DFRView(std::move(view), &colmap_, colMagic_, nDtypes_);\right)
-    Util::die("invalid magic ({},{})", nDtypes_, colMagic_);
+    $TPC1\left(auto view = df_.get_view_by_idx\,(slice);
+    return DFRView(std::move(view), idx, this);\right)
+    auto s = fmt::format("invalid magic ({},{})", nDtypes_, colMagic_);
+    throw std::runtime_error(s);
+}
+
+DFR DFRView::copy() const
+{
+    auto idx = hmdf::Index2D<IdxT>{idx_,idx_};
+    $TPC2\left(auto df = parent_->df_.get_data_by_idx\,(idx);
+    return DFR(df, &parent_->colmap_, parent_->colMagic_, parent_->nDtypes_);\right)
+    auto s = fmt::format("invalid magic ({},{})", parent_->nDtypes_, parent_->colMagic_);
+    throw std::runtime_error(s);
+}
+
+const ColMap& DFRView::get_colmap() const noexcept
+{
+    return parent_->colmap_;
 }
 
 double DFRView::get_as_f64(size_t cidx) const
 {
-    auto dtype = colmap_->at(cidx).second;
+    auto dtype = parent_->colmap_.at(cidx).second;
     switch(dtype)
     {
         case DataType::Int:
@@ -107,7 +156,7 @@ double DFRView::get_as_f64(size_t cidx) const
 }
 int32_t DFRView::get_as_i32(size_t cidx) const
 {
-    auto dtype = colmap_->at(cidx).second;
+    auto dtype = parent_->colmap_.at(cidx).second;
     switch(dtype)
     {
         case DataType::Int:
@@ -144,7 +193,7 @@ int32_t DFRView::get_as_i32(size_t cidx) const
 }
 int8_t DFRView::get_as_i8(size_t cidx) const
 {
-    auto dtype = colmap_->at(cidx).second;
+    auto dtype = parent_->colmap_.at(cidx).second;
     switch(dtype)
     {
         case DataType::Int:

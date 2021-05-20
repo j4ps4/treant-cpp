@@ -25,9 +25,9 @@ def fullMagic(dtypes):
     out += "  case 6: {colMagic_ = 0; return;}\n}\nthrow std::runtime_error(\"too many datatypes\");"
     return(out)
 
-def templatizeBlock(dtypes,i,codeblock1,codeblock2):
+def templatizeBlock(dtypes,i,codeblock1,codeblock2,owner):
     combs = list(itertools.combinations(dtypes,i))
-    out = "    switch(colMagic_){\n"
+    out = Template("    switch($own->colMagic_){\n").substitute(own=owner)
     for c in range(0,len(combs)):
         out += Template("    case $im:{\n").substitute(im=c)
         typesl = map(lambda x: dtypeMap[x],combs[c])
@@ -38,29 +38,48 @@ def templatizeBlock(dtypes,i,codeblock1,codeblock2):
     out += "    }\n"
     return(out)
 
-def templatize(dtypes,codeblock1,codeblock2):
-    out = "switch(nDtypes_){\n"
+def templatize(dtypes,codeblock1,codeblock2,owner="this"):
+    out = Template("switch($own->nDtypes_){\n").substitute(own=owner)
     for i in range(1,len(dtypes)+1):
         out += Template("  case $im:\n  {\n").substitute(im=i)
-        out += templatizeBlock(dtypes,i,codeblock1,codeblock2)
+        out += templatizeBlock(dtypes,i,codeblock1,codeblock2,owner)
         out += "  }\n"
     out += "}\n"
     return(out)
 
+def template1(content):
+    tpLoc = content.find("$TPC1")
+    while tpLoc != -1:
+        commaLoc = content.find("\,",tpLoc)
+        block1 = content[tpLoc+11:commaLoc]
+        endLoc = content.find("\\right)",commaLoc)
+        block2 = content[commaLoc+2:endLoc]
+        # print("block1: {}, block2: {}".format(block1, block2))
+        # sys.exit(1)
+        expand = templatize(dtypes,block1,block2)
+        content = content[0:tpLoc]+expand+content[endLoc+8:]
+        tpLoc = content.find("$TPC1")
+    return(content)
+
+def template2(content):
+    tpLoc = content.find("$TPC2")
+    while tpLoc != -1:
+        commaLoc = content.find("\,",tpLoc)
+        block1 = content[tpLoc+11:commaLoc]
+        endLoc = content.find("\\right)",commaLoc)
+        block2 = content[commaLoc+2:endLoc]
+        # print("block1: {}, block2: {}".format(block1, block2))
+        # sys.exit(1)
+        expand = templatize(dtypes,block1,block2,"parent_")
+        content = content[0:tpLoc]+expand+content[endLoc+8:]
+        tpLoc = content.find("$TPC2")
+    return(content)
+
 
 f = open("def.tpp","r")
 content = f.read()
-tpLoc = content.find("$TPC")
-while tpLoc != -1:
-    commaLoc = content.find("\,",tpLoc)
-    block1 = content[tpLoc+10:commaLoc]
-    endLoc = content.find("\\right)",commaLoc)
-    block2 = content[commaLoc+2:endLoc]
-    # print("block1: {}, block2: {}".format(block1, block2))
-    # sys.exit(1)
-    expand = templatize(dtypes,block1,block2)
-    content = content[0:tpLoc]+expand+content[endLoc+7:]
-    tpLoc = content.find("$TPC")
+content = template1(content)
+content = template2(content)
 out = Template(content).substitute(COL_TP=fullMagic(dtypes))
 f2 = open("def.cpp","w")
 f2.write(out)

@@ -101,13 +101,13 @@ void print_row(const std::vector<const void*>& ptrs,
         {
             case DataType::Int:
             {
-                const auto& vec = *((std::vector<int>*)ptrs[idx]);
+                const auto& vec = *((std::vector<int32_t>*)ptrs[idx]);
                 std::cout << vec[row_idx] << ',';
                 break;
             }
             case DataType::UInt:
             {
-                const auto& vec = *((std::vector<unsigned int>*)ptrs[idx]);
+                const auto& vec = *((std::vector<uint32_t>*)ptrs[idx]);
                 std::cout << vec[row_idx] << ',';
                 break;
             }
@@ -125,13 +125,13 @@ void print_row(const std::vector<const void*>& ptrs,
             }
             case DataType::Char:
             {
-                const auto& vec = *((std::vector<signed char>*)ptrs[idx]);
+                const auto& vec = *((std::vector<int8_t>*)ptrs[idx]);
                 std::cout << static_cast<int>(vec[row_idx]) << ',';
                 break;
             }
             case DataType::UChar:
             {
-                const auto& vec = *((std::vector<unsigned char>*)ptrs[idx]);
+                const auto& vec = *((std::vector<uint8_t>*)ptrs[idx]);
                 std::cout << static_cast<unsigned>(vec[row_idx]) << ',';
                 break;
             }
@@ -160,12 +160,12 @@ void load_addresses(const DF& df,
         {
             case DataType::Int:
             {
-                ptrs.push_back(&(df.get_column<int>(colname.c_str())));
+                ptrs.push_back(&(df.get_column<int32_t>(colname.c_str())));
                 break;
             }
             case DataType::UInt:
             {
-                ptrs.push_back(&(df.get_column<unsigned int>(colname.c_str())));
+                ptrs.push_back(&(df.get_column<uint32_t>(colname.c_str())));
                 break;
             }
             case DataType::Double:
@@ -180,12 +180,12 @@ void load_addresses(const DF& df,
             }
             case DataType::Char:
             {
-                ptrs.push_back(&(df.get_column<signed char>(colname.c_str())));
+                ptrs.push_back(&(df.get_column<int8_t>(colname.c_str())));
                 break;
             }
             case DataType::UChar:
             {
-                ptrs.push_back(&(df.get_column<unsigned char>(colname.c_str())));
+                ptrs.push_back(&(df.get_column<uint8_t>(colname.c_str())));
                 break;
             }
             default:
@@ -228,6 +228,53 @@ void print(const DF& df)
     const auto [h, w] = df.shape();
     for (size_t r = 0; r < h; r++)
         print_row(ptrs, df.get_colmap(), r);
+}
+
+void print(const DFRView& df)
+{
+    for (auto& [idx, pair] : df.get_colmap())
+    {
+        auto& colname = pair.first;
+        auto& dtype = pair.second;
+        switch(dtype)
+        {
+            case DataType::Int:
+            {
+                std::cout << df.get<int32_t>(idx) << ',';
+                break;
+            }
+            case DataType::UInt:
+            {
+                std::cout << df.get<uint32_t>(idx) << ',';
+                break;
+            }
+            case DataType::Double:
+            {
+                std::cout << df.get<double>(idx) << ',';
+                break;
+            }
+            case DataType::Float:
+            {
+                std::cout << df.get<float>(idx) << ',';
+                break;
+            }
+            case DataType::Char:
+            {
+                std::cout << static_cast<int>(df.get<int8_t>(idx)) << ',';
+                break;
+            }
+            case DataType::UChar:
+            {
+                std::cout << static_cast<unsigned>(df.get<uint8_t>(idx)) << ',';
+                break;
+            }
+            default:
+            {
+                throw std::runtime_error("Invalid datatype for column");
+            }
+        }
+    }
+    std::cout << '\n';
 }
 
 }

@@ -31,12 +31,29 @@ using ColMapWBool = std::map<size_t, std::pair<std::string, DataTypeWBool>>;
 
 ColMap boolToChar(const ColMapWBool& colmap);
 
+struct DF;
+
+// Single row
+struct DFR
+{
+    explicit DFR(const DataFrame& row, const ColMap* colmap,
+                 unsigned int colMagic, size_t nDtypes) :
+        row_(row), colmap_(colmap), colMagic_(colMagic), nDtypes_(nDtypes) {}
+
+    void modify_value(size_t cidx, double inval);
+
+private:
+    DataFrame row_;
+    const ColMap* colmap_;
+    unsigned int colMagic_;
+    size_t nDtypes_;
+};
+
 // View into single row
 struct DFRView
 {
-    explicit DFRView(DataFrameView&& view, const ColMap* colmap,
-                    unsigned int colMagic, size_t nDtypes) :
-        view_(view), colmap_(colmap), colMagic_(colMagic), nDtypes_(nDtypes) {}
+    explicit DFRView(DataFrameView&& view, IdxT idx, const DF* ptr) :
+        view_(view), idx_(idx), parent_(ptr) {}
 
     template<typename T>
     const T& get(size_t cidx) const
@@ -47,16 +64,23 @@ struct DFRView
     double get_as_f64(size_t cidx) const;
     int32_t get_as_i32(size_t cidx) const;
     int8_t get_as_i8(size_t cidx) const;
+
+    // Make a copy of row where this view points to
+    DFR copy() const;
+
+    const ColMap& get_colmap() const noexcept;
+
 private:
     DataFrameView view_;
-    const ColMap* colmap_;
-    unsigned int colMagic_;
-    size_t nDtypes_;
+    IdxT idx_; // row idx in dataframe
+    const DF* parent_; // pointer to dataframe
 };
+
 
 // DataFrame augmented with bookkeeping info
 struct DF
 {
+    friend struct DFRView;
     explicit DF(DataFrame&& df, ColMap&& colmap) :
         df_(df), colmap_(colmap) {computeColMagic();}
     explicit DF(DataFrame&& df, const ColMap& colmap) :

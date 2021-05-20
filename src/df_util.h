@@ -10,5 +10,6 @@ void load_addresses(const DF& df,
 
 
 void print(const DF& df);
+void print(const DFRView& df);
 
 }

@@ -10,7 +10,7 @@
 inline std::string slurp(const std::string& path)
 {
     std::ostringstream buf; 
-    std::ifstream input (path.c_str()); 
+    std::ifstream input(path.c_str()); 
     buf << input.rdbuf(); 
     return buf.str();
 }
@@ -83,4 +83,22 @@ std::string AttackerRule::debug_str() const
     ss << "post: " << std::get<1>(post_condition_) << "\n";
     ss << "cost: " << cost_ << "\n";
     return ss.str();
+}
+
+bool AttackerRule::is_applicable(const DFRView& row) const
+{
+    auto feature_id = std::get<0>(pre_conditions_);
+    auto left = std::get<1>(pre_conditions_);
+    auto right = std::get<2>(pre_conditions_);
+    auto feature = row.get_as_f64(feature_id);
+    return left <= feature && feature <= right;
+}
+
+DFR AttackerRule::apply(const DFRView& row) const
+{
+    auto feature_id = std::get<0>(post_condition_);
+    auto attack = std::get<1>(post_condition_);
+    auto newrow = row.copy();
+    newrow.modify_value(feature_id, attack);
+    return newrow;
 }

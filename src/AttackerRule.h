@@ -26,8 +26,8 @@ public:
     {
         return std::make_pair(std::get<1>(pre_conditions_), std::get<2>(pre_conditions_));
     }
-    bool is_applicable(const DF& row) const;
-    void apply(DF& row) const;
+    bool is_applicable(const DFRView& row) const;
+    DFR apply(const DFRView& row) const;
     std::string debug_str() const;
 private:
     std::tuple<size_t, double, double> pre_conditions_;

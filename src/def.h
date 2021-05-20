@@ -97,6 +97,7 @@ struct DF
     explicit DF(DataFrame&& df, const ColMap& colmap) :
         df_(df), colmap_(colmap) {computeColMagic();}
     DF(DF&& df) = default;
+    DF() = default;
 
 private:
     explicit DF(DataFrame&& df, const ColMap& colmap,
@@ -127,10 +128,25 @@ public:
         return colmap_;
     }
 
+    void set_colmap(const ColMap& colmap)
+    {
+        colmap_ = colmap;
+    }
+    void add_column(const char* colname, DataType dtype);
+
+    void append_row(const DFRView& view);
+
+    template<typename T>
+    void append_value(const char* colname, T value)
+    {
+        df_.template get_column<T>(colname).push_back(value);
+    }
+
 private:
+    void computeColMagic();
+
     DataFrame df_;
     ColMap colmap_;
-    void computeColMagic();
     unsigned int colMagic_;
     size_t nDtypes_;
 };

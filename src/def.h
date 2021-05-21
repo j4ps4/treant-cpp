@@ -36,7 +36,7 @@ struct DF;
 // Single row
 struct DFR
 {
-    explicit DFR(const DataFrame& row, const ColMap* colmap,
+    explicit DFR(DataFrame&& row, const ColMap* colmap,
                  unsigned int colMagic, size_t nDtypes) :
         row_(row), colmap_(colmap), colMagic_(colMagic), nDtypes_(nDtypes) {}
 
@@ -63,6 +63,7 @@ private:
 // View into single row
 struct DFRView
 {
+    friend struct DF;
     explicit DFRView(DataFrameView&& view, IdxT idx, const DF* ptr) :
         view_(view), idx_(idx), parent_(ptr) {}
 
@@ -70,6 +71,11 @@ struct DFRView
     const T& get(size_t cidx) const
     {
         return view_.template get_column<T>(cidx)[0];
+    }
+    template<typename T>
+    const T& get(const char* colname) const
+    {
+        return view_.template get_column<T>(colname)[0];
     }
 
     double get_as_f64(size_t cidx) const;
@@ -80,6 +86,8 @@ struct DFRView
     DFR copy() const;
 
     const ColMap& get_colmap() const noexcept;
+
+    bool operator==(const DFR& rhs) const;
 
 private:
     DataFrameView view_;
@@ -98,7 +106,6 @@ struct DF
         df_(df), colmap_(colmap) {computeColMagic();}
     DF(DF&& df) = default;
     DF() = default;
-
 private:
     explicit DF(DataFrame&& df, const ColMap& colmap,
                 unsigned int colMagic, size_t nDtypes) :
@@ -131,10 +138,13 @@ public:
     void set_colmap(const ColMap& colmap)
     {
         colmap_ = colmap;
+        computeColMagic();
     }
+
     void add_column(const char* colname, DataType dtype);
 
     void append_row(const DFRView& view);
+    void append_row(const DFR& row);
 
     template<typename T>
     void append_value(const char* colname, T value)
@@ -144,7 +154,7 @@ public:
 
 private:
     void computeColMagic();
-
+    void initializeFromColMap();
     DataFrame df_;
     ColMap colmap_;
     unsigned int colMagic_;

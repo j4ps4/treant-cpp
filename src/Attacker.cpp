@@ -4,6 +4,9 @@
 #include <array>
 #include <vector>
 
+#include <fmt/core.h>
+
+#include "DF_util.h"
 #include "Attacker.h"
 
 const char* BUDG = "_budget";
@@ -20,7 +23,7 @@ bool check_equal_perturbation(const DF& attacks, const std::pair<DFR, int32_t> y
     for (size_t i = 0; i < height; i++)
     {
         auto row = attacks.get_row_view(i);
-        if (is_equal_perturbation(row, pair))
+        if (is_equal_perturbation(row, y))
         {
             return true;
         }
@@ -30,7 +33,7 @@ bool check_equal_perturbation(const DF& attacks, const std::pair<DFR, int32_t> y
 
 DF Attacker::compute_attack(const DFRView& x, size_t feature_id, int cost) const
 {
-    std::deque<std::pair<DFR, int>> queue = {{x.copy(), cost}};
+    std::deque<std::pair<DFR, int32_t>> queue = {{x.copy(), cost}};
     DF attacks;
     attacks.set_colmap(x.get_colmap());
     attacks.add_column(BUDG, DataType::Int);
@@ -78,4 +81,24 @@ DF Attacker::compute_attack(const DFRView& x, size_t feature_id, int cost) const
         }
     }
     return attacks;
+}
+
+void Attacker::compute_attacks(const DF& X) const
+{
+    std::vector<size_t> fs;
+    for (const auto& r : rules_)
+    {
+        auto f = r.get_target_feature();
+        fs.push_back(f);
+    }
+    auto H = X.shape().first;
+    for (size_t i = 0; i < H; i++)
+    {
+        auto rw = X.get_row_view(i);
+        for (auto j : fs)
+        {
+            fmt::print("===== attacks for feature {}: ======\n", j);
+            df::print(compute_attack(rw, j, 0));
+        }
+    }
 }

@@ -48,6 +48,10 @@ struct DFR
         nDtypes_ = rhs.nDtypes_;
         return *this;
     }
+    DFR(DFR&& rhs) : row_(std::move(rhs.row_)), colmap_(rhs.colmap_),
+        colMagic_(rhs.colMagic_), nDtypes_(rhs.nDtypes_) {}
+    DFR(const DFR& rhs) : row_(rhs.row_), colmap_(rhs.colmap_),
+        colMagic_(rhs.colMagic_), nDtypes_(rhs.nDtypes_) {}
 
     void modify_value(size_t cidx, double inval);
     void assign_value(size_t cidx, double inval);
@@ -127,7 +131,7 @@ private:
         df_(df), colmap_(colmap), colMagic_(colMagic), nDtypes_(nDtypes) {}
 
 public:
-    DF get_data_by_idx(hmdf::Index2D<IdxT>) const;
+    DF get_data_by_idx(IdxT start, IdxT end) const;
 
     DFR get_row(IdxT idx) const;
     DFRView get_row_view(IdxT idx) const;
@@ -154,6 +158,7 @@ public:
     void set_colmap(const ColMap& colmap)
     {
         colmap_ = colmap;
+        initializeFromColMap();
         computeColMagic();
     }
 

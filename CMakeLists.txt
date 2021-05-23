@@ -13,6 +13,7 @@ set(source_dir "src")
 set(main_cpp ${source_dir}/main.cpp)
 set(target_name treant)
 
+set(main_src ${main_cpp} ${source_dir}/Attacker.cpp ${source_dir}/AttackerRule.cpp ${source_dir}/util.cpp)
 file(GLOB_RECURSE DF_src CONFIGURE_DEPENDS ${source_dir}/DF*.cpp)
 
 option(ENABLE_MY_TESTING "Enable My Tests" ON)
@@ -37,7 +38,7 @@ CPMAddPackage("gh:dropbox/json11@1.0.0")
 CPMAddPackage("gh:catchorg/Catch2@2.5.0")
 set(CPM_USE_LOCAL_PACKAGES)
 
-add_executable(${target_name} ${main_cpp} ${source_dir}/util.cpp)
+add_executable(${target_name} ${main_src})
 add_library(DF STATIC ${DF_src})
 
 target_link_libraries(DF bz2 DataFrame fmt)

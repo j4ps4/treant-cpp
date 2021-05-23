@@ -1,6 +1,7 @@
 
-DF DF::get_data_by_idx(hmdf::Index2D<IdxT> idx) const
+DF DF::get_data_by_idx(IdxT start, IdxT end) const
 {
+    auto idx = hmdf::Index2D<IdxT>{start, end};
     switch(this->nDtypes_){
   case 1:
   {

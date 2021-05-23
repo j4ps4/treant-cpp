@@ -2,7 +2,7 @@
 
 #include <map>
 
-#include "def.h"
+#include "DF.h"
 #include "AttackerRule.h"
 
 class Attacker

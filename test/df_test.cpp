@@ -32,4 +32,18 @@ TEST_CASE("DF tests", "[df]") {
         REQUIRE(!(rw2 == rw));
         REQUIRE(!(df2_0 == rw2));
     }
+    SECTION("adding a column") {
+        df2.add_column("budget", DataType::Int);
+        df2.append_value("budget", 10);
+        auto rw1 = df2.get_row(0);
+        rw = df.get_row_view(ridx);
+        REQUIRE(!(rw == rw1));
+        REQUIRE(rw.equal_disregarding(rw1, "budget"));
+        df.add_column("budget", DataType::Int);
+        df.append_value("budget", 8);
+        df.append_value("budget", 9);
+        df.append_value("budget", 10);
+        auto rwp = df.get_row_view(ridx);
+        REQUIRE(rwp == rw1);
+    }
 }

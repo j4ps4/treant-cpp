@@ -41,8 +41,16 @@ struct DFR
     explicit DFR(DataFrame&& row, const ColMap* colmap,
                  unsigned int colMagic, size_t nDtypes) :
         row_(row), colmap_(colmap), colMagic_(colMagic), nDtypes_(nDtypes) {}
+    DFR& operator=(DFR&& rhs) {
+        row_ = std::move(rhs.row_);
+        colmap_ = rhs.colmap_;
+        colMagic_ = rhs.colMagic_;
+        nDtypes_ = rhs.nDtypes_;
+        return *this;
+    }
 
     void modify_value(size_t cidx, double inval);
+    void assign_value(size_t cidx, double inval);
 
     template<typename T>
     const T& get(size_t cidx) const
@@ -54,6 +62,7 @@ struct DFR
     {
         return *colmap_;
     }
+    double get_as_f64(size_t cidx) const;
 
     bool operator==(const DFRView& rhs) const;
 
@@ -93,6 +102,7 @@ struct DFRView
 
     bool operator==(const DFR& rhs) const;
     bool operator==(const DFRView& rhs) const;
+    bool equal_disregarding(const DFR& rhs, const char* colname) const;
 
 private:
     DataFrameView view_;

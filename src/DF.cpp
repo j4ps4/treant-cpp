@@ -87,6 +87,45 @@ void DFR::modify_value(size_t cidx, double inval)
     throw std::runtime_error("invalid dtype???");
 }
 
+void DFR::assign_value(size_t cidx, double inval)
+{
+    auto dtype = colmap_->at(cidx).second;
+    switch(dtype)
+    {
+        case DataType::Int:
+        {
+            row_.get_column<int32_t>(cidx)[0] = static_cast<int32_t>(inval);
+            return;
+        }
+        case DataType::UInt:
+        {
+            row_.get_column<uint32_t>(cidx)[0] = static_cast<uint32_t>(inval);
+            return;
+        }
+        case DataType::Double:
+        {
+            row_.get_column<double>(cidx)[0] = inval;
+            return;
+        }
+        case DataType::Float:
+        {
+            row_.get_column<float>(cidx)[0] = static_cast<float>(inval);
+            return;
+        }
+        case DataType::Char:
+        {
+            row_.get_column<int8_t>(cidx)[0] = static_cast<int8_t>(inval);
+            return;
+        }
+        case DataType::UChar:
+        {
+            row_.get_column<uint8_t>(cidx)[0] = static_cast<uint8_t>(inval);
+            return;
+        }
+    }
+    throw std::runtime_error("invalid dtype???");
+}
+
 
 void DF::add_column(const char* colname, DataType dtype)
 {
@@ -277,6 +316,44 @@ void DF::append_row(const DFR& row)
         df_.append_index(df_.get_index().back()+1);
 }
 
+double DFR::get_as_f64(size_t cidx) const
+{
+    auto dtype = colmap_->at(cidx).second;
+    switch(dtype)
+    {
+        case DataType::Int:
+        {
+            auto val = row_.get_column<int32_t>(cidx)[0];
+            return static_cast<double>(val);
+        }
+        case DataType::UInt:
+        {
+            auto val = row_.get_column<uint32_t>(cidx)[0];
+            return static_cast<double>(val);
+        }
+        case DataType::Double:
+        {
+            return row_.get_column<double>(cidx)[0];
+        }
+        case DataType::Float:
+        {
+            auto val = row_.get_column<float>(cidx)[0];
+            return static_cast<double>(val);
+        }
+        case DataType::Char:
+        {
+            auto val = row_.get_column<int8_t>(cidx)[0];
+            return static_cast<double>(val);
+        }
+        case DataType::UChar:
+        {
+            auto val = row_.get_column<uint8_t>(cidx)[0];
+            return static_cast<double>(val);
+        }
+    }
+    throw std::runtime_error("invalid dtype???");
+}
+
 const ColMap& DFRView::get_colmap() const noexcept
 {
     return parent_->colmap_;
@@ -396,6 +473,8 @@ int8_t DFRView::get_as_i8(size_t cidx) const
 
 bool DFRView::operator==(const DFR& rhs) const
 {
+    if (get_colmap().size() != rhs.get_colmap().size())
+        return false;
     for (const auto& [idx, pair] : get_colmap())
     {
         auto& colname = pair.first;
@@ -450,12 +529,68 @@ bool DFRView::operator==(const DFRView& rhs) const
 {
     if (this->parent_ == rhs.parent_ && this->idx_ == rhs.idx_)
         return true;
+    if (get_colmap().size() != rhs.get_colmap().size())
+        return false;
     for (const auto& [idx, pair] : get_colmap())
     {
         auto& colname = pair.first;
         auto dtype = pair.second;
         const auto& other = rhs.get_colmap().at(idx);
         if (other.first != colname || other.second != dtype)
+            return false;
+        switch(dtype)
+        {
+            case DataType::Int:
+            {
+                if (get<int32_t>(idx) != rhs.get<int32_t>(idx))
+                    return false;
+                break;
+            }
+            case DataType::UInt:
+            {
+                if (get<uint32_t>(idx) != rhs.get<uint32_t>(idx))
+                    return false;
+                break;
+            }
+            case DataType::Double:
+            {
+                if (get<double>(idx) != rhs.get<double>(idx))
+                    return false;
+                break;
+            }
+            case DataType::Float:
+            {
+                if (get<float>(idx) != rhs.get<float>(idx))
+                    return false;
+                break;
+            }
+            case DataType::Char:
+            {
+                if (get<int8_t>(idx) != rhs.get<int8_t>(idx))
+                    return false;
+                break;
+            }
+            case DataType::UChar:
+            {
+                if (get<uint8_t>(idx) != rhs.get<uint8_t>(idx))
+                    return false;
+                break;
+            }
+        }
+    }
+    return true;
+}
+
+bool DFRView::equal_disregarding(const DFR& rhs, const char* colname) const
+{
+    for (const auto& [idx, pair] : get_colmap())
+    {
+        auto& thiscolname = pair.first;
+        if (thiscolname == colname)
+            continue;
+        auto dtype = pair.second;
+        const auto& other = rhs.get_colmap().at(idx);
+        if (other.first != thiscolname || other.second != dtype)
             return false;
         switch(dtype)
         {

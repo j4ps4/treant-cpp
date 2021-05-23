@@ -32,10 +32,12 @@ using ColMapWBool = std::map<size_t, std::pair<std::string, DataTypeWBool>>;
 ColMap boolToChar(const ColMapWBool& colmap);
 
 struct DF;
+struct DFRView;
 
 // Single row
 struct DFR
 {
+    friend struct DFRView;
     explicit DFR(DataFrame&& row, const ColMap* colmap,
                  unsigned int colMagic, size_t nDtypes) :
         row_(row), colmap_(colmap), colMagic_(colMagic), nDtypes_(nDtypes) {}
@@ -52,6 +54,8 @@ struct DFR
     {
         return *colmap_;
     }
+
+    bool operator==(const DFRView& rhs) const;
 
 private:
     DataFrame row_;
@@ -88,6 +92,7 @@ struct DFRView
     const ColMap& get_colmap() const noexcept;
 
     bool operator==(const DFR& rhs) const;
+    bool operator==(const DFRView& rhs) const;
 
 private:
     DataFrameView view_;
@@ -114,6 +119,7 @@ private:
 public:
     DF get_data_by_idx(hmdf::Index2D<IdxT>) const;
 
+    DFR get_row(IdxT idx) const;
     DFRView get_row_view(IdxT idx) const;
 
     auto shape() const noexcept {return df_.shape();}
@@ -141,10 +147,16 @@ public:
         computeColMagic();
     }
 
+    const std::vector<IdxT>& get_index() const
+    {
+        return df_.get_index();
+    }
+
     void add_column(const char* colname, DataType dtype);
 
     void append_row(const DFRView& view);
     void append_row(const DFR& row);
+    //void append_row(DFR&& row);
 
     template<typename T>
     void append_value(const char* colname, T value)

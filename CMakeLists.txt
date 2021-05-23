@@ -13,7 +13,7 @@ set(source_dir "src")
 set(main_cpp ${source_dir}/main.cpp)
 set(target_name treant)
 
-file(GLOB_RECURSE src CONFIGURE_DEPENDS ${source_dir}/*.cpp)
+file(GLOB_RECURSE DF_src CONFIGURE_DEPENDS ${source_dir}/DF*.cpp)
 
 option(ENABLE_MY_TESTING "Enable My Tests" ON)
 
@@ -37,13 +37,18 @@ CPMAddPackage("gh:dropbox/json11@1.0.0")
 CPMAddPackage("gh:catchorg/Catch2@2.5.0")
 set(CPM_USE_LOCAL_PACKAGES)
 
-add_executable(${target_name} ${main_cpp} ${src})
+add_executable(${target_name} ${main_cpp} ${source_dir}/util.cpp)
+add_library(DF STATIC ${DF_src})
 
-target_link_libraries(${target_name} cxxopts fmt nlopt bz2 DataFrame json11)
+target_link_libraries(DF bz2 DataFrame fmt)
+target_link_libraries(${target_name} DF cxxopts fmt nlopt bz2 json11)
 
 target_compile_options(${target_name} PRIVATE $<$<CONFIG:Debug>:-Og -Wall -Wno-unused-variable -Woverloaded-virtual>)
 target_compile_options(${target_name} PRIVATE $<$<CONFIG:Release>:-O3 -mtune=native -march=native>)
+target_compile_options(DF PRIVATE $<$<CONFIG:Debug>:-Og -Wall -Wno-unused-variable -Woverloaded-virtual>)
+target_compile_options(DF PRIVATE $<$<CONFIG:Release>:-O3 -mtune=native -march=native>)
 target_compile_features(${target_name} PRIVATE cxx_std_17)
+target_compile_features(DF PRIVATE cxx_std_17)
 
 if(ENABLE_MY_TESTING)
   enable_testing()

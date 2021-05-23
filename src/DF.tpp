@@ -289,6 +289,302 @@ DF DF::get_data_by_idx(hmdf::Index2D<IdxT> idx) const
     throw std::runtime_error(s);
 }
 
+DFR DF::get_row(IdxT idx) const
+{
+    if (idx > shape().first - 1)
+    {
+        auto s = fmt::format("index {} too large for DataFrame of size {}", idx, shape().first);
+        throw std::out_of_range(s);
+    }
+    auto slice = hmdf::Index2D<IdxT>{idx,idx};
+    switch(this->nDtypes_){
+  case 1:
+  {
+    switch(this->colMagic_){
+    case 0:{
+    auto row = df_.get_data_by_idx<int32_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 1:{
+    auto row = df_.get_data_by_idx<uint32_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 2:{
+    auto row = df_.get_data_by_idx<double>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 3:{
+    auto row = df_.get_data_by_idx<float>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 4:{
+    auto row = df_.get_data_by_idx<int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 5:{
+    auto row = df_.get_data_by_idx<uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    }
+  }
+  case 2:
+  {
+    switch(this->colMagic_){
+    case 0:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 1:{
+    auto row = df_.get_data_by_idx<int32_t,double>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 2:{
+    auto row = df_.get_data_by_idx<int32_t,float>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 3:{
+    auto row = df_.get_data_by_idx<int32_t,int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 4:{
+    auto row = df_.get_data_by_idx<int32_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 5:{
+    auto row = df_.get_data_by_idx<uint32_t,double>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 6:{
+    auto row = df_.get_data_by_idx<uint32_t,float>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 7:{
+    auto row = df_.get_data_by_idx<uint32_t,int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 8:{
+    auto row = df_.get_data_by_idx<uint32_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 9:{
+    auto row = df_.get_data_by_idx<double,float>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 10:{
+    auto row = df_.get_data_by_idx<double,int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 11:{
+    auto row = df_.get_data_by_idx<double,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 12:{
+    auto row = df_.get_data_by_idx<float,int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 13:{
+    auto row = df_.get_data_by_idx<float,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 14:{
+    auto row = df_.get_data_by_idx<int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    }
+  }
+  case 3:
+  {
+    switch(this->colMagic_){
+    case 0:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t,double>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 1:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t,float>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 2:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t,int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 3:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 4:{
+    auto row = df_.get_data_by_idx<int32_t,double,float>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 5:{
+    auto row = df_.get_data_by_idx<int32_t,double,int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 6:{
+    auto row = df_.get_data_by_idx<int32_t,double,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 7:{
+    auto row = df_.get_data_by_idx<int32_t,float,int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 8:{
+    auto row = df_.get_data_by_idx<int32_t,float,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 9:{
+    auto row = df_.get_data_by_idx<int32_t,int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 10:{
+    auto row = df_.get_data_by_idx<uint32_t,double,float>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 11:{
+    auto row = df_.get_data_by_idx<uint32_t,double,int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 12:{
+    auto row = df_.get_data_by_idx<uint32_t,double,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 13:{
+    auto row = df_.get_data_by_idx<uint32_t,float,int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 14:{
+    auto row = df_.get_data_by_idx<uint32_t,float,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 15:{
+    auto row = df_.get_data_by_idx<uint32_t,int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 16:{
+    auto row = df_.get_data_by_idx<double,float,int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 17:{
+    auto row = df_.get_data_by_idx<double,float,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 18:{
+    auto row = df_.get_data_by_idx<double,int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 19:{
+    auto row = df_.get_data_by_idx<float,int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    }
+  }
+  case 4:
+  {
+    switch(this->colMagic_){
+    case 0:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t,double,float>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 1:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t,double,int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 2:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t,double,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 3:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t,float,int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 4:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t,float,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 5:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t,int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 6:{
+    auto row = df_.get_data_by_idx<int32_t,double,float,int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 7:{
+    auto row = df_.get_data_by_idx<int32_t,double,float,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 8:{
+    auto row = df_.get_data_by_idx<int32_t,double,int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 9:{
+    auto row = df_.get_data_by_idx<int32_t,float,int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 10:{
+    auto row = df_.get_data_by_idx<uint32_t,double,float,int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 11:{
+    auto row = df_.get_data_by_idx<uint32_t,double,float,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 12:{
+    auto row = df_.get_data_by_idx<uint32_t,double,int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 13:{
+    auto row = df_.get_data_by_idx<uint32_t,float,int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 14:{
+    auto row = df_.get_data_by_idx<double,float,int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    }
+  }
+  case 5:
+  {
+    switch(this->colMagic_){
+    case 0:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t,double,float,int8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 1:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t,double,float,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 2:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t,double,int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 3:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t,float,int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 4:{
+    auto row = df_.get_data_by_idx<int32_t,double,float,int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    case 5:{
+    auto row = df_.get_data_by_idx<uint32_t,double,float,int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    }
+  }
+  case 6:
+  {
+    switch(this->colMagic_){
+    case 0:{
+    auto row = df_.get_data_by_idx<int32_t,uint32_t,double,float,int8_t,uint8_t>(slice);
+    return DFR(std::move(row), &colmap_, colMagic_, nDtypes_);
+    }
+    }
+  }
+}
+    auto s = fmt::format("invalid magic ({},{})", nDtypes_, colMagic_);
+    throw std::runtime_error(s);
+}
+
 DFRView DF::get_row_view(IdxT idx) const
 {
     if (idx > shape().first - 1)

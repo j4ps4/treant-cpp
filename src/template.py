@@ -76,10 +76,10 @@ def template2(content):
     return(content)
 
 
-f = open("def.input","r")
+f = open("DF.input","r")
 content = f.read()
 content = template1(content)
 content = template2(content)
 out = Template(content).substitute(COL_TP=fullMagic(dtypes))
-f2 = open("def.tpp","w")
+f2 = open("DF.tpp","w")
 f2.write(out)

@@ -1,9 +1,9 @@
 #include <set>
 #include <stdexcept>
 #include <stdint.h>
+#include <fmt/core.h>
 
-#include "def.h"
-#include "util.h"
+#include "DF.h"
 
 namespace
 {
@@ -394,4 +394,115 @@ int8_t DFRView::get_as_i8(size_t cidx) const
     throw std::runtime_error("invalid dtype???");
 }
 
-#include "def.tpp"
+bool DFRView::operator==(const DFR& rhs) const
+{
+    for (const auto& [idx, pair] : get_colmap())
+    {
+        auto& colname = pair.first;
+        auto dtype = pair.second;
+        const auto& other = rhs.get_colmap().at(idx);
+        if (other.first != colname || other.second != dtype)
+            return false;
+        switch(dtype)
+        {
+            case DataType::Int:
+            {
+                if (get<int32_t>(idx) != rhs.get<int32_t>(idx))
+                    return false;
+                break;
+            }
+            case DataType::UInt:
+            {
+                if (get<uint32_t>(idx) != rhs.get<uint32_t>(idx))
+                    return false;
+                break;
+            }
+            case DataType::Double:
+            {
+                if (get<double>(idx) != rhs.get<double>(idx))
+                    return false;
+                break;
+            }
+            case DataType::Float:
+            {
+                if (get<float>(idx) != rhs.get<float>(idx))
+                    return false;
+                break;
+            }
+            case DataType::Char:
+            {
+                if (get<int8_t>(idx) != rhs.get<int8_t>(idx))
+                    return false;
+                break;
+            }
+            case DataType::UChar:
+            {
+                if (get<uint8_t>(idx) != rhs.get<uint8_t>(idx))
+                    return false;
+                break;
+            }
+        }
+    }
+    return true;
+}
+
+bool DFRView::operator==(const DFRView& rhs) const
+{
+    if (this->parent_ == rhs.parent_ && this->idx_ == rhs.idx_)
+        return true;
+    for (const auto& [idx, pair] : get_colmap())
+    {
+        auto& colname = pair.first;
+        auto dtype = pair.second;
+        const auto& other = rhs.get_colmap().at(idx);
+        if (other.first != colname || other.second != dtype)
+            return false;
+        switch(dtype)
+        {
+            case DataType::Int:
+            {
+                if (get<int32_t>(idx) != rhs.get<int32_t>(idx))
+                    return false;
+                break;
+            }
+            case DataType::UInt:
+            {
+                if (get<uint32_t>(idx) != rhs.get<uint32_t>(idx))
+                    return false;
+                break;
+            }
+            case DataType::Double:
+            {
+                if (get<double>(idx) != rhs.get<double>(idx))
+                    return false;
+                break;
+            }
+            case DataType::Float:
+            {
+                if (get<float>(idx) != rhs.get<float>(idx))
+                    return false;
+                break;
+            }
+            case DataType::Char:
+            {
+                if (get<int8_t>(idx) != rhs.get<int8_t>(idx))
+                    return false;
+                break;
+            }
+            case DataType::UChar:
+            {
+                if (get<uint8_t>(idx) != rhs.get<uint8_t>(idx))
+                    return false;
+                break;
+            }
+        }
+    }
+    return true;
+}
+
+bool DFR::operator==(const DFRView& rhs) const
+{
+    return rhs.operator==(*this);
+}
+
+#include "DF.tpp"

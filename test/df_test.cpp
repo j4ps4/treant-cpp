@@ -1,63 +1,35 @@
 #include <vector>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/string.hpp>
-#include <cereal/archives/binary.hpp>
-#include <fstream>
 
-#include "def.h"
+#include "DF.h"
+#include "DF_read.h"
 
-constexpr size_t N = 3;
+#define CATCH_CONFIG_MAIN // This tells the catch header to generate a main
+#include <catch2/catch.hpp>
 
-void input(const char* fn)
-{
-    std::vector<IdxT> idx(N);
-    std::iota(idx.begin(), idx.end(), 0);
-    DataFrame df;
-    df.load_index(std::move(idx));
-
-    std::ifstream is(fn, std::ios::binary);
-    cereal::BinaryInputArchive iarchive(is);
-    std::vector<int> vec1;
-    std::vector<std::string> vec2;
-    iarchive(vec1, vec2);
-
-    df.load_column("intvals", std::move(vec1), hmdf::nan_policy::dont_pad_with_nans);
-    df.load_column("stringvals", std::move(vec2), hmdf::nan_policy::dont_pad_with_nans);
-    df.write<std::ostream, int, std::string>(std::cout, hmdf::io_format::csv2); 
-}
-
-void output(const char* fn)
-{
-    std::vector<int> vals;
-    std::vector<std::string> vals2;
-    vals.reserve(N);
-    vals2.reserve(N);
-
-    std::vector<IdxT> idx(N);
-    std::iota(idx.begin(), idx.end(), 0);
-
-    DataFrame df;
-    df.load_index(std::move(idx));
-    df.load_column("intvals", std::move(vals), hmdf::nan_policy::dont_pad_with_nans);
-    df.load_column("stringvals", std::move(vals2), hmdf::nan_policy::dont_pad_with_nans);
-    df.append_column<int>("intvals", 10);
-    df.append_column<std::string>("stringvals", "hello");
-    // df.get_column<int>((size_t)0).push_back(10);
-    // df.get_column<int>((size_t)0).push_back(20);
-
-    std::ofstream os(fn, std::ios::binary);
-    cereal::BinaryOutputArchive archive(os);
-    auto& vec1 = df.get_column<int>("intvals");
-    auto& vec2 = df.get_column<std::string>("stringvals");
-    archive(vec1, vec2);
-}
-
-int main(int argc, char** argv)
-{
-    const char* fn = "out.cereal";
-    if (argc > 1)
-        output(fn);
-    else
-        input(fn);
-
+TEST_CASE("DF tests", "[df]") {
+    auto res = df::read_bz2("../valid.csv.bz2");
+    REQUIRE(!res.has_error());
+    auto& df = res.value();
+    size_t ridx = 2;
+    DF df2;
+    df2.append_row(df.get_row(ridx));
+    auto df2_0 = df2.get_row(0);
+    auto rw = df.get_row_view(ridx);
+    SECTION("appended row is equal to original") {
+        REQUIRE(df2_0 == rw);
+    }
+    SECTION("row view is equal to original") {
+        auto rw2 = df2.get_row_view(0);
+        REQUIRE(rw2 == rw);
+    }
+    SECTION("row view is equal to itself") {
+        auto rw2 = df2.get_row_view(0);
+        REQUIRE(rw2 == rw2);
+        REQUIRE(rw == rw);
+    }
+    SECTION("different row view is not equal") {
+        auto rw2 = df.get_row_view(1);
+        REQUIRE(!(rw2 == rw));
+        REQUIRE(!(df2_0 == rw2));
+    }
 }

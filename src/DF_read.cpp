@@ -10,12 +10,36 @@
 
 #include <fmt/core.h>
 
-#include "def.h"
-#include "util.h"
-#include "df_util.h"
-#include "df_read.h"
+#include "DF.h"
+#include "DF_util.h"
+#include "DF_read.h"
 
 namespace {
+
+DataTypeWBool readDt(const std::string& s)
+{
+    if (s == "i32")
+        return DataTypeWBool::Int;
+    else if (s == "u32")
+        return DataTypeWBool::UInt;
+    else if (s == "f64")
+        return DataTypeWBool::Double;
+    else if (s == "f32")
+        return DataTypeWBool::Float;
+    else if (s == "i8")
+        return DataTypeWBool::Char;
+    else if (s == "u8")
+        return DataTypeWBool::UChar;
+    else if (s == "bool")
+        return DataTypeWBool::Bool;
+    else if (s.empty())
+        return DataTypeWBool::Double;
+    else
+    {
+        auto s1 = fmt::format("invalid datatype specifier: {}", s);
+        throw std::runtime_error(s1);
+    }
+}
 
 constexpr int BS = 1048576; // 1 GB
 
@@ -38,14 +62,14 @@ ColMapWBool parseColumns(const std::string& s)
         {
             auto frag = s.substr(pos, pos1-pos);
             auto [before, after] = splitByColon(frag);
-            out[idx] = {before, Util::readDt(after)};
+            out[idx] = {before, readDt(after)};
             pos = pos1+1;
             idx++;
         }
     } while (pos1 != std::string::npos && pos != 0);
     auto frag = s.substr(pos);
     auto [before, after] = splitByColon(frag);
-    out[idx] = {before, Util::readDt(after)};
+    out[idx] = {before, readDt(after)};
     return out;
 }
 

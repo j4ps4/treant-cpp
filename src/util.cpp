@@ -3,28 +3,6 @@
 
 namespace Util {
 
-DataTypeWBool readDt(const std::string& s)
-{
-    if (s == "i32")
-        return DataTypeWBool::Int;
-    else if (s == "u32")
-        return DataTypeWBool::UInt;
-    else if (s == "f64")
-        return DataTypeWBool::Double;
-    else if (s == "f32")
-        return DataTypeWBool::Float;
-    else if (s == "i8")
-        return DataTypeWBool::Char;
-    else if (s == "u8")
-        return DataTypeWBool::UChar;
-    else if (s == "bool")
-        return DataTypeWBool::Bool;
-    else if (s.empty())
-        return DataTypeWBool::Double;
-    else
-        die("invalid datatype specifier: {}", s);
-}
-
 }
 
 std::ostream& operator<<(std::ostream& os, DataType t)

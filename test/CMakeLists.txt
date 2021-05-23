@@ -1,5 +1,12 @@
-add_executable(json_test json_test.cpp)
-target_link_libraries(json_test json11 Catch2)
-target_compile_features(json_test PRIVATE cxx_std_17)
+set(test_bin1 df_test)
+add_executable(${test_bin1} df_test.cpp)
+target_link_libraries(${test_bin1} Catch2 DF)
+target_include_directories(${test_bin1} PRIVATE ../${source_dir})
+target_compile_features(${test_bin1} PRIVATE cxx_std_17)
 
-add_test(NAME json COMMAND json_test)
+add_test(NAME df COMMAND ${test_bin1})
+
+add_custom_command(
+    TARGET ${test_bin1} PRE_BUILD
+    COMMAND ./fix-test.sh
+)

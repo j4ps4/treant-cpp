@@ -7,7 +7,7 @@
 #include <sstream>
 #include <iomanip>
 
-#include "def.h"
+#include "DF.h"
 
 namespace Util {
 
@@ -19,8 +19,6 @@ template<typename... Args>
     fmt::print(stderr, "\n");
     exit(1);
 }
-
-DataTypeWBool readDt(const std::string& s);
 
 }
 

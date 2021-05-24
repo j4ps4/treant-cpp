@@ -28,6 +28,8 @@ public:
     }
     bool is_applicable(const DFRView& row) const;
     DFR apply(const DFRView& row) const;
+    bool is_applicable(const DFR& row) const;
+    DFR apply(const DFR& row) const;
     std::string debug_str() const;
 private:
     std::tuple<size_t, double, double> pre_conditions_;

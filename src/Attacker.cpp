@@ -17,7 +17,7 @@ bool is_equal_perturbation(const DFRView& x, const std::pair<DFR, int32_t>& y)
          x.get<int32_t>(BUDG) <= std::get<1>(y);
 }
 
-bool check_equal_perturbation(const DF& attacks, const std::pair<DFR, int32_t> y)
+bool check_equal_perturbation(const DF& attacks, const std::pair<DFR, int32_t>& y)
 {
     auto height = attacks.shape().first;
     for (size_t i = 0; i < height; i++)
@@ -48,19 +48,20 @@ DF Attacker::compute_attack(const DFRView& x, size_t feature_id, int cost) const
             [=](const auto& atk){return atk.get_target_feature() == feature_id;});
         AttkList applicables2;
         std::copy_if(applicables1.cbegin(), applicables1.cend(), std::back_inserter(applicables2),
-            [&](const auto& atk){return atk.is_applicable(x);});
+            [&](const auto& atk){return atk.is_applicable(inst);});
         for (auto& r : applicables2)
         {
             if (budget_ >= budg + r.get_cost())
             {
-                auto x_prime = r.apply(x);
+                auto x_prime = r.apply(inst);
                 auto cost_prime = budg + r.get_cost();
                 auto pair = std::make_pair(x_prime, cost_prime);
-                auto height = attacks.shape().first;
                 if (!check_equal_perturbation(attacks, pair))
+                {
                     queue.push_front(pair);
+                }
                 auto f = r.get_target_feature();
-                std::array<double,2> sarr = {x.get_as_f64(f), x_prime.get_as_f64(f)};
+                std::array<double,2> sarr = {inst.get_as_f64(f), x_prime.get_as_f64(f)};
                 std::sort(sarr.begin(), sarr.end());
                 auto [low, high] = sarr;
                 auto [pre1, pre2] = r.get_pre_interval();

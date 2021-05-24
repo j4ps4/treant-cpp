@@ -52,6 +52,6 @@ int main(int argc, const char** argv)
         Util::die("{}", res2.error());
     auto& attkl = res2.value();
     Attacker attacker(attkl, 50);
-    auto df2 = df.get_data_by_idx(0,9);
+    auto df2 = df.get_data_by_idx(0,2);
     attacker.compute_attacks(df2);
 }

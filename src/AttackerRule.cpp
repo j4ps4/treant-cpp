@@ -91,7 +91,8 @@ bool AttackerRule::is_applicable(const DFRView& row) const
     auto left = std::get<1>(pre_conditions_);
     auto right = std::get<2>(pre_conditions_);
     auto feature = row.get_as_f64(feature_id);
-    return left <= feature && feature <= right;
+    auto res = left <= feature && feature <= right;
+    return res;
 }
 
 DFR AttackerRule::apply(const DFRView& row) const
@@ -99,6 +100,25 @@ DFR AttackerRule::apply(const DFRView& row) const
     auto feature_id = std::get<0>(post_condition_);
     auto attack = std::get<1>(post_condition_);
     auto newrow = row.copy();
+    newrow.modify_value(feature_id, attack);
+    return newrow;
+}
+
+bool AttackerRule::is_applicable(const DFR& row) const
+{
+    auto feature_id = std::get<0>(pre_conditions_);
+    auto left = std::get<1>(pre_conditions_);
+    auto right = std::get<2>(pre_conditions_);
+    auto feature = row.get_as_f64(feature_id);
+    auto res = left <= feature && feature <= right;
+    return res;
+}
+
+DFR AttackerRule::apply(const DFR& row) const
+{
+    auto feature_id = std::get<0>(post_condition_);
+    auto attack = std::get<1>(post_condition_);
+    auto newrow = row;
     newrow.modify_value(feature_id, attack);
     return newrow;
 }

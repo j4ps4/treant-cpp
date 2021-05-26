@@ -1,9 +1,13 @@
 #pragma once
 
-#define CREDIT_TYPES double, bool, int8_t, int8_t, uint8_t,\
+// #define CREDIT_TYPES double, bool, int8_t, int8_t, uint8_t,\
+//   double,double,double,double,double,double,double,double,double,\
+//   double,double,double,double,double,double,double,double,double,\
+//   bool
+#define CREDIT_TYPES double, double, double, double, double,\
   double,double,double,double,double,double,double,double,double,\
   double,double,double,double,double,double,double,double,double,\
-  bool
+  double
 
 using namespace std::literals::string_view_literals;
 static constexpr std::array<std::pair<std::string_view, size_t>, 24> column_map{

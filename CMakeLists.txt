@@ -14,7 +14,7 @@ set(df_dir ${src_dir}/DF2)
 set(main_cpp ${src_dir}/main.cpp)
 set(target_name treant)
 
-set(main_src ${main_cpp})
+set(main_src ${main_cpp} ${src_dir}/AttackerRule.cpp)
 #file(GLOB_RECURSE DF_src CONFIGURE_DEPENDS ${src_dir}/DF2/*.cpp)
 
 option(ENABLE_MY_TESTING "Enable My Tests" ON)
@@ -51,7 +51,7 @@ target_link_options(${target_name} PRIVATE $<$<CONFIG:Debug>:-pg>)
 #target_compile_options(DF PRIVATE $<$<CONFIG:Debug>:-Og -pg -Wall -Wno-unused-variable -Woverloaded-virtual>)
 #target_compile_options(DF PRIVATE $<$<CONFIG:Release>:-O3 -mtune=native -march=native>)
 #target_link_options(DF PRIVATE $<$<CONFIG:Debug>:-pg>)
-target_compile_features(${target_name} PRIVATE cxx_std_17)
+target_compile_features(${target_name} PRIVATE cxx_std_20)
 #target_compile_features(DF PRIVATE cxx_std_17)
 
 if(ENABLE_MY_TESTING)

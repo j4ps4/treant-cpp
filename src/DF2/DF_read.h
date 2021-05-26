@@ -97,7 +97,7 @@ void read<bool>(char* start, char* end, bool& val)
 {
     int8_t temp;
     std::from_chars(start, end, temp);
-    val = temp > 0 ? 1 : 0;
+    val = temp > 0 ? true : false;
 }
 
 static const auto chars = {',', '\n'};

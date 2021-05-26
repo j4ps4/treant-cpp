@@ -8,6 +8,8 @@
 #include "DF2/DF_util.h"
 #include "DF2/DF_read.h"
 #include "util.h"
+#include "AttackerRule.h"
+#include "Attacker.h"
 
 // int main(int argc, const char** argv)
 // {
@@ -48,6 +50,10 @@ int main(int argc, const char** argv)
     auto& df = res.value();
     std::cout << df.height() << std::endl;
     auto df2 = df.slice(0,10);
-    for (const auto& row : df2)
-        std::cout << row << std::endl;
+    // for (const auto& row : df2)
+    //     std::cout << row << std::endl;
+    auto res2 = load_attack_rules("attacks.json");
+    auto& rulz = res2.value();
+    Attacker<CREDIT_TYPES> atkr(rulz, 50);
+    atkr.compute_attacks(df, "lol");
 }

@@ -5,8 +5,8 @@
 #include <string>
 #include <variant>
 
-#include "DF.h"
 #include "result.hpp"
+#include "util.h"
 
 class AttackerRule
 {
@@ -26,10 +26,10 @@ public:
     {
         return std::make_pair(std::get<1>(pre_conditions_), std::get<2>(pre_conditions_));
     }
-    bool is_applicable(const DFRView& row) const;
-    DFR apply(const DFRView& row) const;
-    bool is_applicable(const DFR& row) const;
-    DFR apply(const DFR& row) const;
+    template<typename... Ts>
+    bool is_applicable(const std::tuple<Ts...>& row) const;
+    template<typename... Ts>
+    std::tuple<Ts...> apply(const std::tuple<Ts...>& row) const;
     std::string debug_str() const;
 private:
     std::tuple<size_t, double, double> pre_conditions_;
@@ -41,4 +41,26 @@ private:
 using AttkList = std::list<AttackerRule>;
 
 cpp::result<AttkList, std::string> 
-load_attack_rules(const std::string& fn, const ColMap& colmap);
+load_attack_rules(const std::string& fn);
+
+template<typename... Ts>
+bool AttackerRule::is_applicable(const std::tuple<Ts...>& row) const
+{
+    auto feature_id = std::get<0>(pre_conditions_);
+    auto left = std::get<1>(pre_conditions_);
+    auto right = std::get<2>(pre_conditions_);
+    auto feature = Util::tuple_index<double>(row, feature_id);
+    auto res = left <= feature && feature <= right;
+    return res;
+}
+
+template<typename... Ts>
+std::tuple<Ts...> AttackerRule::apply(const std::tuple<Ts...>& row) const
+{
+    auto feature_id = std::get<0>(post_condition_);
+    auto attack = std::get<1>(post_condition_);
+    std::tuple<Ts...> newrow = row;
+    double* loc = Util::tuple_ref<double>(newrow, feature_id);
+    *loc += attack;
+    return newrow;
+}

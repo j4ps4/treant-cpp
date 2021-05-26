@@ -18,6 +18,120 @@ template<typename... Args>
     exit(1);
 }
 
+template<typename T, typename... Ts>
+T tuple_index(const std::tuple<Ts...>& tupl, size_t idx)
+{
+    switch(idx)
+    {
+        case 0:
+            return std::get<0>(tupl);
+        case 1:
+            return std::get<1>(tupl);
+        case 2:
+            return std::get<2>(tupl);
+        case 3:
+            return std::get<3>(tupl);
+        case 4:
+            return std::get<4>(tupl);
+        case 5:
+            return std::get<5>(tupl);
+        case 6:
+            return std::get<6>(tupl);
+        case 7:
+            return std::get<7>(tupl);
+        case 8:
+            return std::get<8>(tupl);
+        case 9:
+            return std::get<9>(tupl);
+        case 10:
+            return std::get<10>(tupl);
+        case 11:
+            return std::get<11>(tupl);
+        case 12:
+            return std::get<12>(tupl);
+        case 13:
+            return std::get<13>(tupl);
+        case 14:
+            return std::get<14>(tupl);
+        case 15:
+            return std::get<15>(tupl);
+        case 16:
+            return std::get<16>(tupl);
+        case 17:
+            return std::get<17>(tupl);
+        case 18:
+            return std::get<18>(tupl);
+        case 19:
+            return std::get<19>(tupl);
+        case 20:
+            return std::get<20>(tupl);
+        case 21:
+            return std::get<21>(tupl);
+        case 22:
+            return std::get<22>(tupl);
+        case 23:
+            return std::get<23>(tupl);
+    }
+    throw std::out_of_range("tuple_index");
+}
+
+template<typename T, typename... Ts>
+T* tuple_ref(std::tuple<Ts...>& tupl, size_t idx)
+{
+    switch(idx)
+    {
+        case 0:
+            return &(std::get<0>(tupl));
+        case 1:
+            return &(std::get<1>(tupl));
+        case 2:
+            return &(std::get<2>(tupl));
+        case 3:
+            return &(std::get<3>(tupl));
+        case 4:
+            return &(std::get<4>(tupl));
+        case 5:
+            return &(std::get<5>(tupl));
+        case 6:
+            return &(std::get<6>(tupl));
+        case 7:
+            return &(std::get<7>(tupl));
+        case 8:
+            return &(std::get<8>(tupl));
+        case 9:
+            return &(std::get<9>(tupl));
+        case 10:
+            return &(std::get<10>(tupl));
+        case 11:
+            return &(std::get<11>(tupl));
+        // case 12:
+        //     return std::get<12>(tupl);
+        // case 13:
+        //     return std::get<13>(tupl);
+        // case 14:
+        //     return std::get<14>(tupl);
+        // case 15:
+        //     return std::get<15>(tupl);
+        // case 16:
+        //     return std::get<16>(tupl);
+        // case 17:
+        //     return std::get<17>(tupl);
+        // case 18:
+        //     return std::get<18>(tupl);
+        // case 19:
+        //     return std::get<19>(tupl);
+        // case 20:
+        //     return std::get<20>(tupl);
+        // case 21:
+        //     return std::get<21>(tupl);
+        // case 22:
+        //     return std::get<22>(tupl);
+        // case 23:
+        //     return std::get<23>(tupl);
+    }
+    throw std::out_of_range("tuple_index");
+}
+
 }
 
 template<typename T>

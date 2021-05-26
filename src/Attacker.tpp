@@ -2,27 +2,25 @@
 #include <algorithm>
 #include <iterator>
 #include <array>
-#include <vector>
 
 #include <fmt/core.h>
-
-#include "DF_util.h"
-#include "Attacker.h"
+//#include "DF2/DF_util.h"
 
 const char* BUDG = "_budget";
 
-bool is_equal_perturbation(const DFRView& x, const std::pair<DFR, int32_t>& y)
+template<typename... Ts>
+bool is_equal_perturbation(const PairT<Ts...>& x, const PairT<Ts...>& y)
 {
-    return x.equal_disregarding(std::get<0>(y), BUDG) &&
-         x.get<int32_t>(BUDG) <= std::get<1>(y);
+    return std::get<0>(x) == std::get<0>(y) &&
+         std::get<1>(x) <= std::get<1>(y);
 }
 
-bool check_equal_perturbation(const DF& attacks, const std::pair<DFR, int32_t>& y)
+template<typename... Ts>
+bool check_equal_perturbation(const TupleVec<Ts...>& attacks, const PairT<Ts...>& y)
 {
-    auto height = attacks.shape().first;
-    for (size_t i = 0; i < height; i++)
+    for (size_t i = 0; i < attacks.size(); i++)
     {
-        auto row = attacks.get_row_view(i);
+        auto row = attacks[i];
         if (is_equal_perturbation(row, y))
         {
             return true;
@@ -31,18 +29,18 @@ bool check_equal_perturbation(const DF& attacks, const std::pair<DFR, int32_t>& 
     return false;
 }
 
-DF Attacker::compute_attack(const DFRView& x, size_t feature_id, int cost) const
+template<typename... Ts>
+TupleVec<Ts...> Attacker<Ts...>::compute_attack(const std::tuple<Ts...>& x, size_t feature_id, int cost) const
 {
-    std::deque<std::pair<DFR, int32_t>> queue = {{x.copy(), cost}};
-    DF attacks;
-    attacks.set_colmap(x.get_colmap());
-    attacks.add_column(BUDG, DataType::Int);
+    using namespace Util;
+    std::deque<PairT<Ts...>> queue = {{x, cost}};
+    TupleVec<Ts...> attacks;
+
     while (queue.size() > 0)
     {
         auto [inst, budg] = queue.back();
         queue.pop_back();
-        attacks.append_row(inst);
-        attacks.append_value(BUDG, budg);
+        attacks.push_back(std::make_pair(inst, budg));
         AttkList applicables1;
         std::copy_if(rules_.cbegin(), rules_.cend(), std::back_inserter(applicables1),
             [=](const auto& atk){return atk.get_target_feature() == feature_id;});
@@ -61,7 +59,7 @@ DF Attacker::compute_attack(const DFRView& x, size_t feature_id, int cost) const
                     queue.push_front(pair);
                 }
                 auto f = r.get_target_feature();
-                std::array<double,2> sarr = {inst.get_as_f64(f), x_prime.get_as_f64(f)};
+                std::array<double,2> sarr = {tuple_index<double>(inst,f), tuple_index<double>(x_prime,f)};
                 std::sort(sarr.begin(), sarr.end());
                 auto [low, high] = sarr;
                 auto [pre1, pre2] = r.get_pre_interval();
@@ -70,21 +68,22 @@ DF Attacker::compute_attack(const DFRView& x, size_t feature_id, int cost) const
                     z.push_back(pre1);
                 if (low < pre2 && pre2 < high)
                     z.push_back(pre2);
-                for (double zi : z)
-                {
-                    x_prime = inst;
-                    x_prime.assign_value(f, zi);
-                    auto pair = std::make_pair(x_prime, cost_prime);
-                    if (!check_equal_perturbation(attacks, pair))
-                        queue.push_front(pair);
-                }
+                // for (double zi : z)
+                // {
+                //     x_prime = inst;
+                //     std::get<f>(x_prime) = zi;
+                //     auto pair = std::make_pair(x_prime, cost_prime);
+                //     if (!check_equal_perturbation(attacks, pair))
+                //         queue.push_front(pair);
+                // }
             }
         }
     }
     return attacks;
 }
 
-void Attacker::compute_attacks(const DF& X, const std::string& attacks_fn)
+template<typename... Ts>
+void Attacker<Ts...>::compute_attacks(const DF<Ts...>& X, const std::string& attacks_fn)
 {
     std::vector<size_t> fs;
     for (const auto& r : rules_)
@@ -92,10 +91,10 @@ void Attacker::compute_attacks(const DF& X, const std::string& attacks_fn)
         auto f = r.get_target_feature();
         fs.push_back(f);
     }
-    auto H = X.shape().first;
+    auto H = X.height();
     for (size_t i = 0; i < H; i++)
     {
-        auto rw = X.get_row_view(i);
+        auto rw = X[i];
         for (auto j : fs)
         {
             auto key = std::make_pair(i, j);
@@ -104,5 +103,19 @@ void Attacker::compute_attacks(const DF& X, const std::string& attacks_fn)
         }
     }
     fmt::print("computed {} attacks.\n", attacks_.size());
+    fmt::print("first 10 attacks:\n");
+    size_t count = 0;
+    for (auto& [key, vect] : attacks_)
+    {
+        if (count >= 10)
+            break;
+        for (auto& pair : vect)
+        {
+            auto& vec = std::get<0>(pair);
+            auto cost = std::get<1>(pair);
+            std::cout << vec << ", cost: " << cost << "\n";
+        }
+        count++;
+    }
     // dump attacks_ to file
 }

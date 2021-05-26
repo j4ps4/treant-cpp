@@ -22,7 +22,7 @@ struct Map {
 
 };
 
-size_t lookup(const std::string_view sv) {
+static size_t lookup(const std::string_view sv) {
 
   static constexpr auto map =
       Map<std::string_view, size_t, column_map.size()>{{column_map}};

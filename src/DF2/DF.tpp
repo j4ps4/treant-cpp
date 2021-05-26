@@ -3,16 +3,14 @@
 template<typename... Ts>
 DF<Ts...>::DF(std::vector<std::tuple<Ts...>>&& cols)
 :
-    data_(cols)
+    data_(std::forward<std::vector<std::tuple<Ts...>>>(cols))
 {
-    height_ = data_.size();
 }
 
 template<typename... Ts>
 DF<Ts...>::DF(size_t cap)
 {
     data_.reserve(cap);
-    height_ = 0;
 }
 
 template<typename... Ts>
@@ -30,8 +28,20 @@ std::vector<T> DF<Ts...>::operator[](const std::string_view v) const
 {
     auto col_idx = lookup(v);
     std::vector<T> out;
-    out.reserve(height_);
+    out.reserve(height());
     for (const auto& t : data_)
         out.push_back(std::get<col_idx>(t));
     return out;
+}
+
+// template<typename... Ts>
+// void DF<Ts...>::append_row(const std::tuple<Ts...>& row)
+// {
+
+// }
+
+template<typename... Ts>
+void DF<Ts...>::append_row(std::tuple<Ts...>&& row)
+{
+    data_.push_back(std::forward<std::vector<std::tuple<Ts...>>>(row));
 }

@@ -17,7 +17,7 @@ struct DF
     constexpr static size_t NC = sizeof...(Ts);
 
     explicit DF(std::vector<std::tuple<Ts...>>&& cols);
-    DF(size_t cap);
+    explicit DF(size_t cap);
 
     auto begin() { return data_.begin(); }
     auto cbegin() const { return data_.cbegin(); }
@@ -30,17 +30,17 @@ struct DF
     std::tuple<Ts...>& operator[](IdxT idx) { return data_[idx]; }
     const std::tuple<Ts...>& operator[](IdxT idx) const { return data_[idx]; }
 
-    auto height() const noexcept {return height_;}
+    auto height() const noexcept {return data_.size();}
+    constexpr auto width() const noexcept {return NC;}
 
     template<typename T>
     std::vector<T> operator[](const std::string_view v) const;
 
-    void append_row(const std::tuple<Ts...>& row);
-    //void append_row(DFR&& row);
+    //void append_row(const std::tuple<Ts...>& row);
+    void append_row(std::tuple<Ts...>&& row);
 
 private:
     std::vector<std::tuple<Ts...>> data_;
-    size_t height_ = 0;
 };
 
 #include "DF.tpp"

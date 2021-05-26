@@ -5,6 +5,7 @@
 
 #include "AttackerRule.h"
 #include "util.h"
+#include "DF2/ConstexprMap.h"
 
 // Read file into string.
 inline std::string slurp(const std::string& path)
@@ -35,7 +36,7 @@ std::istream& operator>>(std::istream& is, std::pair<double,double>& pr)
 }
 
 cpp::result<AttkList, std::string> 
-load_attack_rules(const std::string& fn, const ColMap& colmap)
+load_attack_rules(const std::string& fn)
 {
     AttkList out;
     std::string err;
@@ -51,11 +52,7 @@ load_attack_rules(const std::string& fn, const ColMap& colmap)
     {
         auto& att_obj = attack.object_items();
         auto& feature_name = att_obj.cbegin()->first;
-        const auto& feature_it = std::find_if(colmap.cbegin(), colmap.cend(),[&](const auto& pair){
-            auto& colname = pair.second.first;
-            return colname == feature_name;
-        });
-        auto feature_id = feature_it->first;
+        auto feature_id = lookup(std::string_view(feature_name.cbegin(), feature_name.cend()));
         auto& ft_attk_list = att_obj.cbegin()->second.array_items();
         for (const auto& ft_attk : ft_attk_list)
         {
@@ -83,42 +80,4 @@ std::string AttackerRule::debug_str() const
     ss << "post: " << std::get<1>(post_condition_) << "\n";
     ss << "cost: " << cost_ << "\n";
     return ss.str();
-}
-
-bool AttackerRule::is_applicable(const DFRView& row) const
-{
-    auto feature_id = std::get<0>(pre_conditions_);
-    auto left = std::get<1>(pre_conditions_);
-    auto right = std::get<2>(pre_conditions_);
-    auto feature = row.get_as_f64(feature_id);
-    auto res = left <= feature && feature <= right;
-    return res;
-}
-
-DFR AttackerRule::apply(const DFRView& row) const
-{
-    auto feature_id = std::get<0>(post_condition_);
-    auto attack = std::get<1>(post_condition_);
-    auto newrow = row.copy();
-    newrow.modify_value(feature_id, attack);
-    return newrow;
-}
-
-bool AttackerRule::is_applicable(const DFR& row) const
-{
-    auto feature_id = std::get<0>(pre_conditions_);
-    auto left = std::get<1>(pre_conditions_);
-    auto right = std::get<2>(pre_conditions_);
-    auto feature = row.get_as_f64(feature_id);
-    auto res = left <= feature && feature <= right;
-    return res;
-}
-
-DFR AttackerRule::apply(const DFR& row) const
-{
-    auto feature_id = std::get<0>(post_condition_);
-    auto attack = std::get<1>(post_condition_);
-    auto newrow = row;
-    newrow.modify_value(feature_id, attack);
-    return newrow;
 }

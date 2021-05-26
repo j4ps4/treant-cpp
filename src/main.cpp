@@ -4,11 +4,10 @@
 #include <assert.h>
 #include <algorithm>
 
+#include "DF2/DF.h"
+#include "DF2/DF_util.h"
+#include "DF2/DF_read.h"
 #include "util.h"
-#include "DF_read.h"
-#include "DF_util.h"
-#include "AttackerRule.h"
-#include "Attacker.h"
 
 // int main(int argc, const char** argv)
 // {
@@ -43,15 +42,12 @@ int main(int argc, const char** argv)
     }
 
     auto fn = argv[1];
-    auto res = df::read_bz2(fn);
+    auto res = df::read_bz2<CREDIT_TYPES>(fn);
     if (res.has_error())
         Util::die("{}", res.error());
     auto& df = res.value();
-    auto res2 = load_attack_rules("attacks.json", df.get_colmap());
-    if (res2.has_error())
-        Util::die("{}", res2.error());
-    auto& attkl = res2.value();
-    Attacker attacker(attkl, 50);
-    auto df2 = df.get_data_by_idx(0,2);
-    attacker.compute_attacks(df2);
+    std::cout << df.height() << std::endl;
+    auto df2 = df.slice(0,10);
+    for (const auto& row : df2)
+        std::cout << row << std::endl;
 }

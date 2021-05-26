@@ -48,6 +48,13 @@ struct DFR
         nDtypes_ = rhs.nDtypes_;
         return *this;
     }
+    DFR& operator=(const DFR& rhs) {
+        row_ = rhs.row_;
+        colmap_ = rhs.colmap_;
+        colMagic_ = rhs.colMagic_;
+        nDtypes_ = rhs.nDtypes_;
+        return *this;
+    }
     DFR(DFR&& rhs) : row_(std::move(rhs.row_)), colmap_(rhs.colmap_),
         colMagic_(rhs.colMagic_), nDtypes_(rhs.nDtypes_) {}
     DFR(const DFR& rhs) : row_(rhs.row_), colmap_(rhs.colmap_),
@@ -123,6 +130,7 @@ struct DF
         df_(df), colmap_(colmap) {computeColMagic();}
     explicit DF(DataFrame&& df, const ColMap& colmap) :
         df_(df), colmap_(colmap) {computeColMagic();}
+    DF& operator=(DF&& rhs) = default;
     DF(DF&& df) = default;
     DF() = default;
 private:

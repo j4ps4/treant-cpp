@@ -72,7 +72,7 @@ DF Attacker::compute_attack(const DFRView& x, size_t feature_id, int cost) const
                     z.push_back(pre2);
                 for (double zi : z)
                 {
-                    x_prime = x.copy();
+                    x_prime = inst;
                     x_prime.assign_value(f, zi);
                     auto pair = std::make_pair(x_prime, cost_prime);
                     if (!check_equal_perturbation(attacks, pair))
@@ -84,7 +84,7 @@ DF Attacker::compute_attack(const DFRView& x, size_t feature_id, int cost) const
     return attacks;
 }
 
-void Attacker::compute_attacks(const DF& X) const
+void Attacker::compute_attacks(const DF& X, const std::string& attacks_fn)
 {
     std::vector<size_t> fs;
     for (const auto& r : rules_)
@@ -98,8 +98,11 @@ void Attacker::compute_attacks(const DF& X) const
         auto rw = X.get_row_view(i);
         for (auto j : fs)
         {
-            fmt::print("===== attacks for feature {}: ======\n", j);
-            df::print(compute_attack(rw, j, 0));
+            auto key = std::make_pair(i, j);
+            //compute_attack(rw, j, 0);
+            attacks_[key] = compute_attack(rw, j, 0);
         }
     }
+    fmt::print("computed {} attacks.\n", attacks_.size());
+    // dump attacks_ to file
 }

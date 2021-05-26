@@ -7,8 +7,6 @@
 #include <sstream>
 #include <iomanip>
 
-#include "DF.h"
-
 namespace Util {
 
 template<typename... Args>
@@ -21,8 +19,6 @@ template<typename... Args>
 }
 
 }
-
-std::ostream& operator<<(std::ostream& os, DataType t);
 
 template<typename T>
 struct fmt::formatter<std::vector<T>>
@@ -55,33 +51,33 @@ struct fmt::formatter<std::vector<T>>
     }
 };
 
-template<typename K, typename V>
-struct fmt::formatter<std::map<K,V>>
-{
+// template<typename K, typename V>
+// struct fmt::formatter<std::map<K,V>>
+// {
 
-    constexpr auto parse(format_parse_context& ctx)
-    {
-        return ctx.end();
-    }
+//     constexpr auto parse(format_parse_context& ctx)
+//     {
+//         return ctx.end();
+//     }
 
-    template<typename FormatContext>
-    auto format(const std::map<K,V>& map, FormatContext& ctx)
-    {
-        std::stringstream fmts;
-        fmts << "{ ";
-        for (const auto& [key, value] : map)
-        {
-            fmts << key << ": " << value << "; ";
-        }
-        fmts << "}";
+//     template<typename FormatContext>
+//     auto format(const std::map<K,V>& map, FormatContext& ctx)
+//     {
+//         std::stringstream fmts;
+//         fmts << "{ ";
+//         for (const auto& [key, value] : map)
+//         {
+//             fmts << key << ": " << value << "; ";
+//         }
+//         fmts << "}";
             
-        return format_to(
-           ctx.out(),
-           "{}",
-           fmts.str()
-        );
-    }
-};
+//         return format_to(
+//            ctx.out(),
+//            "{}",
+//            fmts.str()
+//         );
+//     }
+// };
 
 template<typename F, typename S>
 struct fmt::formatter<std::pair<F,S>>

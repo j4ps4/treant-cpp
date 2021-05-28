@@ -1,4 +1,5 @@
 #include "ConstexprMap.h"
+#include "../util.h"
 
 template<typename... Ts>
 DF<Ts...>::DF(std::vector<std::tuple<Ts...>>&& cols)
@@ -24,13 +25,13 @@ DF<Ts...> DF<Ts...>::slice(IdxT start, IdxT end) const
 
 template<typename... Ts>
 template<typename T>
-std::vector<T> DF<Ts...>::operator[](const std::string_view v) const
+std::vector<T> DF<Ts...>::at(const std::string_view v) const
 {
-    auto col_idx = lookup(v);
+    const auto col_idx = lookup(v);
     std::vector<T> out;
     out.reserve(height());
     for (const auto& t : data_)
-        out.push_back(std::get<col_idx>(t));
+        out.push_back(Util::tuple_index<T>(t, col_idx));
     return out;
 }
 

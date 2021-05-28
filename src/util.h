@@ -193,30 +193,6 @@ struct fmt::formatter<std::vector<T>>
 //     }
 // };
 
-template<typename F, typename S>
-struct fmt::formatter<std::pair<F,S>>
-{
-
-    constexpr auto parse(format_parse_context& ctx)
-    {
-        return ctx.end();
-    }
-
-    template<typename FormatContext>
-    auto format(const std::pair<F,S>& pair, FormatContext& ctx)
-    {
-        std::stringstream fmts;
-        fmts << "(";
-        fmts << pair.first << ", " << pair.second;
-        fmts << ")";
-            
-        return format_to(
-           ctx.out(),
-           "{}",
-           fmts.str()
-        );
-    }
-};
 
 template<typename F, typename S>
 std::ostream& operator<<(std::ostream& os, const std::pair<F,S>& pair)
@@ -226,3 +202,50 @@ std::ostream& operator<<(std::ostream& os, const std::pair<F,S>& pair)
     os << ")";
     return os;
 }
+
+namespace
+{
+
+template <typename... Ts, size_t... Is>
+std::ostream& print_helper(std::ostream& os,
+                const std::tuple<Ts...>& tuple,
+                std::index_sequence<Is...>)
+{
+    ((os << std::get<Is>(tuple) << ','), ...);
+    return os;
+}
+
+}
+
+template<typename... Ts>
+std::ostream& operator<<(std::ostream& os, const std::tuple<Ts...>& tuple)
+{
+    using Indices = std::index_sequence_for<Ts...>;
+    print_helper(os, tuple, Indices{});
+    return os;
+}
+
+template<typename... Ts>
+struct fmt::formatter<std::tuple<Ts...>>
+{
+
+    constexpr auto parse(format_parse_context& ctx)
+    {
+        return ctx.end();
+    }
+
+    template<typename FormatContext>
+    auto format(const std::tuple<Ts...>& tuple, FormatContext& ctx)
+    {
+        std::stringstream fmts;
+        fmts << "(";
+        fmts << tuple;
+        fmts << ")";
+            
+        return format_to(
+           ctx.out(),
+           "{}",
+           fmts.str()
+        );
+    }
+};

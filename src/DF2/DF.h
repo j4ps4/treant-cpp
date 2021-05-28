@@ -34,7 +34,7 @@ struct DF
     constexpr auto width() const noexcept {return NC;}
 
     template<typename T>
-    std::vector<T> operator[](const std::string_view v) const;
+    std::vector<T> at(const std::string_view v) const;
 
     //void append_row(const std::tuple<Ts...>& row);
     void append_row(std::tuple<Ts...>&& row);

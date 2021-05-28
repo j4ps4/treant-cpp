@@ -4,9 +4,7 @@
 #include <array>
 
 #include <fmt/core.h>
-//#include "DF2/DF_util.h"
-
-const char* BUDG = "_budget";
+#include "util.h"
 
 template<typename... Ts>
 bool is_equal_perturbation(const PairT<Ts...>& x, const PairT<Ts...>& y)
@@ -113,7 +111,7 @@ void Attacker<Ts...>::compute_attacks(const DF<Ts...>& X, const std::string& att
         {
             auto& vec = std::get<0>(pair);
             auto cost = std::get<1>(pair);
-            std::cout << vec << ", cost: " << cost << "\n";
+            fmt::print("{}, cost: {}\n", vec, cost);
         }
         count++;
     }

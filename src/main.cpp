@@ -4,12 +4,8 @@
 #include <assert.h>
 #include <algorithm>
 
-#include "DF2/DF.h"
-#include "DF2/DF_util.h"
-#include "DF2/DF_read.h"
+#include "Credit.h"
 #include "util.h"
-#include "AttackerRule.h"
-#include "Attacker.h"
 
 // int main(int argc, const char** argv)
 // {
@@ -44,16 +40,13 @@ int main(int argc, const char** argv)
     }
 
     auto fn = argv[1];
-    auto res = df::read_bz2<CREDIT_TYPES>(fn);
+    auto res = credit::read_bz2(fn);
     if (res.has_error())
         Util::die("{}", res.error());
     auto& df = res.value();
-    std::cout << df.height() << std::endl;
     auto df2 = df.slice(0,10);
     // for (const auto& row : df2)
     //     std::cout << row << std::endl;
-    auto res2 = load_attack_rules("attacks.json");
-    auto& rulz = res2.value();
-    Attacker<CREDIT_TYPES> atkr(rulz, 50);
-    atkr.compute_attacks(df, "lol");
+    auto atkr = credit::new_Attacker("attacks.json", 50);
+    atkr.value().compute_attacks(df, "lol");
 }

@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iterator>
 #include <array>
+#include <range/v3/all.hpp>
 
 #include <fmt/core.h>
 #include "util.h"
@@ -39,13 +40,9 @@ TupleVec<Ts...> Attacker<Ts...>::compute_attack(const std::tuple<Ts...>& x, size
         auto [inst, budg] = queue.back();
         queue.pop_back();
         attacks.push_back(std::make_pair(inst, budg));
-        AttkList applicables1;
-        std::copy_if(rules_.cbegin(), rules_.cend(), std::back_inserter(applicables1),
-            [=](const auto& atk){return atk.get_target_feature() == feature_id;});
-        AttkList applicables2;
-        std::copy_if(applicables1.cbegin(), applicables1.cend(), std::back_inserter(applicables2),
-            [&](const auto& atk){return atk.is_applicable(inst);});
-        for (auto& r : applicables2)
+        auto applicables = rules_ | ranges::views::filter([=](const auto& atk){return atk.get_target_feature() == feature_id;})
+				| ranges::views::filter([&](const auto& atk){return atk.is_applicable(inst);});
+        for (auto& r : applicables)
         {
             if (budget_ >= budg + r.get_cost())
             {
@@ -116,4 +113,30 @@ void Attacker<Ts...>::compute_attacks(const DF<Ts...>& X, const std::string& att
         count++;
     }
     // dump attacks_ to file
+}
+
+namespace
+{
+
+template<typename F>
+void print_helper(AttkList::const_iterator& r)
+{
+    fmt::print("{}\n", r->debug_str<F>());
+}
+
+template<typename F1, typename F2, typename... Fs>
+void print_helper(AttkList::const_iterator& r)
+{
+    fmt::print("{}\n", r->debug_str<F1>());
+    print_helper<F2,Fs...>(++r);
+}
+
+}
+
+template<typename... Ts>
+template<typename... Fs>
+void Attacker<Ts...>::print_attacks() const
+{
+    auto it = rules_.cbegin();
+    print_helper<Fs...>(it);
 }

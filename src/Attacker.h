@@ -24,6 +24,9 @@ public:
         budget_(budget), rules_(rules) {}
     bool is_filled() const;
     void compute_attacks(const DF<Ts...>& X, const std::string& attacks_fn);
+    
+    template<typename... Fs>
+    void print_attacks() const;
 private:
     TupleVec<Ts...> compute_attack(const std::tuple<Ts...>& x, size_t feature_id, int cost) const;
     int budget_;

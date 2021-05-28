@@ -19,7 +19,7 @@ template<typename... Args>
 }
 
 template<typename T, typename... Ts>
-T tuple_index(const std::tuple<Ts...>& tupl, size_t idx)
+const T& tuple_index(const std::tuple<Ts...>& tupl, size_t idx)
 {
     switch(idx)
     {
@@ -76,34 +76,34 @@ T tuple_index(const std::tuple<Ts...>& tupl, size_t idx)
 }
 
 template<typename T, typename... Ts>
-T* tuple_ref(std::tuple<Ts...>& tupl, size_t idx)
+T& tuple_ref(std::tuple<Ts...>& tupl, size_t idx)
 {
     switch(idx)
     {
         case 0:
-            return &(std::get<0>(tupl));
+            return std::get<0>(tupl);
         case 1:
-            return &(std::get<1>(tupl));
+            return std::get<1>(tupl);
         case 2:
-            return &(std::get<2>(tupl));
+            return std::get<2>(tupl);
         case 3:
-            return &(std::get<3>(tupl));
+            return std::get<3>(tupl);
         case 4:
-            return &(std::get<4>(tupl));
+            return std::get<4>(tupl);
         case 5:
-            return &(std::get<5>(tupl));
+            return std::get<5>(tupl);
         case 6:
-            return &(std::get<6>(tupl));
+            return std::get<6>(tupl);
         case 7:
-            return &(std::get<7>(tupl));
+            return std::get<7>(tupl);
         case 8:
-            return &(std::get<8>(tupl));
+            return std::get<8>(tupl);
         case 9:
-            return &(std::get<9>(tupl));
+            return std::get<9>(tupl);
         case 10:
-            return &(std::get<10>(tupl));
+            return std::get<10>(tupl);
         case 11:
-            return &(std::get<11>(tupl));
+            return std::get<11>(tupl);
         // case 12:
         //     return std::get<12>(tupl);
         // case 13:

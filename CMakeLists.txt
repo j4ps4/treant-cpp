@@ -15,7 +15,7 @@ set(main_cpp ${src_dir}/main.cpp)
 set(target_name treant)
 
 set(main_src ${main_cpp})
-set(credit_src ${src_dir}/Credit.cpp ${src_dir}/AttackerRule.cpp)
+set(credit_src ${src_dir}/Credit.cpp)
 #file(GLOB_RECURSE DF_src CONFIGURE_DEPENDS ${src_dir}/DF2/*.cpp)
 
 option(ENABLE_MY_TESTING "Enable My Tests" ON)

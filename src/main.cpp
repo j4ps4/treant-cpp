@@ -47,6 +47,9 @@ int main(int argc, const char** argv)
     auto df2 = df.slice(0,10);
     // for (const auto& row : df2)
     //     std::cout << row << std::endl;
-    auto atkr = credit::new_Attacker("attacks.json", 50);
-    atkr.value().compute_attacks(df, "lol");
+    auto m_atkr = credit::new_Attacker("attacks.json", 50);
+    if (m_atkr.has_error())
+        Util::die("{}", m_atkr.error());
+    auto& atkr = m_atkr.value(); 
+    credit::dump_attack_rules(atkr);
 }

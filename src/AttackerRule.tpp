@@ -12,10 +12,10 @@ namespace
 #define ATTK_TYPES double,float,uint32_t,int32_t,uint8_t,int8_t,bool
 
 // Read file into string.
-inline std::string slurp(const std::string& path)
+inline std::string slurp(const std::filesystem::path& path)
 {
     std::ostringstream buf; 
-    std::ifstream input(path.c_str()); 
+    std::ifstream input(path); 
     buf << input.rdbuf(); 
     return buf.str();
 }
@@ -122,17 +122,17 @@ void load_helper(json11::Json::array::const_iterator& attacks_it, AttkList& out)
 
 template<typename... Fs>
 cpp::result<AttkList, std::string> 
-load_attack_rules(const std::string& fn)
+load_attack_rules(const std::filesystem::path& fn)
 {
     AttkList out;
     std::string err;
     auto json_str = slurp(fn);
     auto json = json11::Json::parse(json_str, err);
     if (!err.empty())
-        return cpp::failure(fmt::format("while parsing {}: {}", fn, err));
+        return cpp::failure(fmt::format("while parsing {}: {}", fn.c_str(), err));
     auto& attacks = json["attacks"];
     if (attacks == json11::Json())
-        return cpp::failure(fmt::format("{}: not valid attacks file", fn));
+        return cpp::failure(fmt::format("{}: not valid attacks file", fn.c_str()));
     auto attacks_it = attacks.array_items().begin();
     load_helper<Fs...>(attacks_it, out);
     return out;

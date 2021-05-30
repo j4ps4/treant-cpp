@@ -22,10 +22,11 @@
 namespace credit
 {
     // Read bzipped csv to dataframe.
-    cpp::result<DF<DATATYPES>,std::string> read_bz2(const char* fn);
+    cpp::result<DF<DATATYPES>,std::string> read_bz2();
     // Create attacker from given attacks file and budget.
-    cpp::result<Attacker<DATATYPES>,std::string> new_Attacker(const char* atk_fn, int budget);
-    void compute_attacks(Attacker<DATATYPES>& atkr, const DF<DATATYPES>& X);
+    cpp::result<Attacker<DATATYPES>,std::string> new_Attacker(int budget);
+
+    void compute_or_load_attacks(Attacker<DATATYPES>& atkr, const DF<DATATYPES>& X);
 
     void dump_attack_rules(const Attacker<DATATYPES>& atkr);
 }

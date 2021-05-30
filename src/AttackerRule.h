@@ -4,6 +4,7 @@
 #include <list>
 #include <string>
 #include <variant>
+#include <filesystem>
 
 #include "result.hpp"
 #include "util.h"
@@ -49,7 +50,7 @@ using AttkList = std::list<AttackerRule>;
 
 template<typename... Fs>
 cpp::result<AttkList, std::string> 
-load_attack_rules(const std::string& fn);
+load_attack_rules(const std::filesystem::path& fn);
 
 template<size_t I, typename F, typename... Ts>
 bool AttackerRule::is_applicable(const std::tuple<Ts...>& row) const noexcept

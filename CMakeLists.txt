@@ -41,7 +41,7 @@ set(CPM_USE_LOCAL_PACKAGES)
 add_executable(${target_name} ${main_src})
 add_library(Credit STATIC ${credit_src})
 
-target_link_libraries(Credit bz2 fmt json11)
+target_link_libraries(Credit bz2 fmt json11 cereal)
 target_link_libraries(${target_name} Credit cxxopts fmt nlopt)
 
 target_compile_options(${target_name} PRIVATE $<$<CONFIG:Debug>:-Og -pg -Wall -Wno-unused-variable -Woverloaded-virtual>)

@@ -34,22 +34,16 @@
 
 int main(int argc, const char** argv)
 {
-    if (argc < 2)
-    {
-        Util::die("usage");
-    }
-
-    auto fn = argv[1];
-    auto res = credit::read_bz2(fn);
+    auto res = credit::read_bz2();
     if (res.has_error())
         Util::die("{}", res.error());
     auto& df = res.value();
     // auto df2 = df.slice(0,10);
     // for (const auto& row : df2)
     //     fmt::print("{}\n", row);
-    auto m_atkr = credit::new_Attacker("attacks.json", 50);
+    auto m_atkr = credit::new_Attacker(50);
     if (m_atkr.has_error())
         Util::die("{}", m_atkr.error());
     auto& atkr = m_atkr.value(); 
-    credit::compute_attacks(atkr, df);
+    credit::compute_or_load_attacks(atkr, df);
 }

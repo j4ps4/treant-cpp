@@ -18,6 +18,14 @@ template<typename... Args>
     exit(1);
 }
 
+template<typename... Args>
+void info(const char* msg, Args... args)
+{
+    fmt::print(fg(fmt::color::sky_blue)|fmt::emphasis::bold, "info: ");
+    fmt::print(msg, args...);
+    fmt::print("\n");
+}
+
 template<typename T>
 auto numeral(T arg) { return +arg; }
 

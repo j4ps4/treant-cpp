@@ -2,9 +2,14 @@
 #include <algorithm>
 #include <iterator>
 #include <array>
-#include <range/v3/all.hpp>
 
 #include <fmt/core.h>
+#include <cereal/types/unordered_map.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/tuple.hpp>
+#include <cereal/archives/binary.hpp>
+#include <fstream>
+
 #include "util.h"
 
 namespace 
@@ -74,7 +79,7 @@ static void comp_impl(const TupleVec<Ts...>& attacks, AttkList::const_iterator& 
         {
             auto x_prime = rule.apply<H,F>(inst);
             auto cost_prime = budget + rule.get_cost();
-            auto pair = std::make_pair(x_prime, cost_prime);
+            auto pair = std::make_tuple(x_prime, cost_prime);
             if (!check_equal_perturbation(attacks, pair))
             {
                 queue.push_front(pair);
@@ -96,7 +101,7 @@ static void comp_impl(const TupleVec<Ts...>& attacks, AttkList::const_iterator& 
         {
             auto x_prime = rule.apply<H,F1>(inst);
             auto cost_prime = budget + rule.get_cost();
-            auto pair = std::make_pair(x_prime, cost_prime);
+            auto pair = std::make_tuple(x_prime, cost_prime);
             if (!check_equal_perturbation(attacks, pair))
             {
                 queue.push_front(pair);
@@ -123,7 +128,7 @@ TupleVec<Ts...> Attacker<Ts...>::compute_attack(const std::tuple<Ts...>& x, size
     {
         auto [inst, budget] = queue.back();
         queue.pop_back();
-        attacks.push_back(std::make_pair(inst, budget));
+        attacks.push_back(std::make_tuple(inst, budget));
         auto rules_it = rules_.cbegin();
         AttackComputer<Ts...>::template comp_impl<AF...>(attacks, rules_it, queue, inst, budget_, budget, feature_id, cost, std::index_sequence<Is...>{});
         // auto applicables = rules_ | ranges::views::filter([=](const auto& atk){return atk.get_target_feature() == feature_id;})
@@ -165,7 +170,7 @@ TupleVec<Ts...> Attacker<Ts...>::compute_attack(const std::tuple<Ts...>& x, size
 
 template<typename... Ts>
 template<typename... AF, size_t... Is>
-void Attacker<Ts...>::compute_attacks(const DF<Ts...>& X, const std::string& attacks_fn, std::index_sequence<Is...>)
+void Attacker<Ts...>::compute_attacks(const DF<Ts...>& X, const std::filesystem::path& attacks_fn, std::index_sequence<Is...>)
 {
     std::vector<size_t> fs;
     for (const auto& r : rules_)
@@ -179,27 +184,41 @@ void Attacker<Ts...>::compute_attacks(const DF<Ts...>& X, const std::string& att
         auto rw = X[i];
         for (auto j : fs)
         {
-            auto key = std::make_pair(i, j);
+            auto key = std::make_tuple(i, j);
             //compute_attack(rw, j, 0);
             attacks_[key] = compute_attack<AF...>(rw, j, 0, std::index_sequence<Is...>{});
         }
     }
-    fmt::print("computed {} attacks.\n", attacks_.size());
-    fmt::print("first 10 attacks:\n");
-    size_t count = 0;
-    for (auto& [key, vect] : attacks_)
-    {
-        if (count >= 10)
-            break;
-        for (auto& pair : vect)
-        {
-            auto& vec = std::get<0>(pair);
-            auto cost = std::get<1>(pair);
-            fmt::print("{}, cost: {}\n", vec, cost);
-        }
-        count++;
-    }
+    Util::info("computed {} attacks.\n", attacks_.size());
+    // fmt::print("first 10 attacks:\n");
+    // size_t count = 0;
+    // for (auto& [key, vect] : attacks_)
+    // {
+    //     if (count >= 10)
+    //         break;
+    //     for (auto& pair : vect)
+    //     {
+    //         auto& vec = std::get<0>(pair);
+    //         auto cost = std::get<1>(pair);
+    //         fmt::print("{}, cost: {}\n", vec, cost);
+    //     }
+    //     count++;
+    // }
     // dump attacks_ to file
+    std::ofstream os(attacks_fn, std::ios::binary);
+    cereal::BinaryOutputArchive archive(os);
+    archive(attacks_);
+}
+
+template<typename... Ts>
+void Attacker<Ts...>::load_attacks(const std::filesystem::path& fn)
+{
+    std::ifstream is(fn, std::ios::binary);
+    cereal::BinaryInputArchive archive(is);
+    AttackDict<Ts...> attacks;
+    archive(attacks);
+    attacks_ = std::move(attacks);
+    Util::info("loaded {} attacks.\n", attacks_.size());
 }
 
 namespace
@@ -222,7 +241,7 @@ void print_helper(AttkList::const_iterator& r)
 
 template<typename... Ts>
 template<typename... Fs>
-void Attacker<Ts...>::print_attacks() const
+void Attacker<Ts...>::print_rules() const
 {
     auto it = rules_.cbegin();
     print_helper<Fs...>(it);

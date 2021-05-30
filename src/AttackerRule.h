@@ -32,9 +32,9 @@ public:
             std::get<F>(std::get<2>(pre_conditions_))
         );
     }
-    template<typename F, typename... Ts>
+    template<size_t I, typename F, typename... Ts>
     bool is_applicable(const std::tuple<Ts...>& row) const noexcept;
-    template<typename F, typename... Ts>
+    template<size_t I, typename F, typename... Ts>
     std::tuple<Ts...> apply(const std::tuple<Ts...>& row) const noexcept;
     template<typename F>
     std::string debug_str() const;
@@ -51,24 +51,22 @@ template<typename... Fs>
 cpp::result<AttkList, std::string> 
 load_attack_rules(const std::string& fn);
 
-template<typename F, typename... Ts>
+template<size_t I, typename F, typename... Ts>
 bool AttackerRule::is_applicable(const std::tuple<Ts...>& row) const noexcept
 {
-    auto feature_id = std::get<0>(pre_conditions_);
     auto left = std::get<F>(std::get<1>(pre_conditions_));
     auto right = std::get<F>(std::get<2>(pre_conditions_));
-    const auto& feature = Util::tuple_index<F>(row, feature_id);
+    const auto& feature = std::get<I>(row);
     auto res = left <= feature && feature <= right;
     return res;
 }
 
-template<typename F, typename... Ts>
+template<size_t I, typename F, typename... Ts>
 std::tuple<Ts...> AttackerRule::apply(const std::tuple<Ts...>& row) const noexcept
 {
-    auto feature_id = std::get<0>(post_condition_);
     auto attack = std::get<F>(std::get<1>(post_condition_));
     std::tuple<Ts...> newrow = row;
-    auto& loc = Util::tuple_ref<F>(newrow, feature_id);
+    auto& loc = std::get<I>(newrow);
     loc += attack;
     return newrow;
 }

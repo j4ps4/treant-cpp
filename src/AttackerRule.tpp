@@ -20,6 +20,29 @@ inline std::string slurp(const std::string& path)
     return buf.str();
 }
 
+template<typename T>
+std::istream& get_val(std::istream& is, T& val)
+{
+    is >> val;
+    return is;
+}
+template<>
+std::istream& get_val<int8_t>(std::istream& is, int8_t& val)
+{
+    int temp;
+    is >> temp;
+    val = temp;
+    return is;
+}
+template<>
+std::istream& get_val<uint8_t>(std::istream& is, uint8_t& val)
+{
+    unsigned temp;
+    is >> temp;
+    val = temp;
+    return is;
+}
+
 template<typename T1, typename T2>
 std::istream& operator>>(std::istream& is, std::pair<T1,T2>& pr)
 {
@@ -32,14 +55,14 @@ std::istream& operator>>(std::istream& is, std::pair<T1,T2>& pr)
     }
     T1 val1; 
     T2 val2;
-    is >> val1;
+    get_val(is, val1);
     is.get(c);
     if (c != ',')
     {
         auto s = fmt::format("parse error: expected ',', got {}", c);
         throw std::invalid_argument(s);
     }
-    is >> val2;
+    get_val(is, val2);
     is.get(c);
     if (c != ')')
     {
@@ -118,11 +141,12 @@ load_attack_rules(const std::string& fn)
 template<typename F>
 std::string AttackerRule::debug_str() const
 {
+    using Util::numeral;
     std::stringstream ss;
     ss << "feature: " << std::get<0>(pre_conditions_) << "\n";
-    ss << "pre: (" << std::get<F>(std::get<1>(pre_conditions_)) << ", " 
-        << std::get<F>(std::get<2>(pre_conditions_)) << ")\n";
-    ss << "post: " << std::get<F>(std::get<1>(post_condition_)) << "\n";
+    ss << "pre: (" << numeral(std::get<F>(std::get<1>(pre_conditions_))) << ", " 
+        << numeral(std::get<F>(std::get<2>(pre_conditions_))) << ")\n";
+    ss << "post: " << numeral(std::get<F>(std::get<1>(post_condition_))) << "\n";
     ss << "cost: " << cost_ << "\n";
     return ss.str();
 }

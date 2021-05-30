@@ -20,15 +20,18 @@ class Attacker
     // TODO: unordered map
     // (row_idx, feature_id) -> DF
 public:
-    Attacker(const AttkList& rules, int budget) :
-        budget_(budget), rules_(rules) {}
+    Attacker(AttkList&& rules, int budget) :
+        budget_(budget), rules_(std::forward<AttkList>(rules)) {}
     bool is_filled() const;
-    void compute_attacks(const DF<Ts...>& X, const std::string& attacks_fn);
+
+    template<typename... AF, size_t... Is>
+    void compute_attacks(const DF<Ts...>& X, const std::string& attacks_fn, std::index_sequence<Is...>);
     
     template<typename... Fs>
     void print_attacks() const;
 private:
-    TupleVec<Ts...> compute_attack(const std::tuple<Ts...>& x, size_t feature_id, int cost) const;
+    template<typename... AF, size_t... Is>
+    TupleVec<Ts...> compute_attack(const std::tuple<Ts...>& x, size_t feature_id, int cost, std::index_sequence<Is...>) const;
     int budget_;
     AttkList rules_;
 

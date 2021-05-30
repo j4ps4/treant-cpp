@@ -18,6 +18,9 @@ template<typename... Args>
     exit(1);
 }
 
+template<typename T>
+auto numeral(T arg) { return +arg; }
+
 template<typename T, typename... Ts>
 const T& tuple_index(const std::tuple<Ts...>& tupl, size_t idx)
 {
@@ -211,7 +214,7 @@ std::ostream& print_helper(std::ostream& os,
                 const std::tuple<Ts...>& tuple,
                 std::index_sequence<Is...>)
 {
-    ((os << std::get<Is>(tuple) << ','), ...);
+    ((os << Util::numeral(std::get<Is>(tuple)) << ','), ...);
     return os;
 }
 

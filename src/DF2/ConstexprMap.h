@@ -50,7 +50,7 @@ static constexpr std::array<std::pair<std::string_view, size_t>, 24> column_map{
     {"default.payment.next.month"sv,23}}};
 
 
-static size_t lookup(const std::string_view sv) {
+static inline size_t lookup(const std::string_view sv) {
 
   static constexpr auto map =
       Map<std::string_view, size_t, column_map.size()>{{column_map}};

@@ -44,12 +44,12 @@ int main(int argc, const char** argv)
     if (res.has_error())
         Util::die("{}", res.error());
     auto& df = res.value();
-    auto df2 = df.slice(0,10);
+    // auto df2 = df.slice(0,10);
     // for (const auto& row : df2)
-    //     std::cout << row << std::endl;
+    //     fmt::print("{}\n", row);
     auto m_atkr = credit::new_Attacker("attacks.json", 50);
     if (m_atkr.has_error())
         Util::die("{}", m_atkr.error());
     auto& atkr = m_atkr.value(); 
-    credit::dump_attack_rules(atkr);
+    credit::compute_attacks(atkr, df);
 }

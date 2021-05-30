@@ -8,6 +8,8 @@ elseif(NOT CMAKE_BUILD_TYPE STREQUAL Debug AND
     message(FATAL_ERROR "Invalid build type!")
 endif()
 
+set(CMAKE_CXX_COMPILER "clang++")
+
 project(treant-cpp CXX)
 set(src_dir "src")
 set(df_dir ${src_dir}/DF2)
@@ -32,10 +34,6 @@ CPMAddPackage(
     OPTIONS "CXXOPTS_BUILD_EXAMPLES NO" "CXXOPTS_BUILD_TESTS NO" "CXXOPTS_ENABLE_INSTALL YES")
 CPMAddPackage("gh:USCiLab/cereal@1.3.0")
 CPMAddPackage("gh:fmtlib/fmt#7.1.3")
-CPMAddPackage(
-    GITHUB_REPOSITORY hosseinmoein/DataFrame
-    GIT_TAG 1.17.0
-    OPTIONS "ENABLE_TESTING OFF")
 CPMAddPackage("gh:dropbox/json11@1.0.0")
 CPMAddPackage("gh:catchorg/Catch2@2.5.0")
 set(CPM_USE_LOCAL_PACKAGES)

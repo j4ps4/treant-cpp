@@ -7,6 +7,9 @@
 #include <fmt/core.h>
 #include "util.h"
 
+namespace 
+{
+
 template<typename... Ts>
 bool is_equal_perturbation(const PairT<Ts...>& x, const PairT<Ts...>& y)
 {
@@ -28,8 +31,89 @@ bool check_equal_perturbation(const TupleVec<Ts...>& attacks, const PairT<Ts...>
     return false;
 }
 
+template<typename T>
+struct head_impl;
+
+template<std::size_t I, std::size_t... Is>
+struct head_impl<std::index_sequence<I, Is...>>
+{
+    static constexpr size_t value = I;
+};
+
+template<typename T>
+struct tail_impl;
+
+template<std::size_t I, std::size_t... Is>
+struct tail_impl<std::index_sequence<I, Is...>>
+{
+    using value = std::index_sequence<Is...>;
+};
+
+template<typename T>
+using tail = typename tail_impl<T>::value;
+
+template<typename T>
+constexpr size_t head()
+{
+    return head_impl<T>::value;
+}
+
 template<typename... Ts>
-TupleVec<Ts...> Attacker<Ts...>::compute_attack(const std::tuple<Ts...>& x, size_t feature_id, int cost) const
+struct AttackComputer
+{
+
+template<typename F, size_t I>
+static void comp_impl(const TupleVec<Ts...>& attacks, AttkList::const_iterator& rules_it, std::deque<PairT<Ts...>>& queue,
+    const std::tuple<Ts...>& inst, int total_budget, int budget, size_t feature_id, int cost, std::index_sequence<I>)
+{
+    constexpr size_t H = head<std::index_sequence<I>>();
+    const auto& rule = *rules_it;
+    if (rule.get_target_feature() == feature_id && rule.is_applicable<H,F>(inst))
+    {
+        if (total_budget >= budget + rule.get_cost())
+        {
+            auto x_prime = rule.apply<H,F>(inst);
+            auto cost_prime = budget + rule.get_cost();
+            auto pair = std::make_pair(x_prime, cost_prime);
+            if (!check_equal_perturbation(attacks, pair))
+            {
+                queue.push_front(pair);
+            }
+        }
+    }
+}
+
+template<typename F1, typename F2, typename... Fs, size_t... Is>
+static void comp_impl(const TupleVec<Ts...>& attacks, AttkList::const_iterator& rules_it, std::deque<PairT<Ts...>>& queue,
+    const std::tuple<Ts...>& inst, int total_budget, int budget, size_t feature_id, int cost, std::index_sequence<Is...>)
+{
+    static_assert(sizeof...(Is) == sizeof...(Fs)+2, "size mismatch");
+    constexpr size_t H = head<std::index_sequence<Is...>>();
+    const auto& rule = *rules_it;
+    if (rule.get_target_feature() == feature_id && rule.is_applicable<H,F1>(inst))
+    {
+        if (total_budget >= budget + rule.get_cost())
+        {
+            auto x_prime = rule.apply<H,F1>(inst);
+            auto cost_prime = budget + rule.get_cost();
+            auto pair = std::make_pair(x_prime, cost_prime);
+            if (!check_equal_perturbation(attacks, pair))
+            {
+                queue.push_front(pair);
+            }
+        }
+    }
+    rules_it++;
+    comp_impl<F2,Fs...>(attacks, rules_it, queue, inst, total_budget, budget, feature_id, cost, tail<std::index_sequence<Is...>>{});
+}
+
+};
+
+}
+
+template<typename... Ts>
+template<typename... AF, size_t... Is>
+TupleVec<Ts...> Attacker<Ts...>::compute_attack(const std::tuple<Ts...>& x, size_t feature_id, int cost, std::index_sequence<Is...>) const
 {
     using namespace Util;
     std::deque<PairT<Ts...>> queue = {{x, cost}};
@@ -37,32 +121,34 @@ TupleVec<Ts...> Attacker<Ts...>::compute_attack(const std::tuple<Ts...>& x, size
 
     while (queue.size() > 0)
     {
-        auto [inst, budg] = queue.back();
+        auto [inst, budget] = queue.back();
         queue.pop_back();
-        attacks.push_back(std::make_pair(inst, budg));
-        auto applicables = rules_ | ranges::views::filter([=](const auto& atk){return atk.get_target_feature() == feature_id;})
-				| ranges::views::filter([&](const auto& atk){return atk.is_applicable(inst);});
-        for (auto& r : applicables)
-        {
-            if (budget_ >= budg + r.get_cost())
-            {
-                auto x_prime = r.apply(inst);
-                auto cost_prime = budg + r.get_cost();
-                auto pair = std::make_pair(x_prime, cost_prime);
-                if (!check_equal_perturbation(attacks, pair))
-                {
-                    queue.push_front(pair);
-                }
-                auto f = r.get_target_feature();
-                std::array<double,2> sarr = {tuple_index<double>(inst,f), tuple_index<double>(x_prime,f)};
-                std::sort(sarr.begin(), sarr.end());
-                auto [low, high] = sarr;
-                auto [pre1, pre2] = r.get_pre_interval();
-                std::vector<double> z;
-                if (low < pre1 && pre1 < high)
-                    z.push_back(pre1);
-                if (low < pre2 && pre2 < high)
-                    z.push_back(pre2);
+        attacks.push_back(std::make_pair(inst, budget));
+        auto rules_it = rules_.cbegin();
+        AttackComputer<Ts...>::template comp_impl<AF...>(attacks, rules_it, queue, inst, budget_, budget, feature_id, cost, std::index_sequence<Is...>{});
+        // auto applicables = rules_ | ranges::views::filter([=](const auto& atk){return atk.get_target_feature() == feature_id;})
+		// 		| ranges::views::filter([&](const auto& atk){return atk.is_applicable(inst);});
+        // for (auto& r : applicables)
+        // {
+        //     if (budget_ >= budg + r.get_cost())
+        //     {
+        //         auto x_prime = r.apply(inst);
+        //         auto cost_prime = budg + r.get_cost();
+        //         auto pair = std::make_pair(x_prime, cost_prime);
+        //         if (!check_equal_perturbation(attacks, pair))
+        //         {
+        //             queue.push_front(pair);
+        //         }
+                // auto f = r.get_target_feature();
+                // std::array<double,2> sarr = {tuple_index<double>(inst,f), tuple_index<double>(x_prime,f)};
+                // std::sort(sarr.begin(), sarr.end());
+                // auto [low, high] = sarr;
+                // auto [pre1, pre2] = r.get_pre_interval();
+                // std::vector<double> z;
+                // if (low < pre1 && pre1 < high)
+                //     z.push_back(pre1);
+                // if (low < pre2 && pre2 < high)
+                //     z.push_back(pre2);
                 // for (double zi : z)
                 // {
                 //     x_prime = inst;
@@ -71,14 +157,15 @@ TupleVec<Ts...> Attacker<Ts...>::compute_attack(const std::tuple<Ts...>& x, size
                 //     if (!check_equal_perturbation(attacks, pair))
                 //         queue.push_front(pair);
                 // }
-            }
-        }
+        //     }
+        // }
     }
     return attacks;
 }
 
 template<typename... Ts>
-void Attacker<Ts...>::compute_attacks(const DF<Ts...>& X, const std::string& attacks_fn)
+template<typename... AF, size_t... Is>
+void Attacker<Ts...>::compute_attacks(const DF<Ts...>& X, const std::string& attacks_fn, std::index_sequence<Is...>)
 {
     std::vector<size_t> fs;
     for (const auto& r : rules_)
@@ -94,7 +181,7 @@ void Attacker<Ts...>::compute_attacks(const DF<Ts...>& X, const std::string& att
         {
             auto key = std::make_pair(i, j);
             //compute_attack(rw, j, 0);
-            attacks_[key] = compute_attack(rw, j, 0);
+            attacks_[key] = compute_attack<AF...>(rw, j, 0, std::index_sequence<Is...>{});
         }
     }
     fmt::print("computed {} attacks.\n", attacks_.size());

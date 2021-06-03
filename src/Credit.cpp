@@ -13,16 +13,40 @@ namespace credit
 {
 
 const std::filesystem::path data_dir = "data/credit/";
-const std::filesystem::path data_file = data_dir / "valid.csv.bz2";
+const std::filesystem::path train_file = data_dir / "train.csv.bz2";
+const std::filesystem::path valid_file = data_dir / "valid.csv.bz2";
+const std::filesystem::path test_file = data_dir / "test.csv.bz2";
 const std::filesystem::path json_file = data_dir / "attacks.json";
 const std::filesystem::path attack_file = data_dir / "credit.cereal";
 
 DataFrame::DataFrame(DF<CREDIT_DATATYPES>&& df) :
     df_(std::move(df)) {}
 
+DataFrame::DataFrame(size_t cap) :
+    df_(cap) {}
+
+DataFrame append(const DataFrame& lhs, const DataFrame& rhs)
+{
+    DataFrame out(lhs.df_.height() +  rhs.df_.height());
+    for (const auto& row : lhs.df_)
+        out.df_.append_row(row);
+    for (const auto& row : rhs.df_)
+        out.df_.append_row(row);
+    return out;
+}
+
 cpp::result<DataFrame,std::string> read_bz2()
 {
-    return df::read_bz2<CREDIT_DATATYPES>(data_file.c_str());
+    auto res = df::read_bz2<CREDIT_DATATYPES>(train_file.c_str()).flat_map([&](const auto& train){
+        return df::read_bz2<CREDIT_DATATYPES>(valid_file.c_str()).flat_map([&](const auto& valid){
+            return df::read_bz2<CREDIT_DATATYPES>(test_file.c_str()).map([&](const auto& test){
+                return append3(train, valid, test);
+            });
+        });
+    });
+    if (res.has_error())
+        return cpp::failure(res.error());
+    return DataFrame(std::move(res.value()));
 }
 
 Hostile::Hostile(Attacker<CREDIT_DATATYPES>&& atkr) :

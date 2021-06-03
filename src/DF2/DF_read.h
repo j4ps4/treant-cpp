@@ -40,13 +40,18 @@ constexpr int BS = 1048576; // 1 GB
 
 namespace {
 
-cpp::result<void, std::string> read_buffer(const char* fn, char* buf, int& nBuf_out)
+cpp::result<void, std::string> read_buffer(const char* fn, std::unique_ptr<char[]>& buf, int& nBuf_out, size_t& nl)
 {
     FILE*   f;
     BZFILE* b;
-    int     nBuf;
+    size_t nLines = 0;
+    int     nBuf = 0;
+    int nBufTot = 0;
     int     bzerror;
     int     nWritten;
+
+    constexpr int tmpSize = 524288;
+    char tmpBuf[tmpSize];
 
     f = fopen(fn, "r");
     if (!f) {
@@ -54,25 +59,56 @@ cpp::result<void, std::string> read_buffer(const char* fn, char* buf, int& nBuf_
     }
     b = BZ2_bzReadOpen ( &bzerror, f, 0, 0, NULL, 0);
     if ( bzerror != BZ_OK ) {
+        int bzerrorstore = bzerror;
         BZ2_bzReadClose ( &bzerror, b );
-        return cpp::failure(fmt::format("bzerror: {}", bzerror));
+        return cpp::failure(fmt::format("bzerror: {}", bzerrorstore));
     }
 
     bzerror = BZ_OK;
     while ( bzerror == BZ_OK ) {
-        nBuf = BZ2_bzRead ( &bzerror, b, buf, BS);
-        if (bzerror == BZ_OK) { // returns BZ_STREAM_END when file ends
-            return cpp::failure(std::string("buff too small"));
+        nBuf = BZ2_bzRead ( &bzerror, b, tmpBuf, tmpSize);
+        nBufTot += nBuf;
+        nLines += std::count(tmpBuf, tmpBuf+nBuf, '\n');
+        if (bzerror == BZ_STREAM_END) { // returns BZ_STREAM_END when file ends
+            break;
         }
     }
     if (bzerror != BZ_STREAM_END) {
+        int bzerrorstore = bzerror;
         BZ2_bzReadClose( &bzerror, b );
-        return cpp::failure(fmt::format("bzerror: {}", bzerror));
+        return cpp::failure(fmt::format("bzerror: {}", bzerrorstore));
     } else {
         BZ2_bzReadClose( &bzerror, b );
     }
+
+    auto arr = std::make_unique<char[]>(nBufTot);
+    fseek(f, 0, SEEK_SET);
+    b = BZ2_bzReadOpen ( &bzerror, f, 0, 0, NULL, 0);
+    if ( bzerror != BZ_OK ) {
+        int bzerrorstore = bzerror;
+        BZ2_bzReadClose ( &bzerror, b );
+        return cpp::failure(fmt::format("bzerror: {}", bzerrorstore));
+    }
+
+    bzerror = BZ_OK;
+    nBuf = BZ2_bzRead ( &bzerror, b, arr.get(), nBufTot);
+    if (bzerror == BZ_OK)
+    {
+        BZ2_bzReadClose ( &bzerror, b );
+        return cpp::failure(std::string("couldn't read whole file into buffer!!!"));
+    }
+    if (bzerror != BZ_STREAM_END) {
+        int bzerrorstore = bzerror;
+        BZ2_bzReadClose( &bzerror, b );
+        return cpp::failure(fmt::format("bzerror: {}", bzerrorstore));
+    } else {
+        BZ2_bzReadClose( &bzerror, b );
+    }
+
     fclose(f);
-    nBuf_out = nBuf;
+    nBuf_out = nBufTot;
+    nl = nLines;
+    buf = std::move(arr);
     return {};
 }
 
@@ -134,17 +170,18 @@ template<typename... Ts>
 cpp::result<DF<Ts...>, std::string> read_bz2(const char* fn)
 {
     constexpr size_t NC = sizeof...(Ts);
-    char    buf[BS];
     int nBuf;
+    size_t nl;
+    std::unique_ptr<char[]> buf;
 
-    auto res = read_buffer(fn, buf, nBuf);
+    auto res = read_buffer(fn, buf, nBuf, nl);
     if (res.has_error())
         return cpp::failure(res.error());
 
-    auto fstlne = std::find(buf, buf+nBuf, '\n');
+    auto fstlne = std::find(buf.get(), buf.get()+nBuf, '\n');
     //auto fstln = std::string(buf, fstlne);
 
-    const auto rows = std::count(buf, buf+nBuf, '\n') - 1;
+    const auto rows = nl - 1;
 
     std::vector<std::tuple<Ts...>> data;
     data.reserve(rows);

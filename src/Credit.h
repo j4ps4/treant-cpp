@@ -25,7 +25,11 @@ namespace credit
 	{
 		friend class Hostile;
 	public:
+		explicit DataFrame(size_t cap);
 		DataFrame(DF<CREDIT_DATATYPES>&& df);
+		friend DataFrame append(const DataFrame& lhs, const DataFrame& rhs);
+		size_t height() const noexcept {return df_.height();}
+		constexpr size_t width() const noexcept {return df_.width();}
 	private:
 		DF<CREDIT_DATATYPES> df_;
 	};

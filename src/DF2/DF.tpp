@@ -35,6 +35,30 @@ std::vector<T> DF<Ts...>::at(const std::string_view v) const
     return out;
 }
 
+template<typename... Ts>
+DF<Ts...> append(const DF<Ts...>& lhs, const DF<Ts...>& rhs)
+{
+    DF<Ts...> out(lhs.height() +  rhs.height());
+    for (const auto& row : lhs)
+        out.data_.push_back(row);
+    for (const auto& row : rhs)
+        out.data_.push_back(row);
+    return out;
+}
+
+template<typename... Ts>
+DF<Ts...> append3(const DF<Ts...>& df1, const DF<Ts...>& df2, const DF<Ts...>& df3)
+{
+    DF<Ts...> out(df1.height() + df2.height() + df3.height());
+    for (const auto& row : df1)
+        out.data_.push_back(row);
+    for (const auto& row : df2)
+        out.data_.push_back(row);
+    for (const auto& row : df3)
+        out.data_.push_back(row);
+    return out;
+}
+
 // template<typename... Ts>
 // void DF<Ts...>::append_row(const std::tuple<Ts...>& row)
 // {

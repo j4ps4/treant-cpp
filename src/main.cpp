@@ -46,4 +46,5 @@ int main(int argc, const char** argv)
         Util::die("{}", m_hos.error());
     auto& hos = m_hos.value();
     hos.attack_dataset(df);
+    fmt::print("a dataframe of size ({}x{})\n", df.height(), df.width());
 }

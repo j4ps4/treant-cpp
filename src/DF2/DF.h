@@ -19,9 +19,9 @@ struct DF
     explicit DF(std::vector<std::tuple<Ts...>>&& cols);
     explicit DF(size_t cap);
 
-    auto begin() { return data_.begin(); }
+    auto begin() const { return data_.begin(); }
     auto cbegin() const { return data_.cbegin(); }
-    auto end() { return data_.end(); }
+    auto end() const { return data_.end(); }
     auto cend() const { return data_.cend(); }
 
     // copies data
@@ -33,8 +33,16 @@ struct DF
     auto height() const noexcept {return data_.size();}
     constexpr auto width() const noexcept {return NC;}
 
+    void reserve(size_t n) {data_.reserve(n);}
+    void append_row(const std::tuple<Ts...>& row) {data_.push_back(row);}
+
     template<typename T>
     std::vector<T> at(const std::string_view v) const;
+
+    template<typename... AT>
+    friend DF<AT...> append(const DF<AT...>& lhs, const DF<AT...>& rhs);
+    template<typename... AT>
+    friend DF<AT...> append3(const DF<AT...>& df1, const DF<AT...>& df2, const DF<AT...>& df3);
 
     //void append_row(const std::tuple<Ts...>& row);
     void append_row(std::tuple<Ts...>&& row);

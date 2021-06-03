@@ -84,6 +84,23 @@ static void comp_impl(const TupleVec<Ts...>& attacks, AttkList::const_iterator& 
             {
                 queue.push_front(pair);
             }
+            std::array<F,2> sarr = {std::get<H>(inst), std::get<H>(x_prime)};
+            std::sort(sarr.begin(), sarr.end());
+            auto [low, high] = sarr;
+            auto [pre1, pre2] = rule.get_pre_interval<F>();
+            std::vector<F> z;
+            if (low < pre1 && pre1 < high)
+                z.push_back(pre1);
+            if (low < pre2 && pre2 < high)
+                z.push_back(pre2);
+            for (F zi : z)
+            {
+                x_prime = inst;
+                std::get<H>(x_prime) = zi;
+                auto pair = std::make_tuple(x_prime, cost_prime);
+                if (!check_equal_perturbation(attacks, pair))
+                    queue.push_front(pair);
+            }
         }
     }
 }
@@ -105,6 +122,23 @@ static void comp_impl(const TupleVec<Ts...>& attacks, AttkList::const_iterator& 
             if (!check_equal_perturbation(attacks, pair))
             {
                 queue.push_front(pair);
+            }
+            std::array<F1,2> sarr = {std::get<H>(inst), std::get<H>(x_prime)};
+            std::sort(sarr.begin(), sarr.end());
+            auto [low, high] = sarr;
+            auto [pre1, pre2] = rule.get_pre_interval<F1>();
+            std::vector<F1> z;
+            if (low < pre1 && pre1 < high)
+                z.push_back(pre1);
+            if (low < pre2 && pre2 < high)
+                z.push_back(pre2);
+            for (F1 zi : z)
+            {
+                x_prime = inst;
+                std::get<H>(x_prime) = zi;
+                auto pair = std::make_tuple(x_prime, cost_prime);
+                if (!check_equal_perturbation(attacks, pair))
+                    queue.push_front(pair);
             }
         }
     }

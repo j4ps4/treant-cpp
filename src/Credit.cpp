@@ -17,37 +17,43 @@ const std::filesystem::path data_file = data_dir / "valid.csv.bz2";
 const std::filesystem::path json_file = data_dir / "attacks.json";
 const std::filesystem::path attack_file = data_dir / "credit.cereal";
 
-cpp::result<DF<DATATYPES>,std::string> read_bz2()
+DataFrame::DataFrame(DF<CREDIT_DATATYPES>&& df) :
+    df_(std::move(df)) {}
+
+cpp::result<DataFrame,std::string> read_bz2()
 {
-    return df::read_bz2<DATATYPES>(data_file.c_str());
+    return df::read_bz2<CREDIT_DATATYPES>(data_file.c_str());
 }
 
-cpp::result<Attacker<DATATYPES>,std::string> new_Attacker(int budget)
+Hostile::Hostile(Attacker<CREDIT_DATATYPES>&& atkr) :
+    atkr_(std::move(atkr)) {}
+
+cpp::result<Hostile,std::string> new_Hostile(int budget)
 {
     auto res = load_attack_rules<ATTACK_TYPES>(json_file);
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
-    return Attacker<DATATYPES>(std::move(rulz), budget);
+    return Attacker<CREDIT_DATATYPES>(std::move(rulz), budget);
 }
 
-void compute_or_load_attacks(Attacker<DATATYPES>& atkr, const DF<DATATYPES>& X)
+void Hostile::attack_dataset(const DataFrame& X, ForceCompute force)
 {
-    if (std::filesystem::exists(attack_file))
+    if (force == ForceCompute::No && std::filesystem::exists(attack_file))
     {
         Util::info("loading attacked dataset from {}...", attack_file.c_str());
-        atkr.load_attacks(attack_file);
+        atkr_.load_attacks(attack_file);
     }
     else
     {
         Util::info("computing attacks and storing into {}...", attack_file.c_str());
-        atkr.compute_attacks<ATTACK_TYPES>(X, attack_file, FEATURE_ID{});
+        atkr_.compute_attacks<ATTACK_TYPES>(X.df_, attack_file, FEATURE_ID{});
     }
 }
 
-void dump_attack_rules(const Attacker<DATATYPES>& atkr)
+void Hostile::dump_attack_rules() const
 {
-    atkr.print_rules<ATTACK_TYPES>();
+    atkr_.print_rules<ATTACK_TYPES>();
 }
 
 }

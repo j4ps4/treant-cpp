@@ -3,7 +3,7 @@
 #include <string_view>
 #include <array>
 
-#define DATATYPES double, bool, int8_t, int8_t, uint8_t,\
+#define CREDIT_DATATYPES double, bool, int8_t, int8_t, uint8_t,\
   int8_t,int8_t,int8_t,int8_t,int8_t,int8_t,double,double,double,\
   double,double,double,double,double,double,double,double,double,\
   bool
@@ -21,12 +21,31 @@
 
 namespace credit
 {
+	class DataFrame
+	{
+		friend class Hostile;
+	public:
+		DataFrame(DF<CREDIT_DATATYPES>&& df);
+	private:
+		DF<CREDIT_DATATYPES> df_;
+	};
+	
+	enum class ForceCompute { Yes, No };
+	
+	class Hostile
+	{
+	public:
+		Hostile(Attacker<CREDIT_DATATYPES>&& atkr);
+		void attack_dataset(const DataFrame& X, ForceCompute force = ForceCompute::No );
+		void dump_attack_rules() const;
+	private:
+		Attacker<CREDIT_DATATYPES> atkr_;
+	};
+		
+
     // Read bzipped csv to dataframe.
-    cpp::result<DF<DATATYPES>,std::string> read_bz2();
+    cpp::result<DataFrame,std::string> read_bz2();
     // Create attacker from given attacks file and budget.
-    cpp::result<Attacker<DATATYPES>,std::string> new_Attacker(int budget);
+    cpp::result<Hostile,std::string> new_Hostile(int budget);
 
-    void compute_or_load_attacks(Attacker<DATATYPES>& atkr, const DF<DATATYPES>& X);
-
-    void dump_attack_rules(const Attacker<DATATYPES>& atkr);
 }

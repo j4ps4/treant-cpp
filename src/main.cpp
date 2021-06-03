@@ -34,16 +34,16 @@
 
 int main(int argc, const char** argv)
 {
-    auto res = credit::read_bz2();
-    if (res.has_error())
-        Util::die("{}", res.error());
-    auto& df = res.value();
+    auto m_df = credit::read_bz2();
+    if (m_df.has_error())
+        Util::die("{}", m_df.error());
+    auto& df = m_df.value();
     // auto df2 = df.slice(0,10);
     // for (const auto& row : df2)
     //     fmt::print("{}\n", row);
-    auto m_atkr = credit::new_Attacker(50);
-    if (m_atkr.has_error())
-        Util::die("{}", m_atkr.error());
-    auto& atkr = m_atkr.value(); 
-    credit::compute_or_load_attacks(atkr, df);
+    auto m_hos = credit::new_Hostile(50);
+    if (m_hos.has_error())
+        Util::die("{}", m_hos.error());
+    auto& hos = m_hos.value();
+    hos.attack_dataset(df);
 }

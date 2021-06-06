@@ -39,8 +39,6 @@ using AttackDict = std::unordered_map<std::tuple<size_t,size_t>, TupleVec<Ts...>
 template<typename... Ts>
 class Attacker
 {
-    // TODO: unordered map
-    // (row_idx, feature_id) -> DF
 public:
     Attacker(AttkList&& rules, int budget) :
         budget_(budget), rules_(std::forward<AttkList>(rules)) {}
@@ -53,6 +51,8 @@ public:
     void print_rules() const;
 
     void load_attacks(const std::filesystem::path& fn);
+
+    int get_budget() const noexcept {return budget_;}
 private:
     template<typename... AF, size_t... Is>
     TupleVec<Ts...> compute_attack(const std::tuple<Ts...>& x, size_t feature_id, int cost, std::index_sequence<Is...>) const;

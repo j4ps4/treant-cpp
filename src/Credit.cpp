@@ -17,7 +17,12 @@ const std::filesystem::path train_file = data_dir / "train.csv.bz2";
 const std::filesystem::path valid_file = data_dir / "valid.csv.bz2";
 const std::filesystem::path test_file = data_dir / "test.csv.bz2";
 const std::filesystem::path json_file = data_dir / "attacks.json";
-const std::filesystem::path attack_file = data_dir / "credit.cereal";
+
+std::filesystem::path Hostile::attack_filename() const
+{
+    auto format = fmt::format("credit_B{}.atks", atkr_.get_budget());
+    return data_dir / format;
+}
 
 DataFrame::DataFrame(DF<CREDIT_DATATYPES>&& df) :
     df_(std::move(df)) {}
@@ -63,6 +68,7 @@ cpp::result<Hostile,std::string> new_Hostile(int budget)
 
 void Hostile::attack_dataset(const DataFrame& X, ForceCompute force)
 {
+    const auto attack_file = attack_filename();
     if (force == ForceCompute::No && std::filesystem::exists(attack_file))
     {
         Util::info("loading attacked dataset from {}...", attack_file.c_str());

@@ -43,6 +43,7 @@ namespace credit
 		void attack_dataset(const DataFrame& X, ForceCompute force = ForceCompute::No );
 		void dump_attack_rules() const;
 	private:
+		std::filesystem::path attack_filename() const;
 		Attacker<CREDIT_DATATYPES> atkr_;
 	};
 		

@@ -8,7 +8,7 @@ elseif(NOT CMAKE_BUILD_TYPE STREQUAL Debug AND
     message(FATAL_ERROR "Invalid build type!")
 endif()
 
-set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_CXX_COMPILER "g++")
 
 project(treant-cpp CXX)
 set(src_dir "src")

@@ -22,9 +22,12 @@ public:
          n_inst_(n_inst), left_(std::move(left)), right_(std::move(right)), 
          best_split_id_(best_split_id), best_split_val_(best_split_val)
         {
-            prediction_score_{0, 0};
+            prediction_score_ = {0, 0};
             prediction_ = -1;
         }
+
+    Node() = default;
+
     void set_prediction(std::array<double,2> pred)
     {
         prediction_score_ = pred;

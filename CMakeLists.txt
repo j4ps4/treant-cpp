@@ -26,6 +26,7 @@ option(ENABLE_MY_TESTING "Enable My Tests" ON)
 # pkg_check_modules(z REQUIRED zlib)
 
 find_package(NLopt CONFIG REQUIRED)
+find_package(Eigen3 CONFIG REQUIRED)
 
 include(cmake/CPM.cmake)
 CPMAddPackage(

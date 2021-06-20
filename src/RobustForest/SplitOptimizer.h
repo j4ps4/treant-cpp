@@ -4,6 +4,7 @@
 #include <array>
 #include <tuple>
 #include <optional>
+#include <map>
 
 #include "../Attacker.h"
 
@@ -21,9 +22,19 @@ class SplitOptimizer
 
     using IcmlTupl = std::tuple<Arr,Arr,double>;
     using IdxVec = std::vector<size_t>;
+    using CostVec = std::vector<int>;
+    using CostMap = std::map<size_t, int>;
+    using OptimTupl = std::tuple<double,IdxVec,IdxVec,size_t,double,double,Arr,Arr,double,CostMap,CostMap>;
 public:
     SplitOptimizer(SplitFunction split, bool icml2019) :
     split_(split), icml2019_(icml2019) {}
+
+    double evaluate_split(const Eigen::ArrayXXd& y_true,
+                          const Arr& y_pred) const;
+
+    template<size_t NA>
+    OptimTupl optimize_gain(const Eigen::ArrayXXd& X, const Eigen::ArrayXXd& y, const IdxVec& rows, int n_sample_features, 
+        Attacker<NA>& attacker, const CostVec& costs, double current_score, double current_prediction_score);
     
 private:
     static double sse(const Eigen::ArrayXXd& y_true,

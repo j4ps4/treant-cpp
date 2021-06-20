@@ -65,6 +65,16 @@ Eigen::Array<double,-1,N> array_index(const Eigen::ArrayXXd& in, const std::vect
     return out;
 }
 
+template<size_t N>
+double SplitOptimizer<N>::evaluate_split(const Eigen::ArrayXXd& y_true,
+                          const Arr& y_pred)
+{
+    if (split_ == SplitFunction::LogLoss)
+        return logloss(y_true, y_pred);
+    else
+        return sse(y_true, y_pred);
+}
+
 template<std::size_t N>
 double SplitOptimizer<N>::icml_split_loss(const Eigen::ArrayXXd& y,
     const std::vector<int>& L, const std::vector<int>& R)
@@ -73,14 +83,14 @@ double SplitOptimizer<N>::icml_split_loss(const Eigen::ArrayXXd& y,
     {
         auto R_filt = array_index<N>(y, R);
         Arr pred_right = R_filt.colwise().mean();
-        double icml_loss = sse(R_filt, pred_right);
+        double icml_loss = evaluate_split(R_filt, pred_right);
         return icml_loss;
     }
     else if (R.empty())
     {
         auto L_filt = array_index<N>(y, L);
         Arr pred_left = L_filt.colwise().mean();
-        double icml_loss = sse(L_filt, pred_left);
+        double icml_loss = evaluate_split(L_filt, pred_left);
         return icml_loss;
     }
     else
@@ -89,7 +99,7 @@ double SplitOptimizer<N>::icml_split_loss(const Eigen::ArrayXXd& y,
         Arr pred_left = L_filt.colwise().mean();
         auto R_filt = array_index<N>(y, R);
         Arr pred_right = R_filt.colwise().mean();
-        double icml_loss = sse(L_filt, pred_left) + sse(R_filt, pred_right);
+        double icml_loss = evaluate_split(L_filt, pred_left) + evaluate_split(R_filt, pred_right);
         return icml_loss;
     }
 }
@@ -252,4 +262,109 @@ auto SplitOptimizer<NY>::simulate_split(
         }
     }
     return {split_left, split_right, split_unknown};
+}
+
+template<size_t NY>
+template<size_t NA>
+auto SplitOptimizer<NY>::optimize_gain(const Eigen::ArrayXXd& X, const Eigen::ArrayXXd& y, const IdxVec& rows, int n_sample_features, 
+    Attacker<NA>& attacker, const CostVec& costs, double current_score, double current_prediction_score) -> OptimTupl
+{
+    double best_gain = 0.0;
+    size_t best_split_feature_id = -1;
+    double best_split_feature_value = NAN;
+    double next_best_split_feature_value = NAN;
+    IdxVec best_split_left_id;
+    IdxVec best_split_right_id;
+    IdxVec best_split_unknown_id;
+    Arr best_pred_left;
+    Arr best_pred_right;
+    double best_residue;
+    IdxVec split_left;
+    IdxVec split_right;
+    IdxVec split_unknown;
+    std::optional<IcmlTupl> optimizer_res;
+
+    // TODO: random sample features
+
+    std::map<size_t, std::vector<double> feature_map;
+    constexpr size_t NX = NA - NY;
+    for (size_t f_id = 0; f_id < NX; f_id++)
+    {
+        std::vector<double> feats(X.rows());
+        for (size_t rid = 0; rid < X.rows(); rid++)
+            feats.push_back(X(rid, f_id));
+        std::sort(feats.begin(),feats.end());
+        std::unique(feats.begin(),feats.end());
+        feature_map[f_id] = std::move(feats);
+    }
+
+    for (const auto& [feature_id, feats] : feature_map)
+    {
+        for (size_t feats_idx = 0; feats_idx < feats.size(); feats_idx++)
+        {
+            double feature_value = feats[feats_idx];
+            if (icml2019_)
+            {
+                auto split_res = split_icml2019(X, y, rows, attacker, costs, feature_id, feature_value);
+                split_left = std::get<0>(split_res);
+                split_right = std::get<1>(split_res);
+                split_unknown = std::get<2>(split_res);
+                optimizer_res = std::get<3>(split_res);
+            }
+            else
+            {
+                // TODO implement robust splitting
+                throw std::runtime_error("robust splitting not implemented");
+            }
+            if (optimizer_res)
+            {
+                auto optim_res = optimizer_res.value();
+                auto y_pred_left = std::get<0>(optim_res);
+                auto y_pred_right = std::get<1>(optim_res);
+                auto residue = std::get<2>(optim_res);
+                // compute gain
+                double gain = current_score - residue;
+                if (gain > best_gain)
+                {
+                    best_gain = gain;
+                    best_split_feature_id = feature_id;
+                    best_split_feature_value = feature_value;
+                    if (feats_idx < feats.size() - 1)
+                        next_best_split_feature_value = feats[feats_idx+1];
+                    else
+                        next_best_split_feature_value = best_split_feature_value;
+                    
+                    best_split_left_id = split_left;
+                    best_split_right_id = split_right;
+                    best_split_unknown_id = split_unknown;
+                    best_pred_left = y_pred_left;
+                    best_pred_right = y_pred_right;
+                    best_residue = residue;
+                }
+            }
+        }
+    }
+    CostMap costs_left;
+    CostMap costs_right;
+    // Continue iff there's an actual gain
+    if (best_gain > 0.0)
+    {
+        if (icml2019_)
+        {
+            for (auto u : best_split_unknown_id)
+            {
+                if (X(u,best_split_feature_id) <= best_split_feature_value)
+                    best_split_left_id.push_back(u);
+                else
+                    best_split_right_id.push_back(u);
+            }
+        }
+        for (auto key : best_split_left_id)
+            costs_left[key] = costs[key];
+        for (auto key : best_split_right_id)
+            costs_right[key] = costs[key];
+    }
+    return {best_gain, best_split_left_id, best_split_right_id, best_split_feature_id,
+            best_split_feature_value, next_best_split_feature_value, best_pred_left,
+            best_pred_right, best_residue, costs_left, costs_right};
 }

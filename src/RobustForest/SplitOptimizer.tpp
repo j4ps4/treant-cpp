@@ -286,7 +286,8 @@ auto SplitOptimizer<NY>::optimize_gain(const Eigen::ArrayXXd& X, const Eigen::Ar
 
     // TODO: random sample features
 
-    std::map<size_t, std::vector<double> feature_map;
+    // TODO: precompute
+    std::map<size_t, std::vector<double>> feature_map;
     constexpr size_t NX = NA - NY;
     for (size_t f_id = 0; f_id < NX; f_id++)
     {

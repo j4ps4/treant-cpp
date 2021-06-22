@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <vector>
 #include <tuple>
+#include <array>
 #include <filesystem>
 
 #include "DF2/DF.h"
@@ -29,14 +30,14 @@ struct hash
     }
 };
 
-template<typename... Ts>
-using PairT = std::tuple<std::tuple<Ts...>, int>;
-template<typename... Ts>
-using TupleVec = std::vector<std::tuple<std::tuple<Ts...>, int>>;
-template<typename... Ts>
-using AttackDict = std::unordered_map<std::tuple<size_t,size_t>, TupleVec<Ts...>, hash<size_t,size_t>>;
+template<size_t N>
+using PairT = std::tuple<std::array<double, N>, int>;
+template<size_t N>
+using TupleVec = std::vector<std::tuple<std::array<double, N>, int>>;
+template<size_t N>
+using AttackDict = std::unordered_map<std::tuple<size_t,size_t>, TupleVec<N>, hash<size_t,size_t>>;
 
-template<typename... Ts>
+template<size_t N>
 class Attacker
 {
 public:
@@ -44,8 +45,7 @@ public:
         budget_(budget), rules_(std::forward<AttkList>(rules)) {}
     bool is_filled() const;
 
-    template<typename... AF, size_t... Is>
-    void compute_attacks(const DF<Ts...>& X, const std::filesystem::path& attacks_fn, std::index_sequence<Is...>);
+    void compute_attacks(const DF<N>& X, const std::filesystem::path& attacks_fn);
     
     template<typename... Fs>
     void print_rules() const;
@@ -54,12 +54,11 @@ public:
 
     int get_budget() const noexcept {return budget_;}
 private:
-    template<typename... AF, size_t... Is>
-    TupleVec<Ts...> compute_attack(const std::tuple<Ts...>& x, size_t feature_id, int cost, std::index_sequence<Is...>) const;
+    TupleVec<N> compute_attack(const std::array<double, N>& x, size_t feature_id, int cost) const;
     int budget_;
     AttkList rules_;
 
-    AttackDict<Ts...> attacks_;
+    AttackDict<N> attacks_;
 };
 
 #include "Attacker.tpp"

@@ -1,6 +1,12 @@
-#include "DF.h"
+#include <eigen3/Eigen/Dense>
 
 #include <iostream>
+
+template<size_t N>
+using DF = Eigen::Array<double,-1,N,Eigen::RowMajor>;
+
+template<size_t N>
+using Row = Eigen::Array<double,1,N,Eigen::RowMajor>;
 
 // namespace
 // {

@@ -6,7 +6,7 @@
 #include <array>
 #include <filesystem>
 
-#include "DF2/DF.h"
+#include "DF2/DF_util.h"
 #include "AttackerRule.h"
 
 template<typename T>
@@ -31,9 +31,9 @@ struct hash
 };
 
 template<size_t N>
-using PairT = std::tuple<std::array<double, N>, int>;
+using PairT = std::tuple<Row<N>, int>;
 template<size_t N>
-using TupleVec = std::vector<std::tuple<std::array<double, N>, int>>;
+using TupleVec = std::vector<PairT<N>>;
 template<size_t N>
 using AttackDict = std::unordered_map<std::tuple<size_t,size_t>, TupleVec<N>, hash<size_t,size_t>>;
 
@@ -47,14 +47,13 @@ public:
 
     void compute_attacks(const DF<N>& X, const std::filesystem::path& attacks_fn);
     
-    template<typename... Fs>
     void print_rules() const;
 
-    void load_attacks(const std::filesystem::path& fn);
+    //void load_attacks(const std::filesystem::path& fn);
 
     int get_budget() const noexcept {return budget_;}
 private:
-    TupleVec<N> compute_attack(const std::array<double, N>& x, size_t feature_id, int cost) const;
+    TupleVec<N> compute_attack(const DF<N>& X, size_t row_i, size_t feature_id, int cost) const;
     int budget_;
     AttkList rules_;
 

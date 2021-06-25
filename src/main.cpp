@@ -41,10 +41,8 @@ int main(int argc, const char** argv)
     // auto df2 = df.slice(0,10);
     // for (const auto& row : df2)
     //     fmt::print("{}\n", row);
-    auto m_hos = credit::new_Hostile(50);
-    if (m_hos.has_error())
-        Util::die("{}", m_hos.error());
-    auto& hos = m_hos.value();
-    hos.attack_dataset(df);
-    fmt::print("a dataframe of size ({}x{})\n", df.height(), df.width());
+    auto m_atkr = credit::new_Attacker(50, df);
+    if (m_atkr.has_error())
+        Util::die("{}", m_atkr.error());
+    fmt::print("a dataframe of size ({}x{})\n", df.rows(), df.cols());
 }

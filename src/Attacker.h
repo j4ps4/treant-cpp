@@ -53,7 +53,7 @@ public:
 
     int get_budget() const noexcept {return budget_;}
 private:
-    TupleVec<N> compute_attack(const DF<N>& X, size_t row_i, size_t feature_id, int cost) const;
+    TupleVec<N> compute_attack(const Row<N>& rw, size_t feature_id, int cost) const;
     int budget_;
     AttkList rules_;
 

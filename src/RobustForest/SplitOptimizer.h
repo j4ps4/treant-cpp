@@ -6,6 +6,7 @@
 #include <optional>
 #include <map>
 
+#include "../DF2/DF_util.h"
 #include "../Attacker.h"
 
 enum class SplitFunction
@@ -18,23 +19,23 @@ template<std::size_t N>
 class SplitOptimizer
 {
     constexpr double eps = std::numeric_limits<double>::epsilon();
-    using Arr = Eigen::Array<double,1,N>;
+    using NRow = Row<N>;
 
-    using IcmlTupl = std::tuple<Arr,Arr,double>;
+    using IcmlTupl = std::tuple<NRow,NRow,double>;
     using IdxVec = std::vector<size_t>;
     using CostVec = std::vector<int>;
     using CostMap = std::map<size_t, int>;
-    using OptimTupl = std::tuple<double,IdxVec,IdxVec,size_t,double,double,Arr,Arr,double,CostMap,CostMap>;
+    using OptimTupl = std::tuple<double,IdxVec,IdxVec,size_t,double,double,NRow,NRow,double,CostMap,CostMap>;
 public:
     SplitOptimizer(SplitFunction split, bool icml2019) :
     split_(split), icml2019_(icml2019) {}
 
-    double evaluate_split(const Eigen::ArrayXXd& y_true,
-                          const Arr& y_pred) const;
+    double evaluate_split(const DF<N>& y_true,
+                          const NRow& y_pred) const;
 
-    template<size_t NA>
-    OptimTupl optimize_gain(const Eigen::ArrayXXd& X, const Eigen::ArrayXXd& y, const IdxVec& rows, int n_sample_features, 
-        Attacker<NA>& attacker, const CostVec& costs, double current_score, double current_prediction_score);
+    template<size_t NX>
+    OptimTupl optimize_gain(const DF<NX>& X, const DF<N>& y, const IdxVec& rows, int n_sample_features, 
+        Attacker<NA>& attacker, const CostVec& costs, double current_score);
     
 private:
     static double sse(const Eigen::ArrayXXd& y_true,

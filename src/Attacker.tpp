@@ -107,9 +107,8 @@ void compute_impl(const TupleVec<N>& attacks, const AttkList& rules, std::deque<
 }
 
 template<size_t N>
-TupleVec<N> Attacker<N>::compute_attack(const DF<N>& X, size_t row_i, size_t feature_id, int cost) const
+TupleVec<N> Attacker<N>::compute_attack(const Row<N>& rw, size_t feature_id, int cost) const
 {
-    const Row<N>& rw = X.row(row_i);
     using namespace Util;
     std::deque<PairT<N>> queue = {{rw, cost}};
     TupleVec<N> attacks;
@@ -133,15 +132,15 @@ void Attacker<N>::compute_attacks(const DF<N>& X, const std::filesystem::path& a
         auto f = r.get_target_feature();
         fs.push_back(f);
     }
-    auto H = X.rows();
-    for (size_t i = 0; i < H; i++)
+    const auto H = X.rows();
+    for (int64_t i = 0; i < H; i++)
     {
-        //const Row<N>& rw = X.row(i);
+        const Row<N>& rw = X.row(i);
         for (auto j : fs)
         {
             auto key = std::make_tuple(i, j);
             //compute_attack(rw, j, 0);
-            attacks_[key] = compute_attack(X, i, j, 0);
+            attacks_[key] = compute_attack(rw, j, 0);
         }
     }
     Util::info("computed {} attacks.\n", attacks_.size());
@@ -155,7 +154,8 @@ void Attacker<N>::compute_attacks(const DF<N>& X, const std::filesystem::path& a
     //     {
     //         auto& vec = std::get<0>(pair);
     //         auto cost = std::get<1>(pair);
-    //         fmt::print("{}, cost: {}\n", vec, cost);
+    //         std::cout << vec << ", cost: " << cost << "\n"; 
+    //         //fmt::print("{}, cost: {}\n", vec, cost);
     //     }
     //     count++;
     // }

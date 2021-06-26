@@ -54,18 +54,6 @@ double SplitOptimizer<N>::logloss_under_attack(const Eigen::ArrayXXd& left,
 }
 
 template<size_t N>
-Eigen::Array<double,-1,N> array_index(const Eigen::ArrayXXd& in, const std::vector<int>& idxs)
-{
-    Eigen::Array<double,-1,N> out = Eigen::ArrayXXd::Zero(idxs.size(), N);
-    for (size_t i = 0; i < idxs.size(); i++)
-	{
-		auto id = idxs[i];
-        out.row(i) << in.row(id);
-	}
-    return out;
-}
-
-template<size_t N>
 double SplitOptimizer<N>::evaluate_split(const Eigen::ArrayXXd& y_true,
                           const Arr& y_pred)
 {
@@ -267,7 +255,7 @@ auto SplitOptimizer<NY>::simulate_split(
 template<size_t NY>
 template<size_t NA>
 auto SplitOptimizer<NY>::optimize_gain(const Eigen::ArrayXXd& X, const Eigen::ArrayXXd& y, const IdxVec& rows, int n_sample_features, 
-    Attacker<NA>& attacker, const CostVec& costs, double current_score, double current_prediction_score) -> OptimTupl
+    Attacker<NA>& attacker, const CostVec& costs, double current_score) -> OptimTupl
 {
     double best_gain = 0.0;
     size_t best_split_feature_id = -1;

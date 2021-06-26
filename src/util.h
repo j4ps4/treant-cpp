@@ -26,6 +26,14 @@ void info(const char* msg, Args... args)
     fmt::print("\n");
 }
 
+template<typename... Args>
+void log(const char* msg, Args... args)
+{
+    fmt::print(msg, args...);
+    fmt::print("\n");
+}
+
+
 template<typename T>
 auto numeral(T arg) { return +arg; }
 

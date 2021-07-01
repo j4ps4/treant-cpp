@@ -5,6 +5,7 @@
 #include <tuple>
 #include <optional>
 #include <map>
+#include <set>
 
 #include "../DF2/DF_util.h"
 #include "../Attacker.h"
@@ -15,11 +16,11 @@ enum class SplitFunction
     SSE
 };
 
-template<std::size_t N>
+template<size_t NX, size_t NY>
 class SplitOptimizer
 {
     constexpr double eps = std::numeric_limits<double>::epsilon();
-    using NRow = Row<N>;
+    using NRow = Row<NY>;
 
     using IcmlTupl = std::tuple<NRow,NRow,double>;
     using IdxVec = std::vector<size_t>;
@@ -30,12 +31,12 @@ public:
     SplitOptimizer(SplitFunction split, bool icml2019) :
     split_(split), icml2019_(icml2019) {}
 
-    double evaluate_split(const DF<N>& y_true,
+    double evaluate_split(const DF<NY>& y_true,
                           const NRow& y_pred) const;
 
-    template<size_t NX>
-    OptimTupl optimize_gain(const DF<NX>& X, const DF<N>& y, const IdxVec& rows, int n_sample_features, 
-        Attacker<NA>& attacker, const CostVec& costs, double current_score);
+    OptimTupl optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, 
+        const std::set<size_t>& feature_blacklist, int n_sample_features, 
+        Attacker<NX>& attacker, const CostVec& costs, double current_score);
     
 private:
     static double sse(const Eigen::ArrayXXd& y_true,
@@ -52,15 +53,13 @@ private:
     static double icml_split_loss(const Eigen::ArrayXXd& y,
         const IdxVec& L, const IdxVec& R);
 
-    template<size_t NA>
     static std::tuple<IdxVec, IdxVec, IdxVec, std::optional<IcmlTupl>> split_icml2019(
-        const Eigen::ArrayXXd& X, const Eigen::ArrayXXd& y, const IdxVec& rows, Attacker<NA>& attacker,
+        const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, Attacker<NX>& attacker,
         std::vector<int>& costs, size_t feature_id, double feature_value
     );
 
-    template<size_t NA>
     static std::tuple<IdxVec, IdxVec, IdxVec> simulate_split(
-        const Eigen::ArrayXXd& X, const IdxVec& rows, Attacker<NA>& attacker,
+        const DF<NX>& X, const IdxVec& rows, Attacker<NX>& attacker,
         std::vector<int>& costs, size_t feature_id, double feature_value
     );
     

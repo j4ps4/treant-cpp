@@ -37,7 +37,7 @@ using TupleVec = std::vector<PairT<N>>;
 template<size_t N>
 using AttackDict = std::unordered_map<std::tuple<size_t,size_t>, TupleVec<N>, hash<size_t,size_t>>;
 
-template<size_t N>
+template<size_t NX>
 class Attacker
 {
 public:
@@ -45,7 +45,7 @@ public:
         budget_(budget), rules_(std::forward<AttkList>(rules)) {}
     bool is_filled() const;
 
-    void compute_attacks(const DF<N>& X, const std::filesystem::path& attacks_fn);
+    void compute_attacks(const DF<NX>& X, const std::filesystem::path& attacks_fn);
     
     void print_rules() const;
 
@@ -53,11 +53,11 @@ public:
 
     int get_budget() const noexcept {return budget_;}
 private:
-    TupleVec<N> compute_attack(const Row<N>& rw, size_t feature_id, int cost) const;
+    TupleVec<NX> compute_attack(const Row<NX>& rw, size_t feature_id, int cost) const;
     int budget_;
     AttkList rules_;
 
-    AttackDict<N> attacks_;
+    AttackDict<NX> attacks_;
 };
 
 #include "Attacker.tpp"

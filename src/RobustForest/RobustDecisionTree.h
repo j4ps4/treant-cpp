@@ -8,22 +8,22 @@
 #include "SplitOptimizer.h"
 #include "../DF2/DF_util.h"
 
-template<size_t N>
+template<size_t NX, size_t NY>
 struct TreeArguments
 {
     int id;
-    std::unique_ptr<Attacker<N>> attacker;
-    std::unique_ptr<SplitOptimizer<N>> optimizer;
+    std::unique_ptr<Attacker<NX>> attacker;
+    std::unique_ptr<SplitOptimizer<NX, NY>> optimizer;
     size_t max_depth;
     size_t min_instances_per_node;
     bool affine;
 };
 
-template<size_t N>
+template<size_t NX, size_t NY>
 class RobustDecisionTree
 {
 public:
-    RobustDecisionTree(TreeArguments<N> args) :
+    RobustDecisionTree(TreeArguments<NX,NY> args) :
         id_(args.id), max_depth_(args.max_depth), min_inst_per_node_(args.min_inst_per_node),
         attacker_(std::move(args.attacker)), optimizer_(std::move(args.optimizer)), affine_(args.affine)
     {
@@ -31,18 +31,21 @@ public:
     }
 
     bool is_affine() const {return affine_;}
+
+    void fit(const DF<NX>& X_train, const DF<NY>& y_train);
     
 private:
-    Node* private_fit(const DF<N>& X_train, const DF<2>& y_train, const std::vector<size_t> rows,
-        std::vector<int>& costs, const Row<2>& node_prediction, std::set<size_t> feature_blacklist, size_t depth);
+    Node* private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
+        std::map<size_t,int>& costs, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth);
     std::unique_ptr<Node> root_;
     int id_;
     size_t max_depth_;
     size_t min_instances_per_node_;
     bool isTrained_;
     bool affine_;
-    std::unique_ptr<Attacker<N>> attacker_;
-    std::unique_ptr<SplitOptimizer<N>> optimizer_;
+    std::set<size_t> start_feature_bl;
+    std::unique_ptr<Attacker<NX>> attacker_;
+    std::unique_ptr<SplitOptimizer<NX,NY>> optimizer_;
 };
 
 #include "RobustDecisionTree.tpp"

@@ -252,10 +252,19 @@ auto SplitOptimizer<NY>::simulate_split(
     return {split_left, split_right, split_unknown};
 }
 
-template<size_t NY>
-template<size_t NA>
-auto SplitOptimizer<NY>::optimize_gain(const Eigen::ArrayXXd& X, const Eigen::ArrayXXd& y, const IdxVec& rows, int n_sample_features, 
-    Attacker<NA>& attacker, const CostVec& costs, double current_score) -> OptimTupl
+template<size_t N>
+std::set<size_t> feature_set()
+{
+    auto gen = [](){size_t x = 0; return x++;};
+    std::set<size_t> out;
+    std::generate_n(std::inserter(out, out.begin()), N, gen);
+    return out;
+}
+
+template<size_t NX, size_t NY>
+auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
+    int n_sample_features, const std::set<size_t>& feature_blacklist,
+    Attacker<NX>& attacker, const CostVec& costs, double current_score) -> OptimTupl
 {
     double best_gain = 0.0;
     size_t best_split_feature_id = -1;
@@ -272,12 +281,15 @@ auto SplitOptimizer<NY>::optimize_gain(const Eigen::ArrayXXd& X, const Eigen::Ar
     IdxVec split_unknown;
     std::optional<IcmlTupl> optimizer_res;
 
-    // TODO: random sample features
+    const static std::set<size_t> all_features = feature_set<NX>();
+    std::set<size_t> not_bl;
+    std::set_difference(all_features.begin(), all_features.end(),
+        feature_blacklist.begin(), feature_blacklist.end(),
+        std::inserter(not_bl, not_bl.begin()));
 
     // TODO: precompute
     std::map<size_t, std::vector<double>> feature_map;
-    constexpr size_t NX = NA - NY;
-    for (size_t f_id = 0; f_id < NX; f_id++)
+    for (size_t f_id : not_bl)
     {
         std::vector<double> feats(X.rows());
         for (size_t rid = 0; rid < X.rows(); rid++)

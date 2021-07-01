@@ -1,14 +1,16 @@
 #include "../util.h"
 
-template<size_t N>
-Node* RobustDecisionTree<N>::private_fit(const DF<N>& X_train, const DF<2>& y_train, const std::vector<size_t> rows,
-    std::vector<int>& costs, const Row<2>& node_prediction, std::set<size_t> feature_blacklist, size_t depth)
+#include <algorithm>
+
+template<size_t NX, size_t NY>
+Node* RobustDecisionTree<N>::private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
+    std::map<size_t,int>& costs, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth)
 {
     if (X_train.size() == 0)
         return new Node();
 
-    DF<N> X = DF_index(X_train, rows);
-    DF<2> y = DF_index(y_train, rows);
+    DF<NX> X = DF_index(X_train, rows);
+    DF<NY> y = DF_index(y_train, rows);
     Node* node = new Node(y.rows());
     node->set_prediction(node_prediction);
     Util::log("tree {}: current depth: {}", id_, depth);
@@ -54,4 +56,24 @@ Node* RobustDecisionTree<N>::private_fit(const DF<N>& X_train, const DF<2>& y_tr
         node->set_right(private_fit(X_train, y_train, best_split_right, costs_right, best_pred_right, updated_feature_bl, depth+1));
     }
     return node;
+}
+
+template<size_t NX, size_t NY>
+void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
+{
+    std::vector<size_t> rows(X_train.rows());
+    std::iota(rows.begin(), rows.end(), 0);
+    // null prediction
+    Row<NY> node_prediction = y_train.colwise().mean();
+    std::map<size_t,int> costs;
+    for (size_t i = 0; i < X_train.rows(); i++)
+        costs[i] = 0;
+    root_ = private_fit(X_train, y_train, rows, costs, node_prediction, start_feature_bl, 0);
+
+    if (!root_->is_dummy())
+    {
+        isTrained_ = true;
+        Util::log("Fitting Tree ID {} completed (is_trained = {})!",
+            id_, isTrained_);
+    }
 }

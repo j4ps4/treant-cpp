@@ -6,7 +6,7 @@
 #include <array>
 #include <filesystem>
 
-#include "DF2/DF_util.h"
+#include "DF2/DF_def.h"
 #include "AttackerRule.h"
 
 template<typename T>

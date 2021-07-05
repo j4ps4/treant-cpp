@@ -19,44 +19,57 @@ const std::filesystem::path json_file = data_dir / "attacks.json";
 //     return data_dir / format;
 // }
 
-template<size_t N>
-DF<N> append3(const DF<N>& fst, const DF<N>& snd, const DF<N>& thrd)
+template<size_t NX, size_t NY>
+std::tuple<DF<NX>,DF<NY>> append3(const std::tuple<DF<NX>,DF<NY>>& fst, 
+    const std::tuple<DF<NX>,DF<NY>>& snd, 
+    const std::tuple<DF<NX>,DF<NY>>& thrd)
 {
-    auto total_rows = fst.rows() + snd.rows() + thrd.rows();
-    DF<N> out = Eigen::ArrayXXd::Zero(total_rows,N);
+    const auto rows1 = std::get<0>(fst).rows();
+    const auto rows2 = std::get<0>(snd).rows();
+    const auto rows3 = std::get<0>(thrd).rows();
+    auto total_rows = rows1 + rows2 + rows3;
+    DF<NX> X_out = Eigen::ArrayXXd::Zero(total_rows,NX);
+    DF<NY> Y_out = Eigen::ArrayXXd::Zero(total_rows,NY);
     size_t out_idx = 0;
-    for (int64_t i = 0; i < fst.rows(); i++)
-        out.row(out_idx++) = fst.row(i);
-    for (int64_t i = 0; i < snd.rows(); i++)
-        out.row(out_idx++) = snd.row(i);
-    for (int64_t i = 0; i < thrd.rows(); i++)
-        out.row(out_idx++) = thrd.row(i);
-    return out;
+    for (int64_t i = 0; i < rows1; i++)
+    {
+        X_out.row(out_idx) = std::get<0>(fst).row(i);
+        Y_out.row(out_idx++) = std::get<1>(fst).row(i);
+    }
+    for (int64_t i = 0; i < rows2; i++)
+    {
+        X_out.row(out_idx) = std::get<0>(snd).row(i);
+        Y_out.row(out_idx++) = std::get<1>(snd).row(i);
+    }
+    for (int64_t i = 0; i < rows3; i++)
+    {
+        X_out.row(out_idx) = std::get<0>(thrd).row(i);
+        Y_out.row(out_idx++) = std::get<1>(thrd).row(i);
+    }
+    return std::make_tuple(X_out, Y_out);
 }
 
-cpp::result<DF<CREDIT_SIZE>,std::string> read_bz2()
+cpp::result<std::tuple<DF<CREDIT_X>,DF<CREDIT_Y>>,std::string> read_bz2()
 {
-    auto res = df::read_bz2<CREDIT_SIZE>(train_file.c_str()).flat_map([&](const auto& train){
-        return df::read_bz2<CREDIT_SIZE>(valid_file.c_str()).flat_map([&](const auto& valid){
-            return df::read_bz2<CREDIT_SIZE>(test_file.c_str()).map([&](const auto& test){
-                return append3<CREDIT_SIZE>(train, valid, test);
+    auto res = df::read_bz2<CREDIT_X,CREDIT_Y>(train_file.c_str()).flat_map([&](const auto& train){
+        return df::read_bz2<CREDIT_X,CREDIT_Y>(valid_file.c_str()).flat_map([&](const auto& valid){
+            return df::read_bz2<CREDIT_X,CREDIT_Y>(test_file.c_str()).map([&](const auto& test){
+                return append3<CREDIT_X,CREDIT_Y>(train, valid, test);
             });
         });
     });
     return res;
-    // if (res.has_error())
-    //     return cpp::failure(res.error());
     // return res.value();
 }
 
-cpp::result<Attacker<CREDIT_SIZE>,std::string> new_Attacker(int budget, const DF<CREDIT_SIZE>& X)
+cpp::result<Attacker<CREDIT_X>,std::string> new_Attacker(int budget, const DF<CREDIT_X>& X)
 {
     std::filesystem::path attack_file = "";
     auto res = load_attack_rules(json_file);
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
-    Attacker<CREDIT_SIZE> atkr(std::move(rulz), budget);
+    Attacker<CREDIT_X> atkr(std::move(rulz), budget);
     Util::info("computing attacks...");
     atkr.compute_attacks(X, attack_file);
     return atkr;

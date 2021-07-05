@@ -5,11 +5,12 @@
 #include <stddef.h>
 
 #define CREDIT 1
-constexpr size_t CREDIT_SIZE = 24;
+constexpr size_t CREDIT_X = 23;
+constexpr size_t CREDIT_Y = 2;
 
 #include <string>
 #include "result.hpp"
-#include "DF2/DF_util.h"
+#include "DF2/DF_def.h"
 #include "Attacker.h"
 
 namespace credit
@@ -42,9 +43,9 @@ namespace credit
 		
 
     // Read bzipped csv to dataframe.
-    cpp::result<DF<CREDIT_SIZE>,std::string> read_bz2();
+    cpp::result<std::tuple<DF<CREDIT_X>,DF<CREDIT_Y>>,std::string> read_bz2();
 
     // Create attacker from given attacks file and budget.
-	cpp::result<Attacker<CREDIT_SIZE>,std::string> new_Attacker(int budget, const DF<CREDIT_SIZE>& X);
+	cpp::result<Attacker<CREDIT_X>,std::string> new_Attacker(int budget, const DF<CREDIT_X>& X);
 
 }

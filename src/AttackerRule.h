@@ -7,7 +7,7 @@
 
 #include "result.hpp"
 #include "util.h"
-#include "DF2/DF_util.h"
+#include "DF2/DF_def.h"
 
 class AttackerRule
 {

@@ -113,28 +113,14 @@ cpp::result<void, std::string> read_buffer(const char* fn, std::unique_ptr<char[
     return {};
 }
 
-template<typename T>
-void read(char* start, char* end, T& val)
-{
-    std::from_chars(start, end, val);
-}
-
-template<>
-void read<double>(char* start, char* end, double& val)
+void read_val(char* start, char* end, double& val)
 {
     val = strtod(start, nullptr);
 }
-template<>
-void read<float>(char* start, char* end, float& val)
+void read_classid(char* start, char* end, size_t& val)
 {
-    val = strtof(start, nullptr);
-}
-template<>
-void read<bool>(char* start, char* end, bool& val)
-{
-    int8_t temp;
-    std::from_chars(start, end, temp);
-    val = temp > 0 ? true : false;
+    std::from_chars(start, end, val);
+    val = std::max(0UL, val);
 }
 
 static const auto chars = {',', '\n'};
@@ -146,10 +132,27 @@ void read_line(DF<N>& data, char* buf, int bufS, size_t row_id, char*& bufOut)
     Row<N> row = Eigen::ArrayXXd::Zero(1,N);
     for (size_t col = 0; col < N; col++)
     {
-        bufE = std::find_first_of(buf, buf+bufS, chars.begin(), chars.end());
+        bufE = std::find(buf, buf+bufS, ',');
         double val;
-        read(buf, bufE, val);
+        read_val(buf, bufE, val);
         row(col) = val;
+        buf = bufE+1;
+    }
+    data.row(row_id) = row;
+    bufOut = bufE+1;
+}
+
+template<size_t N>
+void read_encode_line(DF<N>& data, char* buf, int bufS, size_t row_id, char*& bufOut)
+{
+    char* bufE;
+    Row<N> row = Eigen::ArrayXXd::Zero(1,N);
+    for (size_t col = 0; col < N/2; col++)
+    {
+        bufE = std::find_first_of(buf, buf+bufS, chars.begin(), chars.end());
+        size_t val;
+        read_classid(buf, bufE, val);
+        row(val) = 1.0;
         buf = bufE+1;
     }
     data.row(row_id) = row;
@@ -160,8 +163,8 @@ void read_line(DF<N>& data, char* buf, int bufS, size_t row_id, char*& bufOut)
 
 namespace df {
 
-template<size_t N>
-cpp::result<DF<N>, std::string> read_bz2(const char* fn)
+template<size_t NX, size_t NY>
+cpp::result<std::tuple<DF<NX>,DF<NY>>, std::string> read_bz2(const char* fn)
 {
     int nBuf;
     size_t nl;
@@ -176,13 +179,15 @@ cpp::result<DF<N>, std::string> read_bz2(const char* fn)
 
     const auto rows = nl - 1;
 
-    DF<N> data = Eigen::ArrayXXd::Zero(rows,N);
+    DF<NX> X_data = Eigen::ArrayXXd::Zero(rows,NX);
+    DF<NY> Y_data = Eigen::ArrayXXd::Zero(rows,NY);
     auto loc = fstlne+1;
     for (size_t r = 0; r < rows; r++)
     {
-        read_line<N>(data, loc, nBuf, r, loc);
+        read_line<NX>(X_data, loc, nBuf, r, loc);
+        read_encode_line<NY>(Y_data, loc, nBuf, r, loc);
     }
-    return data;
+    return std::make_tuple(X_data, Y_data);
 }
 
 }

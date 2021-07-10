@@ -56,4 +56,5 @@ int main(int argc, const char** argv)
     auto tree = credit::new_RDT({.id = 0, .attacker = std::move(m_atkr.value()),
         .fun = SplitFunction::LogLoss, .icml2019 = true, .max_depth = 8, 
         .min_instances_per_node = 20, .affine = true});
+    tree.fit(X, Y);
 }

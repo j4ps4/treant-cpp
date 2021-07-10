@@ -37,7 +37,7 @@ public:
 
     OptimTupl optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, 
         const std::set<size_t>& feature_blacklist, int n_sample_features, 
-        Attacker<NX>& attacker, const CostVec& costs, double current_score);
+        Attacker<NX>& attacker, const CostMap& costs, double current_score);
     
 private:
     static double sse(const DF<NY>& y_true,
@@ -56,12 +56,12 @@ private:
 
     static std::tuple<IdxVec, IdxVec, IdxVec, std::optional<IcmlTupl>> split_icml2019(
         const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, Attacker<NX>& attacker,
-        std::vector<int>& costs, size_t feature_id, double feature_value
+        const CostMap& costs, size_t feature_id, double feature_value
     );
 
     static std::tuple<IdxVec, IdxVec, IdxVec> simulate_split(
         const DF<NX>& X, const IdxVec& rows, Attacker<NX>& attacker,
-        std::vector<int>& costs, size_t feature_id, double feature_value
+        const CostMap& costs, size_t feature_id, double feature_value
     );
     
     SplitFunction split_;

@@ -1,6 +1,8 @@
 #include <limits>
 #include <algorithm>
 
+#include "../DF2/DF_util.h"
+
 template<size_t NY>
 Row<NY> num_classes(const DF<NY>& y)
 {
@@ -96,7 +98,7 @@ double SplitOptimizer<NX,NY>::icml_split_loss(const DF<NY>& y,
 template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::split_icml2019(
     const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, Attacker<NX>& attacker,
-    std::vector<int>& costs, size_t feature_id, double feature_value) 
+    const CostMap& costs, size_t feature_id, double feature_value) 
     -> std::tuple<IdxVec, IdxVec, IdxVec, std::optional<IcmlTupl>>
 {
     //indices of instances which surely DO satisfy the boolean spitting predicate, disregarding the attacker
@@ -108,7 +110,7 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
 
     for (auto row_id : rows)
     {
-        int cost = costs[row_id]; // get the i-th cost spent on the i-th instance so far
+        int cost = costs.at(row_id); // get the i-th cost spent on the i-th instance so far
         auto attacks = attacker.attack(X.row(row_id), feature_id, cost);
         bool all_left = true;
         bool all_right = true;
@@ -198,8 +200,8 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
         tmpLeft.insert(tmpLeft.end(), split_unknown_left.begin(), split_unknown_left.end());
         IdxVec tmpRight(split_right.begin(), split_right.end());
         tmpRight.insert(tmpRight.end(), split_unknown_right.begin(), split_unknown_right.end());
-        auto y_pred_left = array_index<NY>(y, tmpLeft).colwise().mean();
-        auto y_pred_right = array_index<NY>(y, tmpRight).colwise().mean();
+        auto y_pred_left = DF_index<NY>(y, tmpLeft).colwise().mean();
+        auto y_pred_right = DF_index<NY>(y, tmpRight).colwise().mean();
         IdxVec tmp(split_unknown_right.begin(), split_unknown_right.end());
         tmp.insert(tmp.end(), split_unknown_left.begin(), split_unknown_left.end());
         return {split_left, split_right, tmp, std::make_tuple(y_pred_left, y_pred_right, sse)};
@@ -209,7 +211,7 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
 template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::simulate_split(
     const DF<NX>& X, const IdxVec& rows, Attacker<NX>& attacker,
-    std::vector<int>& costs, size_t feature_id, double feature_value
+    const CostMap& costs, size_t feature_id, double feature_value
 ) -> std::tuple<IdxVec, IdxVec, IdxVec>
 {
     IdxVec split_left;
@@ -218,7 +220,7 @@ auto SplitOptimizer<NX,NY>::simulate_split(
 
     for (auto row_id : rows)
     {
-        int cost = costs[row_id];
+        int cost = costs.at(row_id);
         auto attacks = attacker.attack(X.row(row_id), feature_id, cost);
 
         bool all_left = true;
@@ -263,7 +265,7 @@ std::set<size_t> feature_set()
 template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
     const std::set<size_t>& feature_blacklist, int n_sample_features,
-    Attacker<NX>& attacker, const CostVec& costs, double current_score) -> OptimTupl
+    Attacker<NX>& attacker, const CostMap& costs, double current_score) -> OptimTupl
 {
     double best_gain = 0.0;
     size_t best_split_feature_id = -1;
@@ -360,9 +362,9 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
             }
         }
         for (auto key : best_split_left_id)
-            costs_left[key] = costs[key];
+            costs_left[key] = costs.at(key);
         for (auto key : best_split_right_id)
-            costs_right[key] = costs[key];
+            costs_right[key] = costs.at(key);
     }
     return {best_gain, best_split_left_id, best_split_right_id, best_split_feature_id,
             best_split_feature_value, next_best_split_feature_value, best_pred_left,

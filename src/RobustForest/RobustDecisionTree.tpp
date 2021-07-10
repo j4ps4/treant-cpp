@@ -10,8 +10,8 @@ Node* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF<NY>
     if (X_train.size() == 0)
         return new Node();
 
-    DF<NX> X = DF_index(X_train, rows);
-    DF<NY> y = DF_index(y_train, rows);
+    DF<NX> X = DF_index<NX>(X_train, rows);
+    DF<NY> y = DF_index<NY>(y_train, rows);
     Node* node = new Node(y.rows());
     node->set_prediction(node_prediction);
     Util::log("tree {}: current depth: {}", id_, depth);
@@ -35,10 +35,10 @@ Node* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF<NY>
     // OptimTupl optimize_gain(const DF<NX>& X, const DF<N>& y, const IdxVec& rows, int n_sample_features, 
     //    Attacker<NA>& attacker, const CostVec& costs, double current_score);
     // using OptimTupl = std::tuple<double,IdxVec,IdxVec,size_t,double,double,NRow,NRow,double,CostMap,CostMap>;
-    auto& [best_gain, best_split_left, best_split_right, best_split_feature_id,
+    auto [best_gain, best_split_left, best_split_right, best_split_feature_id,
            best_split_feature_value, next_best_split_feature_id,
            best_pred_left, best_pred_right, best_loss,
-           costs_left, costs_right] = optimizer_->optimize_gain(X_train, y_train, rows, feature_blacklist, -1, attacker_, costs, current_score);
+           costs_left, costs_right] = optimizer_->optimize_gain(X_train, y_train, rows, feature_blacklist, -1, *(attacker_.get()), costs, current_score);
     if (best_gain > EPS)
     {
         node->set_loss(best_loss);
@@ -69,7 +69,7 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
     std::map<size_t,int> costs;
     for (size_t i = 0; i < X_train.rows(); i++)
         costs[i] = 0;
-    root_ = private_fit(X_train, y_train, rows, costs, node_prediction, start_feature_bl_, 0);
+    root_.reset(private_fit(X_train, y_train, rows, costs, node_prediction, start_feature_bl_, 0));
 
     if (!root_->is_dummy())
     {

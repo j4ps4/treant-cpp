@@ -1,3 +1,4 @@
+#pragma once
 #include "DF_def.h"
 
 template<size_t N>

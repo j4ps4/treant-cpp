@@ -1,9 +1,10 @@
 #include "../util.h"
 
 #include <algorithm>
+#include <numeric>
 
 template<size_t NX, size_t NY>
-Node* RobustDecisionTree<N>::private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
+Node* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
     std::map<size_t,int>& costs, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth)
 {
     if (X_train.size() == 0)
@@ -37,7 +38,7 @@ Node* RobustDecisionTree<N>::private_fit(const DF<NX>& X_train, const DF<NY>& y_
     auto& [best_gain, best_split_left, best_split_right, best_split_feature_id,
            best_split_feature_value, next_best_split_feature_id,
            best_pred_left, best_pred_right, best_loss,
-           costs_left, costs_right] = optimizer_->optimize_gain<N>(X_train, y_train, rows, feature_blacklist, -1, attacker_, costs, current_score);
+           costs_left, costs_right] = optimizer_->optimize_gain(X_train, y_train, rows, feature_blacklist, -1, attacker_, costs, current_score);
     if (best_gain > EPS)
     {
         node->set_loss(best_loss);
@@ -45,7 +46,7 @@ Node* RobustDecisionTree<N>::private_fit(const DF<NX>& X_train, const DF<NY>& y_
         node->set_best_split_id(best_split_feature_id);
         node->set_best_split_value(best_split_feature_value);
 
-        std::set<size_t> updated_feature_bl = feature_bl;
+        std::set<size_t> updated_feature_bl = feature_blacklist;
         // Update feature_blacklist
         if (affine_)
         {
@@ -68,7 +69,7 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
     std::map<size_t,int> costs;
     for (size_t i = 0; i < X_train.rows(); i++)
         costs[i] = 0;
-    root_ = private_fit(X_train, y_train, rows, costs, node_prediction, start_feature_bl, 0);
+    root_ = private_fit(X_train, y_train, rows, costs, node_prediction, start_feature_bl_, 0);
 
     if (!root_->is_dummy())
     {

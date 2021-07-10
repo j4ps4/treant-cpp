@@ -9,6 +9,7 @@
 
 #include "../DF2/DF_util.h"
 #include "../Attacker.h"
+#include "../def.h"
 
 enum class SplitFunction
 {
@@ -19,7 +20,7 @@ enum class SplitFunction
 template<size_t NX, size_t NY>
 class SplitOptimizer
 {
-    constexpr double eps = std::numeric_limits<double>::epsilon();
+    //constexpr double eps = std::numeric_limits<double>::epsilon();
     using NRow = Row<NY>;
 
     using IcmlTupl = std::tuple<NRow,NRow,double>;
@@ -39,18 +40,18 @@ public:
         Attacker<NX>& attacker, const CostVec& costs, double current_score);
     
 private:
-    static double sse(const Eigen::ArrayXXd& y_true,
-                   const Arr& y_pred);
+    static double sse(const DF<NY>& y_true,
+                   const Row<NY>& y_pred);
 
-    static double logloss(const Eigen::ArrayXXd& y_true,
-                   const Arr& y_pred);
+    static double logloss(const DF<NY>& y_true,
+                   const Row<NY>& y_pred);
 
-    static double logloss_under_attack(const Eigen::ArrayXXd& left,
-                                       const Eigen::ArrayXXd& right,
-                                       const Eigen::ArrayXXd& unknown,
-                                       const Arr& pred);
+    static double logloss_under_attack(const DF<NY>& left,
+                                       const DF<NY>& right,
+                                       const DF<NY>& unknown,
+                                       const Row<NY>& pred);
 
-    static double icml_split_loss(const Eigen::ArrayXXd& y,
+    static double icml_split_loss(const DF<NY>& y,
         const IdxVec& L, const IdxVec& R);
 
     static std::tuple<IdxVec, IdxVec, IdxVec, std::optional<IcmlTupl>> split_icml2019(

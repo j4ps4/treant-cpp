@@ -62,16 +62,16 @@ cpp::result<std::tuple<DF<CREDIT_X>,DF<CREDIT_Y>>,std::string> read_bz2()
     // return res.value();
 }
 
-cpp::result<Attacker<CREDIT_X>,std::string> new_Attacker(int budget, const DF<CREDIT_X>& X)
+cpp::result<std::unique_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int budget, const DF<CREDIT_X>& X)
 {
     std::filesystem::path attack_file = "";
     auto res = load_attack_rules(json_file);
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
-    Attacker<CREDIT_X> atkr(std::move(rulz), budget);
+    auto atkr = std::make_unique<Attacker<CREDIT_X>>(std::move(rulz), budget);
     Util::info("computing attacks...");
-    atkr.compute_attacks(X, attack_file);
+    atkr->compute_attacks(X, attack_file);
     return atkr;
 }
 
@@ -86,5 +86,11 @@ cpp::result<Attacker<CREDIT_X>,std::string> new_Attacker(int budget, const DF<CR
 //     Util::info("computing attacks...");
 //     atkr_.compute_attacks<ATTACK_TYPES>(X.df_, attack_file, FEATURE_ID{});
 // }
+
+
+RobustDecisionTree<CREDIT_X,CREDIT_Y> new_RDT(TreeArguments<CREDIT_X,CREDIT_Y>&& args)
+{
+    return RobustDecisionTree<CREDIT_X,CREDIT_Y>(std::move(args));
+}
 
 }

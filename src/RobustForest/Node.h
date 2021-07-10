@@ -12,19 +12,18 @@
 #include <array>
 #include <algorithm>
 
-#include "..DF2/util.h"
+#include "../DF2/DF_util.h"
 
 class Node
 {
 public:
     Node(size_t n_inst, std::unique_ptr<Node> left = nullptr, 
          std::unique_ptr<Node> right = nullptr, size_t best_split_id = -1, double best_split_val = 0) :
-         n_inst_(n_inst), left_(std::move(left)), right_(std::move(right)), 
+         dummy_(false), n_inst_(n_inst), left_(std::move(left)), right_(std::move(right)), 
          best_split_id_(best_split_id), best_split_val_(best_split_val)
         {
             prediction_score_ = {0, 0};
             prediction_ = -1;
-            dummy_ = false;
             loss_ = 0;
             gain_ = 0;
         }

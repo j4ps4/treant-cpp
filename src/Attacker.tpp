@@ -4,10 +4,10 @@
 #include <array>
 
 #include <fmt/core.h>
-#include <cereal/types/unordered_map.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/tuple.hpp>
-#include <cereal/archives/binary.hpp>
+// #include <cereal/types/unordered_map.hpp>
+// #include <cereal/types/vector.hpp>
+// #include <cereal/types/tuple.hpp>
+// #include <cereal/archives/binary.hpp>
 #include <fstream>
 
 #include "util.h"
@@ -15,20 +15,20 @@
 namespace 
 {
 
-template<typename... Ts>
-bool is_equal_perturbation(const PairT<Ts...>& x, const PairT<Ts...>& y)
+template<size_t N>
+bool is_equal_perturbation(const PairT<N>& x, const PairT<N>& y)
 {
-    return std::get<0>(x) == std::get<0>(y) &&
+    return (std::get<0>(x) == std::get<0>(y)).all() &&
          std::get<1>(x) <= std::get<1>(y);
 }
 
-template<typename... Ts>
-bool check_equal_perturbation(const TupleVec<Ts...>& attacks, const PairT<Ts...>& y)
+template<size_t N>
+bool check_equal_perturbation(const TupleVec<N>& attacks, const PairT<N>& y)
 {
     for (size_t i = 0; i < attacks.size(); i++)
     {
-        auto row = attacks[i];
-        if (is_equal_perturbation(row, y))
+        auto& row = attacks[i];
+        if (is_equal_perturbation<N>(row, y))
         {
             return true;
         }
@@ -63,148 +63,68 @@ constexpr size_t head()
     return head_impl<T>::value;
 }
 
-template<typename... Ts>
-struct AttackComputer
+template<size_t N>
+void compute_impl(const TupleVec<N>& attacks, const AttkList& rules, std::deque<PairT<N>>& queue,
+    const Row<N>& inst, int total_budget, int budget, size_t feature_id, int cost)
 {
-
-template<typename F, size_t I>
-static void comp_impl(const TupleVec<Ts...>& attacks, AttkList::const_iterator& rules_it, std::deque<PairT<Ts...>>& queue,
-    const std::tuple<Ts...>& inst, int total_budget, int budget, size_t feature_id, int cost, std::index_sequence<I>)
-{
-    constexpr size_t H = head<std::index_sequence<I>>();
-    const auto& rule = *rules_it;
-    if (rule.get_target_feature() == feature_id && rule.is_applicable<H,F>(inst))
+    for (const auto& rule : rules)
+    {
+    if (rule.get_target_feature() == feature_id && rule.is_applicable<N>(inst))
     {
         if (total_budget >= budget + rule.get_cost())
         {
-            auto x_prime = rule.apply<H,F>(inst);
+            auto x_prime = rule.apply<N>(inst);
             auto cost_prime = budget + rule.get_cost();
             auto pair = std::make_tuple(x_prime, cost_prime);
-            if (!check_equal_perturbation(attacks, pair))
+            if (!check_equal_perturbation<N>(attacks, pair))
             {
                 queue.push_front(pair);
             }
-            std::array<F,2> sarr = {std::get<H>(inst), std::get<H>(x_prime)};
+            std::array<double,2> sarr = {inst(feature_id), x_prime(feature_id)};
             std::sort(sarr.begin(), sarr.end());
             auto [low, high] = sarr;
-            auto [pre1, pre2] = rule.get_pre_interval<F>();
-            std::vector<F> z;
+            auto [pre1, pre2] = rule.get_pre_interval();
+            std::vector<double> z;
             if (low < pre1 && pre1 < high)
                 z.push_back(pre1);
             if (low < pre2 && pre2 < high)
                 z.push_back(pre2);
-            for (F zi : z)
+            for (double zi : z)
             {
                 x_prime = inst;
-                std::get<H>(x_prime) = zi;
+                x_prime(feature_id) = zi;
                 auto pair = std::make_tuple(x_prime, cost_prime);
-                if (!check_equal_perturbation(attacks, pair))
+                if (!check_equal_perturbation<N>(attacks, pair))
                     queue.push_front(pair);
             }
         }
     }
-}
-
-template<typename F1, typename F2, typename... Fs, size_t... Is>
-static void comp_impl(const TupleVec<Ts...>& attacks, AttkList::const_iterator& rules_it, std::deque<PairT<Ts...>>& queue,
-    const std::tuple<Ts...>& inst, int total_budget, int budget, size_t feature_id, int cost, std::index_sequence<Is...>)
-{
-    static_assert(sizeof...(Is) == sizeof...(Fs)+2, "size mismatch");
-    constexpr size_t H = head<std::index_sequence<Is...>>();
-    const auto& rule = *rules_it;
-    if (rule.get_target_feature() == feature_id && rule.is_applicable<H,F1>(inst))
-    {
-        if (total_budget >= budget + rule.get_cost())
-        {
-            auto x_prime = rule.apply<H,F1>(inst);
-            auto cost_prime = budget + rule.get_cost();
-            auto pair = std::make_tuple(x_prime, cost_prime);
-            if (!check_equal_perturbation(attacks, pair))
-            {
-                queue.push_front(pair);
-            }
-            std::array<F1,2> sarr = {std::get<H>(inst), std::get<H>(x_prime)};
-            std::sort(sarr.begin(), sarr.end());
-            auto [low, high] = sarr;
-            auto [pre1, pre2] = rule.get_pre_interval<F1>();
-            std::vector<F1> z;
-            if (low < pre1 && pre1 < high)
-                z.push_back(pre1);
-            if (low < pre2 && pre2 < high)
-                z.push_back(pre2);
-            for (F1 zi : z)
-            {
-                x_prime = inst;
-                std::get<H>(x_prime) = zi;
-                auto pair = std::make_tuple(x_prime, cost_prime);
-                if (!check_equal_perturbation(attacks, pair))
-                    queue.push_front(pair);
-            }
-        }
     }
-    rules_it++;
-    comp_impl<F2,Fs...>(attacks, rules_it, queue, inst, total_budget, budget, feature_id, cost, tail<std::index_sequence<Is...>>{});
 }
 
-};
+
 
 }
 
-template<typename... Ts>
-template<typename... AF, size_t... Is>
-TupleVec<Ts...> Attacker<Ts...>::compute_attack(const std::tuple<Ts...>& x, size_t feature_id, int cost, std::index_sequence<Is...>) const
+template<size_t N>
+TupleVec<N> Attacker<N>::compute_attack(const Row<N>& rw, size_t feature_id, int cost) const
 {
     using namespace Util;
-    std::deque<PairT<Ts...>> queue = {{x, cost}};
-    TupleVec<Ts...> attacks;
+    std::deque<PairT<N>> queue = {{rw, cost}};
+    TupleVec<N> attacks;
 
     while (queue.size() > 0)
     {
         auto [inst, budget] = queue.back();
         queue.pop_back();
         attacks.push_back(std::make_tuple(inst, budget));
-        auto rules_it = rules_.cbegin();
-        AttackComputer<Ts...>::template comp_impl<AF...>(attacks, rules_it, queue, inst, budget_, budget, feature_id, cost, std::index_sequence<Is...>{});
-        // auto applicables = rules_ | ranges::views::filter([=](const auto& atk){return atk.get_target_feature() == feature_id;})
-		// 		| ranges::views::filter([&](const auto& atk){return atk.is_applicable(inst);});
-        // for (auto& r : applicables)
-        // {
-        //     if (budget_ >= budg + r.get_cost())
-        //     {
-        //         auto x_prime = r.apply(inst);
-        //         auto cost_prime = budg + r.get_cost();
-        //         auto pair = std::make_pair(x_prime, cost_prime);
-        //         if (!check_equal_perturbation(attacks, pair))
-        //         {
-        //             queue.push_front(pair);
-        //         }
-                // auto f = r.get_target_feature();
-                // std::array<double,2> sarr = {tuple_index<double>(inst,f), tuple_index<double>(x_prime,f)};
-                // std::sort(sarr.begin(), sarr.end());
-                // auto [low, high] = sarr;
-                // auto [pre1, pre2] = r.get_pre_interval();
-                // std::vector<double> z;
-                // if (low < pre1 && pre1 < high)
-                //     z.push_back(pre1);
-                // if (low < pre2 && pre2 < high)
-                //     z.push_back(pre2);
-                // for (double zi : z)
-                // {
-                //     x_prime = inst;
-                //     std::get<f>(x_prime) = zi;
-                //     auto pair = std::make_pair(x_prime, cost_prime);
-                //     if (!check_equal_perturbation(attacks, pair))
-                //         queue.push_front(pair);
-                // }
-        //     }
-        // }
+        compute_impl<N>(attacks, rules_, queue, inst, budget_, budget, feature_id, cost);
     }
     return attacks;
 }
 
-template<typename... Ts>
-template<typename... AF, size_t... Is>
-void Attacker<Ts...>::compute_attacks(const DF<Ts...>& X, const std::filesystem::path& attacks_fn, std::index_sequence<Is...>)
+template<size_t N>
+void Attacker<N>::compute_attacks(const DF<N>& X, const std::filesystem::path& attacks_fn)
 {
     std::vector<size_t> fs;
     for (const auto& r : rules_)
@@ -212,15 +132,15 @@ void Attacker<Ts...>::compute_attacks(const DF<Ts...>& X, const std::filesystem:
         auto f = r.get_target_feature();
         fs.push_back(f);
     }
-    auto H = X.height();
-    for (size_t i = 0; i < H; i++)
+    const auto H = X.rows();
+    for (int64_t i = 0; i < H; i++)
     {
-        auto rw = X[i];
+        const Row<N>& rw = X.row(i);
         for (auto j : fs)
         {
             auto key = std::make_tuple(i, j);
             //compute_attack(rw, j, 0);
-            attacks_[key] = compute_attack<AF...>(rw, j, 0, std::index_sequence<Is...>{});
+            attacks_[key] = compute_attack(rw, j, 0);
         }
     }
     Util::info("computed {} attacks.\n", attacks_.size());
@@ -234,49 +154,31 @@ void Attacker<Ts...>::compute_attacks(const DF<Ts...>& X, const std::filesystem:
     //     {
     //         auto& vec = std::get<0>(pair);
     //         auto cost = std::get<1>(pair);
-    //         fmt::print("{}, cost: {}\n", vec, cost);
+    //         std::cout << vec << ", cost: " << cost << "\n"; 
+    //         //fmt::print("{}, cost: {}\n", vec, cost);
     //     }
     //     count++;
     // }
     // dump attacks_ to file
-    std::ofstream os(attacks_fn, std::ios::binary);
-    cereal::BinaryOutputArchive archive(os);
-    archive(attacks_);
+    // std::ofstream os(attacks_fn, std::ios::binary);
+    // cereal::BinaryOutputArchive archive(os);
+    // archive(attacks_);
 }
 
-template<typename... Ts>
-void Attacker<Ts...>::load_attacks(const std::filesystem::path& fn)
-{
-    std::ifstream is(fn, std::ios::binary);
-    cereal::BinaryInputArchive archive(is);
-    AttackDict<Ts...> attacks;
-    archive(attacks);
-    attacks_ = std::move(attacks);
-    Util::info("loaded {} attacks.\n", attacks_.size());
-}
+// template<typename... Ts>
+// void Attacker<Ts...>::load_attacks(const std::filesystem::path& fn)
+// {
+//     std::ifstream is(fn, std::ios::binary);
+//     cereal::BinaryInputArchive archive(is);
+//     AttackDict<Ts...> attacks;
+//     archive(attacks);
+//     attacks_ = std::move(attacks);
+//     Util::info("loaded {} attacks.\n", attacks_.size());
+// }
 
-namespace
+template<size_t N>
+void Attacker<N>::print_rules() const
 {
-
-template<typename F>
-void print_helper(AttkList::const_iterator& r)
-{
-    fmt::print("{}\n", r->debug_str<F>());
-}
-
-template<typename F1, typename F2, typename... Fs>
-void print_helper(AttkList::const_iterator& r)
-{
-    fmt::print("{}\n", r->debug_str<F1>());
-    print_helper<F2,Fs...>(++r);
-}
-
-}
-
-template<typename... Ts>
-template<typename... Fs>
-void Attacker<Ts...>::print_rules() const
-{
-    auto it = rules_.cbegin();
-    print_helper<Fs...>(it);
+    for (const auto& r : rules_)
+        fmt::print("{}\n", r.debug_str());
 }

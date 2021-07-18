@@ -4,11 +4,6 @@
 #include "AttackerRule.h"
 #include "DF2/DF_read.h"
 
-#define ATTACK_TYPES int8_t,double,int8_t,double
-//#define ATTACK_TYPES double,double,double,double
-
-using FEATURE_ID = std::index_sequence<5,11,6,0>;
-
 namespace credit
 {
 
@@ -18,72 +13,84 @@ const std::filesystem::path valid_file = data_dir / "valid.csv.bz2";
 const std::filesystem::path test_file = data_dir / "test.csv.bz2";
 const std::filesystem::path json_file = data_dir / "attacks.json";
 
-std::filesystem::path Hostile::attack_filename() const
+// std::filesystem::path Hostile::attack_filename() const
+// {
+//     auto format = fmt::format("credit_B{}.atks", atkr_.get_budget());
+//     return data_dir / format;
+// }
+
+template<size_t NX, size_t NY>
+std::tuple<DF<NX>,DF<NY>> append3(const std::tuple<DF<NX>,DF<NY>>& fst, 
+    const std::tuple<DF<NX>,DF<NY>>& snd, 
+    const std::tuple<DF<NX>,DF<NY>>& thrd)
 {
-    auto format = fmt::format("credit_B{}.atks", atkr_.get_budget());
-    return data_dir / format;
+    const auto rows1 = std::get<0>(fst).rows();
+    const auto rows2 = std::get<0>(snd).rows();
+    const auto rows3 = std::get<0>(thrd).rows();
+    auto total_rows = rows1 + rows2 + rows3;
+    DF<NX> X_out = Eigen::ArrayXXd::Zero(total_rows,NX);
+    DF<NY> Y_out = Eigen::ArrayXXd::Zero(total_rows,NY);
+    size_t out_idx = 0;
+    for (int64_t i = 0; i < rows1; i++)
+    {
+        X_out.row(out_idx) = std::get<0>(fst).row(i);
+        Y_out.row(out_idx++) = std::get<1>(fst).row(i);
+    }
+    for (int64_t i = 0; i < rows2; i++)
+    {
+        X_out.row(out_idx) = std::get<0>(snd).row(i);
+        Y_out.row(out_idx++) = std::get<1>(snd).row(i);
+    }
+    for (int64_t i = 0; i < rows3; i++)
+    {
+        X_out.row(out_idx) = std::get<0>(thrd).row(i);
+        Y_out.row(out_idx++) = std::get<1>(thrd).row(i);
+    }
+    return std::make_tuple(X_out, Y_out);
 }
 
-DataFrame::DataFrame(DF<CREDIT_DATATYPES>&& df) :
-    df_(std::move(df)) {}
-
-DataFrame::DataFrame(size_t cap) :
-    df_(cap) {}
-
-DataFrame append(const DataFrame& lhs, const DataFrame& rhs)
+cpp::result<std::tuple<DF<CREDIT_X>,DF<CREDIT_Y>>,std::string> read_bz2()
 {
-    DataFrame out(lhs.df_.height() +  rhs.df_.height());
-    for (const auto& row : lhs.df_)
-        out.df_.append_row(row);
-    for (const auto& row : rhs.df_)
-        out.df_.append_row(row);
-    return out;
-}
-
-cpp::result<DataFrame,std::string> read_bz2()
-{
-    auto res = df::read_bz2<CREDIT_DATATYPES>(train_file.c_str()).flat_map([&](const auto& train){
-        return df::read_bz2<CREDIT_DATATYPES>(valid_file.c_str()).flat_map([&](const auto& valid){
-            return df::read_bz2<CREDIT_DATATYPES>(test_file.c_str()).map([&](const auto& test){
-                return append3(train, valid, test);
+    auto res = df::read_bz2<CREDIT_X,CREDIT_Y>(train_file.c_str()).flat_map([&](const auto& train){
+        return df::read_bz2<CREDIT_X,CREDIT_Y>(valid_file.c_str()).flat_map([&](const auto& valid){
+            return df::read_bz2<CREDIT_X,CREDIT_Y>(test_file.c_str()).map([&](const auto& test){
+                return append3<CREDIT_X,CREDIT_Y>(train, valid, test);
             });
         });
     });
-    if (res.has_error())
-        return cpp::failure(res.error());
-    return DataFrame(std::move(res.value()));
+    return res;
+    // return res.value();
 }
 
-Hostile::Hostile(Attacker<CREDIT_DATATYPES>&& atkr) :
-    atkr_(std::move(atkr)) {}
-
-cpp::result<Hostile,std::string> new_Hostile(int budget)
+cpp::result<std::unique_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int budget, const DF<CREDIT_X>& X)
 {
-    auto res = load_attack_rules<ATTACK_TYPES>(json_file);
+    std::filesystem::path attack_file = "";
+    auto res = load_attack_rules(json_file);
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
-    return Attacker<CREDIT_DATATYPES>(std::move(rulz), budget);
+    auto atkr = std::make_unique<Attacker<CREDIT_X>>(std::move(rulz), budget);
+    Util::info("computing attacks...");
+    atkr->compute_attacks(X, attack_file);
+    return atkr;
 }
 
-void Hostile::attack_dataset(const DataFrame& X, ForceCompute force)
-{
-    const auto attack_file = attack_filename();
-    if (force == ForceCompute::No && std::filesystem::exists(attack_file))
-    {
-        Util::info("loading attacked dataset from {}...", attack_file.c_str());
-        atkr_.load_attacks(attack_file);
-    }
-    else
-    {
-        Util::info("computing attacks and storing into {}...", attack_file.c_str());
-        atkr_.compute_attacks<ATTACK_TYPES>(X.df_, attack_file, FEATURE_ID{});
-    }
-}
+// void attack_dataset(const DF<CREDIT_SIZE>& X, ForceCompute force)
+// {
+//     // const auto attack_file = attack_filename();
+//     // if (force == ForceCompute::No && std::filesystem::exists(attack_file))
+//     // {
+//     //     Util::info("loading attacked dataset from {}...", attack_file.c_str());
+//     //     atkr_.load_attacks(attack_file);
+//     // }
+//     Util::info("computing attacks...");
+//     atkr_.compute_attacks<ATTACK_TYPES>(X.df_, attack_file, FEATURE_ID{});
+// }
 
-void Hostile::dump_attack_rules() const
+
+RobustDecisionTree<CREDIT_X,CREDIT_Y> new_RDT(TreeArguments<CREDIT_X,CREDIT_Y>&& args)
 {
-    atkr_.print_rules<ATTACK_TYPES>();
+    return RobustDecisionTree<CREDIT_X,CREDIT_Y>(std::move(args));
 }
 
 }

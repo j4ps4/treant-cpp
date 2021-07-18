@@ -2,55 +2,27 @@
 
 #include <string_view>
 #include <array>
-
-#define CREDIT_DATATYPES double, bool, int8_t, int8_t, uint8_t,\
-  int8_t,int8_t,int8_t,int8_t,int8_t,int8_t,double,double,double,\
-  double,double,double,double,double,double,double,double,double,\
-  bool
-// #define DATATYPES double, double, double, double, double,\
-//     double,double,double,double,double,double,double,double,double,\
-//     double,double,double,double,double,double,double,double,double,\
-//     double
+#include <stddef.h>
 
 #define CREDIT 1
+constexpr size_t CREDIT_X = 23;
+constexpr size_t CREDIT_Y = 2;
 
 #include <string>
+#include <memory>
 #include "result.hpp"
-#include "DF2/DF.h"
+#include "DF2/DF_def.h"
 #include "Attacker.h"
+#include "RobustForest/RobustDecisionTree.h"
 
 namespace credit
 {
-	class DataFrame
-	{
-		friend class Hostile;
-	public:
-		explicit DataFrame(size_t cap);
-		DataFrame(DF<CREDIT_DATATYPES>&& df);
-		friend DataFrame append(const DataFrame& lhs, const DataFrame& rhs);
-		size_t height() const noexcept {return df_.height();}
-		constexpr size_t width() const noexcept {return df_.width();}
-	private:
-		DF<CREDIT_DATATYPES> df_;
-	};
-	
-	enum class ForceCompute { Yes, No };
-	
-	class Hostile
-	{
-	public:
-		Hostile(Attacker<CREDIT_DATATYPES>&& atkr);
-		void attack_dataset(const DataFrame& X, ForceCompute force = ForceCompute::No );
-		void dump_attack_rules() const;
-	private:
-		std::filesystem::path attack_filename() const;
-		Attacker<CREDIT_DATATYPES> atkr_;
-	};
-		
-
     // Read bzipped csv to dataframe.
-    cpp::result<DataFrame,std::string> read_bz2();
-    // Create attacker from given attacks file and budget.
-    cpp::result<Hostile,std::string> new_Hostile(int budget);
+    cpp::result<std::tuple<DF<CREDIT_X>,DF<CREDIT_Y>>,std::string> read_bz2();
 
+    // Create attacker from given attacks file and budget.
+	cpp::result<std::unique_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int budget, const DF<CREDIT_X>& X);
+
+	// Create a robust decision tree
+	RobustDecisionTree<CREDIT_X,CREDIT_Y> new_RDT(TreeArguments<CREDIT_X,CREDIT_Y>&& args);
 }

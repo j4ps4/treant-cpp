@@ -21,8 +21,6 @@ struct Map {
 
 };
 
-#ifdef CREDIT
-
 using namespace std::literals::string_view_literals;
 static constexpr std::array<std::pair<std::string_view, size_t>, 24> column_map{
     {{"LIMIT_BAL"sv,0},
@@ -49,8 +47,6 @@ static constexpr std::array<std::pair<std::string_view, size_t>, 24> column_map{
     {"PAY_AMT5"sv,21},
     {"PAY_AMT6"sv,22},
     {"default.payment.next.month"sv,23}}};
-
-#endif
 
 static inline size_t lookup(const std::string_view sv) {
 

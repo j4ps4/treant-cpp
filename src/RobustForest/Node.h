@@ -12,45 +12,59 @@
 #include <array>
 #include <algorithm>
 
-#define NUM_TYPES double,float,uint32_t,int32_t,uint8_t,int8_t,bool
+#include "../DF2/DF_util.h"
 
 class Node
 {
 public:
-    Node(size_t n_inst, std::unique_ptr<Node>&& left = nullptr, 
-         std::unique_ptr<Node>&& right = nullptr, size_t best_split_id = -1, double best_split_val = 0) :
-         n_inst_(n_inst), left_(std::move(left)), right_(std::move(right)), 
+    Node(size_t n_inst, std::unique_ptr<Node> left = nullptr, 
+         std::unique_ptr<Node> right = nullptr, size_t best_split_id = -1, double best_split_val = 0) :
+         dummy_(false), n_inst_(n_inst), left_(std::move(left)), right_(std::move(right)), 
          best_split_id_(best_split_id), best_split_val_(best_split_val)
         {
             prediction_score_ = {0, 0};
             prediction_ = -1;
+            loss_ = 0;
+            gain_ = 0;
         }
 
-    Node() = default;
+    Node() : dummy_(true) {}
 
-    void set_prediction(std::array<double,2> pred)
+    bool is_dummy() const noexcept {return dummy_;}
+
+    void set_prediction(const Row<2>& pred)
     {
         prediction_score_ = pred;
-        prediction_ = std::distance(prediction_score_.begin(),
-                      std::max_element(prediction_score_.begin(), prediction_score_.end())
-        );
+        Eigen::Index max_ind;
+        pred.maxCoeff(&max_ind);
+        prediction_ = max_ind;
+        // prediction_ = std::distance(prediction_score_.begin(),
+        //               std::max_element(prediction_score_.begin(), prediction_score_.end())
+        // );
     }
-    std::array<double,2> get_prediction_score() const noexcept {return prediction_score_;}
+    Row<2> get_prediction_score() const noexcept {return prediction_score_;}
     size_t get_prediction() const noexcept {return prediction_;}
     bool is_leaf() const noexcept
     {
         return (!left_ && !right_);
     }
-    void set_left(std::unique_ptr<Node>&& ptr) {left_ = std::move(ptr);}
-    void set_right(std::unique_ptr<Node>&& ptr) {right_ = std::move(ptr);}
+    void set_left(Node* ptr) {left_.reset(ptr);}
+    void set_right(Node* ptr) {right_.reset(ptr);}
     Node* left() const noexcept {return left_.get();}
     Node* right() const noexcept {return right_.get();}
+    void set_loss(double loss) noexcept {loss_ = loss;}
+    void set_gain(double gain) noexcept {gain_ = gain;}
+    void set_best_split_id(size_t id) noexcept {best_split_id_ = id;}
+    void set_best_split_value(double val) noexcept {best_split_val_ = val;}
 private:
+    bool dummy_;
     size_t n_inst_; // number of instances
     std::unique_ptr<Node> left_; // left child
     std::unique_ptr<Node> right_; // right child
     size_t best_split_id_; // index of the feature associated with the best split of this node
     double best_split_val_; // value of the corresponding feature
-    std::array<double, 2> prediction_score_;
+    Row<2> prediction_score_;
     size_t prediction_;
+    double loss_;
+    double gain_;
 };

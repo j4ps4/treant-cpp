@@ -1,15 +1,17 @@
 #include <limits>
 #include <algorithm>
 
-template<int N>
-Eigen::Array<double,1,N> num_classes(const Eigen::ArrayXXd& y)
+#include "../DF2/DF_util.h"
+
+template<size_t NY>
+Row<NY> num_classes(const DF<NY>& y)
 {
 	return y.colwise().sum();
 }
 
-template<std::size_t N>
-double SplitOptimizer<N>::sse(const Eigen::ArrayXXd& y_true,
-                   const Arr& y_pred)
+template<size_t NX, size_t NY>
+double SplitOptimizer<NX,NY>::sse(const DF<NY>& y_true,
+                   const Row<NY>& y_pred)
 {
     if (y_true.size() == 0)
         return 0.0;
@@ -22,14 +24,14 @@ double SplitOptimizer<N>::sse(const Eigen::ArrayXXd& y_true,
     return accum;
 }
 
-template<std::size_t N>
-double SplitOptimizer<N>::logloss(const Eigen::ArrayXXd& y_true,
-                   const Arr& y_pred)
+template<size_t NX, size_t NY>
+double SplitOptimizer<NX,NY>::logloss(const DF<NY>& y_true,
+                   const Row<NY>& y_pred)
 {
     if (y_true.size() == 0)
         return 0.0;
     
-    const auto y_pred_prime = y_pred.max(eps).min(1-eps).log();
+    const auto y_pred_prime = y_pred.max(EPS).min(1-EPS).log();
     double accum = 0.0;
     for (size_t i = 0; i < y_true.rows(); i++)
 	{
@@ -38,36 +40,25 @@ double SplitOptimizer<N>::logloss(const Eigen::ArrayXXd& y_true,
     return accum;
 }
 
-template<std::size_t N>
-double SplitOptimizer<N>::logloss_under_attack(const Eigen::ArrayXXd& left,
-                                       const Eigen::ArrayXXd& right,
-                                       const Eigen::ArrayXXd& unknown,
-                                       const Arr& pred) // length 2xN
+template<size_t NX, size_t NY>
+double SplitOptimizer<NX,NY>::logloss_under_attack(const DF<NY>& left,
+                                       const DF<NY>& right,
+                                       const DF<NY>& unknown,
+                                       const Row<NY>& pred) // length 2xN
 {
-    const Eigen::Array<double,1,N> left_p = pred.head<N>().max(eps).min(1-eps).log();
-    const Eigen::Array<double,1,N> right_p = pred.tail<N>().max(eps).min(1-eps).log();
-    const auto countsL = num_classes<N>(left);
-    const auto countsR = num_classes<N>(right);
-    const auto countsU = num_classes<N>(unknown);
+    constexpr size_t H = NY/2;
+    const Eigen::Array<double,1,H> left_p = pred.template head<H>().max(EPS).min(1-EPS).log();
+    const Eigen::Array<double,1,H> right_p = pred.template tail<H>().max(EPS).min(1-EPS).log();
+    const auto countsL = num_classes<NY>(left);
+    const auto countsR = num_classes<NY>(right);
+    const auto countsU = num_classes<NY>(unknown);
     return -(countsL*left_p).sum() - (countsR*right_p).sum()
            + (countsU * ((-left_p).max(-right_p))).sum();
 }
 
-template<size_t N>
-Eigen::Array<double,-1,N> array_index(const Eigen::ArrayXXd& in, const std::vector<int>& idxs)
-{
-    Eigen::Array<double,-1,N> out = Eigen::ArrayXXd::Zero(idxs.size(), N);
-    for (size_t i = 0; i < idxs.size(); i++)
-	{
-		auto id = idxs[i];
-        out.row(i) << in.row(id);
-	}
-    return out;
-}
-
-template<size_t N>
-double SplitOptimizer<N>::evaluate_split(const Eigen::ArrayXXd& y_true,
-                          const Arr& y_pred)
+template<size_t NX, size_t NY>
+double SplitOptimizer<NX,NY>::evaluate_split(const DF<NY>& y_true,
+                          const Row<NY>& y_pred) const
 {
     if (split_ == SplitFunction::LogLoss)
         return logloss(y_true, y_pred);
@@ -75,40 +66,39 @@ double SplitOptimizer<N>::evaluate_split(const Eigen::ArrayXXd& y_true,
         return sse(y_true, y_pred);
 }
 
-template<std::size_t N>
-double SplitOptimizer<N>::icml_split_loss(const Eigen::ArrayXXd& y,
-    const std::vector<int>& L, const std::vector<int>& R)
+template<size_t NX, size_t NY>
+double SplitOptimizer<NX,NY>::icml_split_loss(const DF<NY>& y,
+    const IdxVec& L, const IdxVec& R)
 {
     if (L.empty())
     {
-        auto R_filt = array_index<N>(y, R);
-        Arr pred_right = R_filt.colwise().mean();
+        auto R_filt = array_index<NY>(y, R);
+        NRow pred_right = R_filt.colwise().mean();
         double icml_loss = evaluate_split(R_filt, pred_right);
         return icml_loss;
     }
     else if (R.empty())
     {
-        auto L_filt = array_index<N>(y, L);
-        Arr pred_left = L_filt.colwise().mean();
+        auto L_filt = array_index<NY>(y, L);
+        NRow pred_left = L_filt.colwise().mean();
         double icml_loss = evaluate_split(L_filt, pred_left);
         return icml_loss;
     }
     else
     {
-        auto L_filt = array_index<N>(y, L);
-        Arr pred_left = L_filt.colwise().mean();
-        auto R_filt = array_index<N>(y, R);
-        Arr pred_right = R_filt.colwise().mean();
+        auto L_filt = array_index<NY>(y, L);
+        NRow pred_left = L_filt.colwise().mean();
+        auto R_filt = array_index<NY>(y, R);
+        NRow pred_right = R_filt.colwise().mean();
         double icml_loss = evaluate_split(L_filt, pred_left) + evaluate_split(R_filt, pred_right);
         return icml_loss;
     }
 }
 
-template<size_t NY>
-template<size_t NA>
-auto SplitOptimizer<NY>::split_icml2019(
-    const Eigen::ArrayXXd& X, const Eigen::ArrayXXd& y, const IdxVec& rows, Attacker<NA>& attacker,
-    std::vector<int>& costs, size_t feature_id, double feature_value) 
+template<size_t NX, size_t NY>
+auto SplitOptimizer<NX,NY>::split_icml2019(
+    const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, Attacker<NX>& attacker,
+    const CostMap& costs, size_t feature_id, double feature_value) 
     -> std::tuple<IdxVec, IdxVec, IdxVec, std::optional<IcmlTupl>>
 {
     //indices of instances which surely DO satisfy the boolean spitting predicate, disregarding the attacker
@@ -120,7 +110,7 @@ auto SplitOptimizer<NY>::split_icml2019(
 
     for (auto row_id : rows)
     {
-        int cost = costs[row_id]; // get the i-th cost spent on the i-th instance so far
+        int cost = costs.at(row_id); // get the i-th cost spent on the i-th instance so far
         auto attacks = attacker.attack(X.row(row_id), feature_id, cost);
         bool all_left = true;
         bool all_right = true;
@@ -210,19 +200,18 @@ auto SplitOptimizer<NY>::split_icml2019(
         tmpLeft.insert(tmpLeft.end(), split_unknown_left.begin(), split_unknown_left.end());
         IdxVec tmpRight(split_right.begin(), split_right.end());
         tmpRight.insert(tmpRight.end(), split_unknown_right.begin(), split_unknown_right.end());
-        auto y_pred_left = array_index<NY>(y, tmpLeft).colwise().mean();
-        auto y_pred_right = array_index<NY>(y, tmpRight).colwise().mean();
+        auto y_pred_left = DF_index<NY>(y, tmpLeft).colwise().mean();
+        auto y_pred_right = DF_index<NY>(y, tmpRight).colwise().mean();
         IdxVec tmp(split_unknown_right.begin(), split_unknown_right.end());
         tmp.insert(tmp.end(), split_unknown_left.begin(), split_unknown_left.end());
         return {split_left, split_right, tmp, std::make_tuple(y_pred_left, y_pred_right, sse)};
     }
 }
 
-template<size_t NY>
-template<size_t NA>
-auto SplitOptimizer<NY>::simulate_split(
-    const Eigen::ArrayXXd& X, const IdxVec& rows, Attacker<NA>& attacker,
-    std::vector<int>& costs, size_t feature_id, double feature_value
+template<size_t NX, size_t NY>
+auto SplitOptimizer<NX,NY>::simulate_split(
+    const DF<NX>& X, const IdxVec& rows, Attacker<NX>& attacker,
+    const CostMap& costs, size_t feature_id, double feature_value
 ) -> std::tuple<IdxVec, IdxVec, IdxVec>
 {
     IdxVec split_left;
@@ -231,7 +220,7 @@ auto SplitOptimizer<NY>::simulate_split(
 
     for (auto row_id : rows)
     {
-        int cost = costs[row_id];
+        int cost = costs.at(row_id);
         auto attacks = attacker.attack(X.row(row_id), feature_id, cost);
 
         bool all_left = true;
@@ -264,10 +253,19 @@ auto SplitOptimizer<NY>::simulate_split(
     return {split_left, split_right, split_unknown};
 }
 
-template<size_t NY>
-template<size_t NA>
-auto SplitOptimizer<NY>::optimize_gain(const Eigen::ArrayXXd& X, const Eigen::ArrayXXd& y, const IdxVec& rows, int n_sample_features, 
-    Attacker<NA>& attacker, const CostVec& costs, double current_score, double current_prediction_score) -> OptimTupl
+template<size_t N>
+std::set<size_t> feature_set()
+{
+    auto gen = [](){size_t x = 0; return x++;};
+    std::set<size_t> out;
+    std::generate_n(std::inserter(out, out.begin()), N, gen);
+    return out;
+}
+
+template<size_t NX, size_t NY>
+auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
+    const std::set<size_t>& feature_blacklist, int n_sample_features,
+    Attacker<NX>& attacker, const CostMap& costs, double current_score) -> OptimTupl
 {
     double best_gain = 0.0;
     size_t best_split_feature_id = -1;
@@ -276,20 +274,23 @@ auto SplitOptimizer<NY>::optimize_gain(const Eigen::ArrayXXd& X, const Eigen::Ar
     IdxVec best_split_left_id;
     IdxVec best_split_right_id;
     IdxVec best_split_unknown_id;
-    Arr best_pred_left;
-    Arr best_pred_right;
+    NRow best_pred_left;
+    NRow best_pred_right;
     double best_residue;
     IdxVec split_left;
     IdxVec split_right;
     IdxVec split_unknown;
     std::optional<IcmlTupl> optimizer_res;
 
-    // TODO: random sample features
+    const static std::set<size_t> all_features = feature_set<NX>();
+    std::set<size_t> not_bl;
+    std::set_difference(all_features.begin(), all_features.end(),
+        feature_blacklist.begin(), feature_blacklist.end(),
+        std::inserter(not_bl, not_bl.begin()));
 
     // TODO: precompute
     std::map<size_t, std::vector<double>> feature_map;
-    constexpr size_t NX = NA - NY;
-    for (size_t f_id = 0; f_id < NX; f_id++)
+    for (size_t f_id : not_bl)
     {
         std::vector<double> feats(X.rows());
         for (size_t rid = 0; rid < X.rows(); rid++)
@@ -361,9 +362,9 @@ auto SplitOptimizer<NY>::optimize_gain(const Eigen::ArrayXXd& X, const Eigen::Ar
             }
         }
         for (auto key : best_split_left_id)
-            costs_left[key] = costs[key];
+            costs_left[key] = costs.at(key);
         for (auto key : best_split_right_id)
-            costs_right[key] = costs[key];
+            costs_right[key] = costs.at(key);
     }
     return {best_gain, best_split_left_id, best_split_right_id, best_split_feature_id,
             best_split_feature_value, next_best_split_feature_value, best_pred_left,

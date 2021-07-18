@@ -8,11 +8,12 @@
 #include <vector>
 #include <charconv>
 #include <stdint.h>
+#include <eigen3/Eigen/Dense>
 
 #include <fmt/core.h>
 
 #include "../result.hpp"
-#include "DF.h"
+#include "DF_util.h"
 
 constexpr int BS = 1048576; // 1 GB
 
@@ -112,64 +113,59 @@ cpp::result<void, std::string> read_buffer(const char* fn, std::unique_ptr<char[
     return {};
 }
 
-template<typename T>
-void read(char* start, char* end, T& val)
-{
-    std::from_chars(start, end, val);
-}
-
-template<>
-void read<double>(char* start, char* end, double& val)
+void read_val(char* start, char* end, double& val)
 {
     val = strtod(start, nullptr);
 }
-template<>
-void read<float>(char* start, char* end, float& val)
+void read_classid(char* start, char* end, size_t& val)
 {
-    val = strtof(start, nullptr);
-}
-template<>
-void read<bool>(char* start, char* end, bool& val)
-{
-    int8_t temp;
-    std::from_chars(start, end, temp);
-    val = temp > 0 ? true : false;
+    std::from_chars(start, end, val);
+    val = std::max(0UL, val);
 }
 
 static const auto chars = {',', '\n'};
 
-template<typename T>
-std::tuple<T> read_line(char* buf, int bufS, size_t col_idx, size_t NC, char*& bufOut)
+template<size_t N>
+void read_line(DF<N>& data, char* buf, int bufS, size_t row_id, char*& bufOut)
 {
-    if (col_idx >= NC)
-        throw std::runtime_error("malformed line");
-    auto bufE = std::find_first_of(buf, buf+bufS, chars.begin(), chars.end());
-    T val;
-    read(buf, bufE, val);
+    char* bufE;
+    Row<N> row = Eigen::ArrayXXd::Zero(1,N);
+    for (size_t col = 0; col < N; col++)
+    {
+        bufE = std::find(buf, buf+bufS, ',');
+        double val;
+        read_val(buf, bufE, val);
+        row(col) = val;
+        buf = bufE+1;
+    }
+    data.row(row_id) = row;
     bufOut = bufE+1;
-    return std::make_tuple(val);
 }
 
-template<typename T1, typename T2, typename... Ts>
-std::tuple<T1,T2,Ts...> read_line(char* buf, int bufS, size_t col_idx, size_t NC, char*& bufOut)
+template<size_t N>
+void read_encode_line(DF<N>& data, char* buf, int bufS, size_t row_id, char*& bufOut)
 {
-    if (col_idx >= NC)
-        throw std::runtime_error("malformed line");
-    auto bufE = std::find_first_of(buf, buf+bufS, chars.begin(), chars.end());
-    T1 val;
-    read(buf, bufE, val);
-    buf = bufE+1;
-    return std::tuple_cat(std::make_tuple(val), read_line<T2,Ts...>(buf, bufS, col_idx+1, NC, bufOut));
+    char* bufE;
+    Row<N> row = Eigen::ArrayXXd::Zero(1,N);
+    for (size_t col = 0; col < N/2; col++)
+    {
+        bufE = std::find_first_of(buf, buf+bufS, chars.begin(), chars.end());
+        size_t val;
+        read_classid(buf, bufE, val);
+        row(val) = 1.0;
+        buf = bufE+1;
+    }
+    data.row(row_id) = row;
+    bufOut = bufE+1;
 }
 
 }
 
 namespace df {
 
-template<typename... Ts>
-cpp::result<DF<Ts...>, std::string> read_bz2(const char* fn)
+template<size_t NX, size_t NY>
+cpp::result<std::tuple<DF<NX>,DF<NY>>, std::string> read_bz2(const char* fn)
 {
-    constexpr size_t NC = sizeof...(Ts);
     int nBuf;
     size_t nl;
     std::unique_ptr<char[]> buf;
@@ -183,15 +179,15 @@ cpp::result<DF<Ts...>, std::string> read_bz2(const char* fn)
 
     const auto rows = nl - 1;
 
-    std::vector<std::tuple<Ts...>> data;
-    data.reserve(rows);
+    DF<NX> X_data = Eigen::ArrayXXd::Zero(rows,NX);
+    DF<NY> Y_data = Eigen::ArrayXXd::Zero(rows,NY);
     auto loc = fstlne+1;
-    for (long r = 0; r < rows; r++)
+    for (size_t r = 0; r < rows; r++)
     {
-        auto tuple = read_line<Ts...>(loc, nBuf, 0, NC, loc);
-        data.push_back(tuple);
+        read_line<NX>(X_data, loc, nBuf, r, loc);
+        read_encode_line<NY>(Y_data, loc, nBuf, r, loc);
     }
-    return DF<Ts...>(std::move(data));
+    return std::make_tuple(X_data, Y_data);
 }
 
 }

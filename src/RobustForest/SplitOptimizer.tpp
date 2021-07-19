@@ -72,23 +72,23 @@ double SplitOptimizer<NX,NY>::icml_split_loss(const DF<NY>& y,
 {
     if (L.empty())
     {
-        auto R_filt = array_index<NY>(y, R);
+        auto R_filt = DF_index<NY>(y, R);
         NRow pred_right = R_filt.colwise().mean();
         double icml_loss = evaluate_split(R_filt, pred_right);
         return icml_loss;
     }
     else if (R.empty())
     {
-        auto L_filt = array_index<NY>(y, L);
+        auto L_filt = DF_index<NY>(y, L);
         NRow pred_left = L_filt.colwise().mean();
         double icml_loss = evaluate_split(L_filt, pred_left);
         return icml_loss;
     }
     else
     {
-        auto L_filt = array_index<NY>(y, L);
+        auto L_filt = DF_index<NY>(y, L);
         NRow pred_left = L_filt.colwise().mean();
-        auto R_filt = array_index<NY>(y, R);
+        auto R_filt = DF_index<NY>(y, R);
         NRow pred_right = R_filt.colwise().mean();
         double icml_loss = evaluate_split(L_filt, pred_left) + evaluate_split(R_filt, pred_right);
         return icml_loss;
@@ -111,7 +111,7 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
     for (auto row_id : rows)
     {
         int cost = costs.at(row_id); // get the i-th cost spent on the i-th instance so far
-        auto attacks = attacker.attack(X.row(row_id), feature_id, cost);
+        auto attacks = attacker.attack(X.row(row_id), row_id, feature_id, cost);
         bool all_left = true;
         bool all_right = true;
         for (auto& [inst, c]: attacks)

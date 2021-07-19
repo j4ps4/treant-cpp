@@ -52,8 +52,12 @@ public:
     //void load_attacks(const std::filesystem::path& fn);
 
     int get_budget() const noexcept {return budget_;}
+
+    TupleVec<NX> attack(const Row<NX>& x, size_t x_id, size_t feature_id, int cost);
+
 private:
     TupleVec<NX> compute_attack(const Row<NX>& rw, size_t feature_id, int cost) const;
+
     int budget_;
     AttkList rules_;
 

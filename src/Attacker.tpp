@@ -182,3 +182,37 @@ void Attacker<N>::print_rules() const
     for (const auto& r : rules_)
         fmt::print("{}\n", r.debug_str());
 }
+
+template<size_t NX>
+TupleVec<NX> Attacker<NX>::attack(const Row<NX>& x, size_t x_id, size_t feature_id, int cost)
+{
+    // TODO: optimize
+    std::vector<size_t> fs;
+    for (const auto& r : rules_)
+    {
+        auto f = r.get_target_feature();
+        fs.push_back(f);
+    }
+
+    if (std::find(fs.begin(), fs.end(), feature_id) != fs.end())
+    {
+        auto attack_key = std::make_tuple(x_id, feature_id);
+        if (!attacks_.contains(attack_key))
+            attacks_[attack_key] = compute_attack(x, feature_id, cost);
+
+        auto& attacks_xf = attacks_.at(attack_key);
+        TupleVec<NX> out;
+        std::copy_if(attacks_xf.begin(), attacks_xf.end(), std::back_inserter(out), [this, cost](auto& pair){
+            return std::get<1>(pair) <= budget_ - cost;
+        });
+        for (auto& pair : out)
+            std::get<1>(pair) += cost;
+        return out;
+    }
+    else
+    {
+        TupleVec<NX> out{{x, cost}};
+        return out;
+    }
+
+}

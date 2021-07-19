@@ -51,15 +51,15 @@ private:
                                        const DF<NY>& unknown,
                                        const Row<NY>& pred);
 
-    static double icml_split_loss(const DF<NY>& y,
+    double icml_split_loss(const DF<NY>& y,
         const IdxVec& L, const IdxVec& R);
 
-    static std::tuple<IdxVec, IdxVec, IdxVec, std::optional<IcmlTupl>> split_icml2019(
+    std::tuple<IdxVec, IdxVec, IdxVec, std::optional<IcmlTupl>> split_icml2019(
         const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, Attacker<NX>& attacker,
         const CostMap& costs, size_t feature_id, double feature_value
     );
 
-    static std::tuple<IdxVec, IdxVec, IdxVec> simulate_split(
+    std::tuple<IdxVec, IdxVec, IdxVec> simulate_split(
         const DF<NX>& X, const IdxVec& rows, Attacker<NX>& attacker,
         const CostMap& costs, size_t feature_id, double feature_value
     );

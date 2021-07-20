@@ -5,7 +5,7 @@
 
 template<size_t NX, size_t NY>
 Node* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
-    std::map<size_t,int>& costs, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth)
+    std::map<int64_t,int>& costs, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth)
 {
     if (X_train.size() == 0)
         return new Node();
@@ -39,6 +39,8 @@ Node* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF<NY>
            best_split_feature_value, next_best_split_feature_id,
            best_pred_left, best_pred_right, best_loss,
            costs_left, costs_right] = optimizer_->optimize_gain(X_train, y_train, rows, feature_blacklist, -1, *(attacker_.get()), costs, current_score);
+
+    Util::log("best_gain: {}", best_gain);
     if (best_gain > EPS)
     {
         node->set_loss(best_loss);
@@ -66,8 +68,8 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
     std::iota(rows.begin(), rows.end(), 0);
     // null prediction
     Row<NY> node_prediction = y_train.colwise().mean();
-    std::map<size_t,int> costs;
-    for (size_t i = 0; i < X_train.rows(); i++)
+    std::map<int64_t,int> costs;
+    for (int64_t i = 0; i < X_train.rows(); i++)
         costs[i] = 0;
     root_.reset(private_fit(X_train, y_train, rows, costs, node_prediction, start_feature_bl_, 0));
 

@@ -26,7 +26,7 @@ class SplitOptimizer
     using IcmlTupl = std::tuple<NRow,NRow,double>;
     using IdxVec = std::vector<size_t>;
     using CostVec = std::vector<int>;
-    using CostMap = std::map<size_t, int>;
+    using CostMap = std::map<int64_t, int>;
     using OptimTupl = std::tuple<double,IdxVec,IdxVec,size_t,double,double,NRow,NRow,double,CostMap,CostMap>;
 public:
     SplitOptimizer(SplitFunction split, bool icml2019) :

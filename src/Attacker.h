@@ -38,7 +38,7 @@ struct row_hash
         const auto& row = std::get<0>(val);
         const auto& fid = std::get<1>(val);
         size_t seed = 0;
-        for (int i = 0; i < N; i++)
+        for (size_t i = 0; i < N; i++)
             hash_combine(seed, row(i));
         hash_combine(seed, fid);
         return seed;

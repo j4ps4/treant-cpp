@@ -38,15 +38,15 @@ public:
     
 private:
     Node* private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
-        std::map<size_t,int>& costs, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth);
+        std::map<int64_t,int>& costs, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth);
     std::unique_ptr<Node> root_;
     int id_;
     size_t max_depth_;
     size_t min_instances_per_node_;
     bool isTrained_;
+    std::unique_ptr<Attacker<NX>> attacker_;
     bool affine_;
     std::set<size_t> start_feature_bl_;
-    std::unique_ptr<Attacker<NX>> attacker_;
     std::unique_ptr<SplitOptimizer<NX,NY>> optimizer_;
 };
 

@@ -17,7 +17,7 @@ double SplitOptimizer<NX,NY>::sse(const DF<NY>& y_true,
         return 0.0;
 
     double accum = 0.0;
-    for (size_t i = 0; i < y_true.rows(); i++)
+    for (int64_t i = 0; i < y_true.rows(); i++)
 	{
 		accum += (y_true.row(i) - y_pred).pow(2.0).sum();
 	}
@@ -35,7 +35,7 @@ double SplitOptimizer<NX,NY>::logloss(const DF<NY>& y_true,
     
     const auto y_pred_prime = y_pred.max(EPS).min(1-EPS).log();
     double accum = 0.0;
-    for (size_t i = 0; i < y_true.rows(); i++)
+    for (int64_t i = 0; i < y_true.rows(); i++)
 	{
 		accum -= (y_true.row(i) * y_pred_prime).sum();
 	}
@@ -146,6 +146,8 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
                 split_unknown_right.push_back(row_id);
         }
     }
+    Util::log("split_icml2019: split_left: {}, split_right: {}, split_unknown: {}", 
+        split_left.size(), split_right.size(), split_unknown_left.size()+split_unknown_right.size());
     std::vector<double> icml_options;
     IdxVec icml_left;
     IdxVec icml_right;
@@ -295,17 +297,19 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     for (size_t f_id : not_bl)
     {
         std::vector<double> feats(X.rows());
-        for (size_t rid = 0; rid < X.rows(); rid++)
+        for (int64_t rid = 0; rid < X.rows(); rid++)
             feats.push_back(X(rid, f_id));
         std::sort(feats.begin(),feats.end());
-        std::unique(feats.begin(),feats.end());
-        feature_map[f_id] = std::move(feats);
+        auto ep = std::unique(feats.begin(),feats.end());
+        feats.resize(std::distance(feats.begin(), ep));
+        feature_map[f_id] = feats;
     }
 
     for (const auto& [feature_id, feats] : feature_map)
     {
         for (size_t feats_idx = 0; feats_idx < feats.size(); feats_idx++)
         {
+            // Util::log("feats: {}", feats);
             double feature_value = feats[feats_idx];
             if (icml2019_)
             {
@@ -328,6 +332,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 auto residue = std::get<2>(optim_res);
                 // compute gain
                 double gain = current_score - residue;
+                //Util::log("current gain: {}, best gain: {}", gain, best_gain);
                 if (gain > best_gain)
                 {
                     best_gain = gain;
@@ -368,7 +373,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
         for (auto key : best_split_right_id)
             costs_right[key] = costs.at(key);
     }
-    return {best_gain, best_split_left_id, best_split_right_id, best_split_feature_id,
+    return OptimTupl{best_gain, best_split_left_id, best_split_right_id, best_split_feature_id,
             best_split_feature_value, next_best_split_feature_value, best_pred_left,
             best_pred_right, best_residue, costs_left, costs_right};
 }

@@ -48,11 +48,11 @@ int main(int argc, const char** argv)
         Util::die("{}", m_atkr.error());
     fmt::print("X: a dataframe of size ({}x{})\n", X.rows(), X.cols());
     fmt::print("Y: a dataframe of size ({}x{})\n", Y.rows(), Y.cols());
-    for (int i = 0; i < 10; i++)
-    {
-        std::cout << "X: " << X.row(i) << '\n';
-        std::cout << "Y: " << Y.row(i) << '\n';
-    }
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     std::cout << "X: " << X.row(i) << '\n';
+    //     std::cout << "Y: " << Y.row(i) << '\n';
+    // }
     // std::cout << Y.colwise().mean() << std::endl;
     auto tree = credit::new_RDT({.id = 0, .attacker = std::move(m_atkr.value()),
         .fun = SplitFunction::LogLoss, .icml2019 = true, .max_depth = 8, 

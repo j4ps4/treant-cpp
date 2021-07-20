@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <algorithm>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <charconv>
 #include <stdint.h>
@@ -117,10 +118,13 @@ void read_val(char* start, char* end, double& val)
 {
     val = strtod(start, nullptr);
 }
-void read_classid(char* start, char* end, size_t& val)
+void read_classid(char* start, char* end, int& val)
 {
+    // std::string_view sv(start, end);
+    // std::cout << "read_classid: input: " << sv << "\n";
     std::from_chars(start, end, val);
-    val = std::max(0UL, val);
+    val = std::max(0, val);
+    // std::cout << "read_classid: " << val << "\n";
 }
 
 static const auto chars = {',', '\n'};
@@ -150,7 +154,7 @@ void read_encode_line(DF<N>& data, char* buf, int bufS, size_t row_id, char*& bu
     for (size_t col = 0; col < N/2; col++)
     {
         bufE = std::find_first_of(buf, buf+bufS, chars.begin(), chars.end());
-        size_t val;
+        int val;
         read_classid(buf, bufE, val);
         row(val) = 1.0;
         buf = bufE+1;

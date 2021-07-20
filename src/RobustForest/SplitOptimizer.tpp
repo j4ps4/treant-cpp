@@ -28,6 +28,8 @@ template<size_t NX, size_t NY>
 double SplitOptimizer<NX,NY>::logloss(const DF<NY>& y_true,
                    const Row<NY>& y_pred)
 {
+    // Util::log("logloss: y_true: ({},{})", y_true.rows(), y_true.cols());
+    // row_printf<NY>("y_pred:", y_pred);
     if (y_true.size() == 0)
         return 0.0;
     
@@ -111,7 +113,7 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
     for (auto row_id : rows)
     {
         int cost = costs.at(row_id); // get the i-th cost spent on the i-th instance so far
-        auto attacks = attacker.attack(X.row(row_id), row_id, feature_id, cost);
+        auto attacks = attacker.attack(X.row(row_id), feature_id, cost);
         bool all_left = true;
         bool all_right = true;
         for (auto& [inst, c]: attacks)

@@ -53,6 +53,7 @@ int main(int argc, const char** argv)
         std::cout << "X: " << X.row(i) << '\n';
         std::cout << "Y: " << Y.row(i) << '\n';
     }
+    // std::cout << Y.colwise().mean() << std::endl;
     auto tree = credit::new_RDT({.id = 0, .attacker = std::move(m_atkr.value()),
         .fun = SplitFunction::LogLoss, .icml2019 = true, .max_depth = 8, 
         .min_instances_per_node = 20, .affine = true});

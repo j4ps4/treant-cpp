@@ -138,7 +138,7 @@ void Attacker<N>::compute_attacks(const DF<N>& X, const std::filesystem::path& a
         const Row<N>& rw = X.row(i);
         for (auto j : fs)
         {
-            auto key = std::make_tuple(i, j);
+            auto key = std::make_tuple(rw, j);
             //compute_attack(rw, j, 0);
             attacks_[key] = compute_attack(rw, j, 0);
         }
@@ -184,7 +184,7 @@ void Attacker<N>::print_rules() const
 }
 
 template<size_t NX>
-TupleVec<NX> Attacker<NX>::attack(const Row<NX>& x, size_t x_id, size_t feature_id, int cost)
+TupleVec<NX> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id, int cost)
 {
     // TODO: optimize
     std::vector<size_t> fs;
@@ -196,7 +196,7 @@ TupleVec<NX> Attacker<NX>::attack(const Row<NX>& x, size_t x_id, size_t feature_
 
     if (std::find(fs.begin(), fs.end(), feature_id) != fs.end())
     {
-        auto attack_key = std::make_tuple(x_id, feature_id);
+        auto attack_key = std::make_tuple(x, feature_id);
         if (!attacks_.contains(attack_key))
             attacks_[attack_key] = compute_attack(x, feature_id, cost);
 

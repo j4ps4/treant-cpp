@@ -1,8 +1,6 @@
 #pragma once
 #include <eigen3/Eigen/Dense>
 
-#include <iostream>
-
 template<size_t N>
 using DF = Eigen::Array<double,-1,N,Eigen::RowMajor>;
 
@@ -30,5 +28,4 @@ using Row = Eigen::Array<double,1,N,Eigen::RowMajor>;
 //     print_helper(os, tuple, Indices{});
 //     return os;
 // }
-
 

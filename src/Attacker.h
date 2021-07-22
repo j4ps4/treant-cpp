@@ -86,7 +86,6 @@ public:
 
 private:
     TupleVec<NX> compute_attack(const Row<NX>& rw, size_t feature_id, int cost) const;
-
     int budget_;
     AttkList rules_;
 

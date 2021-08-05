@@ -146,8 +146,8 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
                 split_unknown_right.push_back(row_id);
         }
     }
-    Util::log("split_icml2019: split_left: {}, split_right: {}, split_unknown: {}", 
-        split_left.size(), split_right.size(), split_unknown_left.size()+split_unknown_right.size());
+    // Util::log("split_icml2019: split_left: {}, split_right: {}, split_unknown: {}", 
+    //     split_left.size(), split_right.size(), split_unknown_left.size()+split_unknown_right.size());
     std::vector<double> icml_options;
     IdxVec icml_left;
     IdxVec icml_right;
@@ -260,7 +260,7 @@ auto SplitOptimizer<NX,NY>::simulate_split(
 template<size_t N>
 std::set<size_t> feature_set()
 {
-    auto gen = [](){size_t x = 0; return x++;};
+    auto gen = [](){static size_t x = 0; return x++;};
     std::set<size_t> out;
     std::generate_n(std::inserter(out, out.begin()), N, gen);
     return out;

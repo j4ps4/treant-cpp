@@ -292,7 +292,6 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
         feature_blacklist.begin(), feature_blacklist.end(),
         std::inserter(not_bl, not_bl.begin()));
 
-    // TODO: precompute
     std::map<size_t, std::vector<double>> feature_map;
     for (size_t f_id : not_bl)
     {

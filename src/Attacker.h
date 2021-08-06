@@ -71,7 +71,7 @@ class Attacker
 {
 public:
     Attacker(AttkList&& rules, int budget) :
-        budget_(budget), rules_(std::forward<AttkList>(rules)) {}
+        budget_(budget), rules_(std::forward<AttkList>(rules)) {compute_target_features();}
     bool is_filled() const;
 
     void compute_attacks(const DF<NX>& X, const std::filesystem::path& attacks_fn);
@@ -85,9 +85,11 @@ public:
     TupleVec<NX> attack(const Row<NX>& x, size_t feature_id, int cost);
 
 private:
+    void compute_target_features();
     TupleVec<NX> compute_attack(const Row<NX>& rw, size_t feature_id, int cost) const;
     int budget_;
     AttkList rules_;
+    std::vector<size_t> features_; // features which are targeted by rules
 
     AttackDict<NX> attacks_;
 };

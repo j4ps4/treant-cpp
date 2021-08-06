@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <algorithm>
+#include <chrono>
 
 #include "Credit.h"
 #include "util.h"
@@ -32,6 +33,20 @@
 //     fmt::print("rw == rw2: {}\n", rw == rw2);
 // }
 
+std::string pretty_timediff(double diff)
+{
+    int hours = std::floor(diff / (60.0*60.0));
+    double hsm = hours*60*60;
+    double secs1 = diff-hsm;
+    int mins = std::floor(secs1 / 60.0);
+    double minss = mins*60;
+    double secs2 = secs1-minss;
+    return fmt::format("{}h {}m {:.2f}s", hours, mins, secs2);
+}
+
+using namespace std::chrono;
+#define TIME duration_cast<duration<double>>(high_resolution_clock::now() - now).count()
+
 int main(int argc, const char** argv)
 {
     auto m_df = credit::read_bz2();
@@ -54,8 +69,12 @@ int main(int argc, const char** argv)
     //     std::cout << "Y: " << Y.row(i) << '\n';
     // }
     // std::cout << Y.colwise().mean() << std::endl;
+    high_resolution_clock::time_point now = high_resolution_clock::now();
     auto tree = credit::new_RDT({.id = 0, .attacker = std::move(m_atkr.value()),
         .fun = SplitFunction::LogLoss, .icml2019 = true, .max_depth = 8, 
         .min_instances_per_node = 20, .affine = true});
     tree.fit(X, Y);
+    double linear_time = TIME;
+    fmt::print("time elapsed: ");
+    fmt::print(fg(fmt::color::yellow_green), "{}\n", pretty_timediff(linear_time));
 }

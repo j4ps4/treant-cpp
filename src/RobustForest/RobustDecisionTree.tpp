@@ -80,3 +80,65 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
             id_, isTrained_);
     }
 }
+
+template<size_t NX, size_t NY>
+Row<NY> RobustDecisionTree<NX,NY>::private_predict(const Row<NX>& instance, const Node* node) const
+{
+    if (node->is_leaf())
+        return node->get_prediction_score();
+    
+    auto best_feature_id = node->get_best_split_id();
+    auto best_feature_value = node->get_best_split_value();
+    auto x_feature_value = instance(best_feature_id);
+
+    if (x_feature_value <= best_feature_value) // go left
+        return private_predict(instance, node->left());
+    else // go right
+        return private_predict(instance, node->right());
+
+}
+
+template<size_t NX, size_t NY>
+DF<NY> RobustDecisionTree<NX,NY>::predict(const DF<NX>& X_test) const
+{
+    if (isTrained_)
+    {
+        const auto rows = X_test.rows();
+        DF<NY> out = Eigen::ArrayXXd::Zero(rows, NY);
+        for (int64_t i = 0; i < rows; i++)
+        {
+            out.row(i) << private_predict(X_test.row(i), root_.get());
+        }
+        return out;
+    }
+    else
+    {
+        Util::warn("tree {} is not trained", id_);
+        return Eigen::ArrayXXd::Zero(0, NY);
+    }
+}
+
+template<size_t NX, size_t NY>
+double RobustDecisionTree<NX,NY>::classification_error(const DF<NY>& Y_test,
+    const DF<NY>& Y_pred) const
+{
+    if (Y_test.rows() != Y_pred.rows())
+    {
+        Util::warn("classification_error(): argument size mismatch");
+        return -1.0;
+    }
+    const auto rows = Y_test.rows();
+    int64_t accum = 0;
+    for (int64_t i = 0; i < rows; i++)
+    {
+        const auto& test_row = Y_test.row(i);
+        const auto& pred_row = Y_pred.row(i);
+        Eigen::Index test_max_ind;
+        test_row.maxCoeff(&test_max_ind);
+        Eigen::Index pred_max_ind;
+        pred_row.maxCoeff(&pred_max_ind);
+        if (test_max_ind != pred_max_ind)
+            accum++;
+    }
+    return static_cast<double>(accum) / static_cast<double>(rows);
+}

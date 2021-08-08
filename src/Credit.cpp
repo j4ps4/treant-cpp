@@ -49,17 +49,42 @@ std::tuple<DF<NX>,DF<NY>> append3(const std::tuple<DF<NX>,DF<NY>>& fst,
     return std::make_tuple(X_out, Y_out);
 }
 
-cpp::result<std::tuple<DF<CREDIT_X>,DF<CREDIT_Y>>,std::string> read_bz2()
+template<size_t NX, size_t NY>
+std::tuple<DF<NX>,DF<NY>> append2(const std::tuple<DF<NX>,DF<NY>>& fst, 
+    const std::tuple<DF<NX>,DF<NY>>& snd)
+{
+    const auto rows1 = std::get<0>(fst).rows();
+    const auto rows2 = std::get<0>(snd).rows();
+    auto total_rows = rows1 + rows2;
+    DF<NX> X_out = Eigen::ArrayXXd::Zero(total_rows,NX);
+    DF<NY> Y_out = Eigen::ArrayXXd::Zero(total_rows,NY);
+    size_t out_idx = 0;
+    for (int64_t i = 0; i < rows1; i++)
+    {
+        X_out.row(out_idx) = std::get<0>(fst).row(i);
+        Y_out.row(out_idx++) = std::get<1>(fst).row(i);
+    }
+    for (int64_t i = 0; i < rows2; i++)
+    {
+        X_out.row(out_idx) = std::get<0>(snd).row(i);
+        Y_out.row(out_idx++) = std::get<1>(snd).row(i);
+    }
+    return std::make_tuple(X_out, Y_out);
+}
+
+cpp::result<std::tuple<DF<CREDIT_X>,DF<CREDIT_Y>>,std::string> read_train()
 {
     auto res = df::read_bz2<CREDIT_X,CREDIT_Y>(train_file.c_str()).flat_map([&](const auto& train){
-        return df::read_bz2<CREDIT_X,CREDIT_Y>(valid_file.c_str()).flat_map([&](const auto& valid){
-            return df::read_bz2<CREDIT_X,CREDIT_Y>(test_file.c_str()).map([&](const auto& test){
-                return append3<CREDIT_X,CREDIT_Y>(train, valid, test);
-            });
+        return df::read_bz2<CREDIT_X,CREDIT_Y>(valid_file.c_str()).map([&](const auto& valid){
+            return append2<CREDIT_X,CREDIT_Y>(train, valid);
         });
     });
     return res;
-    // return res.value();
+}
+
+cpp::result<std::tuple<DF<CREDIT_X>,DF<CREDIT_Y>>,std::string> read_test()
+{
+    return df::read_bz2<CREDIT_X,CREDIT_Y>(test_file.c_str());
 }
 
 cpp::result<std::unique_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int budget, const DF<CREDIT_X>& X)

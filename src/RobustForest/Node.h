@@ -56,6 +56,8 @@ public:
     void set_gain(double gain) noexcept {gain_ = gain;}
     void set_best_split_id(size_t id) noexcept {best_split_id_ = id;}
     void set_best_split_value(double val) noexcept {best_split_val_ = val;}
+    size_t get_best_split_id() const noexcept {return best_split_id_;}
+    double get_best_split_value() const noexcept {return best_split_val_;}
 private:
     bool dummy_;
     size_t n_inst_; // number of instances

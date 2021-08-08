@@ -49,12 +49,20 @@ using namespace std::chrono;
 
 int main(int argc, const char** argv)
 {
-    auto m_df = credit::read_bz2();
+    auto m_df = credit::read_train();
     if (m_df.has_error())
         Util::die("{}", m_df.error());
     auto& df_tupl = m_df.value();
     auto& X = std::get<0>(df_tupl);
     auto& Y = std::get<1>(df_tupl);
+
+    auto m_test = credit::read_test();
+    if (m_test.has_error())
+        Util::die("{}", m_test.error());
+    auto& test_tupl = m_test.value();
+    auto& X_test = std::get<0>(test_tupl);
+    auto& Y_test = std::get<1>(test_tupl);
+
     // auto df2 = df.slice(0,10);
     // for (const auto& row : df2)
     //     fmt::print("{}\n", row);
@@ -77,4 +85,11 @@ int main(int argc, const char** argv)
     double linear_time = TIME;
     fmt::print("time elapsed: ");
     fmt::print(fg(fmt::color::yellow_green), "{}\n", pretty_timediff(linear_time));
+    auto Y_pred = tree.predict(X_test);
+    fmt::print("Y_test vs. Y_pred:\n");
+    for (int i = 0; i < 5; i++)
+    {
+        std::cout << Y_test.row(i) << " <-> " << Y_pred.row(i) << "\n";
+    }
+    fmt::print("test error: {}\n", tree.classification_error(Y_test, Y_pred));
 }

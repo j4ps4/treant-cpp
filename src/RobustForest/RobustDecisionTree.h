@@ -35,10 +35,17 @@ public:
     bool is_affine() const {return affine_;}
 
     void fit(const DF<NX>& X_train, const DF<NY>& y_train);
+
+    DF<NY> predict(const DF<NX>& X_test) const;
+
+    double classification_error(const DF<NY>& Y_test, const DF<NY>& Y_pred) const;
     
 private:
     Node* private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
         std::map<int64_t,int>& costs, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth);
+
+    Row<NY> private_predict(const Row<NX>& instance, const Node* node) const;
+    
     std::unique_ptr<Node> root_;
     int id_;
     size_t max_depth_;

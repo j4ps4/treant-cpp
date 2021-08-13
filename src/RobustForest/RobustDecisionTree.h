@@ -41,12 +41,12 @@ public:
     double classification_error(const DF<NY>& Y_test, const DF<NY>& Y_pred) const;
     
 private:
-    Node* private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
+    Node<NY>* private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
         std::map<int64_t,int>& costs, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth);
 
-    Row<NY> private_predict(const Row<NX>& instance, const Node* node) const;
+    Row<NY> private_predict(const Row<NX>& instance, const Node<NY>* node) const;
     
-    std::unique_ptr<Node> root_;
+    std::unique_ptr<Node<NY>> root_;
     int id_;
     size_t max_depth_;
     size_t min_instances_per_node_;

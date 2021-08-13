@@ -4,15 +4,15 @@
 #include <numeric>
 
 template<size_t NX, size_t NY>
-Node* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
+Node<NY>* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
     std::map<int64_t,int>& costs, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth)
 {
     if (X_train.size() == 0)
-        return new Node();
+        return new Node<NY>();
 
     DF<NX> X = DF_index<NX>(X_train, rows);
     DF<NY> y = DF_index<NY>(y_train, rows);
-    Node* node = new Node(y.rows());
+    Node<NY>* node = new Node<NY>(y.rows());
     node->set_prediction(node_prediction);
     Util::log("tree {}: current depth: {}", id_, depth);
     auto current_prediction = node->get_prediction();
@@ -82,7 +82,7 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
 }
 
 template<size_t NX, size_t NY>
-Row<NY> RobustDecisionTree<NX,NY>::private_predict(const Row<NX>& instance, const Node* node) const
+Row<NY> RobustDecisionTree<NX,NY>::private_predict(const Row<NX>& instance, const Node<NY>* node) const
 {
     if (node->is_leaf())
         return node->get_prediction_score();

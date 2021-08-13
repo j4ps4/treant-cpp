@@ -14,15 +14,16 @@
 
 #include "../DF2/DF_util.h"
 
+template<size_t NY>
 class Node
 {
 public:
-    Node(size_t n_inst, std::unique_ptr<Node> left = nullptr, 
-         std::unique_ptr<Node> right = nullptr, size_t best_split_id = -1, double best_split_val = 0) :
+    Node(size_t n_inst, std::unique_ptr<Node<NY>> left = nullptr, 
+         std::unique_ptr<Node<NY>> right = nullptr, size_t best_split_id = -1, double best_split_val = 0) :
          dummy_(false), n_inst_(n_inst), left_(std::move(left)), right_(std::move(right)), 
          best_split_id_(best_split_id), best_split_val_(best_split_val)
         {
-            prediction_score_ = {0, 0};
+            prediction_score_ = Eigen::ArrayXXd::Zero(1, NY);
             prediction_ = -1;
             loss_ = 0;
             gain_ = 0;
@@ -32,7 +33,7 @@ public:
 
     bool is_dummy() const noexcept {return dummy_;}
 
-    void set_prediction(const Row<2>& pred)
+    void set_prediction(const Row<NY>& pred)
     {
         prediction_score_ = pred;
         Eigen::Index max_ind;
@@ -42,16 +43,16 @@ public:
         //               std::max_element(prediction_score_.begin(), prediction_score_.end())
         // );
     }
-    Row<2> get_prediction_score() const noexcept {return prediction_score_;}
+    Row<NY> get_prediction_score() const noexcept {return prediction_score_;}
     size_t get_prediction() const noexcept {return prediction_;}
     bool is_leaf() const noexcept
     {
         return (!left_ && !right_);
     }
-    void set_left(Node* ptr) {left_.reset(ptr);}
-    void set_right(Node* ptr) {right_.reset(ptr);}
-    Node* left() const noexcept {return left_.get();}
-    Node* right() const noexcept {return right_.get();}
+    void set_left(Node<NY>* ptr) {left_.reset(ptr);}
+    void set_right(Node<NY>* ptr) {right_.reset(ptr);}
+    Node<NY>* left() const noexcept {return left_.get();}
+    Node<NY>* right() const noexcept {return right_.get();}
     void set_loss(double loss) noexcept {loss_ = loss;}
     void set_gain(double gain) noexcept {gain_ = gain;}
     void set_best_split_id(size_t id) noexcept {best_split_id_ = id;}
@@ -61,11 +62,11 @@ public:
 private:
     bool dummy_;
     size_t n_inst_; // number of instances
-    std::unique_ptr<Node> left_; // left child
-    std::unique_ptr<Node> right_; // right child
+    std::unique_ptr<Node<NY>> left_; // left child
+    std::unique_ptr<Node<NY>> right_; // right child
     size_t best_split_id_; // index of the feature associated with the best split of this node
     double best_split_val_; // value of the corresponding feature
-    Row<2> prediction_score_;
+    Row<NY> prediction_score_;
     size_t prediction_;
     double loss_;
     double gain_;

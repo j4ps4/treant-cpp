@@ -8,6 +8,8 @@
   Finally, each node contains a reference to its left and right child, respectively. A **leaf node** is a special node whose left and right childs are both equal to nullptr, as well as its best splitting feature id/value.
 **/
 
+#pragma once
+
 #include <memory>
 #include <array>
 #include <algorithm>

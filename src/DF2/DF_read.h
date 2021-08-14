@@ -118,12 +118,14 @@ void read_val(char* start, char* end, double& val)
 {
     val = strtod(start, nullptr);
 }
+
+template<int Min>
 void read_classid(char* start, char* end, int& val)
 {
     // std::string_view sv(start, end);
     // std::cout << "read_classid: input: " << sv << "\n";
     std::from_chars(start, end, val);
-    val = std::max(0, val);
+    val = std::max(Min, val) - Min;
     // std::cout << "read_classid: " << val << "\n";
 }
 
@@ -146,19 +148,17 @@ void read_line(DF<N>& data, char* buf, int bufS, size_t row_id, char*& bufOut)
     bufOut = bufE+1;
 }
 
-template<size_t N>
+template<size_t N, int Min>
 void read_encode_line(DF<N>& data, char* buf, int bufS, size_t row_id, char*& bufOut)
 {
     char* bufE;
     Row<N> row = Eigen::ArrayXXd::Zero(1,N);
-    for (size_t col = 0; col < N/2; col++)
-    {
-        bufE = std::find_first_of(buf, buf+bufS, chars.begin(), chars.end());
-        int val;
-        read_classid(buf, bufE, val);
-        row(val) = 1.0;
-        buf = bufE+1;
-    }
+    bufE = std::find_first_of(buf, buf+bufS, chars.begin(), chars.end());
+    int val;
+    read_classid<Min>(buf, bufE, val);
+    row(val) = 1.0;
+    // std::cout << "row : " << row << "\n";
+    buf = bufE+1;
     data.row(row_id) = row;
     bufOut = bufE+1;
 }
@@ -167,7 +167,7 @@ void read_encode_line(DF<N>& data, char* buf, int bufS, size_t row_id, char*& bu
 
 namespace df {
 
-template<size_t NX, size_t NY>
+template<size_t NX, size_t NY, int Min>
 cpp::result<std::tuple<DF<NX>,DF<NY>>, std::string> read_bz2(const char* fn)
 {
     int nBuf;
@@ -189,7 +189,7 @@ cpp::result<std::tuple<DF<NX>,DF<NY>>, std::string> read_bz2(const char* fn)
     for (size_t r = 0; r < rows; r++)
     {
         read_line<NX>(X_data, loc, nBuf, r, loc);
-        read_encode_line<NY>(Y_data, loc, nBuf, r, loc);
+        read_encode_line<NY, Min>(Y_data, loc, nBuf, r, loc);
     }
     return std::make_tuple(X_data, Y_data);
 }

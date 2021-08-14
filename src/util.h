@@ -6,6 +6,7 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
+#include <chrono>
 
 namespace Util {
 
@@ -44,6 +45,19 @@ void log(const char* msg, Args... args)
 
 template<typename T>
 auto numeral(T arg) { return +arg; }
+
+#define TIME std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - now).count()
+
+inline std::string pretty_timediff(double diff)
+{
+    int hours = std::floor(diff / (60.0*60.0));
+    double hsm = hours*60*60;
+    double secs1 = diff-hsm;
+    int mins = std::floor(secs1 / 60.0);
+    double minss = mins*60;
+    double secs2 = secs1-minss;
+    return fmt::format("{}h {}m {:.2f}s", hours, mins, secs2);
+}
 
 }
 

@@ -5,7 +5,6 @@
 #include <json11.hpp>
 
 #include "AttackerRule.h"
-#include "DF2/ConstexprMap.h"
 
 namespace
 {
@@ -91,13 +90,14 @@ void inner_loop(const json11::Json::array& ft_attk_list, AttkList& out, size_t f
     }
 }
 
-void load_helper(json11::Json::array& attacks, AttkList& out)
+void load_helper(const std::map<std::string, size_t>& column_map,
+    json11::Json::array& attacks, AttkList& out)
 {
     for (auto& attack : attacks)
     {
         auto& att_obj = attack.object_items();
         auto& feature_name = att_obj.cbegin()->first;
-        auto feature_id = lookup(std::string_view(feature_name.cbegin(), feature_name.cend()));
+        auto feature_id = column_map.at(feature_name);
         auto& ft_attk_list = att_obj.cbegin()->second.array_items();
         inner_loop(ft_attk_list, out, feature_id);
     }
@@ -106,7 +106,7 @@ void load_helper(json11::Json::array& attacks, AttkList& out)
 }
 
 cpp::result<AttkList, std::string> 
-load_attack_rules(const std::filesystem::path& fn)
+load_attack_rules(const std::filesystem::path& fn, const std::map<std::string, size_t>& column_map)
 {
     AttkList out;
     std::string err;
@@ -118,7 +118,7 @@ load_attack_rules(const std::filesystem::path& fn)
     if (attacks == json11::Json())
         return cpp::failure(fmt::format("{}: not valid attacks file", fn.c_str()));
     auto attacks_arr = attacks.array_items();
-    load_helper(attacks_arr, out);
+    load_helper(column_map, attacks_arr, out);
     return out;
 }
 

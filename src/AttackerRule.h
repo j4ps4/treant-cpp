@@ -47,7 +47,7 @@ private:
 using AttkList = std::list<AttackerRule>;
 
 cpp::result<AttkList, std::string> 
-load_attack_rules(const std::filesystem::path& fn);
+load_attack_rules(const std::filesystem::path& fn, const std::map<std::string, size_t>& column_map);
 
 template<size_t N>
 bool AttackerRule::is_applicable(const Row<N>& row) const noexcept

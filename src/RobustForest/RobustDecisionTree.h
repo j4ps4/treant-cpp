@@ -16,7 +16,7 @@ struct TreeArguments
     int id;
     std::unique_ptr<Attacker<NX>> attacker;
     SplitFunction fun;
-    bool icml2019;
+    TrainingAlgo algo;
     size_t max_depth;
     size_t min_instances_per_node;
     bool affine;
@@ -30,7 +30,7 @@ public:
         id_(args.id), max_depth_(args.max_depth), min_instances_per_node_(args.min_instances_per_node),
         attacker_(std::move(args.attacker)), affine_(args.affine)
     {
-        optimizer_ = std::make_unique<SplitOptimizer<NX,NY>>(args.fun, args.icml2019);
+        optimizer_ = std::make_unique<SplitOptimizer<NX,NY>>(args.fun, args.algo);
         isTrained_ = false;
     }
 

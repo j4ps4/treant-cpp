@@ -9,6 +9,7 @@ elseif(NOT CMAKE_BUILD_TYPE STREQUAL Debug AND
 endif()
 
 set(CMAKE_CXX_COMPILER "g++")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 project(treant-cpp CXX)
 set(src_dir "src")
@@ -41,8 +42,8 @@ CPMAddPackage("gh:catchorg/Catch2@2.5.0")
 set(CPM_USE_LOCAL_PACKAGES)
 
 add_executable(${target_name} ${main_src})
-add_library(Credit STATIC ${credit_src})
-add_library(Forest STATIC ${forest_src})
+add_library(Credit SHARED ${credit_src})
+add_library(Forest SHARED ${forest_src})
 
 target_link_libraries(Credit bz2 fmt json11 cereal)
 target_link_libraries(Forest bz2 fmt json11 cereal)

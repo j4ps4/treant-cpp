@@ -310,7 +310,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
         {
             // Util::log("feats: {}", feats);
             double feature_value = feats[feats_idx];
-            if (icml2019_)
+            if (algo_ == TrainingAlgo::Icml2019)
             {
                 auto split_res = split_icml2019(X, y, rows, attacker, costs, feature_id, feature_value);
                 split_left = std::get<0>(split_res);
@@ -357,7 +357,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     // Continue iff there's an actual gain
     if (best_gain > 0.0)
     {
-        if (icml2019_)
+        if (algo_ == TrainingAlgo::Icml2019)
         {
             for (auto u : best_split_unknown_id)
             {

@@ -19,6 +19,12 @@ enum class SplitFunction
     SSE
 };
 
+enum class TrainingAlgo
+{
+    Robust,
+    Icml2019
+};
+
 template<size_t NX, size_t NY>
 class SplitOptimizer
 {
@@ -31,8 +37,8 @@ class SplitOptimizer
     using CostMap = std::map<int64_t, int>;
     using OptimTupl = std::tuple<double,IdxVec,IdxVec,size_t,double,double,NRow,NRow,double,CostMap,CostMap>;
 public:
-    SplitOptimizer(SplitFunction split, bool icml2019) :
-    split_(split), icml2019_(icml2019) {}
+    SplitOptimizer(SplitFunction split, TrainingAlgo algo) :
+    split_(split), algo_(algo) {}
 
     double evaluate_split(const DF<NY>& y_true,
                           const NRow& y_pred) const;
@@ -67,7 +73,7 @@ private:
     );
     
     SplitFunction split_;
-    bool icml2019_;
+    TrainingAlgo algo_;
 
 };
 

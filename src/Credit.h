@@ -27,6 +27,6 @@ namespace credit
     // Create a robust decision tree
     RobustDecisionTree<CREDIT_X,CREDIT_Y> new_RDT(TreeArguments<CREDIT_X,CREDIT_Y>&& args);
 
-    void train_and_test(SplitFunction fun, bool icml2019, size_t max_depth, 
+    void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
         size_t min_instances_per_node, bool affine);
 }

@@ -94,7 +94,7 @@ RobustDecisionTree<CREDIT_X,CREDIT_Y> new_RDT(TreeArguments<CREDIT_X,CREDIT_Y>&&
     return RobustDecisionTree<CREDIT_X,CREDIT_Y>(std::move(args));
 }
 
-void train_and_test(SplitFunction fun, bool icml2019, size_t max_depth, 
+void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
     size_t min_instances_per_node, bool affine)
 {
     auto m_df = credit::read_train();
@@ -124,7 +124,7 @@ void train_and_test(SplitFunction fun, bool icml2019, size_t max_depth,
     // std::cout << Y.colwise().mean() << std::endl;
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
     auto tree = credit::new_RDT({.id = 0, .attacker = std::move(m_atkr.value()),
-        .fun = fun, .icml2019 = icml2019, .max_depth = max_depth, 
+        .fun = fun, .algo = algo, .max_depth = max_depth, 
         .min_instances_per_node = min_instances_per_node, .affine = affine});
     tree.fit(X, Y);
     double linear_time = TIME;

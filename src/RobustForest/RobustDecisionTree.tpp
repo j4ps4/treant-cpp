@@ -5,7 +5,7 @@
 
 template<size_t NX, size_t NY>
 Node<NY>* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
-    std::map<int64_t,int>& costs, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth)
+    std::map<int64_t,int>& costs, ConstrVec& constraints, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth)
 {
     if (X_train.size() == 0)
         return new Node<NY>();
@@ -16,6 +16,8 @@ Node<NY>* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF
     node->set_prediction(node_prediction);
     Util::log("tree {}: current depth: {}", id_, depth);
     auto current_prediction = node->get_prediction();
+    // not needed?
+    //auto current_prediction_score = node->get_prediction_score(); 
     auto current_score = optimizer_->evaluate_split(y, node_prediction);
     node->set_loss(current_score);
     Util::log("current node's loss: {:.5f}", current_score);
@@ -38,7 +40,8 @@ Node<NY>* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF
     auto [best_gain, best_split_left, best_split_right, best_split_feature_id,
            best_split_feature_value, next_best_split_feature_id,
            best_pred_left, best_pred_right, best_loss,
-           costs_left, costs_right] = optimizer_->optimize_gain(X_train, y_train, rows, feature_blacklist, -1, *(attacker_.get()), costs, current_score);
+           costs_left, costs_right] = optimizer_->optimize_gain(X_train, y_train, rows, feature_blacklist, -1,
+                                      *(attacker_.get()), costs, constraints, current_score, node_prediction);
 
     Util::log("best_gain: {}", best_gain);
     if (best_gain > EPS)
@@ -55,8 +58,8 @@ Node<NY>* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF
             updated_feature_bl.insert(best_split_feature_id);
         }
 
-        node->set_left(private_fit(X_train, y_train, best_split_left, costs_left, best_pred_left, updated_feature_bl, depth+1));
-        node->set_right(private_fit(X_train, y_train, best_split_right, costs_right, best_pred_right, updated_feature_bl, depth+1));
+        node->set_left(private_fit(X_train, y_train, best_split_left, costs_left, constraints, best_pred_left, updated_feature_bl, depth+1));
+        node->set_right(private_fit(X_train, y_train, best_split_right, costs_right, constraints, best_pred_right, updated_feature_bl, depth+1));
     }
     return node;
 }
@@ -71,7 +74,9 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
     std::map<int64_t,int> costs;
     for (int64_t i = 0; i < X_train.rows(); i++)
         costs[i] = 0;
-    root_.reset(private_fit(X_train, y_train, rows, costs, node_prediction, start_feature_bl_, 0));
+
+    ConstrVec constraints;    
+    root_.reset(private_fit(X_train, y_train, rows, costs, constraints, node_prediction, start_feature_bl_, 0));
 
     if (!root_->is_dummy())
     {

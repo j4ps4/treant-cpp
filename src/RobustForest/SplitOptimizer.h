@@ -49,14 +49,21 @@ public:
     double evaluate_split(const DF<NY>& y_true,
                           const NRow& y_pred) const;
 
+    // TODO: needs to return left and right constraints
     OptimTupl optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, 
         const std::set<size_t>& feature_blacklist, int n_sample_features, 
         Attacker<NX>& attacker, const CostMap& costs, 
         ConstrVec& constraints, double current_score, Row<NY> current_prediction_score);
+
     
 private:
     static double sse(const DF<NY>& y_true,
                    const Row<NY>& y_pred);
+
+    static double sse_under_attack(const DF<NY>& left,
+                                       const DF<NY>& right,
+                                       const DF<NY>& unknown,
+                                       const Row<NY2>& pred);
 
     static double logloss(const DF<NY>& y_true,
                    const Row<NY>& y_pred);
@@ -73,6 +80,10 @@ private:
         const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, Attacker<NX>& attacker,
         const CostMap& costs, size_t feature_id, double feature_value
     );
+
+    std::optional<IcmlTupl> optimize_sse_under_attack(const DF<NY>& y, const Row<NY>& current_prediction_score,
+        const IdxVec& split_left, const IdxVec& split_right, 
+        const IdxVec& split_unknown, const FunVec& constraints) const;
 
     std::tuple<IdxVec, IdxVec, IdxVec> simulate_split(
         const DF<NX>& X, const IdxVec& rows, Attacker<NX>& attacker,

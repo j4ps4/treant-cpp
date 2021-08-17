@@ -53,13 +53,13 @@ std::function<double(const Row<NY2C>&)> Constraint<NX,NY>::encode_for_optimizer(
     {
         if (ineq_ == Ineq::LT)
         {
-            return [&](const Row<NY2>& pred)->double{
+            return [&](const Row<NY2C>& pred)->double{
                 return -(y_ * (pred.template head<NY>().log())).sum() + (y_ * bound_.log()).sum();
             };
         }
         else
         {
-            return [&](const Row<NY2>& pred)->double{
+            return [&](const Row<NY2C>& pred)->double{
                 return (y_ * (pred.template head<NY>().log())).sum() - (y_ * bound_.log()).sum();
             };
         }
@@ -68,13 +68,13 @@ std::function<double(const Row<NY2C>&)> Constraint<NX,NY>::encode_for_optimizer(
     {
         if (ineq_ == Ineq::LT)
         {
-            return [&](const Row<NY2>& pred)->double{
+            return [&](const Row<NY2C>& pred)->double{
                 return -(y_ * (pred.template tail<NY>().log())).sum() + (y_ * bound_.log()).sum();
             };
         }
         else
         {
-            return [&](const Row<NY2>& pred)->double{
+            return [&](const Row<NY2C>& pred)->double{
                 return (y_ * (pred.template tail<NY>().log())).sum() - (y_ * bound_.log()).sum();
             };
         }
@@ -83,7 +83,7 @@ std::function<double(const Row<NY2C>&)> Constraint<NX,NY>::encode_for_optimizer(
     {
         if (ineq_ == Ineq::LT)
         {
-            return [&](const Row<NY2>& pred)->double{
+            return [&](const Row<NY2C>& pred)->double{
                 const double s1 = (y_ * (pred.template head<NY>().log())).sum();
                 const double s2 = (y_ * (pred.template tail<NY>().log())).sum();
                 return -std::max(s1, s2) + (y_ * bound_.log()).sum();
@@ -91,7 +91,7 @@ std::function<double(const Row<NY2C>&)> Constraint<NX,NY>::encode_for_optimizer(
         }
         else
         {
-            return [&](const Row<NY2>& pred)->double{
+            return [&](const Row<NY2C>& pred)->double{
                 const double s1 = (y_ * (pred.template head<NY>().log())).sum();
                 const double s2 = (y_ * (pred.template tail<NY>().log())).sum();
                 return std::min(s1, s2) - (y_ * bound_.log()).sum();

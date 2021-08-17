@@ -8,6 +8,7 @@
 #include "Node.h"
 #include "../Attacker.h"
 #include "SplitOptimizer.h"
+#include "Constraint.h"
 #include "../DF2/DF_util.h"
 
 template<size_t NX, size_t NY>
@@ -25,6 +26,7 @@ struct TreeArguments
 template<size_t NX, size_t NY>
 class RobustDecisionTree
 {
+    using ConstrVec = std::vector<Constraint<NX,NY>>;
 public:
     RobustDecisionTree(TreeArguments<NX,NY>&& args) :
         id_(args.id), max_depth_(args.max_depth), min_instances_per_node_(args.min_instances_per_node),
@@ -44,7 +46,8 @@ public:
     
 private:
     Node<NY>* private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
-        std::map<int64_t,int>& costs, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth);
+        std::map<int64_t,int>& costs, ConstrVec& constraints,
+        const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth);
 
     Row<NY> private_predict(const Row<NX>& instance, const Node<NY>* node) const;
     

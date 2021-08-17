@@ -49,8 +49,8 @@ double SplitOptimizer<NX,NY>::logloss_under_attack(const DF<NY>& left,
                                        const Row<NY2>& pred) // length 2xN
 {
     //constexpr size_t H = NY/2;
-    const Eigen::Array<double,1,H> left_p = pred.template head<NY>().max(EPS).min(1-EPS).log();
-    const Eigen::Array<double,1,H> right_p = pred.template tail<NY>().max(EPS).min(1-EPS).log();
+    const Row<NY> left_p = pred.template head<NY>().max(EPS).min(1-EPS).log();
+    const Row<NY> right_p = pred.template tail<NY>().max(EPS).min(1-EPS).log();
     const auto countsL = num_classes<NY>(left);
     const auto countsR = num_classes<NY>(right);
     const auto countsU = num_classes<NY>(unknown);
@@ -257,6 +257,32 @@ auto SplitOptimizer<NX,NY>::simulate_split(
     return {split_left, split_right, split_unknown};
 }
 
+template<size_t NX, size_t NY>
+auto SplitOptimizer<NX,NY>::optimize_sse_under_attack(
+    const DF<NY>& y, const Row<NY>& current_prediction_score,
+    const IdxVec& split_left, const IdxVec& split_right, 
+    const IdxVec& split_unknown, const FunVec& constraints) const -> std::optional<IcmlTupl>
+{
+    auto L = DF_index<NY>(y, split_left);
+    auto R = DF_index<NY>(y, split_right);
+    auto U = DF_index<NY>(y, split_unknown);
+
+    // seed
+    Row<NY2> x_0 = Eigen::ArrayXXd::Zero(1, NY2);
+    x_0.template head<NY>() = current_prediction_score;
+    x_0.template tail<NY>() = current_prediction_score;
+
+    // loss function to be minimized
+    auto fun = [&](const Row<NY2>& x)->double{
+        if (split_ == SplitFunction::LogLoss)
+            return logloss_under_attack(L, R, U, x);
+        else
+            return sse_under_attack(L, R, U, x);
+    };
+
+    return IcmlTupl{current_prediction_score, current_prediction_score, 0.0};
+}
+
 template<size_t N>
 std::set<size_t> feature_set()
 {
@@ -288,9 +314,6 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     ConstrVec constr_left;
     ConstrVec constr_right;
     std::optional<IcmlTupl> optimizer_res;
-
-    if (algo_ == TrainingAlgo::Robust && constraints.empty())
-        throw std::runtime_error("Empty constraints!!!");
 
     // create a dictionary containing individual values for each feature_id
     //  (limited to the slice of data located at this node)
@@ -345,7 +368,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                     else if (c_right)
                         updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
                 }
-                auto optimizer_res = optimize_sse_under_attack(y, current_prediction_score,
+                optimizer_res = optimize_sse_under_attack(y, current_prediction_score,
                     split_left, split_right, split_unknown, updated_constraints);
             }
             if (optimizer_res)

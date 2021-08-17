@@ -46,11 +46,11 @@ template<size_t NX, size_t NY>
 double SplitOptimizer<NX,NY>::logloss_under_attack(const DF<NY>& left,
                                        const DF<NY>& right,
                                        const DF<NY>& unknown,
-                                       const Row<NY>& pred) // length 2xN
+                                       const Row<NY2>& pred) // length 2xN
 {
-    constexpr size_t H = NY/2;
-    const Eigen::Array<double,1,H> left_p = pred.template head<H>().max(EPS).min(1-EPS).log();
-    const Eigen::Array<double,1,H> right_p = pred.template tail<H>().max(EPS).min(1-EPS).log();
+    //constexpr size_t H = NY/2;
+    const Eigen::Array<double,1,H> left_p = pred.template head<NY>().max(EPS).min(1-EPS).log();
+    const Eigen::Array<double,1,H> right_p = pred.template tail<NY>().max(EPS).min(1-EPS).log();
     const auto countsL = num_classes<NY>(left);
     const auto countsR = num_classes<NY>(right);
     const auto countsU = num_classes<NY>(unknown);
@@ -269,7 +269,8 @@ std::set<size_t> feature_set()
 template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
     const std::set<size_t>& feature_blacklist, int n_sample_features,
-    Attacker<NX>& attacker, const CostMap& costs, double current_score) -> OptimTupl
+    Attacker<NX>& attacker, const CostMap& costs,
+    ConstrVec& constraints, double current_score, Row<NY> current_prediction_score) -> OptimTupl
 {
     double best_gain = 0.0;
     size_t best_split_feature_id = -1;
@@ -284,8 +285,15 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     IdxVec split_left;
     IdxVec split_right;
     IdxVec split_unknown;
+    ConstrVec constr_left;
+    ConstrVec constr_right;
     std::optional<IcmlTupl> optimizer_res;
 
+    if (algo_ == TrainingAlgo::Robust && constraints.empty())
+        throw std::runtime_error("Empty constraints!!!");
+
+    // create a dictionary containing individual values for each feature_id
+    //  (limited to the slice of data located at this node)
     const static std::set<size_t> all_features = feature_set<NX>();
     std::set<size_t> not_bl;
     std::set_difference(all_features.begin(), all_features.end(),
@@ -320,8 +328,25 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
             }
             else
             {
-                // TODO implement robust splitting
-                throw std::runtime_error("robust splitting not implemented");
+                auto split_res = simulate_split(X, rows, attacker, costs, feature_id, feature_value);
+                split_left = std::get<0>(split_res);
+                split_right = std::get<1>(split_res);
+                split_unknown = std::get<2>(split_res);
+
+                FunVec updated_constraints;
+                for (const auto& c : constraints)
+                {
+                    auto c_left = c.propagate_left(attacker, feature_id, feature_value);
+                    auto c_right = c.propagate_right(attacker, feature_id, feature_value);
+                    if (c_left && c_right)
+                        updated_constraints.push_back(c.encode_for_optimizer(Direction::U));
+                    else if (c_left)
+                        updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
+                    else if (c_right)
+                        updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
+                }
+                auto optimizer_res = optimize_sse_under_attack(y, current_prediction_score,
+                    split_left, split_right, split_unknown, updated_constraints);
             }
             if (optimizer_res)
             {

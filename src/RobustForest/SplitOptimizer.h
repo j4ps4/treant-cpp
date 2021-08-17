@@ -11,6 +11,7 @@
 
 #include "../DF2/DF_util.h"
 #include "../Attacker.h"
+#include "Constraint.h"
 #include "../def.h"
 
 enum class SplitFunction
@@ -36,6 +37,11 @@ class SplitOptimizer
     using CostVec = std::vector<int>;
     using CostMap = std::map<int64_t, int>;
     using OptimTupl = std::tuple<double,IdxVec,IdxVec,size_t,double,double,NRow,NRow,double,CostMap,CostMap>;
+    using ConstrVec = std::vector<Constraint<NX,NY>>;
+    using FunVec = std::vector<std::function<double(const Row<NY2C>&)>>;
+
+    #define NY2 SplitOptimizer<NX,NY>::NY2V
+    static constexpr size_t NY2V = 2*NY;
 public:
     SplitOptimizer(SplitFunction split, TrainingAlgo algo) :
     split_(split), algo_(algo) {}
@@ -45,7 +51,8 @@ public:
 
     OptimTupl optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, 
         const std::set<size_t>& feature_blacklist, int n_sample_features, 
-        Attacker<NX>& attacker, const CostMap& costs, double current_score);
+        Attacker<NX>& attacker, const CostMap& costs, 
+        ConstrVec& constraints, double current_score, Row<NY> current_prediction_score);
     
 private:
     static double sse(const DF<NY>& y_true,
@@ -57,7 +64,7 @@ private:
     static double logloss_under_attack(const DF<NY>& left,
                                        const DF<NY>& right,
                                        const DF<NY>& unknown,
-                                       const Row<NY>& pred);
+                                       const Row<NY2>& pred);
 
     double icml_split_loss(const DF<NY>& y,
         const IdxVec& L, const IdxVec& R);
@@ -72,8 +79,8 @@ private:
         const CostMap& costs, size_t feature_id, double feature_value
     );
     
-    SplitFunction split_;
-    TrainingAlgo algo_;
+    const SplitFunction split_;
+    const TrainingAlgo algo_;
 
 };
 

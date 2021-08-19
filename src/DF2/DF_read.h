@@ -135,7 +135,7 @@ template<size_t N>
 void read_line(DF<N>& data, char* buf, int bufS, size_t row_id, char*& bufOut)
 {
     char* bufE;
-    Row<N> row = Eigen::ArrayXXd::Zero(1,N);
+    Row<N> row(1, N);
     for (size_t col = 0; col < N; col++)
     {
         bufE = std::find(buf, buf+bufS, ',');
@@ -183,8 +183,8 @@ cpp::result<std::tuple<DF<NX>,DF<NY>>, std::string> read_bz2(const char* fn)
 
     const auto rows = nl - 1;
 
-    DF<NX> X_data = Eigen::ArrayXXd::Zero(rows,NX);
-    DF<NY> Y_data = Eigen::ArrayXXd::Zero(rows,NY);
+    DF<NX> X_data(rows, NX);
+    DF<NY> Y_data(rows, NY);
     auto loc = fstlne+1;
     for (size_t r = 0; r < rows; r++)
     {

@@ -11,7 +11,7 @@
 template<size_t N>
 DF<N> DF_index(const DF<N>& in, const std::vector<size_t>& idxs)
 {
-    DF<N> out = Eigen::ArrayXXd::Zero(idxs.size(), N);
+    DF<N> out(idxs.size(), N);
     for (size_t i = 0; i < idxs.size(); i++)
 	{
 		auto id = idxs[i];
@@ -59,9 +59,9 @@ std::tuple<DF<NX>,DF<NY>> append3(const std::tuple<DF<NX>,DF<NY>>& fst,
     const auto rows1 = std::get<0>(fst).rows();
     const auto rows2 = std::get<0>(snd).rows();
     const auto rows3 = std::get<0>(thrd).rows();
-    auto total_rows = rows1 + rows2 + rows3;
-    DF<NX> X_out = Eigen::ArrayXXd::Zero(total_rows,NX);
-    DF<NY> Y_out = Eigen::ArrayXXd::Zero(total_rows,NY);
+    const auto total_rows = rows1 + rows2 + rows3;
+    DF<NX> X_out(total_rows, NX);
+    DF<NY> Y_out(total_rows, NY);
     size_t out_idx = 0;
     for (int64_t i = 0; i < rows1; i++)
     {
@@ -87,9 +87,9 @@ std::tuple<DF<NX>,DF<NY>> append2(const std::tuple<DF<NX>,DF<NY>>& fst,
 {
     const auto rows1 = std::get<0>(fst).rows();
     const auto rows2 = std::get<0>(snd).rows();
-    auto total_rows = rows1 + rows2;
-    DF<NX> X_out = Eigen::ArrayXXd::Zero(total_rows,NX);
-    DF<NY> Y_out = Eigen::ArrayXXd::Zero(total_rows,NY);
+    const auto total_rows = rows1 + rows2;
+    DF<NX> X_out(total_rows, NX);
+    DF<NY> Y_out(total_rows, NY);
     size_t out_idx = 0;
     for (int64_t i = 0; i < rows1; i++)
     {

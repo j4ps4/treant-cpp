@@ -8,6 +8,7 @@
 #include <optional>
 #include <map>
 #include <set>
+#include <nlopt.hpp>
 
 #include "../DF2/DF_util.h"
 #include "../Attacker.h"
@@ -38,7 +39,7 @@ class SplitOptimizer
     using CostMap = std::map<int64_t, int>;
     using OptimTupl = std::tuple<double,IdxVec,IdxVec,size_t,double,double,NRow,NRow,double,CostMap,CostMap>;
     using ConstrVec = std::vector<Constraint<NX,NY>>;
-    using FunVec = std::vector<std::function<double(const Row<NY2C>&)>>;
+    using FunVec = std::vector<std::function<double(unsigned, const double*, double*, void*)>>;
 
     #define NY2 SplitOptimizer<NX,NY>::NY2V
     static constexpr size_t NY2V = 2*NY;
@@ -92,6 +93,7 @@ private:
     
     const SplitFunction split_;
     const TrainingAlgo algo_;
+    const nlopt::algorithm optim_algo_ = nlopt::LD_SLSQP;
 
 };
 

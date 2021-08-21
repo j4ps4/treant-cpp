@@ -42,6 +42,74 @@ double SplitOptimizer<NX,NY>::logloss(const DF<NY>& y_true,
     return accum;
 }
 
+template<size_t NY>
+struct loss_data
+{
+    const Row<NY>* L;
+    const Row<NY>* U;
+    const Row<NY>* R;
+};
+template<size_t NY>
+static double logloss_nlopt(unsigned n, const double* x, double* grad, void* data)
+{
+    loss_data<NY>* d = static_cast<loss_data<NY>*>(data);
+    const auto* left = d->L;
+    const auto* unknown = d->U;
+    const auto* right = d->R;
+    const auto cL = num_classes<NY>(*left);
+    const auto cU = num_classes<NY>(*unknown);
+    const auto cR = num_classes<NY>(*right);
+
+    // safe log
+    auto mlog = [](double x){return std::log(std::min(std::max(x,EPS),1-EPS));};
+
+    // unknowns to the left branch
+    if (x[0] =< x[2] && x[1] =< x[3])
+    {
+        if (grad != nullptr)
+        {
+            grad[0] = (cL(0)+cU(0)) * -1.0/x[0] + (cL(0)+cL(1)+cU(0)+cU(1));
+            grad[1] = (cL(1)+cU(1)) * -1.0/x[1] + (cL(0)+cL(1)+cU(0)+cU(1));
+            grad[2] = cR(0) * -1.0/x[2] + (cR(0)+cR(1));
+            grad[3] = cR(1) * -1.0/x[3] + (cR(0)+cR(1));
+        }
+        return (cL(0)+cU(0)) * -mlog(x[0]) + (cL(1)+cU(1)) * -mlog(x[1])
+            + cR(0) * -mlog(x[2]) + cR(1) * -mlog(x[3])
+            + (cL(0)+cL(1)+cU(0)+cU(1)) * (x[0]+x[1])
+            + (cR(0)+cR(1)) * (x[2]+x[3]);
+    }
+    // 0-unknowns to the left branch
+    else if (x[0] =< x[2] && x[1] > x[3])
+    {
+        if (grad != nullptr)
+        {
+            grad[0] = (cL(0)+cU(0)) * -1.0/x[0] + (cL(0)+cL(1)+cU(0));
+            grad[1] = cL(1) * -1.0/x[1] + (cL(0)+cL(1)+cU(0));
+            grad[2] = cR(0) * -1.0/x[2] + (cR(0)+cR(1)+cU(1));
+            grad[3] = (cR(1)+cU(1)) * -1.0/x[3] + (cR(0)+cR(1)+cU(1));
+        }
+        return  (cL(0)+cU(0)) * -mlog(x[0]) + cL(1) * -mlog(x[1])
+            + cR(0) * -mlog(x[2]) + (cR(1)+cU(1)) * -mlog(x[3])
+            + (cL(0)+cL(1)+cU(0)) * (x[0]+x[1])
+            + (cR(0)+cR(1)+cU(1)) * (x[2]+x[3]);
+    }
+    // 1-unknowns to the left branch
+    else if (x[0] > x[2] && x[1] <= x[3])
+    {
+        if (grad != nullptr)
+        {
+            grad[0] = cL(0) * -1.0/x[0] + (cL(0)+cL(1)+cU(1));
+            grad[1] = (cL(1)+cU(1)) * -1.0/x[1] + (cL(0)+cL(1)+cU(1)); 
+            grad[2] = (cR(0)+cU(0)) * -1.0/x[2] + (cR(0)+cR(1)+cU(0));
+            grad[3] = cR(1) * -1.0/x[3] + (cR(0)+cR(1)+cU(0));
+        }
+        return cL(0) * -mlog(x[0]) + (cL(1)+cU(1)) * -mlog([x1])
+            + (cR(0)+cU(0)) * -mlog(x[2]) + cR(1) * -mlog(x[3])
+            + (cL(0)+cL(1)+cU(1)) * (x[0]+x[1])
+            + (cR(0)+cR(1)+cU(0)) * (x[2]+x[3]);
+    }
+}
+
 template<size_t NX, size_t NY>
 double SplitOptimizer<NX,NY>::logloss_under_attack(const DF<NY>& left,
                                        const DF<NY>& right,
@@ -268,19 +336,39 @@ auto SplitOptimizer<NX,NY>::optimize_sse_under_attack(
     auto U = DF_index<NY>(y, split_unknown);
 
     // seed
-    Row<NY2> x_0 = Eigen::ArrayXXd::Zero(1, NY2);
-    x_0.template head<NY>() = current_prediction_score;
-    x_0.template tail<NY>() = current_prediction_score;
+    std::vector<double> x(NY2);
+    for (size_t i = 0; i < NY; i++)
+    {
+        x[i] = current_prediction_score(i);
+        x[i+NY] = current_prediction_score(i);
+    }
 
-    // loss function to be minimized
-    auto fun = [&](const Row<NY2>& x)->double{
+    try
+    {
+        // set up nlopt
+        nlopt::opt optimizer(optim_algo_, NY2);
+        optimizer.set_lower_bounds(0);
+        optimizer.set_upper_bounds(1);
+        double tol = 1e-4;
+        optimizer.set_xtol_rel(tol);
+        loss_data<NY> d = {&L, &U, &R};
         if (split_ == SplitFunction::LogLoss)
-            return logloss_under_attack(L, R, U, x);
+            optimizer.set_min_objective(logloss_nlopt<NY>, &d);
         else
-            return sse_under_attack(L, R, U, x);
-    };
+            throw std::runtime_error("not implemented");
 
-    return IcmlTupl{current_prediction_score, current_prediction_score, 0.0};
+        for (auto& fun : constraints)
+            optimizer.add_inequality_constraint(fun, nullptr, 1e-8);
+
+        double minf;
+        auto result = optimizer.optimize(x, minf);
+
+        return IcmlTupl{current_prediction_score, current_prediction_score, 0.0};
+    }
+    catch(std::exception& e)
+    {
+        Util::die("NLOPT exception: {}", e.what());
+    }
 }
 
 template<size_t N>

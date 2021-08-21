@@ -27,7 +27,7 @@ public:
     std::optional<Constraint<NX,NY>> propagate_left(Attacker<NX>& attacker, size_t feature_id, double feature_value) const;
     std::optional<Constraint<NX,NY>> propagate_right(Attacker<NX>& attacker, size_t feature_id, double feature_value) const;
 
-    std::function<double(const Row<NY2C>&)> encode_for_optimizer(Direction dir) const;
+    std::function<double(unsigned, const double*, double*, void*)> encode_for_optimizer(Direction dir) const;
 private:
     Row<NX> x_;
     Row<NY> y_;

@@ -47,19 +47,36 @@ std::optional<Constraint<NX,NY>> Constraint<NX,NY>::propagate_right(Attacker<NX>
 }
 
 template<size_t NX, size_t NY>
-std::function<double(const Row<NY2C>&)> Constraint<NX,NY>::encode_for_optimizer(Direction dir) const
+std::function<double(unsigned, const double*, double*, void*)> 
+Constraint<NX,NY>::encode_for_optimizer(Direction dir) const
 {
     if (dir == Direction::L)
     {
         if (ineq_ == Ineq::LT)
         {
-            return [&](const Row<NY2C>& pred)->double{
+            return [&](unsigned n, const double* x, double* grad, void* data)->double{
+                if (grad != nullptr)
+                {
+                    grad[0] = -y_(0)/x[0] + y_(0)/bound_(0);
+                    grad[1] = -y_(1)/x[1] + y_(1)/bound_(1);
+                    grad[2] = 0.0;
+                    grad[3] = 0.0;
+                }
+                Map<const Row<NY2C>> pred(x);
                 return -(y_ * (pred.template head<NY>().log())).sum() + (y_ * bound_.log()).sum();
             };
         }
         else
         {
-            return [&](const Row<NY2C>& pred)->double{
+            return [&](unsigned n, const double* x, double* grad, void* data)->double{
+                if (grad != nullptr)
+                {
+                    grad[0] = y_(0)/x[0] - y_(0)/bound_(0);
+                    grad[1] = y_(1)/x[1] - y_(1)/bound_(1);
+                    grad[2] = 0.0;
+                    grad[3] = 0.0;
+                }
+                Map<const Row<NY2C>> pred(x);
                 return (y_ * (pred.template head<NY>().log())).sum() - (y_ * bound_.log()).sum();
             };
         }
@@ -68,13 +85,29 @@ std::function<double(const Row<NY2C>&)> Constraint<NX,NY>::encode_for_optimizer(
     {
         if (ineq_ == Ineq::LT)
         {
-            return [&](const Row<NY2C>& pred)->double{
+            return [&](unsigned n, const double* x, double* grad, void* data)->double{
+                if (grad != nullptr)
+                {
+                    grad[0] = 0.0;
+                    grad[1] = 0.0;
+                    grad[2] = -y_(0)/x[2] + y_(0)/bound_(0);
+                    grad[3] = -y_(0)/x[3] + y_(1)/bound_(1);
+                }
+                Map<const Row<NY2C>> pred(x);
                 return -(y_ * (pred.template tail<NY>().log())).sum() + (y_ * bound_.log()).sum();
             };
         }
         else
         {
-            return [&](const Row<NY2C>& pred)->double{
+            return [&](unsigned n, const double* x, double* grad, void* data)->double{
+                if (grad != nullptr)
+                {
+                    grad[0] = 0.0;
+                    grad[1] = 0.0;
+                    grad[2] = y_(0)/x[2] - y_(0)/bound_(0);
+                    grad[3] = y_(0)/x[3] - y_(1)/bound_(1);
+                }
+                Map<const Row<NY2C>> pred(x);
                 return (y_ * (pred.template tail<NY>().log())).sum() - (y_ * bound_.log()).sum();
             };
         }
@@ -83,17 +116,53 @@ std::function<double(const Row<NY2C>&)> Constraint<NX,NY>::encode_for_optimizer(
     {
         if (ineq_ == Ineq::LT)
         {
-            return [&](const Row<NY2C>& pred)->double{
+            return [&](unsigned n, const double* x, double* grad, void* data)->double{
+                Map<const Row<NY2C>> pred(x);
                 const double s1 = (y_ * (pred.template head<NY>().log())).sum();
                 const double s2 = (y_ * (pred.template tail<NY>().log())).sum();
+                if (grad != nullptr)
+                {
+                    if (s1 >= s2)
+                    {
+                        grad[0] = -y_(0)/x[0] + y_(0)/bound_(0);
+                        grad[1] = -y_(1)/x[1] + y_(1)/bound_(1);
+                        grad[2] = 0.0;
+                        grad[3] = 0.0;
+                    }
+                    else
+                    {
+                        grad[0] = 0.0;
+                        grad[1] = 0.0;
+                        grad[2] = -y_(0)/x[2] + y_(0)/bound_(0);
+                        grad[3] = -y_(0)/x[3] + y_(1)/bound_(1);
+                    }
+                }
                 return -std::max(s1, s2) + (y_ * bound_.log()).sum();
             };
         }
         else
         {
-            return [&](const Row<NY2C>& pred)->double{
+            return [&](unsigned n, const double* x, double* grad, void* data)->double{
+                Map<const Row<NY2C>> pred(x);
                 const double s1 = (y_ * (pred.template head<NY>().log())).sum();
                 const double s2 = (y_ * (pred.template tail<NY>().log())).sum();
+                if (grad != nullptr)
+                {
+                    if (s1 < s2)
+                    {
+                        grad[0] = y_(0)/x[0] - y_(0)/bound_(0);
+                        grad[1] = y_(1)/x[1] - y_(1)/bound_(1);
+                        grad[2] = 0.0;
+                        grad[3] = 0.0;
+                    }
+                    else
+                    {
+                        grad[0] = 0.0;
+                        grad[1] = 0.0;
+                        grad[2] = y_(0)/x[2] - y_(0)/bound_(0);
+                        grad[3] = y_(0)/x[3] - y_(1)/bound_(1);
+                    }
+                }
                 return std::min(s1, s2) - (y_ * bound_.log()).sum();
             };
         }

@@ -23,9 +23,9 @@ int main(int argc, char** argv)
     auto dataset = opts["data"].as<std::string>();
 
     if (dataset == "credit")
-        credit::train_and_test(SplitFunction::LogLoss, TrainingAlgo::Icml2019, 8, 20, true);
+        credit::train_and_test(SplitFunction::LogLoss, TrainingAlgo::Robust, 8, 20, true);
     else if (dataset == "forest")
-        forest::train_and_test(SplitFunction::LogLoss, TrainingAlgo::Icml2019, 8, 20, true);
+        forest::train_and_test(SplitFunction::LogLoss, TrainingAlgo::Robust, 8, 20, true);
     else
         Util::die("invalid dataset: {}", dataset);
     

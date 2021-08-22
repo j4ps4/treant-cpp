@@ -45,26 +45,31 @@ double SplitOptimizer<NX,NY>::logloss(const DF<NY>& y_true,
 template<size_t NY>
 struct loss_data
 {
-    const Row<NY>* L;
-    const Row<NY>* U;
-    const Row<NY>* R;
+    const Row<NY> C_L;
+    const Row<NY> C_U;
+    const Row<NY> C_R;
 };
+
+unsigned count__ = 0;
+
 template<size_t NY>
 static double logloss_nlopt(unsigned n, const double* x, double* grad, void* data)
 {
     loss_data<NY>* d = static_cast<loss_data<NY>*>(data);
-    const auto* left = d->L;
-    const auto* unknown = d->U;
-    const auto* right = d->R;
-    const auto cL = num_classes<NY>(*left);
-    const auto cU = num_classes<NY>(*unknown);
-    const auto cR = num_classes<NY>(*right);
+    // const auto* left = d->L;
+    // const auto* unknown = d->U;
+    // const auto* right = d->R;
+    const auto& cL = d->C_L;
+    const auto& cU = d->C_U;
+    const auto& cR = d->C_R;
+
+    count__++;
 
     // safe log
     auto mlog = [](double x){return std::log(std::min(std::max(x,EPS),1-EPS));};
 
     // unknowns to the left branch
-    if (x[0] =< x[2] && x[1] =< x[3])
+    if (x[0] <= x[2] && x[1] <= x[3])
     {
         if (grad != nullptr)
         {
@@ -79,7 +84,7 @@ static double logloss_nlopt(unsigned n, const double* x, double* grad, void* dat
             + (cR(0)+cR(1)) * (x[2]+x[3]);
     }
     // 0-unknowns to the left branch
-    else if (x[0] =< x[2] && x[1] > x[3])
+    else if (x[0] <= x[2] && x[1] > x[3])
     {
         if (grad != nullptr)
         {
@@ -103,10 +108,25 @@ static double logloss_nlopt(unsigned n, const double* x, double* grad, void* dat
             grad[2] = (cR(0)+cU(0)) * -1.0/x[2] + (cR(0)+cR(1)+cU(0));
             grad[3] = cR(1) * -1.0/x[3] + (cR(0)+cR(1)+cU(0));
         }
-        return cL(0) * -mlog(x[0]) + (cL(1)+cU(1)) * -mlog([x1])
+        return cL(0) * -mlog(x[0]) + (cL(1)+cU(1)) * -mlog(x[1])
             + (cR(0)+cU(0)) * -mlog(x[2]) + cR(1) * -mlog(x[3])
             + (cL(0)+cL(1)+cU(1)) * (x[0]+x[1])
             + (cR(0)+cR(1)+cU(0)) * (x[2]+x[3]);
+    }
+    // unknowns to the right branch
+    else
+    {
+        if (grad != nullptr)
+        {
+            grad[0] = cL(0) * -1.0/x[0] + (cL(0)+cL(1));
+            grad[1] = cL(1) * -1.0/x[1] + (cL(0)+cL(1));
+            grad[2] = (cR(0)+cU(0)) * -1.0/x[2] + (cR(0)+cR(1)+cU(0)+cU(1));
+            grad[3] = (cR(1)+cU(1)) * -1.0/x[3] + (cR(0)+cR(1)+cU(0)+cU(1));
+        }
+        return cL(0) * -mlog(x[0]) + cL(1) * -mlog(x[1])
+            + (cR(0)+cU(0)) * -mlog(x[2]) + (cR(1)+cU(1)) * -mlog(x[3])
+            + (cL(0)+cL(1)) * (x[0]+x[1])
+            + (cR(0)+cR(1)+cU(0)+cU(1)) * (x[2]+x[3]);
     }
 }
 
@@ -329,11 +349,15 @@ template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::optimize_sse_under_attack(
     const DF<NY>& y, const Row<NY>& current_prediction_score,
     const IdxVec& split_left, const IdxVec& split_right, 
-    const IdxVec& split_unknown, const FunVec& constraints) const -> std::optional<IcmlTupl>
+    const IdxVec& split_unknown, FunVec& constraints, 
+    std::vector<Constr_data<NY>>& constr_data) const -> std::optional<IcmlTupl>
 {
     auto L = DF_index<NY>(y, split_left);
-    auto R = DF_index<NY>(y, split_right);
     auto U = DF_index<NY>(y, split_unknown);
+    auto R = DF_index<NY>(y, split_right);
+    auto CL = num_classes<NY>(L);
+    auto CU = num_classes<NY>(U);
+    auto CR = num_classes<NY>(R);
 
     // seed
     std::vector<double> x(NY2);
@@ -351,19 +375,38 @@ auto SplitOptimizer<NX,NY>::optimize_sse_under_attack(
         optimizer.set_upper_bounds(1);
         double tol = 1e-4;
         optimizer.set_xtol_rel(tol);
-        loss_data<NY> d = {&L, &U, &R};
+        loss_data<NY> d = {CL, CU, CR};
         if (split_ == SplitFunction::LogLoss)
             optimizer.set_min_objective(logloss_nlopt<NY>, &d);
         else
             throw std::runtime_error("not implemented");
 
-        for (auto& fun : constraints)
-            optimizer.add_inequality_constraint(fun, nullptr, 1e-8);
+        // TODO: fixme
+        for (size_t i = 0; i < constraints.size(); i++)
+        {
+            auto fun = constraints[i];
+            auto c_data = &constr_data[i];
+            optimizer.add_inequality_constraint(*(fun.target<double(*)(unsigned,const double*,double*,void*)>()), c_data, 1e-8);
+        }
 
         double minf;
         auto result = optimizer.optimize(x, minf);
+        Util::info("nlopt_result, after {} iterations: {}", count__, nlopt_result_to_string(static_cast<nlopt_result>(result)));
+        count__ = 0;
+        // if (result > 0)
+        // {
 
-        return IcmlTupl{current_prediction_score, current_prediction_score, 0.0};
+        // }
+        // else
+        //     Util::die("nlopt error: {}", nlopt_result_to_string(result));
+        Row<NY> pred_left;
+        Row<NY> pred_right;
+        pred_left(0) = x[0];
+        pred_left(1) = x[1];
+        pred_right(0) = x[2];
+        pred_right(1) = x[3];
+
+        return IcmlTupl{pred_left, pred_right, minf};
     }
     catch(std::exception& e)
     {
@@ -445,6 +488,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 split_unknown = std::get<2>(split_res);
 
                 FunVec updated_constraints;
+                std::vector<Constr_data<NY>> constr_data;
                 for (const auto& c : constraints)
                 {
                     auto c_left = c.propagate_left(attacker, feature_id, feature_value);
@@ -455,9 +499,10 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                         updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
                     else if (c_right)
                         updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
+                    constr_data.push_back(Constr_data<NY>{c.get_y_ptr(), c.get_bound_ptr()});
                 }
                 optimizer_res = optimize_sse_under_attack(y, current_prediction_score,
-                    split_left, split_right, split_unknown, updated_constraints);
+                    split_left, split_right, split_unknown, updated_constraints, constr_data);
             }
             if (optimizer_res)
             {
@@ -465,6 +510,12 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 auto y_pred_left = std::get<0>(optim_res);
                 auto y_pred_right = std::get<1>(optim_res);
                 auto residue = std::get<2>(optim_res);
+
+                std::cout << "pred_left: " << y_pred_left;
+                std::cout << ", pred_right: " << y_pred_right;
+                std::cout << ", fun: " << residue << "\n";
+                std::exit(0);
+
                 // compute gain
                 double gain = current_score - residue;
                 //Util::log("current gain: {}, best gain: {}", gain, best_gain);

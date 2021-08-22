@@ -16,6 +16,13 @@ enum class Direction
     L, R, U
 };
 
+template<size_t NY>
+struct Constr_data
+{
+    const Row<NY>* y;
+    const Row<NY>* bound;
+};
+
 template<size_t NX, size_t NY>
 class Constraint
 {
@@ -28,6 +35,8 @@ public:
     std::optional<Constraint<NX,NY>> propagate_right(Attacker<NX>& attacker, size_t feature_id, double feature_value) const;
 
     std::function<double(unsigned, const double*, double*, void*)> encode_for_optimizer(Direction dir) const;
+    const Row<NY>* get_y_ptr() const noexcept {return &y_;}
+    const Row<NY>* get_bound_ptr() const noexcept {return &bound_;}
 private:
     Row<NX> x_;
     Row<NY> y_;

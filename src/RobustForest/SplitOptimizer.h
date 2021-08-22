@@ -84,7 +84,7 @@ private:
 
     std::optional<IcmlTupl> optimize_sse_under_attack(const DF<NY>& y, const Row<NY>& current_prediction_score,
         const IdxVec& split_left, const IdxVec& split_right, 
-        const IdxVec& split_unknown, const FunVec& constraints) const;
+        const IdxVec& split_unknown, FunVec& constraints, std::vector<Constr_data<NY>>& constr_data) const;
 
     std::tuple<IdxVec, IdxVec, IdxVec> simulate_split(
         const DF<NX>& X, const IdxVec& rows, Attacker<NX>& attacker,

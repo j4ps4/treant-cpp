@@ -55,29 +55,35 @@ Constraint<NX,NY>::encode_for_optimizer(Direction dir) const
         if (ineq_ == Ineq::LT)
         {
             return [&](unsigned n, const double* x, double* grad, void* data)->double{
+                auto c_data = static_cast<Constr_data<NY>*>(data);
+                const auto& y = *(c_data->y);
+                const auto& bound = *(c_data->bound);
                 if (grad != nullptr)
                 {
-                    grad[0] = -y_(0)/x[0] + y_(0)/bound_(0);
-                    grad[1] = -y_(1)/x[1] + y_(1)/bound_(1);
+                    grad[0] = -y(0)/x[0] + y(0)/bound(0);
+                    grad[1] = -y(1)/x[1] + y(1)/bound(1);
                     grad[2] = 0.0;
                     grad[3] = 0.0;
                 }
-                Map<const Row<NY2C>> pred(x);
-                return -(y_ * (pred.template head<NY>().log())).sum() + (y_ * bound_.log()).sum();
+                Eigen::Map<const Row<NY2C>> pred(x);
+                return -(y * (pred.template head<NY>().log())).sum() + (y * bound.log()).sum();
             };
         }
         else
         {
             return [&](unsigned n, const double* x, double* grad, void* data)->double{
+                auto c_data = static_cast<Constr_data<NY>*>(data);
+                const auto& y = *(c_data->y);
+                const auto& bound = *(c_data->bound);
                 if (grad != nullptr)
                 {
-                    grad[0] = y_(0)/x[0] - y_(0)/bound_(0);
-                    grad[1] = y_(1)/x[1] - y_(1)/bound_(1);
+                    grad[0] = y(0)/x[0] - y(0)/bound(0);
+                    grad[1] = y(1)/x[1] - y(1)/bound(1);
                     grad[2] = 0.0;
                     grad[3] = 0.0;
                 }
-                Map<const Row<NY2C>> pred(x);
-                return (y_ * (pred.template head<NY>().log())).sum() - (y_ * bound_.log()).sum();
+                Eigen::Map<const Row<NY2C>> pred(x);
+                return (y * (pred.template head<NY>().log())).sum() - (y * bound.log()).sum();
             };
         }
     }
@@ -86,29 +92,35 @@ Constraint<NX,NY>::encode_for_optimizer(Direction dir) const
         if (ineq_ == Ineq::LT)
         {
             return [&](unsigned n, const double* x, double* grad, void* data)->double{
+                auto c_data = static_cast<Constr_data<NY>*>(data);
+                const auto& y = *(c_data->y);
+                const auto& bound = *(c_data->bound);
                 if (grad != nullptr)
                 {
                     grad[0] = 0.0;
                     grad[1] = 0.0;
-                    grad[2] = -y_(0)/x[2] + y_(0)/bound_(0);
-                    grad[3] = -y_(0)/x[3] + y_(1)/bound_(1);
+                    grad[2] = -y(0)/x[2] + y(0)/bound(0);
+                    grad[3] = -y(0)/x[3] + y(1)/bound(1);
                 }
-                Map<const Row<NY2C>> pred(x);
-                return -(y_ * (pred.template tail<NY>().log())).sum() + (y_ * bound_.log()).sum();
+                Eigen::Map<const Row<NY2C>> pred(x);
+                return -(y * (pred.template tail<NY>().log())).sum() + (y * bound.log()).sum();
             };
         }
         else
         {
             return [&](unsigned n, const double* x, double* grad, void* data)->double{
+                auto c_data = static_cast<Constr_data<NY>*>(data);
+                const auto& y = *(c_data->y);
+                const auto& bound = *(c_data->bound);
                 if (grad != nullptr)
                 {
                     grad[0] = 0.0;
                     grad[1] = 0.0;
-                    grad[2] = y_(0)/x[2] - y_(0)/bound_(0);
-                    grad[3] = y_(0)/x[3] - y_(1)/bound_(1);
+                    grad[2] = y(0)/x[2] - y(0)/bound(0);
+                    grad[3] = y(0)/x[3] - y(1)/bound(1);
                 }
-                Map<const Row<NY2C>> pred(x);
-                return (y_ * (pred.template tail<NY>().log())).sum() - (y_ * bound_.log()).sum();
+                Eigen::Map<const Row<NY2C>> pred(x);
+                return (y * (pred.template tail<NY>().log())).sum() - (y * bound.log()).sum();
             };
         }
     }
@@ -117,15 +129,18 @@ Constraint<NX,NY>::encode_for_optimizer(Direction dir) const
         if (ineq_ == Ineq::LT)
         {
             return [&](unsigned n, const double* x, double* grad, void* data)->double{
-                Map<const Row<NY2C>> pred(x);
-                const double s1 = (y_ * (pred.template head<NY>().log())).sum();
-                const double s2 = (y_ * (pred.template tail<NY>().log())).sum();
+                auto c_data = static_cast<Constr_data<NY>*>(data);
+                const auto& y = *(c_data->y);
+                const auto& bound = *(c_data->bound);
+                Eigen::Map<const Row<NY2C>> pred(x);
+                const double s1 = (y * (pred.template head<NY>().log())).sum();
+                const double s2 = (y * (pred.template tail<NY>().log())).sum();
                 if (grad != nullptr)
                 {
                     if (s1 >= s2)
                     {
-                        grad[0] = -y_(0)/x[0] + y_(0)/bound_(0);
-                        grad[1] = -y_(1)/x[1] + y_(1)/bound_(1);
+                        grad[0] = -y(0)/x[0] + y(0)/bound(0);
+                        grad[1] = -y(1)/x[1] + y(1)/bound(1);
                         grad[2] = 0.0;
                         grad[3] = 0.0;
                     }
@@ -133,25 +148,28 @@ Constraint<NX,NY>::encode_for_optimizer(Direction dir) const
                     {
                         grad[0] = 0.0;
                         grad[1] = 0.0;
-                        grad[2] = -y_(0)/x[2] + y_(0)/bound_(0);
-                        grad[3] = -y_(0)/x[3] + y_(1)/bound_(1);
+                        grad[2] = -y(0)/x[2] + y(0)/bound(0);
+                        grad[3] = -y(0)/x[3] + y(1)/bound(1);
                     }
                 }
-                return -std::max(s1, s2) + (y_ * bound_.log()).sum();
+                return -std::max(s1, s2) + (y * bound.log()).sum();
             };
         }
         else
         {
             return [&](unsigned n, const double* x, double* grad, void* data)->double{
-                Map<const Row<NY2C>> pred(x);
-                const double s1 = (y_ * (pred.template head<NY>().log())).sum();
-                const double s2 = (y_ * (pred.template tail<NY>().log())).sum();
+                auto c_data = static_cast<Constr_data<NY>*>(data);
+                const auto& y = *(c_data->y);
+                const auto& bound = *(c_data->bound);
+                Eigen::Map<const Row<NY2C>> pred(x);
+                const double s1 = (y * (pred.template head<NY>().log())).sum();
+                const double s2 = (y * (pred.template tail<NY>().log())).sum();
                 if (grad != nullptr)
                 {
                     if (s1 < s2)
                     {
-                        grad[0] = y_(0)/x[0] - y_(0)/bound_(0);
-                        grad[1] = y_(1)/x[1] - y_(1)/bound_(1);
+                        grad[0] = y(0)/x[0] - y(0)/bound(0);
+                        grad[1] = y(1)/x[1] - y(1)/bound(1);
                         grad[2] = 0.0;
                         grad[3] = 0.0;
                     }
@@ -159,11 +177,11 @@ Constraint<NX,NY>::encode_for_optimizer(Direction dir) const
                     {
                         grad[0] = 0.0;
                         grad[1] = 0.0;
-                        grad[2] = y_(0)/x[2] - y_(0)/bound_(0);
-                        grad[3] = y_(0)/x[3] - y_(1)/bound_(1);
+                        grad[2] = y(0)/x[2] - y(0)/bound(0);
+                        grad[3] = y(0)/x[3] - y(1)/bound(1);
                     }
                 }
-                return std::min(s1, s2) - (y_ * bound_.log()).sum();
+                return std::min(s1, s2) - (y * bound.log()).sum();
             };
         }
     }

@@ -6,6 +6,15 @@
 #include "Forest.h"
 #include "util.h"
 
+TrainingAlgo parse_algo(const std::string& s)
+{
+    if (s == "robust")
+        return TrainingAlgo::Robust;
+    else if (s == "icml2019")
+        return TrainingAlgo::Icml2019;
+    else
+        Util::die("invalid algorithm");
+}
 
 int main(int argc, char** argv)
 {
@@ -13,6 +22,8 @@ int main(int argc, char** argv)
     options.add_options()
         ("data", "dataset to use",
         cxxopts::value<std::string>()->default_value("credit"))
+        ("algo", "algorithm: robust (default), icml2019",
+        cxxopts::value<std::string>()->default_value("robust"))
         ("h,help", "print usage");
     auto opts = options.parse(argc, argv);
     if (opts.count("help"))
@@ -21,11 +32,12 @@ int main(int argc, char** argv)
         exit(0);
     }
     auto dataset = opts["data"].as<std::string>();
+    auto algo = parse_algo(opts["algo"].as<std::string>());
 
     if (dataset == "credit")
-        credit::train_and_test(SplitFunction::LogLoss, TrainingAlgo::Robust, 8, 20, true);
+        credit::train_and_test(SplitFunction::LogLoss, algo, 8, 20, true);
     else if (dataset == "forest")
-        forest::train_and_test(SplitFunction::LogLoss, TrainingAlgo::Robust, 8, 20, true);
+        forest::train_and_test(SplitFunction::LogLoss, algo, 8, 20, true);
     else
         Util::die("invalid dataset: {}", dataset);
     

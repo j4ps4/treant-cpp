@@ -40,7 +40,8 @@ Node<NY>* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF
     auto [best_gain, best_split_left, best_split_right, best_split_feature_id,
            best_split_feature_value, next_best_split_feature_id,
            best_pred_left, best_pred_right, best_loss,
-           costs_left, costs_right] = optimizer_->optimize_gain(X_train, y_train, rows, feature_blacklist, -1,
+           costs_left, costs_right, 
+           constraints_left, constraints_right] = optimizer_->optimize_gain(X_train, y_train, rows, feature_blacklist, -1,
                                       *(attacker_.get()), costs, constraints, current_score, node_prediction);
 
     Util::log("best_gain: {}", best_gain);
@@ -58,8 +59,8 @@ Node<NY>* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF
             updated_feature_bl.insert(best_split_feature_id);
         }
 
-        node->set_left(private_fit(X_train, y_train, best_split_left, costs_left, constraints, best_pred_left, updated_feature_bl, depth+1));
-        node->set_right(private_fit(X_train, y_train, best_split_right, costs_right, constraints, best_pred_right, updated_feature_bl, depth+1));
+        node->set_left(private_fit(X_train, y_train, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1));
+        node->set_right(private_fit(X_train, y_train, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1));
     }
     return node;
 }

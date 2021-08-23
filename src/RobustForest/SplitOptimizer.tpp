@@ -1,5 +1,6 @@
 #include <limits>
 #include <algorithm>
+#include <ranges>
 
 #include "../DF2/DF_util.h"
 
@@ -150,6 +151,7 @@ template<size_t NX, size_t NY>
 double SplitOptimizer<NX,NY>::evaluate_split(const DF<NY>& y_true,
                           const Row<NY>& y_pred) const
 {
+    // Use logloss_nlopt
     if (split_ == SplitFunction::LogLoss)
         return logloss(y_true, y_pred);
     else
@@ -346,7 +348,7 @@ auto SplitOptimizer<NX,NY>::simulate_split(
 }
 
 template<size_t NX, size_t NY>
-auto SplitOptimizer<NX,NY>::optimize_sse_under_attack(
+auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
     const DF<NY>& y, const Row<NY>& current_prediction_score,
     const IdxVec& split_left, const IdxVec& split_right, 
     const IdxVec& split_unknown, FunVec& constraints, 
@@ -381,7 +383,6 @@ auto SplitOptimizer<NX,NY>::optimize_sse_under_attack(
         else
             throw std::runtime_error("not implemented");
 
-        // TODO: fixme
         for (size_t i = 0; i < constraints.size(); i++)
         {
             auto fun = constraints[i];
@@ -391,7 +392,7 @@ auto SplitOptimizer<NX,NY>::optimize_sse_under_attack(
 
         double minf;
         auto result = optimizer.optimize(x, minf);
-        Util::info("nlopt_result, after {} iterations: {}", count__, nlopt_result_to_string(static_cast<nlopt_result>(result)));
+        //Util::info("nlopt_result, after {} iterations: {}", count__, nlopt_result_to_string(static_cast<nlopt_result>(result)));
         count__ = 0;
         // if (result > 0)
         // {
@@ -426,7 +427,7 @@ std::set<size_t> feature_set()
 template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
     const std::set<size_t>& feature_blacklist, int n_sample_features,
-    Attacker<NX>& attacker, const CostMap& costs,
+    Attacker<NX>& attacker, CostMap& costs,
     ConstrVec& constraints, double current_score, Row<NY> current_prediction_score) -> OptimTupl
 {
     double best_gain = 0.0;
@@ -501,7 +502,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                         updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
                     constr_data.push_back(Constr_data<NY>{c.get_y_ptr(), c.get_bound_ptr()});
                 }
-                optimizer_res = optimize_sse_under_attack(y, current_prediction_score,
+                optimizer_res = optimize_loss_under_attack(y, current_prediction_score,
                     split_left, split_right, split_unknown, updated_constraints, constr_data);
             }
             if (optimizer_res)
@@ -511,14 +512,18 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 auto y_pred_right = std::get<1>(optim_res);
                 auto residue = std::get<2>(optim_res);
 
-                std::cout << "pred_left: " << y_pred_left;
-                std::cout << ", pred_right: " << y_pred_right;
-                std::cout << ", fun: " << residue << "\n";
-                std::exit(0);
+                // std::cout << "pred_left: " << y_pred_left;
+                // std::cout << ", pred_right: " << y_pred_right;
+                // std::cout << ", fun: " << residue << "\n";
+                // std::exit(0);
 
                 // compute gain
+                Util::log("current score: {}", current_score);
                 double gain = current_score - residue;
-                //Util::log("current gain: {}, best gain: {}", gain, best_gain);
+                Util::log("current gain: {}, best gain: {}, residue: {}", gain, best_gain, residue);
+                //std::exit(0);
+
+                // if gain obtained with this split simulation is greater than the best gain so far
                 if (gain > best_gain)
                 {
                     best_gain = gain;
@@ -541,17 +546,76 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     }
     CostMap costs_left;
     CostMap costs_right;
+    ConstrVec constraints_left;
+    ConstrVec constraints_right;
     // Continue iff there's an actual gain
     if (best_gain > 0.0)
     {
         if (algo_ == TrainingAlgo::Icml2019)
         {
+            // Assign unknown instance either to left or right split, according to ICML2019 strategy
             for (auto u : best_split_unknown_id)
             {
                 if (X(u,best_split_feature_id) <= best_split_feature_value)
                     best_split_left_id.push_back(u);
                 else
                     best_split_right_id.push_back(u);
+            }
+        }
+        else
+        {
+            // Assign unknown instance either to left or right split, according to the worst-case scenario
+            auto norm = [](const DF<NY>& df){return df.pow(2).rowwise().sum().sqrt();};
+
+            // get the unknown y-values
+            auto y_true_unknown = DF_index<NY>(y, best_split_unknown_id);
+            auto unknown_to_left = norm(y_true_unknown - best_pred_left);
+            auto unknown_to_right = norm(y_true_unknown - best_pred_right);
+            for (const auto& c : constraints)
+            {
+                auto c_l = c.propagate_left(attacker, best_split_feature_id, best_split_feature_value);
+                if (c_l)
+                    constraints_left.push_back(c_l.value());
+                auto c_r = c.propagate_right(attacker, best_split_feature_id, best_split_feature_value);
+                if (c_r)
+                    constraints_right.push_back(c_r.value());
+            }
+            const auto NU = best_split_unknown_id.size();
+            for (size_t i = 0; i < NU; i++)
+            {
+                //using namespace std::ranges;
+                auto u = best_split_unknown_id[i];
+                auto attacks = attacker.attack(X.row(u), best_split_feature_id, costs.at(u));
+                std::vector<int> min_vec;
+                auto rang1 = std::views::all(attacks) 
+                    | std::views::filter([=](const auto& pair){
+                        return std::get<0>(pair)(best_split_feature_id) <= best_split_feature_value;})
+                    | std::views::transform([](const auto& pair){return std::get<1>(pair);});
+                std::ranges::copy(rang1, std::back_inserter(min_vec));
+                int min_left = *(std::ranges::min_element(min_vec));
+                min_vec.clear();
+                auto rang2 = std::views::all(attacks) 
+                    | std::views::filter([=](const auto& pair){
+                        return std::get<0>(pair)(best_split_feature_id) > best_split_feature_value;})
+                    | std::views::transform([](const auto& pair){return std::get<1>(pair);});
+                std::ranges::copy(rang2, std::back_inserter(min_vec));
+                int min_right = *(std::ranges::min_element(min_vec));
+                if (unknown_to_left(i) > unknown_to_right(i))
+                {
+                    // Assign unknown instance to left as the distance is larger
+                    best_split_left_id.push_back(u);
+                    costs[u] = min_left;
+                    constraints_left.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::GTE, min_left, best_pred_right));
+                    constraints_right.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::LT, min_left, best_pred_right));
+                }
+                else
+                {
+                    // Assign unknown instance to right as the distance is larger
+                    best_split_right_id.push_back(u);
+                    costs[u] = min_right;
+                    constraints_left.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::LT, min_right, best_pred_left));
+                    constraints_right.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::GTE, min_right, best_pred_left));
+                }
             }
         }
         for (auto key : best_split_left_id)
@@ -561,5 +625,5 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     }
     return OptimTupl{best_gain, best_split_left_id, best_split_right_id, best_split_feature_id,
             best_split_feature_value, next_best_split_feature_value, best_pred_left,
-            best_pred_right, best_residue, costs_left, costs_right};
+            best_pred_right, best_residue, costs_left, costs_right, constraints_left, constraints_right};
 }

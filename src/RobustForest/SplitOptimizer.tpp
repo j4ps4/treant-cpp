@@ -74,61 +74,85 @@ static double logloss_nlopt(unsigned n, const double* x, double* grad, void* dat
     {
         if (grad != nullptr)
         {
-            grad[0] = (cL(0)+cU(0)) * -1.0/x[0] + (cL(0)+cL(1)+cU(0)+cU(1));
-            grad[1] = (cL(1)+cU(1)) * -1.0/x[1] + (cL(0)+cL(1)+cU(0)+cU(1));
-            grad[2] = cR(0) * -1.0/x[2] + (cR(0)+cR(1));
-            grad[3] = cR(1) * -1.0/x[3] + (cR(0)+cR(1));
+            grad[0] = (cL(0)+cU(0)) * -1.0/x[0];// + (cL(0)+cL(1)+cU(0)+cU(1));
+            grad[1] = (cL(1)+cU(1)) * -1.0/x[1];// + (cL(0)+cL(1)+cU(0)+cU(1));
+            grad[2] = cR(0) * -1.0/x[2];// + (cR(0)+cR(1));
+            grad[3] = cR(1) * -1.0/x[3];// + (cR(0)+cR(1));
         }
         return (cL(0)+cU(0)) * -mlog(x[0]) + (cL(1)+cU(1)) * -mlog(x[1])
-            + cR(0) * -mlog(x[2]) + cR(1) * -mlog(x[3])
-            + (cL(0)+cL(1)+cU(0)+cU(1)) * (x[0]+x[1])
-            + (cR(0)+cR(1)) * (x[2]+x[3]);
+            + cR(0) * -mlog(x[2]) + cR(1) * -mlog(x[3]);
+            // + (cL(0)+cL(1)+cU(0)+cU(1)) * (x[0]+x[1])
+            // + (cR(0)+cR(1)) * (x[2]+x[3]);
     }
     // 0-unknowns to the left branch
     else if (x[0] <= x[2] && x[1] > x[3])
     {
         if (grad != nullptr)
         {
-            grad[0] = (cL(0)+cU(0)) * -1.0/x[0] + (cL(0)+cL(1)+cU(0));
-            grad[1] = cL(1) * -1.0/x[1] + (cL(0)+cL(1)+cU(0));
-            grad[2] = cR(0) * -1.0/x[2] + (cR(0)+cR(1)+cU(1));
-            grad[3] = (cR(1)+cU(1)) * -1.0/x[3] + (cR(0)+cR(1)+cU(1));
+            grad[0] = (cL(0)+cU(0)) * -1.0/x[0];// + (cL(0)+cL(1)+cU(0));
+            grad[1] = cL(1) * -1.0/x[1];// + (cL(0)+cL(1)+cU(0));
+            grad[2] = cR(0) * -1.0/x[2];// + (cR(0)+cR(1)+cU(1));
+            grad[3] = (cR(1)+cU(1)) * -1.0/x[3];// + (cR(0)+cR(1)+cU(1));
         }
         return  (cL(0)+cU(0)) * -mlog(x[0]) + cL(1) * -mlog(x[1])
-            + cR(0) * -mlog(x[2]) + (cR(1)+cU(1)) * -mlog(x[3])
-            + (cL(0)+cL(1)+cU(0)) * (x[0]+x[1])
-            + (cR(0)+cR(1)+cU(1)) * (x[2]+x[3]);
+            + cR(0) * -mlog(x[2]) + (cR(1)+cU(1)) * -mlog(x[3]);
+            // + (cL(0)+cL(1)+cU(0)) * (x[0]+x[1])
+            // + (cR(0)+cR(1)+cU(1)) * (x[2]+x[3]);
     }
     // 1-unknowns to the left branch
     else if (x[0] > x[2] && x[1] <= x[3])
     {
         if (grad != nullptr)
         {
-            grad[0] = cL(0) * -1.0/x[0] + (cL(0)+cL(1)+cU(1));
-            grad[1] = (cL(1)+cU(1)) * -1.0/x[1] + (cL(0)+cL(1)+cU(1)); 
-            grad[2] = (cR(0)+cU(0)) * -1.0/x[2] + (cR(0)+cR(1)+cU(0));
-            grad[3] = cR(1) * -1.0/x[3] + (cR(0)+cR(1)+cU(0));
+            grad[0] = cL(0) * -1.0/x[0];// + (cL(0)+cL(1)+cU(1));
+            grad[1] = (cL(1)+cU(1)) * -1.0/x[1];// + (cL(0)+cL(1)+cU(1)); 
+            grad[2] = (cR(0)+cU(0)) * -1.0/x[2];// + (cR(0)+cR(1)+cU(0));
+            grad[3] = cR(1) * -1.0/x[3];// + (cR(0)+cR(1)+cU(0));
         }
         return cL(0) * -mlog(x[0]) + (cL(1)+cU(1)) * -mlog(x[1])
-            + (cR(0)+cU(0)) * -mlog(x[2]) + cR(1) * -mlog(x[3])
-            + (cL(0)+cL(1)+cU(1)) * (x[0]+x[1])
-            + (cR(0)+cR(1)+cU(0)) * (x[2]+x[3]);
+            + (cR(0)+cU(0)) * -mlog(x[2]) + cR(1) * -mlog(x[3]);
+            // + (cL(0)+cL(1)+cU(1)) * (x[0]+x[1])
+            // + (cR(0)+cR(1)+cU(0)) * (x[2]+x[3]);
     }
     // unknowns to the right branch
     else
     {
         if (grad != nullptr)
         {
-            grad[0] = cL(0) * -1.0/x[0] + (cL(0)+cL(1));
-            grad[1] = cL(1) * -1.0/x[1] + (cL(0)+cL(1));
-            grad[2] = (cR(0)+cU(0)) * -1.0/x[2] + (cR(0)+cR(1)+cU(0)+cU(1));
-            grad[3] = (cR(1)+cU(1)) * -1.0/x[3] + (cR(0)+cR(1)+cU(0)+cU(1));
+            grad[0] = cL(0) * -1.0/x[0];// + (cL(0)+cL(1));
+            grad[1] = cL(1) * -1.0/x[1];// + (cL(0)+cL(1));
+            grad[2] = (cR(0)+cU(0)) * -1.0/x[2];// + (cR(0)+cR(1)+cU(0)+cU(1));
+            grad[3] = (cR(1)+cU(1)) * -1.0/x[3];// + (cR(0)+cR(1)+cU(0)+cU(1));
         }
         return cL(0) * -mlog(x[0]) + cL(1) * -mlog(x[1])
-            + (cR(0)+cU(0)) * -mlog(x[2]) + (cR(1)+cU(1)) * -mlog(x[3])
-            + (cL(0)+cL(1)) * (x[0]+x[1])
-            + (cR(0)+cR(1)+cU(0)+cU(1)) * (x[2]+x[3]);
+            + (cR(0)+cU(0)) * -mlog(x[2]) + (cR(1)+cU(1)) * -mlog(x[3]);
+            // + (cL(0)+cL(1)) * (x[0]+x[1])
+            // + (cR(0)+cR(1)+cU(0)+cU(1)) * (x[2]+x[3]);
     }
+}
+
+double eq_constr1(unsigned n, const double* x, double* grad, void* data)
+{
+    if (grad != nullptr)
+    {
+        grad[0] = 1.0;
+        grad[1] = 1.0;
+        grad[2] = 0.0;
+        grad[3] = 0.0;
+    }
+    return x[0] + x[1] - 1.0;
+}
+
+double eq_constr2(unsigned n, const double* x, double* grad, void* data)
+{
+    if (grad != nullptr)
+    {
+        grad[0] = 0.0;
+        grad[1] = 0.0;
+        grad[2] = 1.0;
+        grad[3] = 1.0;
+    }
+    return x[2] + x[3] - 1.0;
 }
 
 template<size_t NX, size_t NY>
@@ -377,26 +401,31 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
         optimizer.set_upper_bounds(1);
         double tol = 1e-4;
         optimizer.set_xtol_rel(tol);
+        optimizer.set_maxeval(100);
         loss_data<NY> d = {CL, CU, CR};
         if (split_ == SplitFunction::LogLoss)
             optimizer.set_min_objective(logloss_nlopt<NY>, &d);
         else
             throw std::runtime_error("not implemented");
 
+        if (constraints.size() > 0)
+            Util::log("using {} constraints.", constraints.size());
         for (size_t i = 0; i < constraints.size(); i++)
         {
             auto fun = constraints[i];
             auto c_data = &constr_data[i];
             optimizer.add_inequality_constraint(*(fun.target<double(*)(unsigned,const double*,double*,void*)>()), c_data, 1e-8);
         }
+        optimizer.add_equality_constraint(eq_constr1, nullptr, 1e-8);
+        optimizer.add_equality_constraint(eq_constr2, nullptr, 1e-8);
 
         double minf;
         auto result = optimizer.optimize(x, minf);
         //Util::info("nlopt_result, after {} iterations: {}", count__, nlopt_result_to_string(static_cast<nlopt_result>(result)));
         count__ = 0;
-        // if (result > 0)
+        // if (result == nlopt::MAXEVAL_REACHED)
         // {
-
+        //     fmt::print("optimizer return: {}\n", x);
         // }
         // else
         //     Util::die("nlopt error: {}", nlopt_result_to_string(result));
@@ -443,8 +472,6 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     IdxVec split_left;
     IdxVec split_right;
     IdxVec split_unknown;
-    ConstrVec constr_left;
-    ConstrVec constr_right;
     std::optional<IcmlTupl> optimizer_res;
 
     // create a dictionary containing individual values for each feature_id
@@ -490,6 +517,8 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
 
                 FunVec updated_constraints;
                 std::vector<Constr_data<NY>> constr_data;
+                if (constraints.size() > 0)
+                    Util::info("using {} constraints.", constraints.size());
                 for (const auto& c : constraints)
                 {
                     auto c_left = c.propagate_left(attacker, feature_id, feature_value);
@@ -518,9 +547,9 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 // std::exit(0);
 
                 // compute gain
-                Util::log("current score: {}", current_score);
+                //Util::log("current score: {}", current_score);
                 double gain = current_score - residue;
-                Util::log("current gain: {}, best gain: {}, residue: {}", gain, best_gain, residue);
+                //Util::log("current gain: {}, best gain: {}, residue: {}", gain, best_gain, residue);
                 //std::exit(0);
 
                 // if gain obtained with this split simulation is greater than the best gain so far
@@ -551,6 +580,8 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     // Continue iff there's an actual gain
     if (best_gain > 0.0)
     {
+        if (best_split_unknown_id.size() > 0)
+            Util::info("best_split_unknown size: {}", best_split_unknown_id.size());
         if (algo_ == TrainingAlgo::Icml2019)
         {
             // Assign unknown instance either to left or right split, according to ICML2019 strategy
@@ -566,11 +597,19 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
         {
             // Assign unknown instance either to left or right split, according to the worst-case scenario
             auto norm = [](const DF<NY>& df){return df.pow(2).rowwise().sum().sqrt();};
+            auto rowwisediff = [](const DF<NY>& df, const Row<NY>& row){
+                DF<NY> out(df.rows(), NY);
+                for (int64_t i = 0; i < df.rows(); i++)
+                {
+                    out.row(i) = df.row(i) - row;
+                }
+                return out;
+            };
 
             // get the unknown y-values
             auto y_true_unknown = DF_index<NY>(y, best_split_unknown_id);
-            auto unknown_to_left = norm(y_true_unknown - best_pred_left);
-            auto unknown_to_right = norm(y_true_unknown - best_pred_right);
+            auto unknown_to_left = norm(rowwisediff(y_true_unknown, best_pred_left));
+            auto unknown_to_right = norm(rowwisediff(y_true_unknown, best_pred_right));
             for (const auto& c : constraints)
             {
                 auto c_l = c.propagate_left(attacker, best_split_feature_id, best_split_feature_value);
@@ -593,6 +632,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                     | std::views::transform([](const auto& pair){return std::get<1>(pair);});
                 std::ranges::copy(rang1, std::back_inserter(min_vec));
                 int min_left = *(std::ranges::min_element(min_vec));
+                Util::log("min_left_vec: {}", min_vec);
                 min_vec.clear();
                 auto rang2 = std::views::all(attacks) 
                     | std::views::filter([=](const auto& pair){
@@ -600,6 +640,8 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                     | std::views::transform([](const auto& pair){return std::get<1>(pair);});
                 std::ranges::copy(rang2, std::back_inserter(min_vec));
                 int min_right = *(std::ranges::min_element(min_vec));
+                Util::log("min_right_vec: {}", min_vec);
+                Util::log("min_left: {}, min_right: {}", min_left, min_right);
                 if (unknown_to_left(i) > unknown_to_right(i))
                 {
                     // Assign unknown instance to left as the distance is larger
@@ -622,6 +664,13 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
             costs_left[key] = costs.at(key);
         for (auto key : best_split_right_id)
             costs_right[key] = costs.at(key);
+    }
+    if (!constraints_left.empty() || !constraints_right.empty())
+    {
+        for (auto& c: constraints_left)
+            std::cout << c.debug_str();
+        for (auto& c: constraints_right)
+            std::cout << c.debug_str();
     }
     return OptimTupl{best_gain, best_split_left_id, best_split_right_id, best_split_feature_id,
             best_split_feature_value, next_best_split_feature_value, best_pred_left,

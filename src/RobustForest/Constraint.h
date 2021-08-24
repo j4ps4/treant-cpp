@@ -37,6 +37,7 @@ public:
     std::function<double(unsigned, const double*, double*, void*)> encode_for_optimizer(Direction dir) const;
     const Row<NY>* get_y_ptr() const noexcept {return &y_;}
     const Row<NY>* get_bound_ptr() const noexcept {return &bound_;}
+    std::string debug_str() const;
 private:
     Row<NX> x_;
     Row<NY> y_;

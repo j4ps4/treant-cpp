@@ -186,3 +186,15 @@ Constraint<NX,NY>::encode_for_optimizer(Direction dir) const
         }
     }
 }
+
+template<size_t NX, size_t NY>
+std::string Constraint<NX, NY>::debug_str() const
+{
+    std::stringstream ss;
+    ss << "Constraint:\n\ty: ";
+    ss << y_ << "\n\tIneq: ";
+    ss << (ineq_ == Ineq::GTE ? ">=" : "<") << "\n\tcost: ";
+    ss << cost_ << "\n\tbound: ";
+    ss << bound_ << "\n";
+    return ss.str();
+}

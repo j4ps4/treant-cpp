@@ -338,7 +338,9 @@ auto SplitOptimizer<NX,NY>::simulate_split(
 
     for (auto row_id : rows)
     {
+    	// get the cost spent on the i-th instance so far
         int cost = costs.at(row_id);
+        // collect all the attacks the attacker can do on the i-th instance
         auto attacks = attacker.attack(X.row(row_id), feature_id, cost);
 
         bool all_left = true;
@@ -346,7 +348,7 @@ auto SplitOptimizer<NX,NY>::simulate_split(
 
         for (auto& [inst, c]: attacks)
         {
-            if (inst[feature_id] <= feature_value)
+            if (inst(feature_id) <= feature_value)
                 all_right = false;
             else
                 all_left = false;
@@ -355,14 +357,17 @@ auto SplitOptimizer<NX,NY>::simulate_split(
                 break;
         }
 
+		// it means the splitting predicate is ALWAYS satisfied by this instance, no matter what the attacker does
         if (all_left)
         {
             split_left.push_back(row_id);
         }
+        // it means the splitting predicate is NEVER satisfied by this instance, no matter what the attacker does
         else if (all_right)
         {
             split_right.push_back(row_id);
         }
+        // it means the splitting predicate MAY or MAY NOT be satisfied, depending on what the attacker does
         else
         {
             split_unknown.push_back(row_id);

@@ -178,6 +178,7 @@ cpp::result<std::tuple<DF<NX>,DF<NY>>, std::string> read_bz2(const char* fn)
     if (res.has_error())
         return cpp::failure(res.error());
 
+    // skip the first line
     auto fstlne = std::find(buf.get(), buf.get()+nBuf, '\n');
     //auto fstln = std::string(buf, fstlne);
 

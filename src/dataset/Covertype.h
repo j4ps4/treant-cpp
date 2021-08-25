@@ -10,12 +10,12 @@ constexpr size_t FOREST_Y = 7;
 
 #include <string>
 #include <memory>
-#include "result.hpp"
-#include "DF2/DF_def.h"
-#include "Attacker.h"
-#include "RobustForest/RobustDecisionTree.h"
+#include "../result.hpp"
+#include "../DF2/DF_def.h"
+#include "../Attacker.h"
+#include "../RobustForest/RobustDecisionTree.h"
 
-namespace forest
+namespace covertype
 {
     // Read bzipped csv to dataframe.
     cpp::result<std::tuple<DF<FOREST_X>,DF<FOREST_Y>>,std::string> read_train();
@@ -28,5 +28,5 @@ namespace forest
     RobustDecisionTree<FOREST_X,FOREST_Y> new_RDT(TreeArguments<FOREST_X,FOREST_Y>&& args);
 
     void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
-        size_t min_instances_per_node, bool affine);
+        size_t min_instances_per_node, int budget, bool affine);
 }

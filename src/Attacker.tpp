@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iterator>
 #include <array>
+#include <iostream>
 
 #include <fmt/core.h>
 // #include <cereal/types/unordered_map.hpp>
@@ -126,17 +127,18 @@ TupleVec<N> Attacker<N>::compute_attack(const Row<N>& rw, size_t feature_id, int
 template<size_t N>
 void Attacker<N>::compute_attacks(const DF<N>& X, const std::filesystem::path& attacks_fn)
 {
-    std::vector<size_t> fs;
-    for (const auto& r : rules_)
-    {
-        auto f = r.get_target_feature();
-        fs.push_back(f);
-    }
+    // std::vector<size_t> fs;
+    // for (const auto& r : rules_)
+    // {
+    //     auto f = r.get_target_feature();
+    //     fs.push_back(f);
+    // }
+    // Util::info("My budget is {}", budget_);
     const auto H = X.rows();
     for (int64_t i = 0; i < H; i++)
     {
         const Row<N>& rw = X.row(i);
-        for (auto j : fs)
+        for (auto j : features_)
         {
             auto key = std::make_tuple(rw, j);
             //compute_attack(rw, j, 0);
@@ -144,12 +146,16 @@ void Attacker<N>::compute_attacks(const DF<N>& X, const std::filesystem::path& a
         }
     }
     Util::info("computed {} attacks.\n", attacks_.size());
-    // fmt::print("first 10 attacks:\n");
+    // TODO possible bug:
+    //  210000       1       1       1      25      -1      -1      -1      -1      -1      -1 8735.16 9883.77    9571 17182.1 16399.8 8666.73    1287 2107.23    1256     296    1816     999, cost: 100
+    //  200000       1       1       1      25      -1      -1      -1      -1      -1      -1 8735.16 9883.77    9571 17182.1 16399.8 8666.73    1287 2107.23    1256     296    1816     999, cost: 100
+    // fmt::print("first 50 attacks:\n");
     // size_t count = 0;
     // for (auto& [key, vect] : attacks_)
     // {
-    //     if (count >= 10)
+    //     if (count >= 50)
     //         break;
+    //     std::cout << "key: (" << std::get<0>(key) << ", " << std::get<1>(key) << ")\n";
     //     for (auto& pair : vect)
     //     {
     //         auto& vec = std::get<0>(pair);
@@ -159,6 +165,7 @@ void Attacker<N>::compute_attacks(const DF<N>& X, const std::filesystem::path& a
     //     }
     //     count++;
     // }
+    // std::exit(1);
     // dump attacks_ to file
     // std::ofstream os(attacks_fn, std::ios::binary);
     // cereal::BinaryOutputArchive archive(os);

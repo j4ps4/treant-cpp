@@ -46,6 +46,159 @@ std::optional<Constraint<NX,NY>> Constraint<NX,NY>::propagate_right(Attacker<NX>
     }
 }
 
+template<size_t NY, size_t NY2>
+double ineq_L_LT(unsigned int n, const double* x, double* grad, void* data)
+{
+    auto c_data = static_cast<Constr_data<NY>*>(data);
+    const auto& y = *(c_data->y);
+    const auto& bound = *(c_data->bound);
+    if (grad != nullptr)
+    {
+        for (size_t i = 0; i < NY; i++)
+        {
+            grad[i] = -y(i)/x[i];
+        }
+        for (size_t i = NY; i < NY2; i++)
+        {
+            grad[i] = 0.0;
+        }
+    }
+    Eigen::Map<const Row<NY2>> pred(x);
+    return -(y * (pred.template head<NY>().log())).sum() + (y * bound.log()).sum();
+}
+template<size_t NY, size_t NY2>
+double ineq_L_GTE(unsigned int n, const double* x, double* grad, void* data)
+{
+    auto c_data = static_cast<Constr_data<NY>*>(data);
+    const auto& y = *(c_data->y);
+    const auto& bound = *(c_data->bound);
+    if (grad != nullptr)
+    {
+        for (size_t i = 0; i < NY; i++)
+        {
+            grad[i] = y(i)/x[i];
+        }
+        for (size_t i = NY; i < NY2; i++)
+        {
+            grad[i] = 0.0;
+        }
+    }
+    Eigen::Map<const Row<NY2>> pred(x);
+    return (y * (pred.template head<NY>().log())).sum() - (y * bound.log()).sum();
+}
+template<size_t NY, size_t NY2>
+double ineq_R_LT(unsigned int n, const double* x, double* grad, void* data)
+{
+    auto c_data = static_cast<Constr_data<NY>*>(data);
+    const auto& y = *(c_data->y);
+    const auto& bound = *(c_data->bound);
+    if (grad != nullptr)
+    {
+        for (size_t i = 0; i < NY; i++)
+        {
+            grad[i] = 0.0;
+        }
+        for (size_t i = NY; i < NY2; i++)
+        {
+            grad[i] = -y(i-NY)/x[i];
+        }
+    }
+    Eigen::Map<const Row<NY2>> pred(x);
+    return -(y * (pred.template tail<NY>().log())).sum() + (y * bound.log()).sum();
+}
+template<size_t NY, size_t NY2>
+double ineq_R_GTE(unsigned int n, const double* x, double* grad, void* data)
+{
+    auto c_data = static_cast<Constr_data<NY>*>(data);
+    const auto& y = *(c_data->y);
+    const auto& bound = *(c_data->bound);
+    if (grad != nullptr)
+    {
+        for (size_t i = 0; i < NY; i++)
+        {
+            grad[i] = 0.0;
+        }
+        for (size_t i = NY; i < NY2; i++)
+        {
+            grad[i] = y(i-NY)/x[i];
+        }
+    }
+    Eigen::Map<const Row<NY2>> pred(x);
+    return (y * (pred.template tail<NY>().log())).sum() - (y * bound.log()).sum();
+}
+template<size_t NY, size_t NY2>
+double ineq_U_LT(unsigned int n, const double* x, double* grad, void* data)
+{
+    auto c_data = static_cast<Constr_data<NY>*>(data);
+    const auto& y = *(c_data->y);
+    const auto& bound = *(c_data->bound);
+    Eigen::Map<const Row<NY2>> pred(x);
+    const double s1 = (y * (pred.template head<NY>().log())).sum();
+    const double s2 = (y * (pred.template tail<NY>().log())).sum();
+    if (grad != nullptr)
+    {
+        if (s1 >= s2)
+        {
+            for (size_t i = 0; i < NY; i++)
+            {
+                grad[i] = -y(i)/x[i];
+            }
+            for (size_t i = NY; i < NY2; i++)
+            {
+                grad[i] = 0.0;
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < NY; i++)
+            {
+                grad[i] = 0.0;
+            }
+            for (size_t i = NY; i < NY2; i++)
+            {
+                grad[i] = -y(i-NY)/x[i];
+            }
+        }
+    }
+    return -std::max(s1, s2) + (y * bound.log()).sum();
+}
+template<size_t NY, size_t NY2>
+double ineq_U_GTE(unsigned int n, const double* x, double* grad, void* data)
+{
+    auto c_data = static_cast<Constr_data<NY>*>(data);
+    const auto& y = *(c_data->y);
+    const auto& bound = *(c_data->bound);
+    Eigen::Map<const Row<NY2>> pred(x);
+    const double s1 = (y * (pred.template head<NY>().log())).sum();
+    const double s2 = (y * (pred.template tail<NY>().log())).sum();
+    if (grad != nullptr)
+    {
+        if (s1 < s2)
+        {
+            for (size_t i = 0; i < NY; i++)
+            {
+                grad[i] = y(i)/x[i];
+            }
+            for (size_t i = NY; i < NY2; i++)
+            {
+                grad[i] = 0.0;
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < NY; i++)
+            {
+                grad[i] = 0.0;
+            }
+            for (size_t i = NY; i < NY2; i++)
+            {
+                grad[i] = y(i-NY)/x[i];
+            }
+        }
+    }
+    return std::min(s1, s2) - (y * bound.log()).sum();
+}
+
 template<size_t NX, size_t NY>
 std::function<double(unsigned, const double*, double*, void*)> 
 Constraint<NX,NY>::encode_for_optimizer(Direction dir) const
@@ -54,135 +207,33 @@ Constraint<NX,NY>::encode_for_optimizer(Direction dir) const
     {
         if (ineq_ == Ineq::LT)
         {
-            return [&](unsigned n, const double* x, double* grad, void* data)->double{
-                auto c_data = static_cast<Constr_data<NY>*>(data);
-                const auto& y = *(c_data->y);
-                const auto& bound = *(c_data->bound);
-                if (grad != nullptr)
-                {
-                    grad[0] = -y(0)/x[0] + y(0)/bound(0);
-                    grad[1] = -y(1)/x[1] + y(1)/bound(1);
-                    grad[2] = 0.0;
-                    grad[3] = 0.0;
-                }
-                Eigen::Map<const Row<NY2C>> pred(x);
-                return -(y * (pred.template head<NY>().log())).sum() + (y * bound.log()).sum();
-            };
+            return ineq_L_LT<NY,NY2C>;
         }
         else
         {
-            return [&](unsigned n, const double* x, double* grad, void* data)->double{
-                auto c_data = static_cast<Constr_data<NY>*>(data);
-                const auto& y = *(c_data->y);
-                const auto& bound = *(c_data->bound);
-                if (grad != nullptr)
-                {
-                    grad[0] = y(0)/x[0] - y(0)/bound(0);
-                    grad[1] = y(1)/x[1] - y(1)/bound(1);
-                    grad[2] = 0.0;
-                    grad[3] = 0.0;
-                }
-                Eigen::Map<const Row<NY2C>> pred(x);
-                return (y * (pred.template head<NY>().log())).sum() - (y * bound.log()).sum();
-            };
+            return ineq_L_GTE<NY,NY2C>;
         }
     }
     else if (dir == Direction::R)
     {
         if (ineq_ == Ineq::LT)
         {
-            return [&](unsigned n, const double* x, double* grad, void* data)->double{
-                auto c_data = static_cast<Constr_data<NY>*>(data);
-                const auto& y = *(c_data->y);
-                const auto& bound = *(c_data->bound);
-                if (grad != nullptr)
-                {
-                    grad[0] = 0.0;
-                    grad[1] = 0.0;
-                    grad[2] = -y(0)/x[2] + y(0)/bound(0);
-                    grad[3] = -y(0)/x[3] + y(1)/bound(1);
-                }
-                Eigen::Map<const Row<NY2C>> pred(x);
-                return -(y * (pred.template tail<NY>().log())).sum() + (y * bound.log()).sum();
-            };
+            return ineq_R_LT<NY,NY2C>;
         }
         else
         {
-            return [&](unsigned n, const double* x, double* grad, void* data)->double{
-                auto c_data = static_cast<Constr_data<NY>*>(data);
-                const auto& y = *(c_data->y);
-                const auto& bound = *(c_data->bound);
-                if (grad != nullptr)
-                {
-                    grad[0] = 0.0;
-                    grad[1] = 0.0;
-                    grad[2] = y(0)/x[2] - y(0)/bound(0);
-                    grad[3] = y(0)/x[3] - y(1)/bound(1);
-                }
-                Eigen::Map<const Row<NY2C>> pred(x);
-                return (y * (pred.template tail<NY>().log())).sum() - (y * bound.log()).sum();
-            };
+            return ineq_R_GTE<NY,NY2C>;
         }
     }
     else
     {
         if (ineq_ == Ineq::LT)
         {
-            return [&](unsigned n, const double* x, double* grad, void* data)->double{
-                auto c_data = static_cast<Constr_data<NY>*>(data);
-                const auto& y = *(c_data->y);
-                const auto& bound = *(c_data->bound);
-                Eigen::Map<const Row<NY2C>> pred(x);
-                const double s1 = (y * (pred.template head<NY>().log())).sum();
-                const double s2 = (y * (pred.template tail<NY>().log())).sum();
-                if (grad != nullptr)
-                {
-                    if (s1 >= s2)
-                    {
-                        grad[0] = -y(0)/x[0] + y(0)/bound(0);
-                        grad[1] = -y(1)/x[1] + y(1)/bound(1);
-                        grad[2] = 0.0;
-                        grad[3] = 0.0;
-                    }
-                    else
-                    {
-                        grad[0] = 0.0;
-                        grad[1] = 0.0;
-                        grad[2] = -y(0)/x[2] + y(0)/bound(0);
-                        grad[3] = -y(0)/x[3] + y(1)/bound(1);
-                    }
-                }
-                return -std::max(s1, s2) + (y * bound.log()).sum();
-            };
+            return ineq_U_LT<NY,NY2C>;
         }
         else
         {
-            return [&](unsigned n, const double* x, double* grad, void* data)->double{
-                auto c_data = static_cast<Constr_data<NY>*>(data);
-                const auto& y = *(c_data->y);
-                const auto& bound = *(c_data->bound);
-                Eigen::Map<const Row<NY2C>> pred(x);
-                const double s1 = (y * (pred.template head<NY>().log())).sum();
-                const double s2 = (y * (pred.template tail<NY>().log())).sum();
-                if (grad != nullptr)
-                {
-                    if (s1 < s2)
-                    {
-                        grad[0] = y(0)/x[0] - y(0)/bound(0);
-                        grad[1] = y(1)/x[1] - y(1)/bound(1);
-                        grad[2] = 0.0;
-                        grad[3] = 0.0;
-                    }
-                    else
-                    {
-                        grad[0] = 0.0;
-                        grad[1] = 0.0;
-                        grad[2] = y(0)/x[2] - y(0)/bound(0);
-                        grad[3] = y(0)/x[3] - y(1)/bound(1);
-                    }
-                }
-                return std::min(s1, s2) - (y * bound.log()).sum();
-            };
+            return ineq_U_GTE<NY,NY2C>;
         }
     }
 }
@@ -196,5 +247,14 @@ std::string Constraint<NX, NY>::debug_str() const
     ss << (ineq_ == Ineq::GTE ? ">=" : "<") << "\n\tcost: ";
     ss << cost_ << "\n\tbound: ";
     ss << bound_ << "\n";
+    return ss.str();
+}
+
+template<size_t NY>
+std::string Constr_data<NY>::debug_str() const
+{
+    std::stringstream ss;
+    ss << "y: " << *y << "\n";
+    ss << "bound: " << *bound << "\n";
     return ss.str();
 }

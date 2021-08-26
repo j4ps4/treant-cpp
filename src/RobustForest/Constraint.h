@@ -21,6 +21,7 @@ struct Constr_data
 {
     const Row<NY>* y;
     const Row<NY>* bound;
+    std::string debug_str() const;
 };
 
 template<size_t NX, size_t NY>

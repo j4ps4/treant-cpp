@@ -38,6 +38,8 @@ int main(int argc, char** argv)
         cxxopts::value<int>()->default_value("50"))
         ("maxiter", "maximum nlopt iterations",
         cxxopts::value<int>()->default_value("100"))
+        ("maxdepth", "maximum depth of tree",
+        cxxopts::value<int>()->default_value("8"))
         ("h,help", "print usage");
     auto opts = options.parse(argc, argv);
     if (opts.count("help"))
@@ -49,17 +51,18 @@ int main(int argc, char** argv)
     auto algostr = opts["algo"].as<std::string>();
     auto budget = opts["budget"].as<int>();
     auto maxiter = opts["maxiter"].as<int>();
+    auto maxdepth = opts["maxdepth"].as<int>();
 
     toLower(dataset); 
     toLower(algostr); 
     auto algo = parse_algo(algostr);
 
     if (dataset == "credit")
-        credit::train_and_test(SplitFunction::LogLoss, algo, 8, 20, budget, true);
+        credit::train_and_test(SplitFunction::LogLoss, algo, maxdepth, 20, budget, true);
     else if (dataset == "covertype")
-        covertype::train_and_test(SplitFunction::LogLoss, algo, 8, 20, budget, true);
+        covertype::train_and_test(SplitFunction::LogLoss, algo, maxdepth, 20, budget, true);
     else if (dataset == "har")
-        har::train_and_test(SplitFunction::LogLoss, algo, 8, 20, budget, maxiter, true);
+        har::train_and_test(SplitFunction::LogLoss, algo, maxdepth, 20, budget, maxiter, true);
     else
         Util::die("invalid dataset: {}", dataset);
     

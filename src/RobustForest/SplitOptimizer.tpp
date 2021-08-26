@@ -466,8 +466,8 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
     {
         // set up nlopt
         nlopt::opt optimizer(optim_algo_, NY2);
-        optimizer.set_lower_bounds(0);
-        optimizer.set_upper_bounds(1);
+        optimizer.set_lower_bounds(0-EPS);
+        optimizer.set_upper_bounds(1+EPS);
         double tol = 1e-6;
         optimizer.set_xtol_rel(tol);
         optimizer.set_maxeval(maxiter_);
@@ -477,8 +477,8 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
         else
             throw std::runtime_error("not implemented");
 
-        if (constraints.size() > 0)
-            Util::log("using {} constraints.", constraints.size());
+        // if (constraints.size() > 0)
+        //     Util::log("using {} constraints.", constraints.size());
         for (size_t i = 0; i < constraints.size(); i++)
         {
             auto fun = constraints[i];
@@ -504,12 +504,12 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
     catch(std::exception& e)
     {
         Util::warn("caught NLOPT exception: {}", e.what());
-        Util::warn("minf: {}", minf);
+        // Util::warn("minf: {}", minf);
 
-        std::cout << "seed: " << current_prediction_score << "\n";
-        std::cout << "CL: " << CL << "\n";
-        std::cout << "CU: " << CU << "\n";
-        std::cout << "CR: " << CR << "\n";
+        // std::cout << "seed: " << current_prediction_score << "\n";
+        // std::cout << "CL: " << CL << "\n";
+        // std::cout << "CU: " << CU << "\n";
+        // std::cout << "CR: " << CR << "\n";
         // Util::die("NLOPT exception: {}", e.what());
     }
     count__ = 0;
@@ -598,8 +598,8 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
 
                 FunVec updated_constraints;
                 std::vector<Constr_data<NY>> constr_data;
-                if (constraints.size() > 0)
-                    Util::info("using {} constraints.", constraints.size());
+                // if (constraints.size() > 0)
+                //     Util::info("propagating {} constraints.", constraints.size());
                 for (const auto& c : constraints)
                 {
                     auto c_left = c.propagate_left(attacker, feature_id, feature_value);

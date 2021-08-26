@@ -113,7 +113,7 @@ DF<NY> RobustDecisionTree<NX,NY>::predict(const DF<NX>& X_test) const
         DF<NY> out = Eigen::ArrayXXd::Zero(rows, NY);
         for (int64_t i = 0; i < rows; i++)
         {
-            out.row(i) << private_predict(X_test.row(i), root_.get());
+            out.row(i) = private_predict(X_test.row(i), root_.get());
         }
         return out;
     }

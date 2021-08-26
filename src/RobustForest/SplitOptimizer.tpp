@@ -4,12 +4,6 @@
 
 #include "../DF2/DF_util.h"
 
-template<size_t NY>
-Row<NY> num_classes(const DF<NY>& y)
-{
-	return y.colwise().sum();
-}
-
 template<size_t NX, size_t NY>
 double SplitOptimizer<NX,NY>::sse(const DF<NY>& y_true,
                    const Row<NY>& y_pred)
@@ -51,15 +45,20 @@ struct loss_data
     const Row<NY> C_R;
 };
 
-unsigned count__ = 0;
+static unsigned count__ = 0;
 
+// loss function for nlopt to minimize
 template<size_t NY>
-static double logloss_nlopt(unsigned n, const double* x, double* grad, void* data)
+double logloss_nlopt(unsigned n, const double* x, double* grad, void* data)
 {
-    loss_data<NY>* d = static_cast<loss_data<NY>*>(data);
-    // const auto* left = d->L;
-    // const auto* unknown = d->U;
-    // const auto* right = d->R;
+    throw std::runtime_error("logloss_nlopt not implemented for this N");
+    return 0.0;
+}
+
+template<>
+double logloss_nlopt<2>(unsigned n, const double* x, double* grad, void* data)
+{
+    loss_data<2>* d = static_cast<loss_data<2>*>(data);
     const auto& cL = d->C_L;
     const auto& cU = d->C_U;
     const auto& cR = d->C_R;
@@ -69,69 +68,87 @@ static double logloss_nlopt(unsigned n, const double* x, double* grad, void* dat
     // safe log
     auto mlog = [](double x){return std::log(std::min(std::max(x,EPS),1-EPS));};
 
-    // unknowns to the left branch
-    if (x[0] <= x[2] && x[1] <= x[3])
+    const auto cc_0 = x[0] <= x[2] ? std::make_tuple(cL(0)+cU(0), cR(0)) 
+                                   : std::make_tuple(cL(0), cR(0)+cU(0));
+    const auto cc_1 = x[1] <= x[3] ? std::make_tuple(cL(1)+cU(1), cR(1)) 
+                                   : std::make_tuple(cL(1), cR(1)+cU(1));
+    
+    if (grad != nullptr)
     {
-        if (grad != nullptr)
-        {
-            grad[0] = (cL(0)+cU(0)) * -1.0/x[0];// + (cL(0)+cL(1)+cU(0)+cU(1));
-            grad[1] = (cL(1)+cU(1)) * -1.0/x[1];// + (cL(0)+cL(1)+cU(0)+cU(1));
-            grad[2] = cR(0) * -1.0/x[2];// + (cR(0)+cR(1));
-            grad[3] = cR(1) * -1.0/x[3];// + (cR(0)+cR(1));
-        }
-        return (cL(0)+cU(0)) * -mlog(x[0]) + (cL(1)+cU(1)) * -mlog(x[1])
-            + cR(0) * -mlog(x[2]) + cR(1) * -mlog(x[3]);
-            // + (cL(0)+cL(1)+cU(0)+cU(1)) * (x[0]+x[1])
-            // + (cR(0)+cR(1)) * (x[2]+x[3]);
+        grad[0] = std::get<0>(cc_0) * -1.0/x[0];
+        grad[1] = std::get<0>(cc_1) * -1.0/x[1];
+        grad[2] = std::get<1>(cc_0) * -1.0/x[2];
+        grad[3] = std::get<1>(cc_1) * -1.0/x[3];
     }
-    // 0-unknowns to the left branch
-    else if (x[0] <= x[2] && x[1] > x[3])
-    {
-        if (grad != nullptr)
-        {
-            grad[0] = (cL(0)+cU(0)) * -1.0/x[0];// + (cL(0)+cL(1)+cU(0));
-            grad[1] = cL(1) * -1.0/x[1];// + (cL(0)+cL(1)+cU(0));
-            grad[2] = cR(0) * -1.0/x[2];// + (cR(0)+cR(1)+cU(1));
-            grad[3] = (cR(1)+cU(1)) * -1.0/x[3];// + (cR(0)+cR(1)+cU(1));
-        }
-        return  (cL(0)+cU(0)) * -mlog(x[0]) + cL(1) * -mlog(x[1])
-            + cR(0) * -mlog(x[2]) + (cR(1)+cU(1)) * -mlog(x[3]);
-            // + (cL(0)+cL(1)+cU(0)) * (x[0]+x[1])
-            // + (cR(0)+cR(1)+cU(1)) * (x[2]+x[3]);
-    }
-    // 1-unknowns to the left branch
-    else if (x[0] > x[2] && x[1] <= x[3])
-    {
-        if (grad != nullptr)
-        {
-            grad[0] = cL(0) * -1.0/x[0];// + (cL(0)+cL(1)+cU(1));
-            grad[1] = (cL(1)+cU(1)) * -1.0/x[1];// + (cL(0)+cL(1)+cU(1)); 
-            grad[2] = (cR(0)+cU(0)) * -1.0/x[2];// + (cR(0)+cR(1)+cU(0));
-            grad[3] = cR(1) * -1.0/x[3];// + (cR(0)+cR(1)+cU(0));
-        }
-        return cL(0) * -mlog(x[0]) + (cL(1)+cU(1)) * -mlog(x[1])
-            + (cR(0)+cU(0)) * -mlog(x[2]) + cR(1) * -mlog(x[3]);
-            // + (cL(0)+cL(1)+cU(1)) * (x[0]+x[1])
-            // + (cR(0)+cR(1)+cU(0)) * (x[2]+x[3]);
-    }
-    // unknowns to the right branch
-    else
-    {
-        if (grad != nullptr)
-        {
-            grad[0] = cL(0) * -1.0/x[0];// + (cL(0)+cL(1));
-            grad[1] = cL(1) * -1.0/x[1];// + (cL(0)+cL(1));
-            grad[2] = (cR(0)+cU(0)) * -1.0/x[2];// + (cR(0)+cR(1)+cU(0)+cU(1));
-            grad[3] = (cR(1)+cU(1)) * -1.0/x[3];// + (cR(0)+cR(1)+cU(0)+cU(1));
-        }
-        return cL(0) * -mlog(x[0]) + cL(1) * -mlog(x[1])
-            + (cR(0)+cU(0)) * -mlog(x[2]) + (cR(1)+cU(1)) * -mlog(x[3]);
-            // + (cL(0)+cL(1)) * (x[0]+x[1])
-            // + (cR(0)+cR(1)+cU(0)+cU(1)) * (x[2]+x[3]);
-    }
+    return std::get<0>(cc_0) * -mlog(x[0])
+         + std::get<0>(cc_1) * -mlog(x[1])
+         + std::get<1>(cc_0) * -mlog(x[2])
+         + std::get<1>(cc_1) * -mlog(x[3]);
+
 }
 
-double eq_constr1(unsigned n, const double* x, double* grad, void* data)
+template<>
+double logloss_nlopt<6>(unsigned n, const double* x, double* grad, void* data)
+{
+    loss_data<6>* d = static_cast<loss_data<6>*>(data);
+    const auto& cL = d->C_L;
+    const auto& cU = d->C_U;
+    const auto& cR = d->C_R;
+
+    count__++;
+
+    // safe log
+    auto mlog = [](double x){return std::log(std::min(std::max(x,EPS),1-EPS));};
+
+    const auto cc_0 = x[0] <= x[6] ? std::make_tuple(cL(0)+cU(0), cR(0)) 
+                                   : std::make_tuple(cL(0), cR(0)+cU(0));
+    const auto cc_1 = x[1] <= x[7] ? std::make_tuple(cL(1)+cU(1), cR(1)) 
+                                   : std::make_tuple(cL(1), cR(1)+cU(1));
+    const auto cc_2 = x[2] <= x[8] ? std::make_tuple(cL(2)+cU(2), cR(2)) 
+                                   : std::make_tuple(cL(2), cR(2)+cU(2));
+    const auto cc_3 = x[3] <= x[9] ? std::make_tuple(cL(3)+cU(3), cR(3)) 
+                                   : std::make_tuple(cL(3), cR(3)+cU(3));
+    const auto cc_4 = x[4] <= x[10] ? std::make_tuple(cL(4)+cU(4), cR(4)) 
+                                    : std::make_tuple(cL(4), cR(4)+cU(4));
+    const auto cc_5 = x[5] <= x[11] ? std::make_tuple(cL(5)+cU(5), cR(5)) 
+                                    : std::make_tuple(cL(5), cR(5)+cU(5));
+
+    if (grad != nullptr)
+    {
+        grad[0] = std::get<0>(cc_0) * -1.0/x[0];
+        grad[1] = std::get<0>(cc_1) * -1.0/x[1];
+        grad[2] = std::get<0>(cc_2) * -1.0/x[2];
+        grad[3] = std::get<0>(cc_3) * -1.0/x[3];
+        grad[4] = std::get<0>(cc_4) * -1.0/x[4];
+        grad[5] = std::get<0>(cc_5) * -1.0/x[5];
+        grad[6] = std::get<1>(cc_0) * -1.0/x[6];
+        grad[7] = std::get<1>(cc_1) * -1.0/x[7];
+        grad[8] = std::get<1>(cc_2) * -1.0/x[8];
+        grad[9] = std::get<1>(cc_3) * -1.0/x[9];
+        grad[10] = std::get<1>(cc_4) * -1.0/x[10];
+        grad[11] = std::get<1>(cc_5) * -1.0/x[11];
+    }
+    return std::get<0>(cc_0) * -mlog(x[0])
+         + std::get<0>(cc_1) * -mlog(x[1])
+         + std::get<0>(cc_2) * -mlog(x[2])
+         + std::get<0>(cc_3) * -mlog(x[3])
+         + std::get<0>(cc_4) * -mlog(x[4])
+         + std::get<0>(cc_5) * -mlog(x[5])
+         + std::get<1>(cc_0) * -mlog(x[6])
+         + std::get<1>(cc_1) * -mlog(x[7])
+         + std::get<1>(cc_2) * -mlog(x[8])
+         + std::get<1>(cc_3) * -mlog(x[9])
+         + std::get<1>(cc_4) * -mlog(x[10])
+         + std::get<1>(cc_5) * -mlog(x[11]);
+
+}
+
+// Equality constraints: lower and upper halves of x must each sum to 1
+template<size_t NY>
+double eq_constr1(unsigned n, const double* x, double* grad, void* data) {return 0.0;};
+
+template<>
+double eq_constr1<2>(unsigned n, const double* x, double* grad, void* data)
 {
     if (grad != nullptr)
     {
@@ -143,7 +160,32 @@ double eq_constr1(unsigned n, const double* x, double* grad, void* data)
     return x[0] + x[1] - 1.0;
 }
 
-double eq_constr2(unsigned n, const double* x, double* grad, void* data)
+template<>
+double eq_constr1<6>(unsigned n, const double* x, double* grad, void* data)
+{
+    if (grad != nullptr)
+    {
+        grad[0] = 1.0;
+        grad[1] = 1.0;
+        grad[2] = 1.0;
+        grad[3] = 1.0;
+        grad[4] = 1.0;
+        grad[5] = 1.0;
+        grad[6] = 0.0;
+        grad[7] = 0.0;
+        grad[8] = 0.0;
+        grad[9] = 0.0;
+        grad[10] = 0.0;
+        grad[11] = 0.0;
+    }
+    return x[0] + x[1] + x[2] + x[3] + x[4] + x[5] - 1.0;
+}
+
+template<size_t NY>
+double eq_constr2(unsigned n, const double* x, double* grad, void* data) {return 0.0;};
+
+template<>
+double eq_constr2<2>(unsigned n, const double* x, double* grad, void* data)
 {
     if (grad != nullptr)
     {
@@ -153,6 +195,27 @@ double eq_constr2(unsigned n, const double* x, double* grad, void* data)
         grad[3] = 1.0;
     }
     return x[2] + x[3] - 1.0;
+}
+
+template<>
+double eq_constr2<6>(unsigned n, const double* x, double* grad, void* data)
+{
+    if (grad != nullptr)
+    {
+        grad[0] = 0.0;
+        grad[1] = 0.0;
+        grad[2] = 0.0;
+        grad[3] = 0.0;
+        grad[4] = 0.0;
+        grad[5] = 0.0;
+        grad[6] = 1.0;
+        grad[7] = 1.0;
+        grad[8] = 1.0;
+        grad[9] = 1.0;
+        grad[10] = 1.0;
+        grad[11] = 1.0;
+    }
+    return x[6] + x[7] + x[8] + x[9] + x[10] + x[11] - 1.0;
 }
 
 template<size_t NX, size_t NY>
@@ -398,15 +461,16 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
         x[i+NY] = current_prediction_score(i);
     }
 
+    double minf;
     try
     {
         // set up nlopt
         nlopt::opt optimizer(optim_algo_, NY2);
         optimizer.set_lower_bounds(0);
         optimizer.set_upper_bounds(1);
-        double tol = 1e-4;
+        double tol = 1e-6;
         optimizer.set_xtol_rel(tol);
-        optimizer.set_maxeval(100);
+        optimizer.set_maxeval(maxiter_);
         loss_data<NY> d = {CL, CU, CR};
         if (split_ == SplitFunction::LogLoss)
             optimizer.set_min_objective(logloss_nlopt<NY>, &d);
@@ -421,32 +485,43 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
             auto c_data = &constr_data[i];
             optimizer.add_inequality_constraint(*(fun.target<double(*)(unsigned,const double*,double*,void*)>()), c_data, 1e-8);
         }
-        optimizer.add_equality_constraint(eq_constr1, nullptr, 1e-8);
-        optimizer.add_equality_constraint(eq_constr2, nullptr, 1e-8);
+        optimizer.add_equality_constraint(eq_constr1<NY>, nullptr, 1e-8);
+        optimizer.add_equality_constraint(eq_constr2<NY>, nullptr, 1e-8);
 
-        double minf;
         auto result = optimizer.optimize(x, minf);
         //Util::info("nlopt_result, after {} iterations: {}", count__, nlopt_result_to_string(static_cast<nlopt_result>(result)));
-        count__ = 0;
         // if (result == nlopt::MAXEVAL_REACHED)
         // {
         //     fmt::print("optimizer return: {}\n", x);
         // }
         // else
         //     Util::die("nlopt error: {}", nlopt_result_to_string(result));
-        Row<NY> pred_left;
-        Row<NY> pred_right;
-        pred_left(0) = x[0];
-        pred_left(1) = x[1];
-        pred_right(0) = x[2];
-        pred_right(1) = x[3];
+    }
+    catch(nlopt::roundoff_limited&)
+    {
 
-        return IcmlTupl{pred_left, pred_right, minf};
     }
     catch(std::exception& e)
     {
-        Util::die("NLOPT exception: {}", e.what());
+        Util::warn("caught NLOPT exception: {}", e.what());
+        Util::warn("minf: {}", minf);
+
+        std::cout << "seed: " << current_prediction_score << "\n";
+        std::cout << "CL: " << CL << "\n";
+        std::cout << "CU: " << CU << "\n";
+        std::cout << "CR: " << CR << "\n";
+        // Util::die("NLOPT exception: {}", e.what());
     }
+    count__ = 0;
+    Row<NY> pred_left;
+    Row<NY> pred_right;
+    for (size_t i = 0; i < NY; i++)
+    {
+        pred_left(i) = x[i];
+        pred_right(i) = x[i+NY];
+    }
+
+    return IcmlTupl{pred_left, pred_right, minf};
 }
 
 template<size_t N>
@@ -501,6 +576,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
 
     for (const auto& [feature_id, feats] : feature_map)
     {
+        // Util::log("testing feature {}", feature_id);
         for (size_t feats_idx = 0; feats_idx < feats.size(); feats_idx++)
         {
             // Util::log("feats: {}", feats);

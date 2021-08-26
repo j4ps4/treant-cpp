@@ -6,7 +6,7 @@
 #include <array>
 #include <stddef.h>
 
-constexpr size_t HAR_X = 561;
+constexpr size_t HAR_X = 30; // 561
 constexpr size_t HAR_Y = 6;
 
 #include <string>
@@ -29,5 +29,5 @@ namespace har
     RobustDecisionTree<HAR_X,HAR_Y> new_RDT(TreeArguments<HAR_X,HAR_Y>&& args);
 
     void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
-        size_t min_instances_per_node, int budget, bool affine);
+        size_t min_instances_per_node, int budget, int maxiter, bool affine);
 }

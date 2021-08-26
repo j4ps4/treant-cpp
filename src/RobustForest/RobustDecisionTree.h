@@ -20,6 +20,7 @@ struct TreeArguments
     TrainingAlgo algo;
     size_t max_depth;
     size_t min_instances_per_node;
+    int maxiter;
     bool affine;
 };
 
@@ -32,7 +33,7 @@ public:
         id_(args.id), max_depth_(args.max_depth), min_instances_per_node_(args.min_instances_per_node),
         attacker_(std::move(args.attacker)), affine_(args.affine)
     {
-        optimizer_ = std::make_unique<SplitOptimizer<NX,NY>>(args.fun, args.algo);
+        optimizer_ = std::make_unique<SplitOptimizer<NX,NY>>(args.fun, args.algo, args.maxiter);
         isTrained_ = false;
     }
 

@@ -149,11 +149,11 @@ void Attacker<N>::compute_attacks(const DF<N>& X, const std::filesystem::path& a
     // TODO possible bug:
     //  210000       1       1       1      25      -1      -1      -1      -1      -1      -1 8735.16 9883.77    9571 17182.1 16399.8 8666.73    1287 2107.23    1256     296    1816     999, cost: 100
     //  200000       1       1       1      25      -1      -1      -1      -1      -1      -1 8735.16 9883.77    9571 17182.1 16399.8 8666.73    1287 2107.23    1256     296    1816     999, cost: 100
-    // fmt::print("first 50 attacks:\n");
+    // fmt::print("first 10 attacks:\n");
     // size_t count = 0;
     // for (auto& [key, vect] : attacks_)
     // {
-    //     if (count >= 50)
+    //     if (count >= 10)
     //         break;
     //     std::cout << "key: (" << std::get<0>(key) << ", " << std::get<1>(key) << ")\n";
     //     for (auto& pair : vect)

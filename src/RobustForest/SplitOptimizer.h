@@ -44,8 +44,8 @@ class SplitOptimizer
     #define NY2 SplitOptimizer<NX,NY>::NY2V
     static constexpr size_t NY2V = 2*NY;
 public:
-    SplitOptimizer(SplitFunction split, TrainingAlgo algo) :
-    split_(split), algo_(algo) {}
+    SplitOptimizer(SplitFunction split, TrainingAlgo algo, int maxiter) :
+    split_(split), algo_(algo), maxiter_(maxiter) {}
 
     double evaluate_split(const DF<NY>& y_true,
                           const NRow& y_pred) const;
@@ -92,6 +92,7 @@ private:
     
     const SplitFunction split_;
     const TrainingAlgo algo_;
+    const int maxiter_;
     const nlopt::algorithm optim_algo_ = nlopt::LD_SLSQP;
 
 };

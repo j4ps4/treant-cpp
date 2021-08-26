@@ -36,6 +36,8 @@ int main(int argc, char** argv)
         cxxopts::value<std::string>()->default_value("robust"))
         ("budget", "maximum budget of attacker",
         cxxopts::value<int>()->default_value("50"))
+        ("maxiter", "maximum nlopt iterations",
+        cxxopts::value<int>()->default_value("100"))
         ("h,help", "print usage");
     auto opts = options.parse(argc, argv);
     if (opts.count("help"))
@@ -46,6 +48,7 @@ int main(int argc, char** argv)
     auto dataset = opts["data"].as<std::string>();
     auto algostr = opts["algo"].as<std::string>();
     auto budget = opts["budget"].as<int>();
+    auto maxiter = opts["maxiter"].as<int>();
 
     toLower(dataset); 
     toLower(algostr); 
@@ -56,7 +59,7 @@ int main(int argc, char** argv)
     else if (dataset == "covertype")
         covertype::train_and_test(SplitFunction::LogLoss, algo, 8, 20, budget, true);
     else if (dataset == "har")
-        har::train_and_test(SplitFunction::LogLoss, algo, 8, 20, budget, true);
+        har::train_and_test(SplitFunction::LogLoss, algo, 8, 20, budget, maxiter, true);
     else
         Util::die("invalid dataset: {}", dataset);
     

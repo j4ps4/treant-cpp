@@ -125,7 +125,7 @@ void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth,
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
     auto tree = credit::new_RDT({.id = 0, .attacker = std::move(m_atkr.value()),
         .fun = fun, .algo = algo, .max_depth = max_depth, 
-        .min_instances_per_node = min_instances_per_node, .affine = affine});
+        .min_instances_per_node = min_instances_per_node, .maxiter = 100, .affine = affine});
     tree.fit(X, Y);
     double linear_time = TIME;
     fmt::print("time elapsed: ");
@@ -136,7 +136,10 @@ void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth,
     {
         std::cout << Y_test.row(i) << " <-> " << Y_pred.row(i) << "\n";
     }
-    fmt::print("test error: {}\n", tree.classification_error(Y_test, Y_pred));
+    auto test_acc = 100.0 - 100.0 * tree.classification_error(Y_test, Y_pred);
+    auto train_dom = dominant_class<CREDIT_Y>(Y);
+    auto dummy_score = 100.0 * class_proportion<CREDIT_Y>(Y_test, train_dom);
+    fmt::print("test score: {:.2f}% (dummy classifier: {:.2f}%)\n", test_acc, dummy_score);
 
 }
 

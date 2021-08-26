@@ -2,7 +2,7 @@
     "attacks": [{
             "tBodyAcc-mean()-X": [{
                 "pre": "(-0.5, 0.5)",
-                "post": 0.001,
+                "post": 0.1,
                 "cost": 10,
                 "is_numerical": true
             }]
@@ -10,7 +10,7 @@
         {
             "tBodyAcc-mean()-Y": [{
                 "pre": "(-0.5, 0.5)",
-                "post": 0.001,
+                "post": 0.1,
                 "cost": 10,
                 "is_numerical": true
             }]

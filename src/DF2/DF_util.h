@@ -20,6 +20,30 @@ DF<N> DF_index(const DF<N>& in, const std::vector<size_t>& idxs)
     return out;
 }
 
+template<size_t NY>
+Row<NY> num_classes(const DF<NY>& y)
+{
+	return y.colwise().sum();
+}
+
+template<size_t NY>
+double class_proportion(const DF<NY>& y, size_t class_id)
+{
+    const auto cc = num_classes<NY>(y);
+    const auto mx = cc(class_id);
+    const auto tot = cc.sum();
+    return mx / tot;
+}
+
+template<size_t NY>
+size_t dominant_class(const DF<NY>& y)
+{
+    const auto cc = num_classes<NY>(y);
+    Eigen::Index max_ind;
+    cc.maxCoeff(&max_ind);
+    return max_ind;
+}
+
 template<size_t N>
 void row_printf(const char* msg, const Row<N>& row)
 {

@@ -81,7 +81,8 @@ public:
         std::vector<double> temp;
         archive(dummy_, n_inst_, left_, right_, best_split_id_,
                 best_split_val_, temp, prediction_, loss_, gain_);
-        prediction_score_ = temp;
+        for (size_t i = 0; i < temp.size(); i++)
+            prediction_score_[i] = temp[i];
     }
 
 private:

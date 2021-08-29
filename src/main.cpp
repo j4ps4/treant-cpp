@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <ranges>
 #include <cctype>
+#include <tuple>
+#include <filesystem>
 
 #include "dataset/Credit.h"
 #include "dataset/Covertype.h"
@@ -18,6 +20,25 @@ TrainingAlgo parse_algo(const std::string& s)
     else
         Util::die("invalid algorithm");
 }
+
+enum class DataSet
+{
+    Credit, Har
+};
+
+std::tuple<DataSet, std::filesystem::path> parseTest(const std::string& s)
+{
+    const std::filesystem::path p(s);
+    auto beg = p.begin();
+    std::advance(beg, 1);
+    const auto dirname = *beg;
+    if (dirname == "credit")
+        return {DataSet::Credit, p};
+    else if (dirname == "har")
+        return {DataSet::Har, p};
+    else
+        Util::die("model path is not valid");
+}
  
 template<typename Range>
 void toLower(Range& rang)
@@ -30,6 +51,8 @@ int main(int argc, char** argv)
 {
     cxxopts::Options options("treant", "robust tree classifier");
     options.add_options()
+        ("test", "perform testing on trained model",
+        cxxopts::value<std::string>()->default_value(""))
         ("data", "dataset to use",
         cxxopts::value<std::string>()->default_value("credit"))
         ("algo", "algorithm: robust, icml2019",
@@ -47,6 +70,17 @@ int main(int argc, char** argv)
         fmt::print("{}\n", options.help());
         exit(0);
     }
+
+    if (opts.count("test"))
+    {
+        auto [dataset, path] = parseTest(opts["test"].as<std::string>());
+        if (dataset == DataSet::Credit)
+            credit::load_and_test(path);
+        // else if (dataset == DataSet::Har)
+        //     credit::load_and_test(path);
+        return 0;
+    }
+
     auto dataset = opts["data"].as<std::string>();
     auto algostr = opts["algo"].as<std::string>();
     auto budget = opts["budget"].as<int>();

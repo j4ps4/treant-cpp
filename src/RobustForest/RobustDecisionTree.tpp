@@ -172,3 +172,25 @@ void RobustDecisionTree<NX,NY>::dump_to_disk(const std::filesystem::path& fn) co
         Util::err("failed to save the model: {}", e.what());
     }
 }
+
+template<size_t NX, size_t NY>
+RobustDecisionTree<NX,NY> RobustDecisionTree<NX,NY>::load_from_disk(const std::filesystem::path& fn)
+{
+    try
+    {
+        std::ifstream is(fn, std::ios::binary);
+        cereal::BinaryInputArchive archive(is);
+        std::unique_ptr<Node<NY>> root;
+        int id;
+        size_t max_depth;
+        size_t min_instances_per_node;
+        bool isTrained;
+        bool affine;
+        archive(root, id, max_depth, min_instances_per_node, isTrained, affine);
+        return RobustDecisionTree<NX,NY>(root, id, max_depth, min_instances_per_node, isTrained, affine);
+    }
+    catch (std::exception& e)
+    {
+        Util::die("failed to load model {}: {}", fn.c_str(), e.what());
+    }
+}

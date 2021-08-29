@@ -95,6 +95,16 @@ RobustDecisionTree<CREDIT_X,CREDIT_Y> new_RDT(TreeArguments<CREDIT_X,CREDIT_Y>&&
     return RobustDecisionTree<CREDIT_X,CREDIT_Y>(std::move(args));
 }
 
+static void print_test_score(const RobustDecisionTree<CREDIT_X,CREDIT_Y>& tree,
+    const DF<CREDIT_X>& X_test, const DF<CREDIT_Y>& Y_test, const DF<CREDIT_Y>& Y_train)
+{
+    auto Y_pred = tree.predict(X_test);
+    auto test_acc = 100.0 - 100.0 * tree.classification_error(Y_test, Y_pred);
+    auto train_dom = dominant_class<CREDIT_Y>(Y_train);
+    auto dummy_score = 100.0 * class_proportion<CREDIT_Y>(Y_test, train_dom);
+    fmt::print("test score: {:.2f}% (dummy classifier: {:.2f}%)\n", test_acc, dummy_score);
+}
+
 void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
     size_t min_instances_per_node, int budget, bool affine)
 {
@@ -131,24 +141,35 @@ void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth,
     double linear_time = TIME;
     fmt::print("time elapsed: ");
     fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
-    auto Y_pred = tree.predict(X_test);
-    fmt::print("Y_test vs. Y_pred:\n");
-    for (int i = 0; i < 5; i++)
-    {
-        std::cout << Y_test.row(i) << " <-> " << Y_pred.row(i) << "\n";
-    }
-    auto test_acc = 100.0 - 100.0 * tree.classification_error(Y_test, Y_pred);
-    auto train_dom = dominant_class<CREDIT_Y>(Y);
-    auto dummy_score = 100.0 * class_proportion<CREDIT_Y>(Y_test, train_dom);
-    fmt::print("test score: {:.2f}% (dummy classifier: {:.2f}%)\n", test_acc, dummy_score);
+    print_test_score(tree, X_test, Y_test, Y);
     auto model_name = fmt::format("{}_B{}_D{}.cereal", 
         algo == TrainingAlgo::Icml2019 ? "ICML2019" : "Robust",
         budget, max_depth);
     auto full_model_name = models_dir / model_name;
-    Util::info("saving trained model to {}", full_model_name.c_str());
+    Util::info("saving trained model to {}", full_model_name.native());
     if (!std::filesystem::exists(models_dir))
         std::filesystem::create_directory(models_dir);
     tree.dump_to_disk(full_model_name);
+}
+
+void load_and_test(const std::filesystem::path& fn)
+{
+    auto m_df = credit::read_train();
+    if (m_df.has_error())
+        Util::die("{}", m_df.error());
+    auto& df_tupl = m_df.value();
+    auto& X = std::get<0>(df_tupl);
+    auto& Y = std::get<1>(df_tupl);
+
+    auto m_test = credit::read_test();
+    if (m_test.has_error())
+        Util::die("{}", m_test.error());
+    auto& test_tupl = m_test.value();
+    auto& X_test = std::get<0>(test_tupl);
+    auto& Y_test = std::get<1>(test_tupl);
+
+    auto tree = RobustDecisionTree<CREDIT_X,CREDIT_Y>::load_from_disk(fn);
+    print_test_score(tree, X_test, Y_test, Y);
 }
 
 }

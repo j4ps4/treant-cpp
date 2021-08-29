@@ -38,6 +38,17 @@ public:
         isTrained_ = false;
     }
 
+    RobustDecisionTree(std::unique_ptr<Node<NY>>& root, int id, size_t max_depth,
+        size_t min_instances_per_node, bool isTrained, bool affine)
+        {
+            root_.swap(root);
+            id_ = id;
+            max_depth_ = max_depth;
+            min_instances_per_node_ = min_instances_per_node;
+            isTrained_ = isTrained;
+            affine_ = affine;
+        }
+
     bool is_affine() const {return affine_;}
 
     void fit(const DF<NX>& X_train, const DF<NY>& y_train);

@@ -29,4 +29,6 @@ namespace credit
 
     void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
         size_t min_instances_per_node, int budget, bool affine);
+
+    void load_and_test(const std::filesystem::path& fn);
 }

@@ -48,6 +48,8 @@ public:
             isTrained_ = isTrained;
             affine_ = affine;
         }
+    
+    RobustDecisionTree() = default;
 
     bool is_affine() const {return affine_;}
 

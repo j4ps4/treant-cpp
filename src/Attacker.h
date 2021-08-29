@@ -72,6 +72,9 @@ class Attacker
 public:
     Attacker(AttkList&& rules, int budget) :
         budget_(budget), rules_(std::forward<AttkList>(rules)) {compute_target_features();}
+    
+    Attacker() = default;
+
     bool is_filled() const;
 
     void compute_attacks(const DF<NX>& X, const std::filesystem::path& attacks_fn);

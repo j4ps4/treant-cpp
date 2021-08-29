@@ -246,30 +246,30 @@ double SplitOptimizer<NX,NY>::evaluate_split(const DF<NY>& y_true,
 }
 
 template<size_t NX, size_t NY>
-double SplitOptimizer<NX,NY>::icml_split_loss(const DF<NY>& y,
-    const IdxVec& L, const IdxVec& R)
+double SplitOptimizer<NX,NY>::split_loss(const DF<NY>& L, const NRow& pred_left,
+    const DF<NY>& R, const NRow& pred_right)
 {
-    if (L.empty())
+    if (L.rows() == 0)
     {
-        auto R_filt = DF_index<NY>(y, R);
-        NRow pred_right = R_filt.colwise().mean();
-        double icml_loss = evaluate_split(R_filt, pred_right);
+        // auto R_filt = DF_index<NY>(y, R);
+        // NRow pred_right = R_filt.colwise().mean();
+        double icml_loss = evaluate_split(R, pred_right);
         return icml_loss;
     }
-    else if (R.empty())
+    else if (R.rows() == 0)
     {
-        auto L_filt = DF_index<NY>(y, L);
-        NRow pred_left = L_filt.colwise().mean();
-        double icml_loss = evaluate_split(L_filt, pred_left);
+        // auto L_filt = DF_index<NY>(y, L);
+        // NRow pred_left = L_filt.colwise().mean();
+        double icml_loss = evaluate_split(L, pred_left);
         return icml_loss;
     }
     else
     {
-        auto L_filt = DF_index<NY>(y, L);
-        NRow pred_left = L_filt.colwise().mean();
-        auto R_filt = DF_index<NY>(y, R);
-        NRow pred_right = R_filt.colwise().mean();
-        double icml_loss = evaluate_split(L_filt, pred_left) + evaluate_split(R_filt, pred_right);
+        // auto L_filt = DF_index<NY>(y, L);
+        // NRow pred_left = L_filt.colwise().mean();
+        // auto R_filt = DF_index<NY>(y, R);
+        // NRow pred_right = R_filt.colwise().mean();
+        double icml_loss = evaluate_split(L, pred_left) + evaluate_split(R, pred_right);
         return icml_loss;
     }
 }
@@ -336,7 +336,13 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
     icml_right.reserve(split_right.size()+split_unknown_right.size());
     icml_right.insert(icml_right.end(), split_right.begin(), split_right.end());
     icml_right.insert(icml_right.end(), split_unknown_right.begin(), split_unknown_right.end());
-    icml_options.push_back(icml_split_loss(y, icml_left, icml_right));
+    auto L = DF_index<NY>(y, icml_left);
+    auto R = DF_index<NY>(y, icml_right);
+    {
+        auto pred_left = L.rows()>0 ? L.colwise().mean() : NRow();
+        auto pred_right = R.rows()>0 ? R.colwise().mean() : NRow();
+        icml_options.push_back(split_loss(L, pred_left, R, pred_right));
+    }
 
     // case 2: swap
     icml_left.clear();
@@ -345,20 +351,38 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
     icml_right.clear();
     icml_right.insert(icml_right.end(), split_right.begin(), split_right.end());
     icml_right.insert(icml_right.end(), split_unknown_left.begin(), split_unknown_left.end());
-    icml_options.push_back(icml_split_loss(y, icml_left, icml_right));
+    L = DF_index<NY>(y, icml_left);
+    R = DF_index<NY>(y, icml_right);
+    {
+        auto pred_left = L.rows()>0 ? L.colwise().mean() : NRow();
+        auto pred_right = R.rows()>0 ? R.colwise().mean() : NRow();
+        icml_options.push_back(split_loss(L, pred_left, R, pred_right));
+    }
 
     // case 3: all left
     icml_left.insert(icml_left.end(), split_unknown_left.begin(), split_unknown_left.end());
     icml_right.clear();
     icml_right.insert(icml_right.end(), split_right.begin(), split_right.end());
-    icml_options.push_back(icml_split_loss(y, icml_left, icml_right));
+    L = DF_index<NY>(y, icml_left);
+    R = DF_index<NY>(y, icml_right);
+    {
+        auto pred_left = L.rows()>0 ? L.colwise().mean() : NRow();
+        auto pred_right = R.rows()>0 ? R.colwise().mean() : NRow();
+        icml_options.push_back(split_loss(L, pred_left, R, pred_right));
+    }
 
     // case 4: all right
     icml_right.insert(icml_right.end(), split_unknown_right.begin(), split_unknown_right.end());
     icml_right.insert(icml_right.end(), split_unknown_left.begin(), split_unknown_left.end());
     icml_left.clear();
     icml_left.insert(icml_left.end(), split_left.begin(), split_left.end());
-    icml_options.push_back(icml_split_loss(y, icml_left, icml_right));
+    L = DF_index<NY>(y, icml_left);
+    R = DF_index<NY>(y, icml_right);
+    {
+        auto pred_left = L.rows()>0 ? L.colwise().mean() : NRow();
+        auto pred_right = R.rows()>0 ? R.colwise().mean() : NRow();
+        icml_options.push_back(split_loss(L, pred_left, R, pred_right));
+    }
 
     // if (icml_options.empty())
     // {
@@ -390,10 +414,35 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
 }
 
 template<size_t NX, size_t NY>
+auto SplitOptimizer<NX,NY>::simple_split(
+    const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
+    size_t feature_id, double feature_value)
+    -> std::tuple<IdxVec, IdxVec, std::optional<IcmlTupl>>
+{
+    IdxVec split_left;
+    IdxVec split_right;
+
+    for (auto row_id : rows)
+    {
+        const auto& inst = X.row(row_id);
+        if (inst[feature_id] <= feature_value)
+            split_left.push_back(row_id);
+        else
+            split_right.push_back(row_id);
+    }
+    auto L = DF_index<NY>(y, split_left);
+    auto R = DF_index<NY>(y, split_right);
+    auto pred_left = L.rows()>0 ? L.colwise().mean() : NRow();
+    auto pred_right = R.rows()>0 ? R.colwise().mean() : NRow();
+    auto loss = split_loss(L, pred_left, R, pred_right);
+    return {split_left, split_right, std::make_tuple(pred_left, pred_right, loss)};
+}
+
+template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::simulate_split(
     const DF<NX>& X, const IdxVec& rows, Attacker<NX>& attacker,
-    const CostMap& costs, size_t feature_id, double feature_value
-) -> std::tuple<IdxVec, IdxVec, IdxVec>
+    const CostMap& costs, size_t feature_id, double feature_value)
+    -> std::tuple<IdxVec, IdxVec, IdxVec>
 {
     IdxVec split_left;
     IdxVec split_right;
@@ -411,7 +460,7 @@ auto SplitOptimizer<NX,NY>::simulate_split(
 
         for (auto& [inst, c]: attacks)
         {
-            if (inst(feature_id) <= feature_value)
+            if (inst[feature_id] <= feature_value)
                 all_right = false;
             else
                 all_left = false;
@@ -576,7 +625,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 split_unknown = std::get<2>(split_res);
                 optimizer_res = std::get<3>(split_res);
             }
-            else
+            else if (algo_ == TrainingAlgo::Robust)
             {
                 auto split_res = simulate_split(X, rows, attacker, costs, feature_id, feature_value);
                 split_left = std::get<0>(split_res);
@@ -601,6 +650,13 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 }
                 optimizer_res = optimize_loss_under_attack(y, current_prediction_score,
                     split_left, split_right, split_unknown, updated_constraints, constr_data);
+            }
+            else // Standard decision tree
+            {
+                auto split_res = simple_split(X, y, rows, feature_id, feature_value);
+                split_left = std::get<0>(split_res);
+                split_right = std::get<1>(split_res);
+                optimizer_res = std::get<2>(split_res);
             }
             if (optimizer_res)
             {
@@ -661,7 +717,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                     best_split_right_id.push_back(u);
             }
         }
-        else
+        else if (algo_ == TrainingAlgo::Robust)
         {
             // Assign unknown instance either to left or right split, according to the worst-case scenario
             auto norm = [](const DF<NY>& df){return df.pow(2).rowwise().sum().sqrt();};

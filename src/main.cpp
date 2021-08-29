@@ -17,6 +17,8 @@ TrainingAlgo parse_algo(const std::string& s)
         return TrainingAlgo::Robust;
     else if (s == "icml2019")
         return TrainingAlgo::Icml2019;
+    else if (s == "standard")
+        return TrainingAlgo::Standard;
     else
         Util::die("invalid algorithm");
 }
@@ -55,7 +57,7 @@ int main(int argc, char** argv)
         cxxopts::value<std::string>()->default_value(""))
         ("data", "dataset to use",
         cxxopts::value<std::string>()->default_value("credit"))
-        ("algo", "algorithm: robust, icml2019",
+        ("algo", "algorithm: robust, icml2019, standard",
         cxxopts::value<std::string>()->default_value("robust"))
         ("budget", "maximum budget of attacker",
         cxxopts::value<int>()->default_value("50"))

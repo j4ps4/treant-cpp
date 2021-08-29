@@ -105,6 +105,19 @@ static void print_test_score(const RobustDecisionTree<CREDIT_X,CREDIT_Y>& tree,
     fmt::print("test score: {:.2f}% (dummy classifier: {:.2f}%)\n", test_acc, dummy_score);
 }
 
+std::string algo_name(TrainingAlgo algo)
+{
+    switch(algo)
+    {
+        case TrainingAlgo::Icml2019:
+            return "ICML2019";
+        case TrainingAlgo::Robust:
+            return "Robust";
+        default:
+            return "Standard";
+    }
+}
+
 void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
     size_t min_instances_per_node, int budget, bool affine)
 {
@@ -122,28 +135,35 @@ void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth,
     auto& X_test = std::get<0>(test_tupl);
     auto& Y_test = std::get<1>(test_tupl);
 
-    auto m_atkr = credit::new_Attacker(budget, X);
-    if (m_atkr.has_error())
-        Util::die("{}", m_atkr.error());
     fmt::print("X: a dataframe of size ({}x{})\n", X.rows(), X.cols());
     fmt::print("Y: a dataframe of size ({}x{})\n", Y.rows(), Y.cols());
-    // for (int i = 0; i < 10; i++)
-    // {
-    //     std::cout << "X: " << X.row(i) << '\n';
-    //     std::cout << "Y: " << Y.row(i) << '\n';
-    // }
-    // std::cout << Y.colwise().mean() << std::endl;
+
+    RobustDecisionTree<CREDIT_X,CREDIT_Y> tree;
+
+    if (algo != TrainingAlgo::Standard)
+    {
+        auto m_atkr = credit::new_Attacker(budget, X);
+        if (m_atkr.has_error())
+            Util::die("{}", m_atkr.error());
+        tree = credit::new_RDT({.id = 0, .attacker = std::move(m_atkr.value()),
+            .fun = fun, .algo = algo, .max_depth = max_depth, 
+            .min_instances_per_node = min_instances_per_node, .maxiter = 100, .affine = affine});
+    }
+    else
+    {
+        tree = credit::new_RDT({.id = 0, .attacker = nullptr,
+            .fun = fun, .algo = algo, .max_depth = max_depth, 
+            .min_instances_per_node = min_instances_per_node, .maxiter = 100, .affine = affine});
+    }
+
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-    auto tree = credit::new_RDT({.id = 0, .attacker = std::move(m_atkr.value()),
-        .fun = fun, .algo = algo, .max_depth = max_depth, 
-        .min_instances_per_node = min_instances_per_node, .maxiter = 100, .affine = affine});
     tree.fit(X, Y);
     double linear_time = TIME;
     fmt::print("time elapsed: ");
     fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
     print_test_score(tree, X_test, Y_test, Y);
     auto model_name = fmt::format("{}_B{}_D{}.cereal", 
-        algo == TrainingAlgo::Icml2019 ? "ICML2019" : "Robust",
+        algo_name(algo),
         budget, max_depth);
     auto full_model_name = models_dir / model_name;
     Util::info("saving trained model to {}", full_model_name.native());

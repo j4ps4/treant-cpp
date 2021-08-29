@@ -24,7 +24,8 @@ enum class SplitFunction
 enum class TrainingAlgo
 {
     Robust,
-    Icml2019
+    Icml2019,
+    Standard
 };
 
 template<size_t NX, size_t NY>
@@ -73,8 +74,8 @@ private:
                                        const DF<NY>& unknown,
                                        const Row<NY2>& pred);
 
-    double icml_split_loss(const DF<NY>& y,
-        const IdxVec& L, const IdxVec& R);
+    double split_loss(const DF<NY>& L, const NRow& pred_left,
+        const DF<NY>& R, const NRow& pred_right);
 
     std::tuple<IdxVec, IdxVec, IdxVec, std::optional<IcmlTupl>> split_icml2019(
         const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, Attacker<NX>& attacker,
@@ -88,6 +89,11 @@ private:
     std::tuple<IdxVec, IdxVec, IdxVec> simulate_split(
         const DF<NX>& X, const IdxVec& rows, Attacker<NX>& attacker,
         const CostMap& costs, size_t feature_id, double feature_value
+    );
+
+    std::tuple<IdxVec, IdxVec, std::optional<IcmlTupl>> simple_split(
+        const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
+        size_t feature_id, double feature_value
     );
     
     const SplitFunction split_;

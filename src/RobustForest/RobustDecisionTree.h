@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include <set>
+#include <filesystem>
 
 #include "Node.h"
 #include "../Attacker.h"
@@ -44,6 +45,10 @@ public:
     DF<NY> predict(const DF<NX>& X_test) const;
 
     double classification_error(const DF<NY>& Y_test, const DF<NY>& Y_pred) const;
+
+    void dump_to_disk(const std::filesystem::path& fn) const;
+
+    static RobustDecisionTree<NX, NY> load_from_disk(const std::filesystem::path& fn);
     
 private:
     Node<NY>* private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,

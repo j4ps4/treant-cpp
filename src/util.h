@@ -20,6 +20,14 @@ template<typename... Args>
 }
 
 template<typename... Args>
+void err(const char* msg, Args... args)
+{
+    fmt::print(stderr, fg(fmt::color::crimson)|fmt::emphasis::bold, "error: ");
+    fmt::print(stderr, msg, args...);
+    fmt::print(stderr, "\n");
+}
+
+template<typename... Args>
 void warn(const char* msg, Args... args)
 {
     fmt::print(fg(fmt::color::yellow)|fmt::emphasis::bold, "warning: ");

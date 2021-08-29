@@ -14,6 +14,9 @@
 #include <array>
 #include <algorithm>
 
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
+
 #include "../DF2/DF_util.h"
 
 template<size_t NY>
@@ -61,6 +64,26 @@ public:
     void set_best_split_value(double val) noexcept {best_split_val_ = val;}
     size_t get_best_split_id() const noexcept {return best_split_id_;}
     double get_best_split_value() const noexcept {return best_split_val_;}
+
+    template<typename Archive>
+    void save(Archive& archive) const
+    {
+        std::vector<double> temp;
+        temp.reserve(NY);
+        temp.insert(temp.end(), prediction_score_.data(), prediction_score_.data()+NY);
+        archive(dummy_, n_inst_, left_, right_, best_split_id_,
+                best_split_val_, temp, prediction_, loss_, gain_);
+    }
+
+    template<typename Archive>
+    void load(Archive& archive)
+    {
+        std::vector<double> temp;
+        archive(dummy_, n_inst_, left_, right_, best_split_id_,
+                best_split_val_, temp, prediction_, loss_, gain_);
+        prediction_score_ = temp;
+    }
+
 private:
     bool dummy_;
     size_t n_inst_; // number of instances

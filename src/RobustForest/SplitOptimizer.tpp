@@ -49,7 +49,7 @@ static unsigned count__ = 0;
 
 // loss function for nlopt to minimize
 template<size_t NY>
-double logloss_nlopt(unsigned n, const double* x, double* grad, void* data)
+static double logloss_nlopt(unsigned n, const double* x, double* grad, void* data)
 {
     throw std::runtime_error("logloss_nlopt not implemented for this N");
     return 0.0;
@@ -145,7 +145,7 @@ double logloss_nlopt<6>(unsigned n, const double* x, double* grad, void* data)
 
 // Equality constraints: lower and upper halves of x must each sum to 1
 template<size_t NY>
-double eq_constr1(unsigned n, const double* x, double* grad, void* data) {return 0.0;};
+static double eq_constr1(unsigned n, const double* x, double* grad, void* data) {return 0.0;};
 
 template<>
 double eq_constr1<2>(unsigned n, const double* x, double* grad, void* data)
@@ -182,7 +182,7 @@ double eq_constr1<6>(unsigned n, const double* x, double* grad, void* data)
 }
 
 template<size_t NY>
-double eq_constr2(unsigned n, const double* x, double* grad, void* data) {return 0.0;};
+static double eq_constr2(unsigned n, const double* x, double* grad, void* data) {return 0.0;};
 
 template<>
 double eq_constr2<2>(unsigned n, const double* x, double* grad, void* data)
@@ -360,13 +360,13 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
     icml_left.insert(icml_left.end(), split_left.begin(), split_left.end());
     icml_options.push_back(icml_split_loss(y, icml_left, icml_right));
 
-    if (icml_options.empty())
-    {
-        IdxVec tmp(split_unknown_right.begin(), split_unknown_right.end());
-        tmp.insert(tmp.end(), split_unknown_left.begin(), split_unknown_left.end());
-        return {split_left, split_right, tmp, {}};
-    }
-    else if (split_left.size()+split_unknown_left.size()==0 ||
+    // if (icml_options.empty())
+    // {
+    //     IdxVec tmp(split_unknown_right.begin(), split_unknown_right.end());
+    //     tmp.insert(tmp.end(), split_unknown_left.begin(), split_unknown_left.end());
+    //     return {split_left, split_right, tmp, {}};
+    // }
+    if (split_left.size()+split_unknown_left.size()==0 ||
              split_right.size()+split_unknown_right.size()==0)
     {
         IdxVec tmp(split_unknown_right.begin(), split_unknown_right.end());
@@ -489,28 +489,15 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
         optimizer.add_equality_constraint(eq_constr2<NY>, nullptr, 1e-8);
 
         auto result = optimizer.optimize(x, minf);
-        //Util::info("nlopt_result, after {} iterations: {}", count__, nlopt_result_to_string(static_cast<nlopt_result>(result)));
-        // if (result == nlopt::MAXEVAL_REACHED)
-        // {
-        //     fmt::print("optimizer return: {}\n", x);
-        // }
-        // else
-        //     Util::die("nlopt error: {}", nlopt_result_to_string(result));
     }
     catch(nlopt::roundoff_limited&)
     {
-
+        // NLOPT documentation states that it's safe to return final value
     }
     catch(std::exception& e)
     {
         Util::warn("caught NLOPT exception: {}", e.what());
-        // Util::warn("minf: {}", minf);
-
-        // std::cout << "seed: " << current_prediction_score << "\n";
-        // std::cout << "CL: " << CL << "\n";
-        // std::cout << "CU: " << CU << "\n";
-        // std::cout << "CR: " << CR << "\n";
-        // Util::die("NLOPT exception: {}", e.what());
+        // Return final value, because it seems to be useful
     }
     count__ = 0;
     Row<NY> pred_left;

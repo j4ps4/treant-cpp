@@ -11,6 +11,7 @@ namespace credit
 {
 
 const std::filesystem::path data_dir = "data/credit/";
+const std::filesystem::path models_dir = data_dir / "models";
 const std::filesystem::path train_file = data_dir / "train.csv.bz2";
 const std::filesystem::path valid_file = data_dir / "valid.csv.bz2";
 const std::filesystem::path test_file = data_dir / "test.csv.bz2";
@@ -140,7 +141,14 @@ void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth,
     auto train_dom = dominant_class<CREDIT_Y>(Y);
     auto dummy_score = 100.0 * class_proportion<CREDIT_Y>(Y_test, train_dom);
     fmt::print("test score: {:.2f}% (dummy classifier: {:.2f}%)\n", test_acc, dummy_score);
-
+    auto model_name = fmt::format("{}_B{}_D{}.cereal", 
+        algo == TrainingAlgo::Icml2019 ? "ICML2019" : "Robust",
+        budget, max_depth);
+    auto full_model_name = models_dir / model_name;
+    Util::info("saving trained model to {}", full_model_name.c_str());
+    if (!std::filesystem::exists(models_dir))
+        std::filesystem::create_directory(models_dir);
+    tree.dump_to_disk(full_model_name);
 }
 
 }

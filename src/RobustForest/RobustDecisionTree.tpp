@@ -1,7 +1,11 @@
-#include "../util.h"
+
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/memory.hpp>
 
 #include <algorithm>
 #include <numeric>
+
+#include "../util.h"
 
 template<size_t NX, size_t NY>
 Node<NY>* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
@@ -68,6 +72,11 @@ Node<NY>* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF
 template<size_t NX, size_t NY>
 void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
 {
+    if (isTrained_)
+    {
+        Util::err("tree {} is already trained, cannot train again", id_);
+        return;
+    }
     std::vector<size_t> rows(X_train.rows());
     std::iota(rows.begin(), rows.end(), 0);
     // null prediction
@@ -147,4 +156,19 @@ double RobustDecisionTree<NX,NY>::classification_error(const DF<NY>& Y_test,
             accum++;
     }
     return static_cast<double>(accum) / static_cast<double>(rows);
+}
+
+template<size_t NX, size_t NY>
+void RobustDecisionTree<NX,NY>::dump_to_disk(const std::filesystem::path& fn) const
+{
+    try 
+    {
+        std::ofstream os(fn, std::ios::binary);
+        cereal::BinaryOutputArchive archive(os);
+        archive(root_, id_, max_depth_, min_instances_per_node_, isTrained_, affine_);
+    }
+    catch (std::exception& e)
+    {
+        Util::err("failed to save the model: {}", e.what());
+    }
 }

@@ -97,10 +97,10 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
 }
 
 template<size_t NX, size_t NY>
-Row<NY> RobustDecisionTree<NX,NY>::private_predict(const Row<NX>& instance, const Node<NY>* node) const
+size_t RobustDecisionTree<NX,NY>::private_predict(const Row<NX>& instance, const Node<NY>* node) const
 {
     if (node->is_leaf())
-        return node->get_prediction_score();
+        return node->get_prediction();
     
     auto best_feature_id = node->get_best_split_id();
     auto best_feature_value = node->get_best_split_value();
@@ -114,7 +114,38 @@ Row<NY> RobustDecisionTree<NX,NY>::private_predict(const Row<NX>& instance, cons
 }
 
 template<size_t NX, size_t NY>
-DF<NY> RobustDecisionTree<NX,NY>::predict(const DF<NX>& X_test) const
+Row<NY> RobustDecisionTree<NX,NY>::private_predict_proba(const Row<NX>& instance, const Node<NY>* node) const
+{
+    if (node->is_leaf())
+        return node->get_prediction_score();
+    
+    auto best_feature_id = node->get_best_split_id();
+    auto best_feature_value = node->get_best_split_value();
+    auto x_feature_value = instance(best_feature_id);
+
+    if (x_feature_value <= best_feature_value) // go left
+        return private_predict_proba(instance, node->left());
+    else // go right
+        return private_predict_proba(instance, node->right());
+
+}
+
+template<size_t NX, size_t NY>
+size_t RobustDecisionTree<NX,NY>::predict(const Row<NX>& instance) const
+{
+    if (isTrained_)
+    {
+        return private_predict(instance, root_.get());
+    }
+    else
+    {
+        Util::warn("tree {} is not trained", id_);
+        return -1;
+    }
+}
+
+template<size_t NX, size_t NY>
+DF<NY> RobustDecisionTree<NX,NY>::predict_proba(const DF<NX>& X_test) const
 {
     if (isTrained_)
     {
@@ -122,7 +153,7 @@ DF<NY> RobustDecisionTree<NX,NY>::predict(const DF<NX>& X_test) const
         DF<NY> out = Eigen::ArrayXXd::Zero(rows, NY);
         for (int64_t i = 0; i < rows; i++)
         {
-            out.row(i) = private_predict(X_test.row(i), root_.get());
+            out.row(i) = private_predict_proba(X_test.row(i), root_.get());
         }
         return out;
     }
@@ -193,4 +224,72 @@ RobustDecisionTree<NX,NY> RobustDecisionTree<NX,NY>::load_from_disk(const std::f
     {
         Util::die("failed to load model {}: {}", fn.c_str(), e.what());
     }
+}
+
+template<size_t NX, size_t NY>
+std::string RobustDecisionTree<NX,NY>::get_model_name() const
+{
+	std::string algo_str;
+    if (!optimizer_)
+        return "null-tree";
+    const auto algo = optimizer_->get_algorithm();
+    if (algo == TrainingAlgo::Icml2019)
+		algo_str = "ICML2019";
+    else if (algo == TrainingAlgo::Robust)
+    	algo_str = "Robust";
+    else
+        algo_str = "Standard";
+    if (algo == TrainingAlgo::Standard)
+    	return fmt::format("{}-D{}.cereal", algo_str, max_depth_);
+    else
+    	return fmt::format("{}-B{}-D{}.cereal", algo_str, attacker_->get_budget(), max_depth_);
+}
+
+template<size_t NX, size_t NY>
+void RobustDecisionTree<NX,NY>::print_test_score(const DF<NX>& X_test, const DF<NY>& Y_test, const DF<NY>& Y_train) const
+{
+    auto Y_pred = predict_proba(X_test);
+    auto test_acc = 100.0 - 100.0 * classification_error(Y_test, Y_pred);
+    auto train_dom = dominant_class<NY>(Y_train);
+    auto dummy_score = 100.0 * class_proportion<NY>(Y_test, train_dom);
+    fmt::print("test score: {:.2f}% (dummy classifier: {:.2f}%)\n", test_acc, dummy_score);
+}
+
+template<size_t NX, size_t NY>
+double RobustDecisionTree<NX,NY>::get_attacked_score(Attacker<NX>& attacker,
+    const DF<NX>& X, const DF<NY>& Y) const
+{
+    if (!isTrained_)
+        Util::die("tree {} is not trained", id_);
+    
+    size_t score = 0;
+    // (instance, true y)
+    std::vector<std::tuple<Row<NX>,size_t>> attack_vec;
+    const auto& feats = attacker.target_features();
+    attack_vec.reserve(X.rows()*feats.size());
+    for (int64_t i = 0; i < X.rows(); i++)
+    {
+        Eigen::Index max_ind;
+        Y.row(i).maxCoeff(&max_ind);
+        for (auto f : feats)
+        {
+            auto attacks = attacker.attack(X.row(i), f, 0);
+            for (auto& [inst, c] : attacks)
+                attack_vec.push_back(std::make_tuple(inst, (size_t)max_ind));
+        }
+    }
+    std::vector<size_t> pred_vec;
+    pred_vec.reserve(attack_vec.size());
+    for (const auto& [inst, y] : attack_vec)
+        pred_vec.push_back(predict(inst));
+
+    const auto S = attack_vec.size();
+    for (size_t i = 0; i < S; i++)
+    {
+        const auto true_y = std::get<1>(attack_vec[i]);
+        const auto pred_y = pred_vec[i];
+        if (true_y != pred_y)
+            score++;
+    }
+    return 100.0 - 100.0 * static_cast<double>(score) / static_cast<double>(S);
 }

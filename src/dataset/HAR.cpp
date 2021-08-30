@@ -11,6 +11,7 @@ namespace har
 {
 
 const std::filesystem::path data_dir = "data/har/";
+const std::filesystem::path models_dir = data_dir / "models";
 const std::filesystem::path train_file = data_dir / "train.csv.bz2";
 const std::filesystem::path test_file = data_dir / "test.csv.bz2";
 const std::filesystem::path json_file = data_dir / "attacks.json";
@@ -35,7 +36,8 @@ cpp::result<std::tuple<DF<HAR_X>,DF<HAR_Y>>,std::string> read_test()
     return df::read_bz2<HAR_X,HAR_Y,1>(test_file.c_str());
 }
 
-cpp::result<std::unique_ptr<Attacker<HAR_X>>,std::string> new_Attacker(int budget, const DF<HAR_X>& X)
+cpp::result<std::unique_ptr<Attacker<HAR_X>>,std::string> new_Attacker(int budget, const DF<HAR_X>& X,
+    bool print)
 {
     std::filesystem::path attack_file = "";
     auto res = load_attack_rules(json_file, column_map);
@@ -43,7 +45,8 @@ cpp::result<std::unique_ptr<Attacker<HAR_X>>,std::string> new_Attacker(int budge
         return cpp::failure(res.error());
     auto& rulz = res.value();
     auto atkr = std::make_unique<Attacker<HAR_X>>(std::move(rulz), budget);
-    Util::info("computing attacks...");
+    if (print)
+        Util::info("computing attacks...");
     atkr->compute_attacks(X, attack_file);
     return atkr;
 }
@@ -102,17 +105,43 @@ void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth,
     double linear_time = TIME;
     fmt::print("time elapsed: ");
     fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
-    auto Y_pred = tree.predict(X_test);
-    fmt::print("Y_test vs. Y_pred:\n");
-    for (int i = 0; i < 5; i++)
-    {
-        std::cout << Y_test.row(i) << " <-> " << Y_pred.row(i) << "\n";
-    }
-    auto test_acc = 100.0 - 100.0 * tree.classification_error(Y_test, Y_pred);
-    auto train_dom = dominant_class<HAR_Y>(Y);
-    auto dummy_score = 100.0 * class_proportion<HAR_Y>(Y_test, train_dom);
-    fmt::print("test score: {:.2f}% (dummy classifier: {:.2f}%)\n", test_acc, dummy_score);
+    tree.print_test_score(X_test, Y_test, Y);
+    auto model_name = tree.get_model_name();
+    auto full_model_name = models_dir / model_name;
+    Util::info("saving trained model to {}", full_model_name.native());
+    if (!std::filesystem::exists(models_dir))
+        std::filesystem::create_directory(models_dir);
+    tree.dump_to_disk(full_model_name);
+}
 
+void load_and_test(const std::filesystem::path& fn)
+{
+    auto m_df = har::read_train();
+    if (m_df.has_error())
+        Util::die("{}", m_df.error());
+    auto& df_tupl = m_df.value();
+    auto& X = std::get<0>(df_tupl);
+    auto& Y = std::get<1>(df_tupl);
+
+    auto m_test = har::read_test();
+    if (m_test.has_error())
+        Util::die("{}", m_test.error());
+    auto& test_tupl = m_test.value();
+    auto& X_test = std::get<0>(test_tupl);
+    auto& Y_test = std::get<1>(test_tupl);
+
+    auto tree = RobustDecisionTree<HAR_X,HAR_Y>::load_from_disk(fn);
+    tree.print_test_score(X_test, Y_test, Y);
+
+    for (int budget : {10,20,30,40,50,60,70,80,90,100})
+    {
+        auto m_atkr = har::new_Attacker(budget, X_test, false);
+        if (m_atkr.has_error())
+            Util::die("{}", m_atkr.error());
+        auto ptr = m_atkr.value().get();
+        double score = tree.get_attacked_score(*ptr, X_test, Y_test);
+        fmt::print("budget {}: test score {:.2f}%\n", budget, score);
+    }
 }
 
 }

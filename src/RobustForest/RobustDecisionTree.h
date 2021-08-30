@@ -55,7 +55,8 @@ public:
 
     void fit(const DF<NX>& X_train, const DF<NY>& y_train);
 
-    DF<NY> predict(const DF<NX>& X_test) const;
+    size_t predict(const Row<NX>& instance) const;
+    DF<NY> predict_proba(const DF<NX>& X_test) const;
 
     double classification_error(const DF<NY>& Y_test, const DF<NY>& Y_pred) const;
 
@@ -63,12 +64,19 @@ public:
 
     static RobustDecisionTree<NX, NY> load_from_disk(const std::filesystem::path& fn);
     
+    std::string get_model_name() const;
+    
+    void print_test_score(const DF<NX>& X_test, const DF<NY>& Y_test, const DF<NY>& Y_train) const;
+
+    double get_attacked_score(Attacker<NX>& attacker, const DF<NX>& X, const DF<NY>& Y) const;
+    
 private:
     Node<NY>* private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
         std::map<int64_t,int>& costs, ConstrVec& constraints,
         const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth);
 
-    Row<NY> private_predict(const Row<NX>& instance, const Node<NY>* node) const;
+    size_t private_predict(const Row<NX>& instance, const Node<NY>* node) const;
+    Row<NY> private_predict_proba(const Row<NX>& instance, const Node<NY>* node) const;
     
     std::unique_ptr<Node<NY>> root_;
     int id_;

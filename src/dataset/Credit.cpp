@@ -64,7 +64,8 @@ cpp::result<std::tuple<DF<CREDIT_X>,DF<CREDIT_Y>>,std::string> read_test()
     return df::read_bz2<CREDIT_X,CREDIT_Y,0>(test_file.c_str());
 }
 
-cpp::result<std::unique_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int budget, const DF<CREDIT_X>& X)
+cpp::result<std::unique_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int budget, const DF<CREDIT_X>& X,
+    bool print)
 {
     std::filesystem::path attack_file = "";
     auto res = load_attack_rules(json_file, column_map);
@@ -72,7 +73,8 @@ cpp::result<std::unique_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int bu
         return cpp::failure(res.error());
     auto& rulz = res.value();
     auto atkr = std::make_unique<Attacker<CREDIT_X>>(std::move(rulz), budget);
-    Util::info("computing attacks...");
+    if (print)
+        Util::info("computing attacks...");
     atkr->compute_attacks(X, attack_file);
     return atkr;
 }
@@ -93,29 +95,6 @@ cpp::result<std::unique_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int bu
 RobustDecisionTree<CREDIT_X,CREDIT_Y> new_RDT(TreeArguments<CREDIT_X,CREDIT_Y>&& args)
 {
     return RobustDecisionTree<CREDIT_X,CREDIT_Y>(std::move(args));
-}
-
-static void print_test_score(const RobustDecisionTree<CREDIT_X,CREDIT_Y>& tree,
-    const DF<CREDIT_X>& X_test, const DF<CREDIT_Y>& Y_test, const DF<CREDIT_Y>& Y_train)
-{
-    auto Y_pred = tree.predict(X_test);
-    auto test_acc = 100.0 - 100.0 * tree.classification_error(Y_test, Y_pred);
-    auto train_dom = dominant_class<CREDIT_Y>(Y_train);
-    auto dummy_score = 100.0 * class_proportion<CREDIT_Y>(Y_test, train_dom);
-    fmt::print("test score: {:.2f}% (dummy classifier: {:.2f}%)\n", test_acc, dummy_score);
-}
-
-std::string algo_name(TrainingAlgo algo)
-{
-    switch(algo)
-    {
-        case TrainingAlgo::Icml2019:
-            return "ICML2019";
-        case TrainingAlgo::Robust:
-            return "Robust";
-        default:
-            return "Standard";
-    }
 }
 
 void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
@@ -161,10 +140,8 @@ void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth,
     double linear_time = TIME;
     fmt::print("time elapsed: ");
     fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
-    print_test_score(tree, X_test, Y_test, Y);
-    auto model_name = fmt::format("{}_B{}_D{}.cereal", 
-        algo_name(algo),
-        budget, max_depth);
+    tree.print_test_score(X_test, Y_test, Y);
+    auto model_name = tree.get_model_name();
     auto full_model_name = models_dir / model_name;
     Util::info("saving trained model to {}", full_model_name.native());
     if (!std::filesystem::exists(models_dir))
@@ -189,7 +166,17 @@ void load_and_test(const std::filesystem::path& fn)
     auto& Y_test = std::get<1>(test_tupl);
 
     auto tree = RobustDecisionTree<CREDIT_X,CREDIT_Y>::load_from_disk(fn);
-    print_test_score(tree, X_test, Y_test, Y);
+    tree.print_test_score(X_test, Y_test, Y);
+
+    for (int budget : {10,20,30,40,50,60,70,80,90,100})
+    {
+        auto m_atkr = credit::new_Attacker(budget, X_test, false);
+        if (m_atkr.has_error())
+            Util::die("{}", m_atkr.error());
+        auto ptr = m_atkr.value().get();
+        double score = tree.get_attacked_score(*ptr, X_test, Y_test);
+        fmt::print("budget {}: test score {:.2f}%\n", budget, score);
+    }
 }
 
 }

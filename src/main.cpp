@@ -78,8 +78,8 @@ int main(int argc, char** argv)
         auto [dataset, path] = parseTest(opts["test"].as<std::string>());
         if (dataset == DataSet::Credit)
             credit::load_and_test(path);
-        // else if (dataset == DataSet::Har)
-        //     credit::load_and_test(path);
+        else if (dataset == DataSet::Har)
+            har::load_and_test(path);
         return 0;
     }
 

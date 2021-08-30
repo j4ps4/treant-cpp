@@ -56,6 +56,7 @@ public:
         Attacker<NX>& attacker, CostMap& costs, 
         ConstrVec& constraints, double current_score, Row<NY> current_prediction_score);
 
+    TrainingAlgo get_algorithm() const noexcept {return algo_;}
     
 private:
     static double sse(const DF<NY>& y_true,

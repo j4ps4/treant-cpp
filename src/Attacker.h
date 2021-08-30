@@ -81,6 +81,8 @@ public:
     
     void print_rules() const;
 
+    const std::vector<size_t>& target_features() const {return features_;}
+
     //void load_attacks(const std::filesystem::path& fn);
 
     int get_budget() const noexcept {return budget_;}

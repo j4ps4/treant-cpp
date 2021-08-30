@@ -145,7 +145,7 @@ void Attacker<N>::compute_attacks(const DF<N>& X, const std::filesystem::path& a
             attacks_[key] = compute_attack(rw, j, 0);
         }
     }
-    Util::info("computed {} attacks.\n", attacks_.size());
+    //Util::info("computed {} attacks.", attacks_.size());
     // TODO possible bug:
     //  210000       1       1       1      25      -1      -1      -1      -1      -1      -1 8735.16 9883.77    9571 17182.1 16399.8 8666.73    1287 2107.23    1256     296    1816     999, cost: 100
     //  200000       1       1       1      25      -1      -1      -1      -1      -1      -1 8735.16 9883.77    9571 17182.1 16399.8 8666.73    1287 2107.23    1256     296    1816     999, cost: 100

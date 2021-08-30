@@ -23,11 +23,14 @@ namespace har
     cpp::result<std::tuple<DF<HAR_X>,DF<HAR_Y>>,std::string> read_test();
 
     // Create attacker from given attacks file and budget.
-    cpp::result<std::unique_ptr<Attacker<HAR_X>>,std::string> new_Attacker(int budget, const DF<HAR_X>& X);
+    cpp::result<std::unique_ptr<Attacker<HAR_X>>,std::string> new_Attacker(int budget, const DF<HAR_X>& X,
+        bool print = true);
 
     // Create a robust decision tree
     RobustDecisionTree<HAR_X,HAR_Y> new_RDT(TreeArguments<HAR_X,HAR_Y>&& args);
 
     void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
         size_t min_instances_per_node, int budget, int maxiter, bool affine);
+
+    void load_and_test(const std::filesystem::path& fn);
 }

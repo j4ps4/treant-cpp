@@ -98,7 +98,7 @@ RobustDecisionTree<CREDIT_X,CREDIT_Y> new_RDT(TreeArguments<CREDIT_X,CREDIT_Y>&&
 }
 
 void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
-    size_t min_instances_per_node, int budget, bool affine)
+    size_t min_instances_per_node, int budget, bool affine, int n_inst)
 {
     auto m_df = credit::read_train();
     if (m_df.has_error())
@@ -106,6 +106,12 @@ void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth,
     auto& df_tupl = m_df.value();
     auto& X = std::get<0>(df_tupl);
     auto& Y = std::get<1>(df_tupl);
+
+    if (n_inst > 0)
+    {
+        X.conservativeResize(n_inst, Eigen::NoChange);
+        Y.conservativeResize(n_inst, Eigen::NoChange);
+    }
 
     auto m_test = credit::read_test();
     if (m_test.has_error())

@@ -70,7 +70,7 @@ RobustDecisionTree<HAR_X,HAR_Y> new_RDT(TreeArguments<HAR_X,HAR_Y>&& args)
 }
 
 void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
-    size_t min_instances_per_node, int budget, int maxiter, bool affine)
+    size_t min_instances_per_node, int budget, int maxiter, bool affine, int n_inst)
 {
     auto m_df = har::read_train();
     if (m_df.has_error())
@@ -78,6 +78,12 @@ void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth,
     auto& df_tupl = m_df.value();
     auto& X = std::get<0>(df_tupl);
     auto& Y = std::get<1>(df_tupl);
+
+    if (n_inst > 0)
+    {
+        X.conservativeResize(n_inst, Eigen::NoChange);
+        Y.conservativeResize(n_inst, Eigen::NoChange);
+    }
 
     auto m_test = har::read_test();
     if (m_test.has_error())

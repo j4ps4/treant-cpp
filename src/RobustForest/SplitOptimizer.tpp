@@ -65,67 +65,29 @@ double logloss_nlopt<2>(unsigned n, const double* x, double* grad, void* data)
 
     count__++;
 
-    const double SL = cL.sum();
-    const double SU = cU.sum();
-    const double SR = cR.sum();
-
-    // if (SL == 0.0)
-    //     Util::warn("SL == 0");
-    // if (SR == 0.0)
-    //     Util::warn("SR == 0");
-
     // safe log
     auto mlog = [](double x){return std::log(std::min(std::max(x,EPS),1-EPS));};
 
-    if (SU > 0.0)
-    {
-    // const auto cc_0 = x[0] <= x[2] ? std::make_tuple(cL(0)+cU(0), cR(0)) 
-    //                                : std::make_tuple(cL(0), cR(0)+cU(0));
-    // const auto cc_1 = x[1] <= x[3] ? std::make_tuple(cL(1)+cU(1), cR(1)) 
-    //                                : std::make_tuple(cL(1), cR(1)+cU(1));
-    const auto cc_0 = x[0] > x[2] ? std::make_tuple(cL(0)/SL+cU(0)/SU, cR(0)/SR) 
-                                   : std::make_tuple(cL(0)/SL, cR(0)/SR+cU(0)/SU);
-    const auto cc_1 = x[1] > x[3] ? std::make_tuple(cL(1)/SL+cU(1)/SU, cR(1)/SR) 
-                                   : std::make_tuple(cL(1)/SL, cR(1)/SR+cU(1)/SU);
+    const auto cc_0 = x[0] <= x[2] ? std::make_tuple(cL(0)+cU(0), cR(0)) 
+                                   : std::make_tuple(cL(0), cR(0)+cU(0));
+    const auto cc_1 = x[1] <= x[3] ? std::make_tuple(cL(1)+cU(1), cR(1)) 
+                                   : std::make_tuple(cL(1), cR(1)+cU(1));
     
     // const auto sL = std::get<0>(cc_0)+std::get<0>(cc_1);
     // const auto sR = std::get<1>(cc_0)+std::get<1>(cc_1);
 
-    const auto LEFT_COEFF0 = SL > 0.0 ? std::get<0>(cc_0) : 0.0;
-    const auto LEFT_COEFF1 = SL > 0.0 ? std::get<0>(cc_1) : 0.0;
-    const auto RIGHT_COEFF0 = SR > 0.0 ? std::get<1>(cc_0) : 0.0;
-    const auto RIGHT_COEFF1 = SR > 0.0 ? std::get<1>(cc_1) : 0.0;
+    if (grad != nullptr)
+    {
+        grad[0] = std::get<0>(cc_0) * -1.0/x[0];
+        grad[1] = std::get<0>(cc_1) * -1.0/x[1];
+        grad[2] = std::get<1>(cc_0) * -1.0/x[2];
+        grad[3] = std::get<1>(cc_1) * -1.0/x[3];
+    }
+    return std::get<0>(cc_0) * -mlog(x[0])
+         + std::get<0>(cc_1) * -mlog(x[1])
+         + std::get<1>(cc_0) * -mlog(x[2])
+         + std::get<1>(cc_1) * -mlog(x[3]);
 
-    if (grad != nullptr)
-    {
-        grad[0] = LEFT_COEFF0 * -1.0/x[0];
-        grad[1] = LEFT_COEFF1 * -1.0/x[1];
-        grad[2] = RIGHT_COEFF0 * -1.0/x[2];
-        grad[3] = RIGHT_COEFF1 * -1.0/x[3];
-    }
-    return LEFT_COEFF0 * -mlog(x[0])
-         + LEFT_COEFF1 * -mlog(x[1])
-         + RIGHT_COEFF0 * -mlog(x[2])
-         + RIGHT_COEFF1 * -mlog(x[3]);
-    }
-    else
-    {
-    const auto LEFT_COEFF0 = SL > 0.0 ? cL(0)/SL : 0.0;
-    const auto LEFT_COEFF1 = SL > 0.0 ? cL(1)/SL : 0.0;
-    const auto RIGHT_COEFF0 = SR > 0.0 ? cR(0)/SR : 0.0;
-    const auto RIGHT_COEFF1 = SR > 0.0 ? cR(1)/SR : 0.0;
-    if (grad != nullptr)
-    {
-        grad[0] = LEFT_COEFF0 * -1.0/x[0];
-        grad[1] = LEFT_COEFF1 * -1.0/x[1];
-        grad[2] = RIGHT_COEFF0 * -1.0/x[2];
-        grad[3] = RIGHT_COEFF1 * -1.0/x[3];
-    }
-    return LEFT_COEFF0 * -mlog(x[0])
-         + LEFT_COEFF1 * -mlog(x[1])
-         + RIGHT_COEFF0 * -mlog(x[2])
-         + RIGHT_COEFF1 * -mlog(x[3]);
-    }
 }
 
 template<>

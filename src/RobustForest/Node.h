@@ -60,6 +60,7 @@ public:
     Node<NY>* right() const noexcept {return right_.get();}
     void set_loss(double loss) noexcept {loss_ = loss;}
     void set_gain(double gain) noexcept {gain_ = gain;}
+    double get_gain() const noexcept {return gain_;}
     void set_best_split_id(size_t id) noexcept {best_split_id_ = id;}
     void set_best_split_value(double val) noexcept {best_split_val_ = val;}
     size_t get_best_split_id() const noexcept {return best_split_id_;}

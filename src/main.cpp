@@ -53,12 +53,16 @@ int main(int argc, char** argv)
 {
     cxxopts::Options options("treant", "robust tree classifier");
     options.add_options()
-        ("test", "perform testing on trained model",
+        ("test", "perform testing on a trained model",
+        cxxopts::value<std::string>()->default_value(""))
+        ("gain", "compute feature importance values for a trained model",
         cxxopts::value<std::string>()->default_value(""))
         ("data", "dataset to use",
         cxxopts::value<std::string>()->default_value("credit"))
         ("algo", "algorithm: robust, icml2019, standard",
         cxxopts::value<std::string>()->default_value("robust"))
+        ("attack_file", "json file describing the attacks",
+        cxxopts::value<std::string>()->default_value(""))
         ("budget", "maximum budget of attacker",
         cxxopts::value<int>()->default_value("50"))
         ("maxiter", "maximum nlopt iterations",
@@ -75,13 +79,23 @@ int main(int argc, char** argv)
         exit(0);
     }
 
+    auto attack_file = opts["attack_file"].as<std::string>();
     if (opts.count("test"))
     {
         auto [dataset, path] = parseTest(opts["test"].as<std::string>());
         if (dataset == DataSet::Credit)
-            credit::load_and_test(path);
+            credit::load_and_test(path, attack_file);
         else if (dataset == DataSet::Har)
-            har::load_and_test(path);
+            har::load_and_test(path, attack_file);
+        return 0;
+    }
+    else if (opts.count("gain"))
+    {
+        auto [dataset, path] = parseTest(opts["gain"].as<std::string>());
+        if (dataset == DataSet::Credit)
+            credit::put_gain_values(path);
+        else if (dataset == DataSet::Har)
+            har::put_gain_values(path);
         return 0;
     }
 
@@ -97,11 +111,11 @@ int main(int argc, char** argv)
     auto algo = parse_algo(algostr);
 
     if (dataset == "credit")
-        credit::train_and_test(SplitFunction::LogLoss, algo, maxdepth, 20, budget, true, n_inst);
+        credit::train_and_test(SplitFunction::LogLoss, algo, maxdepth, 20, budget, true, n_inst, attack_file);
     else if (dataset == "covertype")
         covertype::train_and_test(SplitFunction::LogLoss, algo, maxdepth, 20, budget, true);
     else if (dataset == "har")
-        har::train_and_test(SplitFunction::LogLoss, algo, maxdepth, 20, budget, maxiter, true, n_inst);
+        har::train_and_test(SplitFunction::LogLoss, algo, maxdepth, 20, budget, maxiter, true, n_inst, attack_file);
     else
         Util::die("invalid dataset: {}", dataset);
     

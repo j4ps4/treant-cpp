@@ -47,14 +47,13 @@ cpp::result<std::tuple<DF<FOREST_X>,DF<FOREST_Y>>,std::string> read_test()
 
 cpp::result<std::unique_ptr<Attacker<FOREST_X>>,std::string> new_Attacker(int budget, const DF<FOREST_X>& X)
 {
-    std::filesystem::path attack_file = "";
     auto res = load_attack_rules(json_file, column_map);
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
     auto atkr = std::make_unique<Attacker<FOREST_X>>(std::move(rulz), budget);
     Util::info("computing attacks...");
-    atkr->compute_attacks(X, attack_file);
+    atkr->compute_attacks(X);
     return atkr;
 }
 

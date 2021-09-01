@@ -30,7 +30,9 @@ namespace har
     RobustDecisionTree<HAR_X,HAR_Y> new_RDT(TreeArguments<HAR_X,HAR_Y>&& args);
 
     void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
-        size_t min_instances_per_node, int budget, int maxiter, bool affine, int n_inst);
+        size_t min_instances_per_node, int budget, int maxiter, bool affine, int n_inst,
+        const std::string& attack_file);
 
-    void load_and_test(const std::filesystem::path& fn);
+    void load_and_test(const std::filesystem::path& fn, const std::string& attack_file);
+    void put_gain_values(const std::filesystem::path& fn);
 }

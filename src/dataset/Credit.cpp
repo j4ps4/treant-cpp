@@ -15,7 +15,8 @@ const std::filesystem::path models_dir = data_dir / "models";
 const std::filesystem::path train_file = data_dir / "train.csv.bz2";
 const std::filesystem::path valid_file = data_dir / "valid.csv.bz2";
 const std::filesystem::path test_file = data_dir / "test.csv.bz2";
-const std::filesystem::path json_file = data_dir / "attacks.json";
+std::filesystem::path default_json_file = data_dir / "attacks.json";
+std::filesystem::path json_file;
 
 // std::filesystem::path Hostile::attack_filename() const
 // {
@@ -67,15 +68,17 @@ cpp::result<std::tuple<DF<CREDIT_X>,DF<CREDIT_Y>>,std::string> read_test()
 cpp::result<std::unique_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int budget, const DF<CREDIT_X>& X,
     bool print)
 {
-    std::filesystem::path attack_file = "";
-    auto res = load_attack_rules(json_file, column_map);
+    std::filesystem::path& attack_file = default_json_file;
+    if (!json_file.empty())
+        attack_file = json_file;
+    auto res = load_attack_rules(attack_file, column_map);
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
     auto atkr = std::make_unique<Attacker<CREDIT_X>>(std::move(rulz), budget);
     if (print)
         Util::info("computing attacks...");
-    atkr->compute_attacks(X, attack_file);
+    atkr->compute_attacks(X);
     return atkr;
 }
 
@@ -98,7 +101,7 @@ RobustDecisionTree<CREDIT_X,CREDIT_Y> new_RDT(TreeArguments<CREDIT_X,CREDIT_Y>&&
 }
 
 void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
-    size_t min_instances_per_node, int budget, bool affine, int n_inst)
+    size_t min_instances_per_node, int budget, bool affine, int n_inst, const std::string& attack_file)
 {
     auto m_df = credit::read_train();
     if (m_df.has_error())
@@ -127,6 +130,7 @@ void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth,
 
     if (algo != TrainingAlgo::Standard)
     {
+        json_file = attack_file;
         auto m_atkr = credit::new_Attacker(budget, X);
         if (m_atkr.has_error())
             Util::die("{}", m_atkr.error());
@@ -155,7 +159,7 @@ void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth,
     tree.dump_to_disk(full_model_name);
 }
 
-void load_and_test(const std::filesystem::path& fn)
+void load_and_test(const std::filesystem::path& fn, const std::string& attack_file)
 {
     auto m_df = credit::read_train();
     if (m_df.has_error())
@@ -174,6 +178,7 @@ void load_and_test(const std::filesystem::path& fn)
     auto tree = RobustDecisionTree<CREDIT_X,CREDIT_Y>::load_from_disk(fn);
     tree.print_test_score(X_test, Y_test, Y);
 
+    json_file = attack_file;
     for (int budget : {10,20,30,40,50,60,70,80,90,100})
     {
         auto m_atkr = credit::new_Attacker(budget, X_test, false);
@@ -183,6 +188,19 @@ void load_and_test(const std::filesystem::path& fn)
         double score = tree.get_attacked_score(*ptr, X_test, Y_test);
         fmt::print("budget {}: test score {:.2f}%\n", budget, score);
     }
+}
+
+void put_gain_values(const std::filesystem::path& fn)
+{
+    auto tree = RobustDecisionTree<CREDIT_X,CREDIT_Y>::load_from_disk(fn);
+    auto gains = tree.feature_importance();
+
+    std::map<double,size_t> ordered;
+    for (auto [fid, gain] : gains)
+        ordered[gain] = fid;
+    fmt::print("Gain\tFeature\n");
+    for (auto [gain, fid] : ordered)
+        fmt::print("{:.2f}\t{}\n", gain, fid);
 }
 
 }

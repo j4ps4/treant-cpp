@@ -293,3 +293,30 @@ double RobustDecisionTree<NX,NY>::get_attacked_score(Attacker<NX>& attacker,
     }
     return 100.0 - 100.0 * static_cast<double>(score) / static_cast<double>(S);
 }
+
+template<size_t NX, size_t NY>
+std::map<size_t, double> RobustDecisionTree<NX,NY>::feature_importance() const
+{
+    if (!isTrained_)
+        Util::die("tree {} is not trained", id_);
+
+    std::map<size_t, double> fimp;
+    if (root_->is_leaf())
+        return fimp;
+    feature_importance_(root_->left(), fimp);
+    feature_importance_(root_->right(), fimp);
+    return fimp;
+}
+
+template<size_t NX, size_t NY>
+void RobustDecisionTree<NX,NY>::feature_importance_(const Node<NY>* node, std::map<size_t,double>& dict) const
+{
+    if (node->is_leaf())
+        return;
+    else
+    {
+        feature_importance_(node->left(), dict);
+        feature_importance_(node->right(), dict);
+        dict[node->get_best_split_id()] += node->get_gain();
+    }
+}

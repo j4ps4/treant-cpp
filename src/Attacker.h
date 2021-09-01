@@ -77,7 +77,7 @@ public:
 
     bool is_filled() const;
 
-    void compute_attacks(const DF<NX>& X, const std::filesystem::path& attacks_fn);
+    void compute_attacks(const DF<NX>& X);
     
     void print_rules() const;
 

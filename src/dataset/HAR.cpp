@@ -14,7 +14,8 @@ const std::filesystem::path data_dir = "data/har/";
 const std::filesystem::path models_dir = data_dir / "models";
 const std::filesystem::path train_file = data_dir / "train.csv.bz2";
 const std::filesystem::path test_file = data_dir / "test.csv.bz2";
-const std::filesystem::path json_file = data_dir / "attacks.json";
+std::filesystem::path default_json_file = data_dir / "attacks.json";
+std::filesystem::path json_file;
 
 // std::filesystem::path Hostile::attack_filename() const
 // {
@@ -23,8 +24,36 @@ const std::filesystem::path json_file = data_dir / "attacks.json";
 // }
 
 static const std::map<std::string, size_t> column_map{
-    {{"tBodyAcc-mean()-X",0},
-    {"tBodyAcc-mean()-Y",1}}};
+    {{ "tBodyAcc-mean()-X",0 },
+    { "tBodyAcc-mean()-Y",1 },
+    { "tBodyAcc-mean()-Z",2 },
+    { "tBodyAcc-std()-X",3 },
+    { "tBodyAcc-std()-Y",4 },
+    { "tBodyAcc-std()-Z",5 },
+    { "tBodyAcc-mad()-X",6 },
+    { "tBodyAcc-mad()-Y",7 },
+    { "tBodyAcc-mad()-Z",8 },
+    { "tBodyAcc-max()-X",9 },
+    { "tBodyAcc-max()-Y",10 },
+    { "tBodyAcc-max()-Z",11 },
+    { "tBodyAcc-min()-X",12 },
+    { "tBodyAcc-min()-Y",13 },
+    { "tBodyAcc-min()-Z",14 },
+    { "tBodyAcc-sma()",15 },
+    { "tBodyAcc-energy()-X",16 },
+    { "tBodyAcc-energy()-Y",17 },
+    { "tBodyAcc-energy()-Z",18 },
+    { "tBodyAcc-iqr()-X",19 },
+    { "tBodyAcc-iqr()-Y",20 },
+    { "tBodyAcc-iqr()-Z",21 },
+    { "tBodyAcc-entropy()-X",22 },
+    { "tBodyAcc-entropy()-Y",23 },
+    { "tBodyAcc-entropy()-Z",24 },
+    { "tBodyAcc-arCoeff()-X_1",25 },
+    { "tBodyAcc-arCoeff()-X_2",26 },
+    { "tBodyAcc-arCoeff()-X_3",27 },
+    { "tBodyAcc-arCoeff()-X_4",28 },
+    { "tBodyAcc-arCoeff()-Y_1",29 }}};
 
 cpp::result<std::tuple<DF<HAR_X>,DF<HAR_Y>>,std::string> read_train()
 {
@@ -39,15 +68,17 @@ cpp::result<std::tuple<DF<HAR_X>,DF<HAR_Y>>,std::string> read_test()
 cpp::result<std::unique_ptr<Attacker<HAR_X>>,std::string> new_Attacker(int budget, const DF<HAR_X>& X,
     bool print)
 {
-    std::filesystem::path attack_file = "";
-    auto res = load_attack_rules(json_file, column_map);
+    std::filesystem::path& attack_file = default_json_file;
+    if (!json_file.empty())
+        attack_file = json_file;
+    auto res = load_attack_rules(attack_file, column_map);
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
     auto atkr = std::make_unique<Attacker<HAR_X>>(std::move(rulz), budget);
     if (print)
         Util::info("computing attacks...");
-    atkr->compute_attacks(X, attack_file);
+    atkr->compute_attacks(X);
     return atkr;
 }
 
@@ -70,7 +101,8 @@ RobustDecisionTree<HAR_X,HAR_Y> new_RDT(TreeArguments<HAR_X,HAR_Y>&& args)
 }
 
 void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
-    size_t min_instances_per_node, int budget, int maxiter, bool affine, int n_inst)
+    size_t min_instances_per_node, int budget, int maxiter, bool affine, int n_inst,
+    const std::string& attack_file)
 {
     auto m_df = har::read_train();
     if (m_df.has_error())
@@ -99,6 +131,7 @@ void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth,
 
     if (algo != TrainingAlgo::Standard)
     {
+        json_file = attack_file;
         auto m_atkr = har::new_Attacker(budget, X);
         if (m_atkr.has_error())
             Util::die("{}", m_atkr.error());
@@ -126,7 +159,7 @@ void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth,
     tree.dump_to_disk(full_model_name);
 }
 
-void load_and_test(const std::filesystem::path& fn)
+void load_and_test(const std::filesystem::path& fn, const std::string& attack_file)
 {
     auto m_df = har::read_train();
     if (m_df.has_error())
@@ -145,6 +178,7 @@ void load_and_test(const std::filesystem::path& fn)
     auto tree = RobustDecisionTree<HAR_X,HAR_Y>::load_from_disk(fn);
     tree.print_test_score(X_test, Y_test, Y);
 
+    json_file = attack_file;
     for (int budget : {10,20,30,40,50,60,70,80,90,100})
     {
         auto m_atkr = har::new_Attacker(budget, X_test, false);
@@ -154,6 +188,19 @@ void load_and_test(const std::filesystem::path& fn)
         double score = tree.get_attacked_score(*ptr, X_test, Y_test);
         fmt::print("budget {}: test score {:.2f}%\n", budget, score);
     }
+}
+
+void put_gain_values(const std::filesystem::path& fn)
+{
+    auto tree = RobustDecisionTree<HAR_X,HAR_Y>::load_from_disk(fn);
+    auto gains = tree.feature_importance();
+
+    std::map<double,size_t> ordered;
+    for (auto [fid, gain] : gains)
+        ordered[gain] = fid;
+    fmt::print("Gain\tFeature\n");
+    for (auto [gain, fid] : ordered)
+        fmt::print("{:.2f}\t{}\n", gain, fid);
 }
 
 }

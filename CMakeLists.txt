@@ -52,7 +52,7 @@ target_link_libraries(Covertype bz2 fmt json11 cereal)
 target_link_libraries(HAR bz2 fmt json11 cereal)
 target_link_libraries(${target_name} Credit Covertype HAR cxxopts fmt nlopt)
 
-set(lib_cxx_flags -Og -pg -Wall -Wno-unused-variable -Wno-unused-function -Wno-deprecated)
+set(lib_cxx_flags -Og -pg -Wall -Wconversion -Wno-unused-variable -Wno-unused-function -Wno-deprecated)
 
 # TODO find a better way
 target_compile_options(${target_name} PRIVATE $<$<CONFIG:Debug>:${lib_cxx_flags}>)

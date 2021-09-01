@@ -125,7 +125,7 @@ TupleVec<N> Attacker<N>::compute_attack(const Row<N>& rw, size_t feature_id, int
 }
 
 template<size_t N>
-void Attacker<N>::compute_attacks(const DF<N>& X, const std::filesystem::path& attacks_fn)
+void Attacker<N>::compute_attacks(const DF<N>& X)
 {
     // std::vector<size_t> fs;
     // for (const auto& r : rules_)

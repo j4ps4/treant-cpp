@@ -23,6 +23,7 @@ struct TreeArguments
     size_t min_instances_per_node;
     int maxiter;
     bool affine;
+    std::set<size_t> feature_bl;
 };
 
 template<size_t NX, size_t NY>
@@ -32,7 +33,7 @@ class RobustDecisionTree
 public:
     RobustDecisionTree(TreeArguments<NX,NY>&& args) :
         id_(args.id), max_depth_(args.max_depth), min_instances_per_node_(args.min_instances_per_node),
-        attacker_(std::move(args.attacker)), affine_(args.affine)
+        attacker_(std::move(args.attacker)), affine_(args.affine), start_feature_bl_(args.feature_bl)
     {
         optimizer_ = std::make_unique<SplitOptimizer<NX,NY>>(args.fun, args.algo, args.maxiter);
         isTrained_ = false;

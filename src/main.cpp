@@ -7,7 +7,6 @@
 #include <filesystem>
 
 #include "dataset/Credit.h"
-#include "dataset/Covertype.h"
 #include "dataset/HAR.h"
 #include "util.h"
 
@@ -68,56 +67,76 @@ int main(int argc, char** argv)
         ("maxiter", "maximum nlopt iterations",
         cxxopts::value<int>()->default_value("100"))
         ("maxdepth", "maximum depth of tree",
-        cxxopts::value<int>()->default_value("8"))
+        cxxopts::value<size_t>()->default_value("8"))
         ("n_inst", "number of instances to use in training",
         cxxopts::value<int>()->default_value("-1"))
+        ("feature_blacklist", "features to ignore when considering a split",
+        cxxopts::value<std::vector<size_t>>()->default_value(""))
         ("h,help", "print usage");
-    auto opts = options.parse(argc, argv);
-    if (opts.count("help"))
-    {
-        fmt::print("{}\n", options.help());
-        exit(0);
-    }
-
-    auto attack_file = opts["attack_file"].as<std::string>();
-    if (opts.count("test"))
-    {
-        auto [dataset, path] = parseTest(opts["test"].as<std::string>());
-        if (dataset == DataSet::Credit)
-            credit::load_and_test(path, attack_file);
-        else if (dataset == DataSet::Har)
-            har::load_and_test(path, attack_file);
-        return 0;
-    }
-    else if (opts.count("gain"))
-    {
-        auto [dataset, path] = parseTest(opts["gain"].as<std::string>());
-        if (dataset == DataSet::Credit)
-            credit::put_gain_values(path);
-        else if (dataset == DataSet::Har)
-            har::put_gain_values(path);
-        return 0;
-    }
-
-    auto dataset = opts["data"].as<std::string>();
-    auto algostr = opts["algo"].as<std::string>();
-    auto budget = opts["budget"].as<int>();
-    auto maxiter = opts["maxiter"].as<int>();
-    auto maxdepth = opts["maxdepth"].as<int>();
-    auto n_inst = opts["n_inst"].as<int>();
-
-    toLower(dataset); 
-    toLower(algostr); 
-    auto algo = parse_algo(algostr);
-
-    if (dataset == "credit")
-        credit::train_and_test(SplitFunction::LogLoss, algo, maxdepth, 20, budget, true, n_inst, attack_file);
-    else if (dataset == "covertype")
-        covertype::train_and_test(SplitFunction::LogLoss, algo, maxdepth, 20, budget, true);
-    else if (dataset == "har")
-        har::train_and_test(SplitFunction::LogLoss, algo, maxdepth, 20, budget, maxiter, true, n_inst, attack_file);
-    else
-        Util::die("invalid dataset: {}", dataset);
     
+    try
+    {
+        auto opts = options.parse(argc, argv);
+        if (opts.count("help"))
+        {
+            fmt::print("{}\n", options.help());
+            exit(0);
+        }
+
+        auto attack_file = opts["attack_file"].as<std::string>();
+        if (opts.count("test"))
+        {
+            auto [dataset, path] = parseTest(opts["test"].as<std::string>());
+            if (dataset == DataSet::Credit)
+                credit::load_and_test(path, attack_file);
+            else if (dataset == DataSet::Har)
+                har::load_and_test(path, attack_file);
+            return 0;
+        }
+        else if (opts.count("gain"))
+        {
+            auto [dataset, path] = parseTest(opts["gain"].as<std::string>());
+            if (dataset == DataSet::Credit)
+                credit::put_gain_values(path);
+            else if (dataset == DataSet::Har)
+                har::put_gain_values(path);
+            return 0;
+        }
+
+        auto dataset = opts["data"].as<std::string>();
+        auto algostr = opts["algo"].as<std::string>();
+        auto budget = opts["budget"].as<int>();
+        auto maxiter = opts["maxiter"].as<int>();
+        auto maxdepth = opts["maxdepth"].as<size_t>();
+        auto n_inst = opts["n_inst"].as<int>();
+        auto feature_bl_vec = opts["feature_blacklist"].as<std::vector<size_t>>();
+        std::set<size_t> feature_bl;
+        for (auto f : feature_bl_vec)
+            feature_bl.insert(f);
+
+        toLower(dataset); 
+        toLower(algostr); 
+        auto algo = parse_algo(algostr);
+
+        if (dataset == "credit")
+            credit::train_and_save(
+                {.tree_args = {.id=0, .fun=SplitFunction::LogLoss, .algo=algo, .max_depth=maxdepth,
+                            .min_instances_per_node=20, .maxiter=maxiter, .affine=true, .feature_bl=feature_bl},
+                .attack_file = attack_file, .n_inst = n_inst, .budget = budget}
+            );
+        else if (dataset == "har")
+            har::train_and_save(
+                {.tree_args = {.id=0, .fun=SplitFunction::LogLoss, .algo=algo, .max_depth=maxdepth,
+                            .min_instances_per_node=20, .maxiter=maxiter, .affine=true, .feature_bl=feature_bl},
+                .attack_file = attack_file, .n_inst = n_inst, .budget = budget}
+            );
+        else
+            Util::die("invalid dataset: {}", dataset);
+        
+    }
+    catch(const std::exception& e)
+    {
+        Util::die(e.what());
+    }
     return 0;
 }

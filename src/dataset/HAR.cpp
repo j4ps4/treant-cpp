@@ -100,9 +100,7 @@ RobustDecisionTree<HAR_X,HAR_Y> new_RDT(TreeArguments<HAR_X,HAR_Y>&& args)
     return RobustDecisionTree<HAR_X,HAR_Y>(std::move(args));
 }
 
-void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
-    size_t min_instances_per_node, int budget, int maxiter, bool affine, int n_inst,
-    const std::string& attack_file)
+void train_and_save(train_args<HAR_X,HAR_Y>&& args)
 {
     auto m_df = har::read_train();
     if (m_df.has_error())
@@ -111,10 +109,10 @@ void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth,
     auto& X = std::get<0>(df_tupl);
     auto& Y = std::get<1>(df_tupl);
 
-    if (n_inst > 0)
+    if (args.n_inst > 0)
     {
-        X.conservativeResize(n_inst, Eigen::NoChange);
-        Y.conservativeResize(n_inst, Eigen::NoChange);
+        X.conservativeResize(args.n_inst, Eigen::NoChange);
+        Y.conservativeResize(args.n_inst, Eigen::NoChange);
     }
 
     auto m_test = har::read_test();
@@ -129,21 +127,18 @@ void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth,
 
     RobustDecisionTree<HAR_X,HAR_Y> tree;
 
-    if (algo != TrainingAlgo::Standard)
+    if (args.tree_args.algo != TrainingAlgo::Standard)
     {
-        json_file = attack_file;
-        auto m_atkr = har::new_Attacker(budget, X);
+        json_file = args.attack_file;
+        auto m_atkr = har::new_Attacker(args.budget, X);
         if (m_atkr.has_error())
             Util::die("{}", m_atkr.error());
-        tree = har::new_RDT({.id = 0, .attacker = std::move(m_atkr.value()),
-            .fun = fun, .algo = algo, .max_depth = max_depth, 
-            .min_instances_per_node = min_instances_per_node, .maxiter = 100, .affine = affine});
+        args.tree_args.attacker = std::move(m_atkr.value());
+        tree = har::new_RDT(std::move(args.tree_args));
     }
     else
     {
-        tree = har::new_RDT({.id = 0, .attacker = nullptr,
-            .fun = fun, .algo = algo, .max_depth = max_depth, 
-            .min_instances_per_node = min_instances_per_node, .maxiter = 100, .affine = affine});
+        tree = har::new_RDT(std::move(args.tree_args));
     }
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
     tree.fit(X, Y);

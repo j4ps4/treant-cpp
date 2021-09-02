@@ -5,10 +5,6 @@
 #include <iostream>
 
 #include <fmt/core.h>
-// #include <cereal/types/unordered_map.hpp>
-// #include <cereal/types/vector.hpp>
-// #include <cereal/types/tuple.hpp>
-// #include <cereal/archives/binary.hpp>
 #include <fstream>
 
 #include "util.h"
@@ -37,36 +33,9 @@ bool check_equal_perturbation(const TupleVec<N>& attacks, const PairT<N>& y)
     return false;
 }
 
-template<typename T>
-struct head_impl;
-
-template<std::size_t I, std::size_t... Is>
-struct head_impl<std::index_sequence<I, Is...>>
-{
-    static constexpr size_t value = I;
-};
-
-template<typename T>
-struct tail_impl;
-
-template<std::size_t I, std::size_t... Is>
-struct tail_impl<std::index_sequence<I, Is...>>
-{
-    using value = std::index_sequence<Is...>;
-};
-
-template<typename T>
-using tail = typename tail_impl<T>::value;
-
-template<typename T>
-constexpr size_t head()
-{
-    return head_impl<T>::value;
-}
-
 template<size_t N>
 void compute_impl(const TupleVec<N>& attacks, const AttkList& rules, std::deque<PairT<N>>& queue,
-    const Row<N>& inst, int total_budget, int budget, size_t feature_id, int cost)
+    const Row<N>& inst, int total_budget, int budget, size_t feature_id)
 {
     for (const auto& rule : rules)
     {
@@ -119,7 +88,7 @@ TupleVec<N> Attacker<N>::compute_attack(const Row<N>& rw, size_t feature_id, int
         auto [inst, budget] = queue.back();
         queue.pop_back();
         attacks.push_back(std::make_tuple(inst, budget));
-        compute_impl<N>(attacks, rules_, queue, inst, budget_, budget, feature_id, cost);
+        compute_impl<N>(attacks, rules_, queue, inst, budget_, budget, feature_id);
     }
     return attacks;
 }
@@ -127,13 +96,6 @@ TupleVec<N> Attacker<N>::compute_attack(const Row<N>& rw, size_t feature_id, int
 template<size_t N>
 void Attacker<N>::compute_attacks(const DF<N>& X)
 {
-    // std::vector<size_t> fs;
-    // for (const auto& r : rules_)
-    // {
-    //     auto f = r.get_target_feature();
-    //     fs.push_back(f);
-    // }
-    // Util::info("My budget is {}", budget_);
     const auto H = X.rows();
     for (int64_t i = 0; i < H; i++)
     {
@@ -145,43 +107,7 @@ void Attacker<N>::compute_attacks(const DF<N>& X)
             attacks_[key] = compute_attack(rw, j, 0);
         }
     }
-    //Util::info("computed {} attacks.", attacks_.size());
-    // TODO possible bug:
-    //  210000       1       1       1      25      -1      -1      -1      -1      -1      -1 8735.16 9883.77    9571 17182.1 16399.8 8666.73    1287 2107.23    1256     296    1816     999, cost: 100
-    //  200000       1       1       1      25      -1      -1      -1      -1      -1      -1 8735.16 9883.77    9571 17182.1 16399.8 8666.73    1287 2107.23    1256     296    1816     999, cost: 100
-    // fmt::print("first 10 attacks:\n");
-    // size_t count = 0;
-    // for (auto& [key, vect] : attacks_)
-    // {
-    //     if (count >= 10)
-    //         break;
-    //     std::cout << "key: (" << std::get<0>(key) << ", " << std::get<1>(key) << ")\n";
-    //     for (auto& pair : vect)
-    //     {
-    //         auto& vec = std::get<0>(pair);
-    //         auto cost = std::get<1>(pair);
-    //         std::cout << vec << ", cost: " << cost << "\n"; 
-    //         //fmt::print("{}, cost: {}\n", vec, cost);
-    //     }
-    //     count++;
-    // }
-    // std::exit(1);
-    // dump attacks_ to file
-    // std::ofstream os(attacks_fn, std::ios::binary);
-    // cereal::BinaryOutputArchive archive(os);
-    // archive(attacks_);
 }
-
-// template<typename... Ts>
-// void Attacker<Ts...>::load_attacks(const std::filesystem::path& fn)
-// {
-//     std::ifstream is(fn, std::ios::binary);
-//     cereal::BinaryInputArchive archive(is);
-//     AttackDict<Ts...> attacks;
-//     archive(attacks);
-//     attacks_ = std::move(attacks);
-//     Util::info("loaded {} attacks.\n", attacks_.size());
-// }
 
 template<size_t N>
 void Attacker<N>::print_rules() const
@@ -223,6 +149,34 @@ TupleVec<NX> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id, int cost)
     {
         TupleVec<NX> out{{x, cost}};
         return out;
+    }
+
+}
+
+template<size_t NX>
+std::optional<TupleVec<NX>> Attacker<NX>::maybe_attack(const Row<NX>& x, size_t feature_id, int cost)
+{
+    if (std::find(features_.begin(), features_.end(), feature_id) != features_.end())
+    {
+        auto attack_key = std::make_tuple(x, feature_id);
+        if (!attacks_.contains(attack_key))
+            attacks_[attack_key] = compute_attack(x, feature_id, cost);
+
+        auto& attacks_xf = attacks_.at(attack_key);
+        TupleVec<NX> out;
+        // first attack is the original instance, ignore it
+        std::copy_if(attacks_xf.begin()+1, attacks_xf.end(), std::back_inserter(out), [this, cost](auto& pair){
+            return std::get<1>(pair) <= budget_ - cost;
+        });
+        if (out.empty())
+            return {};
+        for (auto& pair : out)
+            std::get<1>(pair) += cost;
+        return out;
+    }
+    else
+    {
+        return {};
     }
 
 }

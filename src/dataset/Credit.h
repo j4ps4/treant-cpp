@@ -14,6 +14,7 @@ constexpr size_t CREDIT_Y = 2;
 #include "../DF2/DF_def.h"
 #include "../Attacker.h"
 #include "../RobustForest/RobustDecisionTree.h"
+#include "common.h"
 
 namespace credit
 {
@@ -28,9 +29,7 @@ namespace credit
     // Create a robust decision tree
     RobustDecisionTree<CREDIT_X,CREDIT_Y> new_RDT(TreeArguments<CREDIT_X,CREDIT_Y>&& args);
 
-    void train_and_test(SplitFunction fun, TrainingAlgo algo, size_t max_depth, 
-        size_t min_instances_per_node, int budget, bool affine, int n_inst,
-        const std::string& attack_file);
+    void train_and_save(train_args<CREDIT_X,CREDIT_Y>&& args);
 
     void load_and_test(const std::filesystem::path& fn, const std::string& attack_file);
     void put_gain_values(const std::filesystem::path& fn);

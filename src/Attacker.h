@@ -5,6 +5,7 @@
 #include <tuple>
 #include <array>
 #include <filesystem>
+#include <optional>
 
 #include "DF2/DF_def.h"
 #include "AttackerRule.h"
@@ -88,6 +89,7 @@ public:
     int get_budget() const noexcept {return budget_;}
 
     TupleVec<NX> attack(const Row<NX>& x, size_t feature_id, int cost);
+    std::optional<TupleVec<NX>> maybe_attack(const Row<NX>& x, size_t feature_id, int cost);
 
 private:
     void compute_target_features();

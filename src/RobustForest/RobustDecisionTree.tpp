@@ -229,6 +229,16 @@ RobustDecisionTree<NX,NY> RobustDecisionTree<NX,NY>::load_from_disk(const std::f
 template<size_t NX, size_t NY>
 std::string RobustDecisionTree<NX,NY>::get_model_name() const
 {
+    auto bl_string = [this]()->std::string{
+        if (start_feature_bl_.empty())
+            return "";
+        std::stringstream ss;
+        ss << "-BL";
+        for (auto f : start_feature_bl_)
+            ss << f << ",";
+        auto s = ss.str();
+        return s.substr(0, s.size()-1); 
+    };
 	std::string algo_str;
     if (!optimizer_)
         return "null-tree";
@@ -240,9 +250,9 @@ std::string RobustDecisionTree<NX,NY>::get_model_name() const
     else
         algo_str = "Standard";
     if (algo == TrainingAlgo::Standard)
-    	return fmt::format("{}-D{}.cereal", algo_str, max_depth_);
+    	return fmt::format("{}-D{}{}.cereal", algo_str, max_depth_, bl_string());
     else
-    	return fmt::format("{}-B{}-D{}.cereal", algo_str, attacker_->get_budget(), max_depth_);
+    	return fmt::format("{}-B{}-D{}{}.cereal", algo_str, attacker_->get_budget(), max_depth_, bl_string());
 }
 
 template<size_t NX, size_t NY>
@@ -263,35 +273,40 @@ double RobustDecisionTree<NX,NY>::get_attacked_score(Attacker<NX>& attacker,
         Util::die("tree {} is not trained", id_);
     
     size_t score = 0;
+    size_t total_attacks = 0;
     // (instance, true y)
-    std::vector<std::tuple<Row<NX>,size_t>> attack_vec;
+    // std::vector<std::tuple<Row<NX>,size_t>> attack_vec;
     const auto& feats = attacker.target_features();
-    attack_vec.reserve(X.rows()*feats.size());
+    //attack_vec.reserve(X.rows()*feats.size());
     for (int64_t i = 0; i < X.rows(); i++)
     {
+        total_attacks++;
         Eigen::Index max_ind;
         Y.row(i).maxCoeff(&max_ind);
+        const auto true_y = static_cast<size_t>(max_ind);
+        const auto pred_y = predict(X.row(i));
+        if (true_y != pred_y)
+        {
+            score++;
+        }
         for (auto f : feats)
         {
-            auto attacks = attacker.attack(X.row(i), f, 0);
-            for (auto& [inst, c] : attacks)
-                attack_vec.push_back(std::make_tuple(inst, (size_t)max_ind));
+            const auto attacks = attacker.maybe_attack(X.row(i), f, 0);
+            if (attacks)
+            {
+                for (auto& [inst, c] : attacks.value())
+                {
+                    total_attacks++;
+                    const auto pred_att = predict(inst);
+                    if (true_y != pred_att)
+                    {
+                        score++;
+                    }
+                }
+            }
         }
     }
-    std::vector<size_t> pred_vec;
-    pred_vec.reserve(attack_vec.size());
-    for (const auto& [inst, y] : attack_vec)
-        pred_vec.push_back(predict(inst));
-
-    const auto S = attack_vec.size();
-    for (size_t i = 0; i < S; i++)
-    {
-        const auto true_y = std::get<1>(attack_vec[i]);
-        const auto pred_y = pred_vec[i];
-        if (true_y != pred_y)
-            score++;
-    }
-    return 100.0 - 100.0 * static_cast<double>(score) / static_cast<double>(S);
+    return 100.0 - 100.0 * static_cast<double>(score) / static_cast<double>(total_attacks);
 }
 
 template<size_t NX, size_t NY>

@@ -65,9 +65,4 @@ target_compile_features(${target_name} PRIVATE cxx_std_20)
 target_compile_features(Credit PRIVATE cxx_std_20)
 target_compile_features(HAR PRIVATE cxx_std_20)
 
-if(ENABLE_MY_TESTING)
-  enable_testing()
-  add_subdirectory(test)
-endif()
-
 message("Generated with ${CMAKE_BUILD_TYPE}")

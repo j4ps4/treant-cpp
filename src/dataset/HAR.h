@@ -30,7 +30,7 @@ namespace har
     // Create a robust decision tree
     RobustDecisionTree<HAR_X,HAR_Y> new_RDT(TreeArguments<HAR_X,HAR_Y>&& args);
 
-    void train_and_save(train_args<HAR_X,HAR_Y>&& args);
+    void train_and_save(TrainArguments<HAR_X,HAR_Y>&& args);
 
     void load_and_test(const std::filesystem::path& fn, const std::string& attack_file);
     void put_gain_values(const std::filesystem::path& fn);

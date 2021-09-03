@@ -154,25 +154,21 @@ TupleVec<NX> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id, int cost)
 }
 
 template<size_t NX>
-std::optional<TupleVec<NX>> Attacker<NX>::maybe_attack(const Row<NX>& x, size_t feature_id, int cost)
+std::optional<PairT<NX>> Attacker<NX>::single_attack(const Row<NX>& x, size_t feature_id, int budget) const
 {
-    if (std::find(features_.begin(), features_.end(), feature_id) != features_.end())
+    auto rule_it = std::find_if(rules_.cbegin(), rules_.cend(), [feature_id](const auto& rule){
+        return rule.get_target_feature() == feature_id;
+    });
+    if (rule_it != rules_.cend())
     {
-        auto attack_key = std::make_tuple(x, feature_id);
-        if (!attacks_.contains(attack_key))
-            attacks_[attack_key] = compute_attack(x, feature_id, cost);
-
-        auto& attacks_xf = attacks_.at(attack_key);
-        TupleVec<NX> out;
-        // first attack is the original instance, ignore it
-        std::copy_if(attacks_xf.begin()+1, attacks_xf.end(), std::back_inserter(out), [this, cost](auto& pair){
-            return std::get<1>(pair) <= budget_ - cost;
-        });
-        if (out.empty())
+        int cost = rule_it->get_cost();
+        if (cost > budget)
             return {};
-        for (auto& pair : out)
-            std::get<1>(pair) += cost;
-        return out;
+        if (!rule_it->template is_applicable<NX>(x))
+            return {};
+        auto att = rule_it->template apply<NX>(x);
+        auto tup = std::make_tuple(att, budget-cost);
+        return tup;
     }
     else
     {

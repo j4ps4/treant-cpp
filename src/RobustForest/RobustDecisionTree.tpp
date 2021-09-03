@@ -265,6 +265,25 @@ void RobustDecisionTree<NX,NY>::print_test_score(const DF<NX>& X_test, const DF<
     fmt::print("test score: {:.2f}% (dummy classifier: {:.2f}%)\n", test_acc, dummy_score);
 }
 
+template<size_t NX>
+static std::list<Row<NX>> att_recur(const Row<NX>& inst, const Attacker<NX>& attacker, 
+    const std::vector<size_t>& features, int budget)
+{
+    std::list<Row<NX>> out;
+    for (auto& f : features)
+    {
+        auto m_att = attacker.single_attack(inst, f, budget);
+        if (m_att)
+        {
+            auto& [att, new_budg] = m_att.value();
+            out.push_back(att);
+            auto newlist = att_recur<NX>(att, attacker, features, new_budg);
+            out.splice(out.end(), newlist);
+        }
+    }
+    return out;
+}
+
 template<size_t NX, size_t NY>
 double RobustDecisionTree<NX,NY>::get_attacked_score(Attacker<NX>& attacker,
     const DF<NX>& X, const DF<NY>& Y) const
@@ -283,26 +302,21 @@ double RobustDecisionTree<NX,NY>::get_attacked_score(Attacker<NX>& attacker,
         total_attacks++;
         Eigen::Index max_ind;
         Y.row(i).maxCoeff(&max_ind);
+        const auto inst = X.row(i);
         const auto true_y = static_cast<size_t>(max_ind);
-        const auto pred_y = predict(X.row(i));
+        const auto pred_y = predict(inst);
         if (true_y != pred_y)
         {
             score++;
         }
-        for (auto f : feats)
+        auto att_list = att_recur<NX>(inst, attacker, feats, attacker.get_budget());
+        for (auto& att : att_list)
         {
-            const auto attacks = attacker.maybe_attack(X.row(i), f, 0);
-            if (attacks)
+            total_attacks++;
+            const auto pred_att = predict(att);
+            if (true_y != pred_att)
             {
-                for (auto& [inst, c] : attacks.value())
-                {
-                    total_attacks++;
-                    const auto pred_att = predict(inst);
-                    if (true_y != pred_att)
-                    {
-                        score++;
-                    }
-                }
+                score++;
             }
         }
     }

@@ -100,7 +100,7 @@ RobustDecisionTree<HAR_X,HAR_Y> new_RDT(TreeArguments<HAR_X,HAR_Y>&& args)
     return RobustDecisionTree<HAR_X,HAR_Y>(std::move(args));
 }
 
-void train_and_save(train_args<HAR_X,HAR_Y>&& args)
+void train_and_save(TrainArguments<HAR_X,HAR_Y>&& args)
 {
     auto m_df = har::read_train();
     if (m_df.has_error())

@@ -100,7 +100,7 @@ RobustDecisionTree<CREDIT_X,CREDIT_Y> new_RDT(TreeArguments<CREDIT_X,CREDIT_Y>&&
     return RobustDecisionTree<CREDIT_X,CREDIT_Y>(std::move(args));
 }
 
-void train_and_save(train_args<CREDIT_X,CREDIT_Y>&& args)
+void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
 {
     auto m_df = credit::read_train();
     if (m_df.has_error())

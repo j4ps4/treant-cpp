@@ -29,7 +29,7 @@ namespace credit
     // Create a robust decision tree
     RobustDecisionTree<CREDIT_X,CREDIT_Y> new_RDT(TreeArguments<CREDIT_X,CREDIT_Y>&& args);
 
-    void train_and_save(train_args<CREDIT_X,CREDIT_Y>&& args);
+    void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args);
 
     void load_and_test(const std::filesystem::path& fn, const std::string& attack_file);
     void put_gain_values(const std::filesystem::path& fn);

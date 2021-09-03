@@ -88,8 +88,11 @@ public:
 
     int get_budget() const noexcept {return budget_;}
 
+    // returns attacks against a given instance, when cost has been spent already
     TupleVec<NX> attack(const Row<NX>& x, size_t feature_id, int cost);
-    std::optional<TupleVec<NX>> maybe_attack(const Row<NX>& x, size_t feature_id, int cost);
+
+    // returns first attack for a given instance, budget is the remaining budget for attacks
+    std::optional<PairT<NX>> single_attack(const Row<NX>& x, size_t feature_id, int budget) const;
 
 private:
     void compute_target_features();

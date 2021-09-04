@@ -45,9 +45,9 @@ add_executable(${target_name} ${main_src})
 add_library(Credit SHARED ${credit_src})
 add_library(HAR SHARED ${har_src})
 
-target_link_libraries(Credit bz2 fmt json11 cereal)
-target_link_libraries(HAR bz2 fmt json11 cereal)
-target_link_libraries(${target_name} Credit HAR cxxopts fmt nlopt)
+target_link_libraries(Credit bz2 fmt json11 cereal nlopt pthread)
+target_link_libraries(HAR bz2 fmt json11 cereal nlopt pthread)
+target_link_libraries(${target_name} Credit HAR cxxopts fmt)
 
 set(lib_cxx_flags -Og -pg -Wall -Wconversion -Wno-unused-variable -Wno-unused-function -Wno-deprecated)
 

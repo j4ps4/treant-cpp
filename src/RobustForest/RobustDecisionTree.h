@@ -11,6 +11,7 @@
 #include "SplitOptimizer.h"
 #include "Constraint.h"
 #include "../DF2/DF_util.h"
+#include "../thread_pool.hpp"
 
 template<size_t NX, size_t NY>
 struct TreeArguments
@@ -74,7 +75,7 @@ public:
     std::map<size_t, double> feature_importance() const;
     
 private:
-    Node<NY>* private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
+    Node<NY>* private_fit(thread_pool& pool, const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
         std::map<int64_t,int>& costs, ConstrVec& constraints,
         const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth);
 

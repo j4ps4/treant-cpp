@@ -7,6 +7,9 @@
 #include <sstream>
 #include <iomanip>
 #include <chrono>
+#include <mutex>
+
+extern std::mutex print_mut;
 
 namespace Util {
 
@@ -30,6 +33,7 @@ void err(const char* msg, Args... args)
 template<typename... Args>
 void warn(const char* msg, Args... args)
 {
+    std::unique_lock lock(print_mut);
     fmt::print(fg(fmt::color::yellow)|fmt::emphasis::bold, "warning: ");
     fmt::print(msg, args...);
     fmt::print("\n");
@@ -38,6 +42,7 @@ void warn(const char* msg, Args... args)
 template<typename... Args>
 void info(const char* msg, Args... args)
 {
+    std::unique_lock lock(print_mut);
     fmt::print(fg(fmt::color::sky_blue)|fmt::emphasis::bold, "info: ");
     fmt::print(msg, args...);
     fmt::print("\n");
@@ -46,6 +51,7 @@ void info(const char* msg, Args... args)
 template<typename... Args>
 void log(const char* msg, Args... args)
 {
+    std::unique_lock lock(print_mut);
     fmt::print(msg, args...);
     fmt::print("\n");
 }

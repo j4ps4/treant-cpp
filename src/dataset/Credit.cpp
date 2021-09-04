@@ -7,6 +7,8 @@
 #include "../DF2/DF_util.h"
 #include "../util.h"
 
+std::mutex print_mut;
+
 namespace credit
 {
 

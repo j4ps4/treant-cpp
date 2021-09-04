@@ -7,8 +7,11 @@
 
 #include "../util.h"
 
+static std::mutex mut;
+const static auto N_T = std::thread::hardware_concurrency();
+
 template<size_t NX, size_t NY>
-Node<NY>* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
+Node<NY>* RobustDecisionTree<NX,NY>::private_fit(thread_pool& pool, const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
     std::map<int64_t,int>& costs, ConstrVec& constraints, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth)
 {
     if (X_train.size() == 0)
@@ -24,18 +27,18 @@ Node<NY>* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF
     //auto current_prediction_score = node->get_prediction_score(); 
     auto current_score = optimizer_->evaluate_split(y, node_prediction);
     node->set_loss(current_score);
-    Util::log("current node's loss: {:.5f}", current_score);
+    Util::log("tree {}: current node's loss: {:.5f}", id_, current_score);
 
     if (depth == max_depth_)
     {
-        Util::log("current depth {} is equal to maximum depth of this tree", depth);
+        Util::log("tree {}: current depth {} is equal to maximum depth of this tree", id_, depth);
         return node;
     }
 
     if (rows.size() < min_instances_per_node_)
     {
-        Util::log("Number of instances ended up in the current node {} are less than the minimum number of instances at each node of this tree {}",
-            rows.size(), min_instances_per_node_);
+        Util::log("tree {}: number of instances ended up in the current node ({}) are less than the minimum ({})",
+            id_, rows.size(), min_instances_per_node_);
         return node;
     }
     // OptimTupl optimize_gain(const DF<NX>& X, const DF<N>& y, const IdxVec& rows, int n_sample_features, 
@@ -48,7 +51,7 @@ Node<NY>* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF
            constraints_left, constraints_right] = optimizer_->optimize_gain(X_train, y_train, rows, feature_blacklist, -1,
                                       *(attacker_.get()), costs, constraints, current_score, node_prediction);
 
-    Util::log("best_gain: {}", best_gain);
+    Util::log("tree {}: best_gain: {}", id_, best_gain);
     if (best_gain > EPS)
     {
         node->set_loss(best_loss);
@@ -63,8 +66,34 @@ Node<NY>* RobustDecisionTree<NX,NY>::private_fit(const DF<NX>& X_train, const DF
             updated_feature_bl.insert(best_split_feature_id);
         }
 
-        node->set_left(private_fit(X_train, y_train, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1));
-        node->set_right(private_fit(X_train, y_train, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1));
+        bool waiting = false;
+        std::future<Node<NY>*> left_fut;
+        std::future<Node<NY>*> right_fut;
+        {
+            std::unique_lock lock(mut);
+            if (pool.get_tasks_total() <= N_T - 2)
+            {
+                left_fut = std::move(pool.submit(
+                    [&,best_split_left,updated_feature_bl,depth]{
+                        return private_fit(pool,X_train, y_train, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1);
+                    }));
+                right_fut = std::move(pool.submit(
+                    [&,best_split_right,updated_feature_bl,depth]{
+                        return private_fit(pool,X_train, y_train, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1);
+                    }));
+                waiting = true;
+            }
+        }
+        if (waiting)
+        {
+            node->set_left(left_fut.get());
+            node->set_right(right_fut.get());
+        }
+        else
+        {
+            node->set_left(private_fit(pool,X_train, y_train, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1));
+            node->set_right(private_fit(pool,X_train, y_train, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1));
+        }
     }
     return node;
 }
@@ -85,8 +114,9 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
     for (int64_t i = 0; i < X_train.rows(); i++)
         costs[i] = 0;
 
-    ConstrVec constraints;    
-    root_.reset(private_fit(X_train, y_train, rows, costs, constraints, node_prediction, start_feature_bl_, 0));
+    ConstrVec constraints;
+    thread_pool pool(N_T);
+    root_.reset(private_fit(pool, X_train, y_train, rows, costs, constraints, node_prediction, start_feature_bl_, 0));
 
     if (!root_->is_dummy())
     {

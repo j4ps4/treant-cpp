@@ -66,27 +66,45 @@ Node<NY>* RobustDecisionTree<NX,NY>::private_fit(thread_pool& pool, const DF<NX>
             updated_feature_bl.insert(best_split_feature_id);
         }
 
-        bool waiting = false;
+        bool waiting_left = false;
+        bool waiting_right = false;
         std::future<Node<NY>*> left_fut;
         std::future<Node<NY>*> right_fut;
         {
             std::unique_lock lock(mut);
-            if (pool.get_tasks_total() <= N_T - 2)
+            if (pool.get_tasks_total() <= N_T - 1)
             {
                 left_fut = std::move(pool.submit(
                     [&,best_split_left,updated_feature_bl,depth]{
                         return private_fit(pool,X_train, y_train, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1);
                     }));
+                waiting_left = true;
+            }
+        }
+        {
+            std::unique_lock lock(mut);
+            if (pool.get_tasks_total() <= N_T - 1)
+            {
                 right_fut = std::move(pool.submit(
                     [&,best_split_right,updated_feature_bl,depth]{
                         return private_fit(pool,X_train, y_train, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1);
                     }));
-                waiting = true;
+                waiting_right = true;
             }
         }
-        if (waiting)
+        if (waiting_left && waiting_right)
         {
             node->set_left(left_fut.get());
+            node->set_right(right_fut.get());
+        }
+        else if (waiting_left)
+        {
+            node->set_right(private_fit(pool,X_train, y_train, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1));
+            node->set_left(left_fut.get());
+        }
+        else if (waiting_right)
+        {
+            node->set_left(private_fit(pool,X_train, y_train, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1));
             node->set_right(right_fut.get());
         }
         else

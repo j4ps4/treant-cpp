@@ -544,12 +544,12 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
     }
     catch(nlopt::roundoff_limited&)
     {
-        // NLOPT documentation states that it's safe to return final value
+        // NLOPT documentation states that it's safe to return final value in this case
     }
     catch(std::exception& e)
     {
         Util::warn("caught NLOPT exception: {}", e.what());
-        // Return final value, because it seems to be useful
+        return {};
     }
     count__ = 0;
     Row<NY> pred_left;

@@ -58,6 +58,7 @@ public:
     void fit(const DF<NX>& X_train, const DF<NY>& y_train);
 
     size_t predict(const Row<NX>& instance) const;
+    size_t predict(const std::vector<double>& instance) const;
     DF<NY> predict_proba(const DF<NX>& X_test) const;
 
     double classification_error(const DF<NY>& Y_test, const DF<NY>& Y_pred) const;

@@ -53,13 +53,13 @@ set(lib_cxx_flags -Og -pg -Wall -Wconversion -Wno-unused-variable -Wno-unused-fu
 
 # TODO find a better way
 target_compile_options(${target_name} PRIVATE $<$<CONFIG:Debug>:${lib_cxx_flags}>)
-target_compile_options(${target_name} PRIVATE $<$<CONFIG:Release>:-O3 -mtune=native -march=native>)
+target_compile_options(${target_name} PRIVATE $<$<CONFIG:Release>:-O3 -Wno-deprecated -mtune=native -march=native>)
 target_link_options(${target_name} PRIVATE $<$<CONFIG:Debug>:-pg>)
 target_compile_options(Credit PRIVATE $<$<CONFIG:Debug>:${lib_cxx_flags}>)
-target_compile_options(Credit PRIVATE $<$<CONFIG:Release>:-O3 -mtune=native -march=native>)
+target_compile_options(Credit PRIVATE $<$<CONFIG:Release>:-O3 -Wno-deprecated -mtune=native -march=native>)
 target_link_options(Credit PRIVATE $<$<CONFIG:Debug>:-pg>)
 target_compile_options(HAR PRIVATE $<$<CONFIG:Debug>:${lib_cxx_flags}>)
-target_compile_options(HAR PRIVATE $<$<CONFIG:Release>:-O3 -mtune=native -march=native>)
+target_compile_options(HAR PRIVATE $<$<CONFIG:Release>:-O3 -Wno-deprecated -mtune=native -march=native>)
 target_link_options(HAR PRIVATE $<$<CONFIG:Debug>:-pg>)
 target_compile_features(${target_name} PRIVATE cxx_std_20)
 target_compile_features(Credit PRIVATE cxx_std_20)

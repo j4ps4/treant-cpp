@@ -53,9 +53,13 @@ int main(int argc, char** argv)
     cxxopts::Options options("treant", "robust tree classifier");
     options.add_options()
         ("test", "perform testing on a trained model",
-        cxxopts::value<std::string>()->default_value(""))
+        cxxopts::value<bool>()->default_value("false"))
         ("gain", "compute feature importance values for a trained model",
-        cxxopts::value<std::string>()->default_value(""))
+        cxxopts::value<bool>()->default_value("false"))
+        ("m,model", "model on which to operate",
+        cxxopts::value<std::string>())
+        ("classify", "instance to classify, comma separated list of values",
+        cxxopts::value<std::vector<double>>())
         ("data", "dataset to use",
         cxxopts::value<std::string>()->default_value("credit"))
         ("algo", "algorithm: robust, icml2019, standard",
@@ -82,11 +86,17 @@ int main(int argc, char** argv)
             fmt::print("{}\n", options.help());
             exit(0);
         }
+        auto check_model = [](const auto& arg)->std::string{
+            if (!arg.count("model"))
+                throw std::invalid_argument("model parameter is missing");
+            return arg["model"].template as<std::string>();
+        };
 
         auto attack_file = opts["attack_file"].as<std::string>();
         if (opts.count("test"))
         {
-            auto [dataset, path] = parseTest(opts["test"].as<std::string>());
+            auto mod = check_model(opts);
+            auto [dataset, path] = parseTest(mod);
             if (dataset == DataSet::Credit)
                 credit::load_and_test(path, attack_file);
             else if (dataset == DataSet::Har)
@@ -95,11 +105,23 @@ int main(int argc, char** argv)
         }
         else if (opts.count("gain"))
         {
-            auto [dataset, path] = parseTest(opts["gain"].as<std::string>());
+            auto mod = check_model(opts);
+            auto [dataset, path] = parseTest(mod);
             if (dataset == DataSet::Credit)
                 credit::put_gain_values(path);
             else if (dataset == DataSet::Har)
                 har::put_gain_values(path);
+            return 0;
+        }
+        else if (opts.count("classify"))
+        {
+			auto mod = check_model(opts);
+            auto [dataset, path] = parseTest(mod);
+            auto inst_vec = opts["classify"].as<std::vector<double>>();
+            if (dataset == DataSet::Credit)
+                credit::classify(path, inst_vec);
+            else if (dataset == DataSet::Har)
+                har::classify(path, inst_vec);
             return 0;
         }
 

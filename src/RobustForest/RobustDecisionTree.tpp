@@ -191,6 +191,24 @@ size_t RobustDecisionTree<NX,NY>::predict(const Row<NX>& instance) const
         return -1;
     }
 }
+template<size_t NX, size_t NY>
+size_t RobustDecisionTree<NX,NY>::predict(const std::vector<double>& instance) const
+{
+    if (isTrained_)
+    {
+        if (instance.size() < NX)
+            throw std::invalid_argument(fmt::format("expected a vector of length {}", NX));
+        Row<NX> converted(1, NX);
+        for (int64_t i = 0; i < NX; i++)
+            converted(i) = instance.at(i);
+        return private_predict(converted, root_.get());
+    }
+    else
+    {
+        Util::warn("tree {} is not trained", id_);
+        return -1;
+    }
+}
 
 template<size_t NX, size_t NY>
 DF<NY> RobustDecisionTree<NX,NY>::predict_proba(const DF<NX>& X_test) const

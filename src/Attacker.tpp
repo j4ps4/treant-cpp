@@ -34,17 +34,17 @@ bool check_equal_perturbation(const TupleVec<N>& attacks, const PairT<N>& y)
 }
 
 template<size_t N>
-void compute_impl(const TupleVec<N>& attacks, const AttkList& rules, std::deque<PairT<N>>& queue,
-    const Row<N>& inst, int total_budget, int budget, size_t feature_id)
+void compute_normal(const TupleVec<N>& attacks, const AttkList& rules, std::deque<PairT<N>>& queue,
+    const Row<N>& inst, int total_budget, int running_cost, size_t feature_id)
 {
     for (const auto& rule : rules)
     {
     if (rule.get_target_feature() == feature_id && rule.is_applicable<N>(inst))
     {
-        if (total_budget >= budget + rule.get_cost())
+        if (total_budget >= running_cost + rule.get_cost())
         {
             auto x_prime = rule.apply<N>(inst);
-            auto cost_prime = budget + rule.get_cost();
+            auto cost_prime = running_cost + rule.get_cost();
             auto pair = std::make_tuple(x_prime, cost_prime);
             if (!check_equal_perturbation<N>(attacks, pair))
             {
@@ -72,23 +72,48 @@ void compute_impl(const TupleVec<N>& attacks, const AttkList& rules, std::deque<
     }
 }
 
-
+template<size_t N>
+void compute_infball(TupleVec<N>& attacks, const AttackerRule& rule,
+    const Row<N>& inst, int total_budget, int running_cost, size_t feature_id)
+{
+    if (rule.get_target_feature() == feature_id && rule.is_applicable<N>(inst))
+    {
+        if (total_budget >= running_cost + rule.get_cost())
+        {
+            auto x_prime = rule.apply<N>(inst);
+            auto cost_prime = running_cost + rule.get_cost();
+            auto pair = std::make_tuple(x_prime, cost_prime);
+            if (!check_equal_perturbation<N>(attacks, pair))
+            {
+                attacks.push_back(pair);
+            }
+        }
+    }
+}
 
 }
 
 template<size_t N>
 TupleVec<N> Attacker<N>::compute_attack(const Row<N>& rw, size_t feature_id, int cost) const
 {
-    using namespace Util;
-    std::deque<PairT<N>> queue = {{rw, cost}};
     TupleVec<N> attacks;
-
-    while (queue.size() > 0)
+    if (type_ == AttackType::Normal)   
     {
-        auto [inst, budget] = queue.back();
-        queue.pop_back();
-        attacks.push_back(std::make_tuple(inst, budget));
-        compute_impl<N>(attacks, rules_, queue, inst, budget_, budget, feature_id);
+        std::deque<PairT<N>> queue = {{rw, cost}};
+
+        while (queue.size() > 0)
+        {
+            auto [inst, budget] = queue.back();
+            queue.pop_back();
+            attacks.push_back(std::make_tuple(inst, budget));
+            compute_normal<N>(attacks, rules_, queue, inst, budget_, budget, feature_id);
+        }
+    }
+    else
+    {
+        attacks.push_back(std::make_tuple(rw, cost));
+        for (const auto& rule : rules_)        
+            compute_infball<N>(attacks, rule, rw, budget_, cost, feature_id);
     }
     return attacks;
 }
@@ -185,25 +210,37 @@ TupleVec<NX> Attacker<NX>::max_attack(const Row<NX>& x, size_t feature_id)
 }
 
 template<size_t NX>
-std::optional<PairT<NX>> Attacker<NX>::single_attack(const Row<NX>& x, size_t feature_id, int budget) const
+TupleVec<NX> Attacker<NX>::single_attack(const Row<NX>& x, size_t feature_id, int budget) const
 {
-    auto rule_it = std::find_if(rules_.cbegin(), rules_.cend(), [feature_id](const auto& rule){
-        return rule.get_target_feature() == feature_id;
-    });
-    if (rule_it != rules_.cend())
+    auto rule_it = rules_.cbegin();
+    TupleVec<NX> out;
+    while (true)
     {
-        int cost = rule_it->get_cost();
-        if (cost > budget)
-            return {};
-        if (!rule_it->template is_applicable<NX>(x))
-            return {};
-        auto att = rule_it->template apply<NX>(x);
-        auto tup = std::make_tuple(att, budget-cost);
-        return tup;
-    }
-    else
-    {
-        return {};
+        rule_it = std::find_if(rule_it, rules_.cend(), [feature_id](const auto& rule){
+            return rule.get_target_feature() == feature_id;
+        });
+        if (rule_it != rules_.cend())
+        {
+            int cost = rule_it->get_cost();
+            if (cost > budget)
+            {
+                rule_it++;
+                continue;
+            }
+            if (!rule_it->template is_applicable<NX>(x))
+            {
+                rule_it++;
+                continue;
+            }
+            auto att = rule_it->template apply<NX>(x);
+            auto tup = std::make_tuple(att, budget-cost);
+            out.push_back(tup);
+            rule_it++;
+        }
+        else
+        {
+            return out;
+        }
     }
 
 }

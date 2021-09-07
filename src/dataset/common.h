@@ -10,4 +10,5 @@ struct TrainArguments
 	int n_inst;
 	int budget;
 	std::set<size_t> feature_ids;
+	std::string output;
 };

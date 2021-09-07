@@ -335,22 +335,36 @@ void RobustDecisionTree<NX,NY>::print_test_score(const DF<NX>& X_test, const DF<
 }
 
 template<size_t NX>
-static std::list<Row<NX>> att_recur(const Row<NX>& inst, const Attacker<NX>& attacker, 
+struct CompareRows
+{
+    bool operator()(const Row<NX>& f, const Row<NX>& s) const
+    {
+        for (uint64_t i = 0; i < NX; i++)
+        {
+            if (f(i) != s(i))
+                return f(i) < s(i);
+        }
+        return false;
+    }
+};
+
+template<size_t NX>
+using RowSet = std::set<Row<NX>, CompareRows<NX>>;
+
+template<size_t NX>
+static void att_recur(RowSet<NX>& set, const Row<NX>& inst, const Attacker<NX>& attacker, 
     const std::set<size_t>& features, int budget)
 {
     std::list<Row<NX>> out;
     for (auto& f : features)
     {
-        auto m_att = attacker.single_attack(inst, f, budget);
-        if (m_att)
+        auto attacks = attacker.single_attack(inst, f, budget);
+        for (const auto& [att, new_budg] : attacks)
         {
-            auto& [att, new_budg] = m_att.value();
-            out.push_back(att);
-            auto newlist = att_recur<NX>(att, attacker, features, new_budg);
-            out.splice(out.end(), newlist);
+            set.insert(att);
+            att_recur<NX>(set, att, attacker, features, new_budg);
         }
     }
-    return out;
 }
 
 template<size_t NX, size_t NY>
@@ -362,10 +376,7 @@ double RobustDecisionTree<NX,NY>::get_attacked_score(Attacker<NX>& attacker,
     
     size_t score = 0;
     size_t total_attacks = 0;
-    // (instance, true y)
-    // std::vector<std::tuple<Row<NX>,size_t>> attack_vec;
     const auto& feats = attacker.target_features();
-    //attack_vec.reserve(X.rows()*feats.size());
     for (int64_t i = 0; i < X.rows(); i++)
     {
         total_attacks++;
@@ -378,8 +389,9 @@ double RobustDecisionTree<NX,NY>::get_attacked_score(Attacker<NX>& attacker,
         {
             score++;
         }
-        auto att_list = att_recur<NX>(inst, attacker, feats, attacker.get_budget());
-        for (auto& att : att_list)
+        RowSet<NX> set;
+        att_recur<NX>(set, inst, attacker, feats, attacker.get_budget());
+        for (auto& att : set)
         {
             total_attacks++;
             const auto pred_att = predict(att);

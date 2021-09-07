@@ -23,7 +23,10 @@ namespace credit
 
     void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args);
 
-    void load_and_test(const std::filesystem::path& model, const std::string& attack_file);
+    void load_and_test(const std::filesystem::path& model, const std::string& attack_file,
+        const std::set<size_t>& id_set);
     void put_gain_values(const std::filesystem::path& model);
     void classify(const std::filesystem::path& model, const std::vector<double>& inst);
+    void attack_instance(const std::string& attack_file, const std::vector<double>& inst,
+        const std::set<size_t>& id_set, int budget);
 }

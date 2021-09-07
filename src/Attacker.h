@@ -107,7 +107,7 @@ public:
     TupleVec<NX> max_attack(const Row<NX>& x, size_t feature_id);
 
     // returns first attack for a given instance, budget is the remaining budget for attacks
-    std::optional<PairT<NX>> single_attack(const Row<NX>& x, size_t feature_id, int budget) const;
+    TupleVec<NX> single_attack(const Row<NX>& x, size_t feature_id, int budget) const;
 
     template<typename Archive>
     void save(Archive& archive) const

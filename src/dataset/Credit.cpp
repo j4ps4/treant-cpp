@@ -78,8 +78,6 @@ cpp::result<std::unique_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int bu
         return cpp::failure(res.error());
     auto& rulz = res.value();
     auto atkr = std::make_unique<Attacker<CREDIT_X>>(std::move(rulz), budget);
-    atkr->print_rules();
-    exit(1);
     if (print)
         Util::info("computing attacks...");
     atkr->compute_attacks(X);
@@ -151,7 +149,7 @@ void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
     fmt::print("time elapsed: ");
     fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
     tree.print_test_score(X_test, Y_test, Y);
-    auto model_name = tree.get_model_name();
+    auto model_name = args.output.empty() ? tree.get_model_name() : args.output;
     auto full_model_name = models_dir / model_name;
     Util::info("saving trained model to {}", full_model_name.native());
     if (!std::filesystem::exists(models_dir))
@@ -159,7 +157,8 @@ void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
     tree.dump_to_disk(full_model_name);
 }
 
-void load_and_test(const std::filesystem::path& fn, const std::string& attack_file)
+void load_and_test(const std::filesystem::path& fn, const std::string& attack_file,
+    const std::set<size_t>& id_set)
 {
     auto m_df = credit::read_train();
     if (m_df.has_error())
@@ -185,7 +184,7 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
         json_file = attack_file;
         for (int budget : budgets)
         {
-            auto m_atkr = credit::new_Attacker(budget, X_test, {}, false);
+            auto m_atkr = credit::new_Attacker(budget, X_test, id_set, false);
             if (m_atkr.has_error())
                 Util::die("{}", m_atkr.error());
             auto ptr = m_atkr.value().get();
@@ -222,6 +221,29 @@ void classify(const std::filesystem::path& model, const std::vector<double>& ins
     auto tree = RobustDecisionTree<CREDIT_X,CREDIT_Y>::load_from_disk(model);
     auto prediction = tree.predict(inst);
     fmt::print("{}\n", prediction);
+}
+
+void attack_instance(const std::string& attack_file, const std::vector<double>& inst,
+    const std::set<size_t>& id_set, int budget)
+{
+    auto res = load_attack_rules(attack_file, column_map, id_set);
+    if (res.has_error())
+        Util::die("{}", res.error());
+    auto& rulz = res.value();
+    Attacker<CREDIT_X> atkr(std::move(rulz), budget);
+    Row<CREDIT_X> rw(1, CREDIT_X);
+    if (inst.size() != CREDIT_X)
+        Util::die("expected a vector of length {}, got {}", CREDIT_X, inst.size());
+    for (size_t i = 0; i < inst.size(); i++)
+        rw(i) = inst.at(i);
+    const auto& fids = atkr.target_features();
+    for (auto fid : fids)
+    {
+        auto attacks = atkr.attack(rw, fid, 0);
+        fmt::print("target feature {}:\n", fid);
+        for (const auto& [row, c] : attacks)
+            std::cout << row << ", cost " << c << "\n";
+    }
 }
 
 }

@@ -333,7 +333,7 @@ void RobustDecisionTree<NX,NY>::print_test_score(const DF<NX>& X_test, const DF<
 
 template<size_t NX>
 static std::list<Row<NX>> att_recur(const Row<NX>& inst, const Attacker<NX>& attacker, 
-    const std::vector<size_t>& features, int budget)
+    const std::set<size_t>& features, int budget)
 {
     std::list<Row<NX>> out;
     for (auto& f : features)

@@ -292,8 +292,7 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
 
     for (auto row_id : rows)
     {
-        int cost = costs.at(row_id); // get the i-th cost spent on the i-th instance so far
-        auto attacks = attacker.attack(X.row(row_id), feature_id, cost);
+        auto attacks = attacker.max_attacks(X.row(row_id), feature_id);
         bool all_left = true;
         bool all_right = true;
         for (auto& [inst, c]: attacks)
@@ -408,8 +407,14 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
         tmpLeft.insert(tmpLeft.end(), split_unknown_left.begin(), split_unknown_left.end());
         IdxVec tmpRight(split_right.begin(), split_right.end());
         tmpRight.insert(tmpRight.end(), split_unknown_right.begin(), split_unknown_right.end());
-        auto y_pred_left = DF_index<NY>(y, tmpLeft).colwise().mean();
-        auto y_pred_right = DF_index<NY>(y, tmpRight).colwise().mean();
+        auto tmpDFleft = DF_index<NY>(y, tmpLeft);
+        auto tmpDFright = DF_index<NY>(y, tmpRight);
+        auto y_pred_left = tmpDFleft.rows()>0 ? tmpDFleft.colwise().mean() : Row<NY>();
+        if (tmpDFleft.rows() == 0)
+            y_pred_left = Row<NY>::Zero();
+        auto y_pred_right = tmpDFright.rows()>0 ? tmpDFright.colwise().mean() : Row<NY>();
+        if (tmpDFright.rows() == 0)
+            y_pred_right = Row<NY>::Zero();
         IdxVec tmp(split_unknown_right.begin(), split_unknown_right.end());
         tmp.insert(tmp.end(), split_unknown_left.begin(), split_unknown_left.end());
         return {split_left, split_right, tmp, std::make_tuple(y_pred_left, y_pred_right, sse)};

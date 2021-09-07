@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <set>
 #include <tuple>
 #include <array>
 #include <filesystem>
@@ -82,7 +83,7 @@ public:
     
     void print_rules() const;
 
-    const std::vector<size_t>& target_features() const {return features_;}
+    const std::set<size_t>& target_features() const {return features_;}
 
     //void load_attacks(const std::filesystem::path& fn);
 
@@ -90,6 +91,7 @@ public:
 
     // returns attacks against a given instance, when cost has been spent already
     TupleVec<NX> attack(const Row<NX>& x, size_t feature_id, int cost);
+    TupleVec<NX> max_attacks(const Row<NX>& x, size_t feature_id);
 
     // returns first attack for a given instance, budget is the remaining budget for attacks
     std::optional<PairT<NX>> single_attack(const Row<NX>& x, size_t feature_id, int budget) const;
@@ -99,7 +101,7 @@ private:
     TupleVec<NX> compute_attack(const Row<NX>& rw, size_t feature_id, int cost) const;
     int budget_;
     AttkList rules_;
-    std::vector<size_t> features_; // features which are targeted by rules
+    std::set<size_t> features_; // features which are targeted by rules
 
     AttackDict<NX> attacks_;
 };

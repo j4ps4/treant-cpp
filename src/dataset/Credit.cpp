@@ -68,16 +68,18 @@ cpp::result<std::tuple<DF<CREDIT_X>,DF<CREDIT_Y>>,std::string> read_test()
 }
 
 cpp::result<std::unique_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int budget, const DF<CREDIT_X>& X,
-    bool print)
+    const std::set<size_t>& id_set, bool print = true)
 {
     std::filesystem::path& attack_file = default_json_file;
     if (!json_file.empty())
         attack_file = json_file;
-    auto res = load_attack_rules(attack_file, column_map);
+    auto res = load_attack_rules(attack_file, column_map, id_set);
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
     auto atkr = std::make_unique<Attacker<CREDIT_X>>(std::move(rulz), budget);
+    atkr->print_rules();
+    exit(1);
     if (print)
         Util::info("computing attacks...");
     atkr->compute_attacks(X);
@@ -132,7 +134,7 @@ void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
     if (args.tree_args.algo != TrainingAlgo::Standard)
     {
         json_file = args.attack_file;
-        auto m_atkr = credit::new_Attacker(args.budget, X);
+        auto m_atkr = credit::new_Attacker(args.budget, X, args.feature_ids);
         if (m_atkr.has_error())
             Util::die("{}", m_atkr.error());
         args.tree_args.attacker = std::move(m_atkr.value());
@@ -176,15 +178,29 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
     auto tree = RobustDecisionTree<CREDIT_X,CREDIT_Y>::load_from_disk(fn);
     tree.print_test_score(X_test, Y_test, Y);
 
-    json_file = attack_file;
-    for (int budget : {10,20,30,40,50,60,70,80,90,100})
+    auto budgets = {1,2,3,4,5};
+
+    if (!attack_file.empty())
     {
-        auto m_atkr = credit::new_Attacker(budget, X_test, false);
-        if (m_atkr.has_error())
-            Util::die("{}", m_atkr.error());
-        auto ptr = m_atkr.value().get();
-        double score = tree.get_attacked_score(*ptr, X_test, Y_test);
-        fmt::print("budget {}: test score {:.2f}%\n", budget, score);
+        json_file = attack_file;
+        for (int budget : budgets)
+        {
+            auto m_atkr = credit::new_Attacker(budget, X_test, {}, false);
+            if (m_atkr.has_error())
+                Util::die("{}", m_atkr.error());
+            auto ptr = m_atkr.value().get();
+            double score = tree.get_attacked_score(*ptr, X_test, Y_test);
+            fmt::print("budget {}: test score {:.2f}%\n", budget, score);
+        }
+    }
+    else
+    {
+        for (int budget : budgets)
+        {
+            tree.set_attacker_budget(budget);
+            double score = tree.get_own_attacked_score(X_test, Y_test);
+            fmt::print("budget {}: test score {:.2f}%\n", budget, score);
+        }
     }
 }
 

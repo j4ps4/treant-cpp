@@ -8,6 +8,9 @@
 #include <filesystem>
 #include <optional>
 
+#include <cereal/types/set.hpp>
+#include <cereal/types/list.hpp>
+
 #include "DF2/DF_def.h"
 #include "AttackerRule.h"
 
@@ -68,12 +71,19 @@ using TupleVec = std::vector<PairT<N>>;
 template<size_t N>
 using AttackDict = std::unordered_map<std::tuple<Row<N>,size_t>, TupleVec<N>, row_hash<N>, key_equal<N>>;
 
+
 template<size_t NX>
 class Attacker
 {
 public:
-    Attacker(AttkList&& rules, int budget) :
-        budget_(budget), rules_(std::forward<AttkList>(rules)) {compute_target_features();}
+    Attacker(LoadType&& rules, int budget) :
+        budget_(budget)
+        {
+            auto& rul = std::get<0>(rules);
+            rules_ = std::move(rul);
+            type_ = std::get<1>(rules);
+            compute_target_features();
+        }
     
     Attacker() = default;
 
@@ -89,20 +99,35 @@ public:
 
     int get_budget() const noexcept {return budget_;}
 
+    void set_budget(int budget) noexcept {budget_ = budget;}
+
     // returns attacks against a given instance, when cost has been spent already
     TupleVec<NX> attack(const Row<NX>& x, size_t feature_id, int cost);
-    TupleVec<NX> max_attacks(const Row<NX>& x, size_t feature_id);
+    // return only the maximum attack
+    TupleVec<NX> max_attack(const Row<NX>& x, size_t feature_id);
 
     // returns first attack for a given instance, budget is the remaining budget for attacks
     std::optional<PairT<NX>> single_attack(const Row<NX>& x, size_t feature_id, int budget) const;
+
+    template<typename Archive>
+    void save(Archive& archive) const
+    {
+        archive(budget_, type_, rules_, features_);
+    }
+
+    template<typename Archive>
+    void load(Archive& archive)
+    {
+        archive(budget_, type_, rules_, features_);
+    }
 
 private:
     void compute_target_features();
     TupleVec<NX> compute_attack(const Row<NX>& rw, size_t feature_id, int cost) const;
     int budget_;
+    AttackType type_;
     AttkList rules_;
     std::set<size_t> features_; // features which are targeted by rules
-
     AttackDict<NX> attacks_;
 };
 

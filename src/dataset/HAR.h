@@ -19,14 +19,6 @@ constexpr size_t HAR_Y = 6;
 
 namespace har
 {
-    // Read bzipped csv to dataframe.
-    cpp::result<std::tuple<DF<HAR_X>,DF<HAR_Y>>,std::string> read_train();
-    cpp::result<std::tuple<DF<HAR_X>,DF<HAR_Y>>,std::string> read_test();
-
-    // Create attacker from given attacks file and budget.
-    cpp::result<std::unique_ptr<Attacker<HAR_X>>,std::string> new_Attacker(int budget, const DF<HAR_X>& X,
-        bool print = true);
-
     // Create a robust decision tree
     RobustDecisionTree<HAR_X,HAR_Y> new_RDT(TreeArguments<HAR_X,HAR_Y>&& args);
 

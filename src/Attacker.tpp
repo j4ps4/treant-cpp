@@ -15,8 +15,8 @@ namespace
 template<size_t N>
 bool is_equal_perturbation(const PairT<N>& x, const PairT<N>& y)
 {
-    return (std::get<0>(x) == std::get<0>(y)).all() &&
-         std::get<1>(x) <= std::get<1>(y);
+    return (std::get<0>(x) == std::get<0>(y)).all();
+        // std::get<1>(x) <= std::get<1>(y);
 }
 
 template<size_t N>
@@ -112,6 +112,7 @@ void Attacker<N>::compute_attacks(const DF<N>& X)
 template<size_t N>
 void Attacker<N>::print_rules() const
 {
+    fmt::print("type: {}\n", type_ == AttackType::Normal ? "normal" : "inf_ball");
     for (const auto& r : rules_)
         fmt::print("{}\n", r.debug_str());
 }
@@ -154,7 +155,7 @@ TupleVec<NX> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id, int cost)
 }
 
 template<size_t NX>
-TupleVec<NX> Attacker<NX>::max_attacks(const Row<NX>& x, size_t feature_id)
+TupleVec<NX> Attacker<NX>::max_attack(const Row<NX>& x, size_t feature_id)
 {
 
     if (features_.contains(feature_id))

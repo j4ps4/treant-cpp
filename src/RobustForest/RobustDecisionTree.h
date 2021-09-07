@@ -41,7 +41,8 @@ public:
     }
 
     RobustDecisionTree(std::unique_ptr<Node<NY>>& root, int id, size_t max_depth,
-        size_t min_instances_per_node, bool isTrained, bool affine)
+        size_t min_instances_per_node, bool isTrained, bool affine, 
+        std::unique_ptr<Attacker<NX>>& attacker)
         {
             root_.swap(root);
             id_ = id;
@@ -49,6 +50,7 @@ public:
             min_instances_per_node_ = min_instances_per_node;
             isTrained_ = isTrained;
             affine_ = affine;
+            attacker_.swap(attacker);
         }
     
     RobustDecisionTree() = default;
@@ -72,6 +74,14 @@ public:
     void print_test_score(const DF<NX>& X_test, const DF<NY>& Y_test, const DF<NY>& Y_train) const;
 
     double get_attacked_score(Attacker<NX>& attacker, const DF<NX>& X, const DF<NY>& Y) const;
+    double get_own_attacked_score(const DF<NX>& X, const DF<NY>& Y) const;
+
+    void set_attacker_budget(int budget) 
+    {
+        if (!attacker_)
+            Util::die("attacker = NULL!!!");
+        attacker_->set_budget(budget);
+    }
 
     std::map<size_t, double> feature_importance() const;
     

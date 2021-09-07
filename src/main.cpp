@@ -76,6 +76,8 @@ int main(int argc, char** argv)
         cxxopts::value<int>()->default_value("-1"))
         ("feature_blacklist", "features to ignore when considering a split",
         cxxopts::value<std::vector<size_t>>()->default_value(""))
+        ("feature_ids", "features to use in constructing ID# rules",
+        cxxopts::value<std::vector<size_t>>()->default_value(""))
         ("h,help", "print usage");
     
     try
@@ -91,6 +93,11 @@ int main(int argc, char** argv)
                 throw std::invalid_argument("model parameter is missing");
             return arg["model"].template as<std::string>();
         };
+
+        auto feature_id_vec = opts["feature_ids"].as<std::vector<size_t>>();
+        std::set<size_t> feature_id;
+        for (auto f : feature_id_vec)
+            feature_id.insert(f);
 
         auto attack_file = opts["attack_file"].as<std::string>();
         if (opts.count("test"))
@@ -144,13 +151,13 @@ int main(int argc, char** argv)
             credit::train_and_save(
                 {.tree_args = {.id=0, .fun=SplitFunction::LogLoss, .algo=algo, .max_depth=maxdepth,
                             .min_instances_per_node=20, .maxiter=maxiter, .affine=true, .feature_bl=feature_bl},
-                .attack_file = attack_file, .n_inst = n_inst, .budget = budget}
+                .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id}
             );
         else if (dataset == "har")
             har::train_and_save(
                 {.tree_args = {.id=0, .fun=SplitFunction::LogLoss, .algo=algo, .max_depth=maxdepth,
                             .min_instances_per_node=20, .maxiter=maxiter, .affine=true, .feature_bl=feature_bl},
-                .attack_file = attack_file, .n_inst = n_inst, .budget = budget}
+                .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id}
             );
         else
             Util::die("invalid dataset: {}", dataset);

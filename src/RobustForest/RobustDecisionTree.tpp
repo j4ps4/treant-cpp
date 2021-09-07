@@ -262,7 +262,8 @@ void RobustDecisionTree<NX,NY>::dump_to_disk(const std::filesystem::path& fn) co
     {
         std::ofstream os(fn, std::ios::binary);
         cereal::BinaryOutputArchive archive(os);
-        archive(root_, id_, max_depth_, min_instances_per_node_, isTrained_, affine_);
+        archive(root_, id_, max_depth_, min_instances_per_node_, isTrained_, affine_,
+            attacker_);
     }
     catch (std::exception& e)
     {
@@ -283,8 +284,10 @@ RobustDecisionTree<NX,NY> RobustDecisionTree<NX,NY>::load_from_disk(const std::f
         size_t min_instances_per_node;
         bool isTrained;
         bool affine;
-        archive(root, id, max_depth, min_instances_per_node, isTrained, affine);
-        return RobustDecisionTree<NX,NY>(root, id, max_depth, min_instances_per_node, isTrained, affine);
+        std::unique_ptr<Attacker<NX>> attacker;
+        archive(root, id, max_depth, min_instances_per_node, isTrained, affine, attacker);
+        return RobustDecisionTree<NX,NY>(root, id, max_depth, min_instances_per_node, isTrained, affine,
+            attacker);
     }
     catch (std::exception& e)
     {
@@ -387,6 +390,12 @@ double RobustDecisionTree<NX,NY>::get_attacked_score(Attacker<NX>& attacker,
         }
     }
     return 100.0 - 100.0 * static_cast<double>(score) / static_cast<double>(total_attacks);
+}
+
+template<size_t NX, size_t NY>
+double RobustDecisionTree<NX,NY>::get_own_attacked_score(const DF<NX>& X, const DF<NY>& Y) const
+{
+    return get_attacked_score(*attacker_, X, Y);
 }
 
 template<size_t NX, size_t NY>

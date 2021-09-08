@@ -25,6 +25,7 @@ struct TreeArguments
     bool affine;
     std::set<size_t> feature_bl;
     bool useParallel;
+	double par_par;
 };
 
 template<size_t NX, size_t NY>
@@ -35,7 +36,7 @@ public:
     RobustDecisionTree(TreeArguments<NX,NY>&& args) :
         id_(args.id), max_depth_(args.max_depth), min_instances_per_node_(args.min_instances_per_node),
         attacker_(std::move(args.attacker)), affine_(args.affine), start_feature_bl_(args.feature_bl),
-        useParallel_(args.useParallel)
+        useParallel_(args.useParallel), par_par_(args.par_par)
     {
         optimizer_ = std::make_unique<SplitOptimizer<NX,NY>>(args.fun, args.algo, args.maxiter);
         isTrained_ = false;
@@ -106,6 +107,7 @@ private:
     std::set<size_t> start_feature_bl_;
     std::unique_ptr<SplitOptimizer<NX,NY>> optimizer_;
     bool useParallel_;
+    double par_par_;
 };
 
 #include "RobustDecisionTree.tpp"

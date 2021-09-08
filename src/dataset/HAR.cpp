@@ -157,7 +157,7 @@ void train_and_save(TrainArguments<HAR_X,HAR_Y>&& args)
 }
 
 void load_and_test(const std::filesystem::path& fn, const std::string& attack_file,
-    const std::set<size_t>& id_set)
+    const std::set<size_t>& id_set, int max_budget)
 {
     auto m_df = har::read_train();
     if (m_df.has_error())
@@ -176,7 +176,8 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
     auto tree = RobustDecisionTree<HAR_X,HAR_Y>::load_from_disk(fn);
     tree.print_test_score(X_test, Y_test, Y);
 
-    auto budgets = {1,2,3,4,5};
+    std::vector<int> budgets(max_budget);
+    std::iota(budgets.begin(), budgets.end(), 1);
 
     if (!attack_file.empty())
     {

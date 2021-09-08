@@ -72,9 +72,7 @@ Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y
         bool spawn_right = useParallel_ && best_split_right.size() > spawn_thresh;
         std::future<Node<NY>*> left_fut;
         std::future<Node<NY>*> right_fut;
-        //size_t new_thresh = depth >= 2 && depth % 2 == 0 ? spawn_thresh / 3 : spawn_thresh;
-        size_t new_thresh = depth != 0 ? static_cast<double>(spawn_thresh) / (depth*0.75) : spawn_thresh / 2;
-        Util::log("depth = {}, new thresh = {}", depth, new_thresh);
+        size_t new_thresh = depth != 0 ? static_cast<double>(spawn_thresh) / (depth*par_par_) : spawn_thresh / 2;
         if (spawn_left)
         {
             left_fut = std::async(std::launch::async, [&]{

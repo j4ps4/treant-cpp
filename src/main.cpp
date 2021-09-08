@@ -100,6 +100,10 @@ int main(int argc, char** argv)
         cxxopts::value<std::vector<size_t>>()->default_value(""))
         ("feature_ids", "features to use in constructing ID# rules",
         cxxopts::value<std::vector<size_t>>()->default_value(""))
+
+        ("par_par", "number of instances to use in training",
+        cxxopts::value<double>()->default_value("0.5"))
+
         ("h,help", "print usage");
     
     try
@@ -129,9 +133,9 @@ int main(int argc, char** argv)
             auto mod = check_model(opts);
             auto [dataset, path] = parseTest(mod);
             if (dataset == DataSet::Credit)
-                credit::load_and_test(path, attack_file, feature_id);
+                credit::load_and_test(path, attack_file, feature_id, budget);
             else if (dataset == DataSet::Har)
-                har::load_and_test(path, attack_file, feature_id);
+                har::load_and_test(path, attack_file, feature_id, budget);
             return 0;
         }
         else if (opts.count("gain"))
@@ -174,6 +178,7 @@ int main(int argc, char** argv)
         auto maxiter = opts["maxiter"].as<int>();
         auto maxdepth = opts["maxdepth"].as<size_t>();
         auto n_inst = opts["n_inst"].as<int>();
+        auto par_par = opts["par_par"].as<double>();
         auto par = opts["par"].as<bool>();
         auto feature_bl_vec = opts["feature_blacklist"].as<std::vector<size_t>>();
         std::set<size_t> feature_bl;
@@ -188,7 +193,7 @@ int main(int argc, char** argv)
             credit::train_and_save(
                 {.tree_args = {.id=0, .fun=SplitFunction::LogLoss, .algo=algo, .max_depth=maxdepth,
                             .min_instances_per_node=20, .maxiter=maxiter, .affine=true,
-                            .feature_bl=feature_bl, .useParallel=par},
+                            .feature_bl=feature_bl, .useParallel=par, .par_par=par_par},
                 .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                 .output = outputstr}
             );
@@ -196,7 +201,7 @@ int main(int argc, char** argv)
             har::train_and_save(
                 {.tree_args = {.id=0, .fun=SplitFunction::LogLoss, .algo=algo, .max_depth=maxdepth,
                             .min_instances_per_node=20, .maxiter=maxiter, .affine=true,
-                            .feature_bl=feature_bl, .useParallel=par},
+                            .feature_bl=feature_bl, .useParallel=par, .par_par=par_par},
                 .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                 .output = outputstr}
             );

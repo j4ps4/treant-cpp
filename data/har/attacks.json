@@ -3,7 +3,7 @@
             "tBodyAcc-mean()-X": [{
                 "pre": "(-0.9, 0.9)",
                 "post": 0.1,
-                "cost": 10,
+                "cost": 1,
                 "is_numerical": true
             }]
         },
@@ -11,7 +11,7 @@
             "tBodyAcc-mean()-Y": [{
                 "pre": "(-0.9, 0.9)",
                 "post": 0.1,
-                "cost": 10,
+                "cost": 1,
                 "is_numerical": true
             }]
         }

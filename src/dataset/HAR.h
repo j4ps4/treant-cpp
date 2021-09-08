@@ -29,5 +29,5 @@ namespace har
     void put_gain_values(const std::filesystem::path& model);
     void classify(const std::filesystem::path& model, const std::vector<double>& inst);
     void attack_instance(const std::string& attack_file, const std::vector<double>& inst,
-        const std::set<size_t>& id_set, int budget);
+        const std::set<size_t>& id_set, int budget, int cost);
 }

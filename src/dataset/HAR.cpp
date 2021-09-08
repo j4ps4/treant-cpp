@@ -223,7 +223,7 @@ void classify(const std::filesystem::path& model, const std::vector<double>& ins
 }
 
 void attack_instance(const std::string& attack_file, const std::vector<double>& inst,
-    const std::set<size_t>& id_set, int budget)
+    const std::set<size_t>& id_set, int budget, int cost)
 {
     auto res = load_attack_rules(attack_file, column_map, id_set);
     if (res.has_error())
@@ -238,7 +238,7 @@ void attack_instance(const std::string& attack_file, const std::vector<double>& 
     const auto& fids = atkr.target_features();
     for (auto fid : fids)
     {
-        auto attacks = atkr.attack(rw, fid, 0);
+        auto attacks = atkr.attack(rw, fid, cost);
         fmt::print("target feature {}:\n", fid);
         for (const auto& [row, c] : attacks)
             std::cout << row << ", cost " << c << "\n";

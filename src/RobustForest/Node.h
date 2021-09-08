@@ -19,13 +19,17 @@
 
 #include "../DF2/DF_util.h"
 
+struct NewNode {};
+
+NewNode new_node;
+
 template<size_t NY>
 class Node
 {
 public:
-    Node(size_t n_inst, std::unique_ptr<Node<NY>> left = nullptr, 
+    Node(NewNode nn, std::unique_ptr<Node<NY>> left = nullptr, 
          std::unique_ptr<Node<NY>> right = nullptr, size_t best_split_id = -1, double best_split_val = 0) :
-         dummy_(false), n_inst_(n_inst), left_(std::move(left)), right_(std::move(right)), 
+         dummy_(false), left_(std::move(left)), right_(std::move(right)), 
          best_split_id_(best_split_id), best_split_val_(best_split_val)
         {
             prediction_score_ = Eigen::ArrayXXd::Zero(1, NY);
@@ -72,7 +76,7 @@ public:
         std::vector<double> temp;
         temp.reserve(NY);
         temp.insert(temp.end(), prediction_score_.data(), prediction_score_.data()+NY);
-        archive(dummy_, n_inst_, left_, right_, best_split_id_,
+        archive(dummy_, left_, right_, best_split_id_,
                 best_split_val_, temp, prediction_, loss_, gain_);
     }
 
@@ -80,7 +84,7 @@ public:
     void load(Archive& archive)
     {
         std::vector<double> temp;
-        archive(dummy_, n_inst_, left_, right_, best_split_id_,
+        archive(dummy_, left_, right_, best_split_id_,
                 best_split_val_, temp, prediction_, loss_, gain_);
         for (size_t i = 0; i < temp.size(); i++)
             prediction_score_[i] = temp[i];
@@ -88,7 +92,6 @@ public:
 
 private:
     bool dummy_;
-    size_t n_inst_; // number of instances
     std::unique_ptr<Node<NY>> left_; // left child
     std::unique_ptr<Node<NY>> right_; // right child
     size_t best_split_id_; // index of the feature associated with the best split of this node

@@ -160,7 +160,7 @@ TupleVec<NX> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id, int cost)
     {
         auto attack_key = std::make_tuple(x, feature_id);
         if (!attacks_.contains(attack_key))
-            attacks_[attack_key] = compute_attack(x, feature_id, cost);
+            attacks_[attack_key] = compute_attack(x, feature_id, 0);
 
         auto& attacks_xf = attacks_.at(attack_key);
         TupleVec<NX> out;

@@ -11,7 +11,6 @@
 #include "SplitOptimizer.h"
 #include "Constraint.h"
 #include "../DF2/DF_util.h"
-#include "../thread_pool.hpp"
 
 template<size_t NX, size_t NY>
 struct TreeArguments
@@ -25,6 +24,7 @@ struct TreeArguments
     int maxiter;
     bool affine;
     std::set<size_t> feature_bl;
+    bool useParallel;
 };
 
 template<size_t NX, size_t NY>
@@ -34,7 +34,8 @@ class RobustDecisionTree
 public:
     RobustDecisionTree(TreeArguments<NX,NY>&& args) :
         id_(args.id), max_depth_(args.max_depth), min_instances_per_node_(args.min_instances_per_node),
-        attacker_(std::move(args.attacker)), affine_(args.affine), start_feature_bl_(args.feature_bl)
+        attacker_(std::move(args.attacker)), affine_(args.affine), start_feature_bl_(args.feature_bl),
+        useParallel_(args.useParallel)
     {
         optimizer_ = std::make_unique<SplitOptimizer<NX,NY>>(args.fun, args.algo, args.maxiter);
         isTrained_ = false;
@@ -86,12 +87,12 @@ public:
     std::map<size_t, double> feature_importance() const;
     
 private:
-    Node<NY>* private_fit(thread_pool& pool, const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
-        std::map<int64_t,int>& costs, ConstrVec& constraints,
+    Node<NY>* fit_(const DF<NX>& X_train, const DF<NY>& y_train, size_t spawn_thresh, const std::vector<size_t> rows,
+        std::map<int64_t,int> costs, ConstrVec& constraints,
         const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth);
 
-    size_t private_predict(const Row<NX>& instance, const Node<NY>* node) const;
-    Row<NY> private_predict_proba(const Row<NX>& instance, const Node<NY>* node) const;
+    size_t predict_(const Row<NX>& instance, const Node<NY>* node) const;
+    Row<NY> predict_proba_(const Row<NX>& instance, const Node<NY>* node) const;
 
     void feature_importance_(const Node<NY>* node, std::map<size_t,double>& dict) const;
     
@@ -104,6 +105,7 @@ private:
     bool affine_;
     std::set<size_t> start_feature_bl_;
     std::unique_ptr<SplitOptimizer<NX,NY>> optimizer_;
+    bool useParallel_;
 };
 
 #include "RobustDecisionTree.tpp"

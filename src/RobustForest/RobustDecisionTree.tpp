@@ -4,6 +4,8 @@
 
 #include <algorithm>
 #include <numeric>
+#include <thread>
+#include <future>
 
 #include "../util.h"
 
@@ -11,15 +13,15 @@ static std::mutex mut;
 const static auto N_T = std::thread::hardware_concurrency();
 
 template<size_t NX, size_t NY>
-Node<NY>* RobustDecisionTree<NX,NY>::private_fit(thread_pool& pool, const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
-    std::map<int64_t,int>& costs, ConstrVec& constraints, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth)
+Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y_train, size_t spawn_thresh, const std::vector<size_t> rows,
+    std::map<int64_t,int> costs, ConstrVec& constraints, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth)
 {
     if (X_train.size() == 0)
         return new Node<NY>();
 
     DF<NX> X = DF_index<NX>(X_train, rows);
     DF<NY> y = DF_index<NY>(y_train, rows);
-    Node<NY>* node = new Node<NY>(y.rows());
+    Node<NY>* node = new Node<NY>(new_node);
     node->set_prediction(node_prediction);
     Util::log("tree {}: current depth: {}", id_, depth);
     auto current_prediction = node->get_prediction();
@@ -66,52 +68,36 @@ Node<NY>* RobustDecisionTree<NX,NY>::private_fit(thread_pool& pool, const DF<NX>
             updated_feature_bl.insert(best_split_feature_id);
         }
 
-        bool waiting_left = false;
-        bool waiting_right = false;
+        bool spawn_left = useParallel_ && best_split_left.size() > spawn_thresh;
+        bool spawn_right = useParallel_ && best_split_right.size() > spawn_thresh;
         std::future<Node<NY>*> left_fut;
         std::future<Node<NY>*> right_fut;
+        //size_t new_thresh = depth >= 2 && depth % 2 == 0 ? spawn_thresh / 3 : spawn_thresh;
+        size_t new_thresh = depth != 0 ? static_cast<double>(spawn_thresh) / (depth*0.75) : spawn_thresh / 2;
+        Util::log("depth = {}, new thresh = {}", depth, new_thresh);
+        if (spawn_left)
         {
-            std::unique_lock lock(mut);
-            if (pool.get_tasks_total() <= N_T - 1)
-            {
-                left_fut = std::move(pool.submit(
-                    [&,best_split_left,updated_feature_bl,depth]{
-                        return private_fit(pool,X_train, y_train, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1);
-                    }));
-                waiting_left = true;
-            }
+            left_fut = std::async(std::launch::async, [&]{
+                    return fit_(X_train, y_train, new_thresh, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1);
+                });
         }
+        if (spawn_right)
         {
-            std::unique_lock lock(mut);
-            if (pool.get_tasks_total() <= N_T - 1)
-            {
-                right_fut = std::move(pool.submit(
-                    [&,best_split_right,updated_feature_bl,depth]{
-                        return private_fit(pool,X_train, y_train, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1);
-                    }));
-                waiting_right = true;
-            }
+            right_fut = std::async(std::launch::async, [&]{
+                    return fit_(X_train, y_train, new_thresh, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1);
+                });
         }
-        if (waiting_left && waiting_right)
-        {
+        if (!spawn_left)
+            node->set_left(fit_(X_train, y_train, new_thresh, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1));
+
+        if (!spawn_right)
+            node->set_right(fit_(X_train, y_train, new_thresh, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1));
+
+        if (spawn_left)
             node->set_left(left_fut.get());
+
+        if (spawn_right)
             node->set_right(right_fut.get());
-        }
-        else if (waiting_left)
-        {
-            node->set_right(private_fit(pool,X_train, y_train, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1));
-            node->set_left(left_fut.get());
-        }
-        else if (waiting_right)
-        {
-            node->set_left(private_fit(pool,X_train, y_train, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1));
-            node->set_right(right_fut.get());
-        }
-        else
-        {
-            node->set_left(private_fit(pool,X_train, y_train, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1));
-            node->set_right(private_fit(pool,X_train, y_train, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1));
-        }
     }
     return node;
 }
@@ -132,9 +118,10 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
     for (int64_t i = 0; i < X_train.rows(); i++)
         costs[i] = 0;
 
+    size_t spawn_thresh = X_train.rows() / N_T;
+
     ConstrVec constraints;
-    thread_pool pool(N_T);
-    root_.reset(private_fit(pool, X_train, y_train, rows, costs, constraints, node_prediction, start_feature_bl_, 0));
+    root_.reset(fit_(X_train, y_train, spawn_thresh, rows, costs, constraints, node_prediction, start_feature_bl_, 0));
 
     if (!root_->is_dummy())
     {
@@ -145,7 +132,7 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
 }
 
 template<size_t NX, size_t NY>
-size_t RobustDecisionTree<NX,NY>::private_predict(const Row<NX>& instance, const Node<NY>* node) const
+size_t RobustDecisionTree<NX,NY>::predict_(const Row<NX>& instance, const Node<NY>* node) const
 {
     if (node->is_leaf())
         return node->get_prediction();
@@ -155,14 +142,14 @@ size_t RobustDecisionTree<NX,NY>::private_predict(const Row<NX>& instance, const
     auto x_feature_value = instance(best_feature_id);
 
     if (x_feature_value <= best_feature_value) // go left
-        return private_predict(instance, node->left());
+        return predict_(instance, node->left());
     else // go right
-        return private_predict(instance, node->right());
+        return predict_(instance, node->right());
 
 }
 
 template<size_t NX, size_t NY>
-Row<NY> RobustDecisionTree<NX,NY>::private_predict_proba(const Row<NX>& instance, const Node<NY>* node) const
+Row<NY> RobustDecisionTree<NX,NY>::predict_proba_(const Row<NX>& instance, const Node<NY>* node) const
 {
     if (node->is_leaf())
         return node->get_prediction_score();
@@ -172,9 +159,9 @@ Row<NY> RobustDecisionTree<NX,NY>::private_predict_proba(const Row<NX>& instance
     auto x_feature_value = instance(best_feature_id);
 
     if (x_feature_value <= best_feature_value) // go left
-        return private_predict_proba(instance, node->left());
+        return predict_proba_(instance, node->left());
     else // go right
-        return private_predict_proba(instance, node->right());
+        return predict_proba_(instance, node->right());
 
 }
 
@@ -183,7 +170,7 @@ size_t RobustDecisionTree<NX,NY>::predict(const Row<NX>& instance) const
 {
     if (isTrained_)
     {
-        return private_predict(instance, root_.get());
+        return predict_(instance, root_.get());
     }
     else
     {
@@ -201,7 +188,7 @@ size_t RobustDecisionTree<NX,NY>::predict(const std::vector<double>& instance) c
         Row<NX> converted(1, NX);
         for (int64_t i = 0; i < NX; i++)
             converted(i) = instance.at(i);
-        return private_predict(converted, root_.get());
+        return predict_(converted, root_.get());
     }
     else
     {
@@ -219,7 +206,7 @@ DF<NY> RobustDecisionTree<NX,NY>::predict_proba(const DF<NX>& X_test) const
         DF<NY> out = Eigen::ArrayXXd::Zero(rows, NY);
         for (int64_t i = 0; i < rows; i++)
         {
-            out.row(i) = private_predict_proba(X_test.row(i), root_.get());
+            out.row(i) = predict_proba_(X_test.row(i), root_.get());
         }
         return out;
     }
@@ -361,8 +348,11 @@ static void att_recur(RowSet<NX>& set, const Row<NX>& inst, const Attacker<NX>& 
         auto attacks = attacker.single_attack(inst, f, budget);
         for (const auto& [att, new_budg] : attacks)
         {
-            set.insert(att);
-            att_recur<NX>(set, att, attacker, features, new_budg);
+            if (!set.contains(att))
+            {
+                set.insert(att);
+                att_recur<NX>(set, att, attacker, features, new_budg);
+            }
         }
     }
 }

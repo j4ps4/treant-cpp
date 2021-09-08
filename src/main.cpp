@@ -88,10 +88,14 @@ int main(int argc, char** argv)
         cxxopts::value<int>()->default_value("5"))
         ("maxiter", "maximum nlopt iterations",
         cxxopts::value<int>()->default_value("100"))
+        ("cost", "starting cost",
+        cxxopts::value<int>()->default_value("0"))
         ("maxdepth", "maximum depth of tree",
         cxxopts::value<size_t>()->default_value("8"))
         ("n_inst", "number of instances to use in training",
         cxxopts::value<int>()->default_value("-1"))
+        ("par", "run single tree in parallel mode",
+        cxxopts::value<bool>()->default_value("false"))
         ("feature_blacklist", "features to ignore when considering a split",
         cxxopts::value<std::vector<size_t>>()->default_value(""))
         ("feature_ids", "features to use in constructing ID# rules",
@@ -119,6 +123,7 @@ int main(int argc, char** argv)
 
         auto attack_file = opts["attack_file"].as<std::string>();
         auto budget = opts["budget"].as<int>();
+        auto cost = opts["cost"].as<int>();
         if (opts.count("test"))
         {
             auto mod = check_model(opts);
@@ -157,9 +162,9 @@ int main(int argc, char** argv)
             auto dataset = parseAttack(attack_file);
             auto att_inst = opts["attack"].as<std::vector<double>>();
             if (dataset == DataSet::Credit)
-                credit::attack_instance(attack_file, att_inst, feature_id, budget);
+                credit::attack_instance(attack_file, att_inst, feature_id, budget, cost);
             else if (dataset == DataSet::Har)
-                har::attack_instance(attack_file, att_inst, feature_id, budget);
+                har::attack_instance(attack_file, att_inst, feature_id, budget, cost);
             return 0;
         }
 
@@ -169,6 +174,7 @@ int main(int argc, char** argv)
         auto maxiter = opts["maxiter"].as<int>();
         auto maxdepth = opts["maxdepth"].as<size_t>();
         auto n_inst = opts["n_inst"].as<int>();
+        auto par = opts["par"].as<bool>();
         auto feature_bl_vec = opts["feature_blacklist"].as<std::vector<size_t>>();
         std::set<size_t> feature_bl;
         for (auto f : feature_bl_vec)
@@ -181,14 +187,16 @@ int main(int argc, char** argv)
         if (dataset == "credit")
             credit::train_and_save(
                 {.tree_args = {.id=0, .fun=SplitFunction::LogLoss, .algo=algo, .max_depth=maxdepth,
-                            .min_instances_per_node=20, .maxiter=maxiter, .affine=true, .feature_bl=feature_bl},
+                            .min_instances_per_node=20, .maxiter=maxiter, .affine=true,
+                            .feature_bl=feature_bl, .useParallel=par},
                 .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                 .output = outputstr}
             );
         else if (dataset == "har")
             har::train_and_save(
                 {.tree_args = {.id=0, .fun=SplitFunction::LogLoss, .algo=algo, .max_depth=maxdepth,
-                            .min_instances_per_node=20, .maxiter=maxiter, .affine=true, .feature_bl=feature_bl},
+                            .min_instances_per_node=20, .maxiter=maxiter, .affine=true,
+                            .feature_bl=feature_bl, .useParallel=par},
                 .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                 .output = outputstr}
             );

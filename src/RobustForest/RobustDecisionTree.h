@@ -5,6 +5,7 @@
 #include <array>
 #include <set>
 #include <filesystem>
+#include <random>
 
 #include "Node.h"
 #include "../Attacker.h"
@@ -15,6 +16,27 @@
 template<size_t NX, size_t NY>
 struct TreeArguments
 {
+    TreeArguments(TreeArguments<NX,NY>&& other) = default;
+    TreeArguments(const TreeArguments<NX,NY>& other) :
+        id(other.id),
+        attacker(std::make_unique<Attacker<NX>>(*(other.attacker->get()))),
+        fun(other.fun),
+        algo(other.algo),
+        max_depth(other.max_depth),
+        min_instances_per_node(other.min_instances_per_node),
+        maxiter(other.maxiter),
+        affine(other.affine),
+        feature_bl(other.feature_bl),
+        useParallel(other.useParallel),
+        par_par(other.par_par),
+        bootstrap_samples(other.bootstrap_samples),
+        bootstrap_features(other.bootstrap_features),
+        replace_samples(other.replace_samples),
+        replace_features(other.replace_features),
+        max_samples(other.max_samples),
+        max_features(other.max_features)
+        {}
+    
     int id;
     std::unique_ptr<Attacker<NX>> attacker;
     SplitFunction fun;
@@ -26,6 +48,12 @@ struct TreeArguments
     std::set<size_t> feature_bl;
     bool useParallel;
 	double par_par;
+    bool bootstrap_samples;
+    bool bootstrap_features;
+    bool replace_samples;
+    bool replace_features;
+    double max_samples;
+    double max_features;
 };
 
 template<size_t NX, size_t NY>
@@ -33,10 +61,13 @@ class RobustDecisionTree
 {
     using ConstrVec = std::vector<Constraint<NX,NY>>;
 public:
-    RobustDecisionTree(TreeArguments<NX,NY>&& args) :
+    RobustDecisionTree(TreeArguments<NX,NY>&& args, uint64_t seed = 0) :
         id_(args.id), max_depth_(args.max_depth), min_instances_per_node_(args.min_instances_per_node),
         attacker_(std::move(args.attacker)), affine_(args.affine), start_feature_bl_(args.feature_bl),
-        useParallel_(args.useParallel), par_par_(args.par_par)
+        useParallel_(args.useParallel), par_par_(args.par_par), bootstrap_samples_(args.bootstrap_samples),
+        bootstrap_features_(args.bootstrap_features), replace_samples_(args.replace_samples),
+        replace_features_(args.replace_features), max_samples_(args.max_samples),
+        max_features_(args.max_features), rd_(seed)
     {
         optimizer_ = std::make_unique<SplitOptimizer<NX,NY>>(args.fun, args.algo, args.maxiter);
         isTrained_ = false;
@@ -86,10 +117,10 @@ public:
     }
 
     std::map<size_t, double> feature_importance() const;
-    
+
 private:
     Node<NY>* fit_(const DF<NX>& X_train, const DF<NY>& y_train, size_t spawn_thresh, const std::vector<size_t> rows,
-        std::map<int64_t,int> costs, ConstrVec& constraints,
+        std::map<int64_t,int> costs, ConstrVec constraints,
         const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth);
 
     size_t predict_(const Row<NX>& instance, const Node<NY>* node) const;
@@ -106,8 +137,15 @@ private:
     bool affine_;
     std::set<size_t> start_feature_bl_;
     std::unique_ptr<SplitOptimizer<NX,NY>> optimizer_;
+    std::mt19937_64 rd_;
     bool useParallel_;
     double par_par_;
+    bool bootstrap_samples_;
+    bool bootstrap_features_;
+    bool replace_samples_;
+    bool replace_features_;
+    double max_samples_;
+    double max_features_;
 };
 
 #include "RobustDecisionTree.tpp"

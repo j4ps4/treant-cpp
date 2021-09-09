@@ -14,7 +14,7 @@ const static auto N_T = std::thread::hardware_concurrency();
 
 template<size_t NX, size_t NY>
 Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y_train, size_t spawn_thresh, const std::vector<size_t> rows,
-    std::map<int64_t,int> costs, ConstrVec& constraints, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth)
+    std::map<int64_t,int> costs, ConstrVec constraints, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth)
 {
     if (X_train.size() == 0)
         return new Node<NY>();
@@ -105,18 +105,53 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
 {
     if (isTrained_)
     {
-        Util::err("tree {} is already trained, cannot train again", id_);
+        Util::err("tree {} is already trained", id_);
         return;
     }
-    std::vector<size_t> rows(X_train.rows());
-    std::iota(rows.begin(), rows.end(), 0);
-    // null prediction
-    Row<NY> node_prediction = y_train.colwise().mean();
-    std::map<int64_t,int> costs;
-    for (int64_t i = 0; i < X_train.rows(); i++)
-        costs[i] = 0;
 
-    size_t spawn_thresh = X_train.rows() / N_T;
+    std::vector<size_t> rows;
+    const size_t NR = X_train.rows();
+    if (bootstrap_samples_)
+    {
+        auto n_sample_instances = std::min(NR, static_cast<size_t>(max_samples_ * NR));
+        rows.reserve(n_sample_instances);
+        if (replace_samples_)
+        {
+            std::uniform_int_distribution<size_t> distrib(0, NR);
+            for (size_t i = 0; i < n_sample_instances; i++)
+            {
+                rows.push_back(distrib(rd_));
+            }
+            std::sort(rows.begin(), rows.end();
+        } 
+        else
+        {
+            std::vector<size_t> pop(NR);
+            std::iota(pop.begin(), pop.end(), 0UL);
+            std::sample(pop.begin(), pop.end(), std::back_inserter(rows), 
+                n_sample_instances, rd_);
+        }
+    }
+    else
+    {
+        rows.reserve(NR);
+        std::generate_n(std::back_inserter(rows), NR, []{static size_t s = 0; return s++;});
+    }
+
+    // null prediction
+    Row<NY> node_prediction;
+    if (bootstrap_samples_)
+    {
+        node_prediction = DF_index<NY>(y_train, rows).colwise().mean();
+    }
+    else
+        node_prediction = y_train.colwise().mean();
+
+    std::map<int64_t,int> costs;
+    for (int64_t i = 0; i < rows.size(); i++)
+        costs[rows.at(i)] = 0;
+
+    size_t spawn_thresh = rows.size() / N_T;
 
     ConstrVec constraints;
     root_.reset(fit_(X_train, y_train, spawn_thresh, rows, costs, constraints, node_prediction, start_feature_bl_, 0));

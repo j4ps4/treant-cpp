@@ -64,59 +64,77 @@ void toLower(Range& rang)
 
 int main(int argc, char** argv)
 {
-    cxxopts::Options options("treant", "robust tree classifier");
-    options.add_options()
+    cxxopts::Options options("treant", "robust tree classifier\ndefault mode is training.");
+
+    options.add_options("mode")
         ("test", "perform testing on a trained model",
         cxxopts::value<bool>()->default_value("false"))
         ("gain", "compute feature importance values for a trained model",
         cxxopts::value<bool>()->default_value("false"))
-        ("m,model", "model on which to operate",
-        cxxopts::value<std::string>())
-        ("classify", "instance to classify, comma separated list of values",
+        ("classify", "classify given instance, comma separated list of values",
         cxxopts::value<std::vector<double>>())
-        ("attack", "instance to attack, comma separated list of values",
+        ("attack", "attack given instance, comma separated list of values",
         cxxopts::value<std::vector<double>>())
+
+        ("h,help", "print usage");
+
+    options.add_options("file")
         ("data", "dataset to use",
-        cxxopts::value<std::string>()->default_value("credit"))
-        ("algo", "algorithm: robust, icml2019, standard",
-        cxxopts::value<std::string>()->default_value("robust"))
-        ("attack_file", "json file describing the attacks",
-        cxxopts::value<std::string>()->default_value(""))
+        cxxopts::value<std::string>())
         ("o,output", "model output name",
         cxxopts::value<std::string>()->default_value(""))
+        ("m,model", "trained model on which to operate",
+        cxxopts::value<std::string>())
+        ("attack_file", "json file describing the attacks",
+        cxxopts::value<std::string>()->default_value(""));
+
+    options.add_options("tree")
+        ("algo", "training algorithm: robust, icml2019, standard",
+        cxxopts::value<std::string>()->default_value("robust"))
         ("budget", "maximum budget of attacker",
         cxxopts::value<int>()->default_value("5"))
         ("maxiter", "maximum nlopt iterations",
         cxxopts::value<int>()->default_value("100"))
-        ("cost", "starting cost",
-        cxxopts::value<int>()->default_value("0"))
         ("maxdepth", "maximum depth of tree",
         cxxopts::value<size_t>()->default_value("8"))
         ("n_inst", "number of instances to use in training",
         cxxopts::value<int>()->default_value("-1"))
-        ("par", "run single tree in parallel mode",
+        ("bootstrap_instances", "bootstrap instances when training an ensemble",
+        cxxopts::value<bool>()->default_value("false"))
+        ("bootstrap_features", "bootstrap features when training an ensemble",
+        cxxopts::value<bool>()->default_value("false"))
+        ("replace_instances", "whether the random sampling of instances should be with replacement",
+        cxxopts::value<bool>()->default_value("false"))
+        ("replace_features", "whether the random sampling of features should be with replacement",
+        cxxopts::value<bool>()->default_value("false"))
+        ("max_instances", "proportion of instances sampled",
+        cxxopts::value<double>()->default_value("1.0"))
+        ("max_features", "proportion of features sampled",
+        cxxopts::value<double>()->default_value("1.0"))
+        ("par", "train single tree in parallel mode",
         cxxopts::value<bool>()->default_value("false"))
         ("feature_blacklist", "features to ignore when considering a split",
         cxxopts::value<std::vector<size_t>>()->default_value(""))
         ("feature_ids", "features to use in constructing ID# rules",
-        cxxopts::value<std::vector<size_t>>()->default_value(""))
+        cxxopts::value<std::vector<size_t>>()->default_value(""));
 
-        ("par_par", "number of instances to use in training",
-        cxxopts::value<double>()->default_value("0.5"))
-
-        ("h,help", "print usage");
+    options.add_options("internal")
+        ("cost", "starting cost",
+        cxxopts::value<int>()->default_value("0"))
+        ("par_par", "internal parallel mode argument",
+        cxxopts::value<double>()->default_value("0.5"));
     
     try
     {
         auto opts = options.parse(argc, argv);
         if (opts.count("help"))
         {
-            fmt::print("{}\n", options.help());
+            fmt::print("{}\n", options.help({"mode","file","tree"}));
             exit(0);
         }
         auto check_model = [](const auto& arg)->std::string{
             if (!arg.count("model"))
-                throw std::invalid_argument("model parameter is missing");
+                throw std::invalid_argument("missing --model");
             return arg["model"].template as<std::string>();
         };
 
@@ -162,7 +180,7 @@ int main(int argc, char** argv)
         else if (opts.count("attack"))
         {
             if (attack_file.empty())
-                throw std::invalid_argument("attack_file is missing");
+                throw std::invalid_argument("missing --attack_file");
             auto dataset = parseAttack(attack_file);
             auto att_inst = opts["attack"].as<std::vector<double>>();
             if (dataset == DataSet::Credit)
@@ -172,6 +190,9 @@ int main(int argc, char** argv)
             return 0;
         }
 
+        if (!opts.count("data"))
+                throw std::invalid_argument("missing --data");
+
         auto dataset = opts["data"].as<std::string>();
         auto algostr = opts["algo"].as<std::string>();
         auto outputstr = opts["output"].as<std::string>();
@@ -180,6 +201,12 @@ int main(int argc, char** argv)
         auto n_inst = opts["n_inst"].as<int>();
         auto par_par = opts["par_par"].as<double>();
         auto par = opts["par"].as<bool>();
+        auto bootstrap_samples = opts["bootstrap_instances"].as<bool>();
+        auto bootstrap_features = opts["bootstrap_features"].as<bool>();
+        auto replace_samples = opts["replace_instances"].as<bool>();
+        auto replace_features = opts["replace_features"].as<bool>();
+        auto max_samples = opts["max_instances"].as<double>();
+        auto max_features = opts["max_features"].as<double>();
         auto feature_bl_vec = opts["feature_blacklist"].as<std::vector<size_t>>();
         std::set<size_t> feature_bl;
         for (auto f : feature_bl_vec)
@@ -193,7 +220,10 @@ int main(int argc, char** argv)
             credit::train_and_save(
                 {.tree_args = {.id=0, .fun=SplitFunction::LogLoss, .algo=algo, .max_depth=maxdepth,
                             .min_instances_per_node=20, .maxiter=maxiter, .affine=true,
-                            .feature_bl=feature_bl, .useParallel=par, .par_par=par_par},
+                            .feature_bl=feature_bl, .useParallel=par, .par_par=par_par,
+                            .bootstrap_samples=bootstrap_samples, .bootstrap_features=bootstrap_features,
+                            .replace_samples=replace_samples, .replace_features=replace_features,
+                            .max_samples=max_samples, .max_features=max_features},
                 .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                 .output = outputstr}
             );
@@ -201,17 +231,24 @@ int main(int argc, char** argv)
             har::train_and_save(
                 {.tree_args = {.id=0, .fun=SplitFunction::LogLoss, .algo=algo, .max_depth=maxdepth,
                             .min_instances_per_node=20, .maxiter=maxiter, .affine=true,
-                            .feature_bl=feature_bl, .useParallel=par, .par_par=par_par},
+                            .feature_bl=feature_bl, .useParallel=par, .par_par=par_par,
+                            .bootstrap_samples=bootstrap_samples, .bootstrap_features=bootstrap_features,
+                            .replace_samples=replace_samples, .replace_features=replace_features,
+                            .max_samples=max_samples, .max_features=max_features},
                 .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                 .output = outputstr}
             );
         else
-            Util::die("invalid dataset: {}", dataset);
+            Util::die("--data must be one of following: credit, har");
         
+    }
+    catch(const std::invalid_argument& e)
+    {
+        Util::die("{}\nsee ./treant -h for usage.", e.what());
     }
     catch(const std::exception& e)
     {
-        Util::die(e.what());
+        Util::die("{}", e.what());
     }
     return 0;
 }

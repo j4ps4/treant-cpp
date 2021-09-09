@@ -87,6 +87,8 @@ public:
     
     Attacker() = default;
 
+    Attacker(const Attacker<NX>& other) = default;
+
     bool is_filled() const;
 
     void compute_attacks(const DF<NX>& X);
@@ -128,7 +130,7 @@ private:
     AttackType type_;
     AttkList rules_;
     std::set<size_t> features_; // features which are targeted by rules
-    AttackDict<NX> attacks_;
+    //AttackDict<NX> attacks_;
 };
 
 #include "Attacker.tpp"

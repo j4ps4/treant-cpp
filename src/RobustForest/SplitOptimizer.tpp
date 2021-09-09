@@ -45,7 +45,6 @@ struct loss_data
     const Row<NY> C_R;
 };
 
-static unsigned count__ = 0;
 
 // loss function for nlopt to minimize
 template<size_t NY>
@@ -63,13 +62,13 @@ double logloss_nlopt<2>(unsigned n, const double* x, double* grad, void* data)
     const auto& cU = d->C_U;
     const auto& cR = d->C_R;
 
-    count__++;
-
     // safe log
     auto mlog = [](double x){return std::log(std::min(std::max(x,EPS),1-EPS));};
 
+    // push class-0 unknowns to which branch?
     const auto cc_0 = x[0] <= x[2] ? std::make_tuple(cL(0)+cU(0), cR(0)) 
                                    : std::make_tuple(cL(0), cR(0)+cU(0));
+    // push class-1 unknowns to which branch?
     const auto cc_1 = x[1] <= x[3] ? std::make_tuple(cL(1)+cU(1), cR(1)) 
                                    : std::make_tuple(cL(1), cR(1)+cU(1));
     
@@ -98,21 +97,25 @@ double logloss_nlopt<6>(unsigned n, const double* x, double* grad, void* data)
     const auto& cU = d->C_U;
     const auto& cR = d->C_R;
 
-    count__++;
-
     // safe log
     auto mlog = [](double x){return std::log(std::min(std::max(x,EPS),1-EPS));};
 
+    // push class-0 unknowns to which branch?
     const auto cc_0 = x[0] <= x[6] ? std::make_tuple(cL(0)+cU(0), cR(0)) 
                                    : std::make_tuple(cL(0), cR(0)+cU(0));
+    // push class-1 unknowns to which branch?
     const auto cc_1 = x[1] <= x[7] ? std::make_tuple(cL(1)+cU(1), cR(1)) 
                                    : std::make_tuple(cL(1), cR(1)+cU(1));
+    // push class-2 unknowns to which branch?
     const auto cc_2 = x[2] <= x[8] ? std::make_tuple(cL(2)+cU(2), cR(2)) 
                                    : std::make_tuple(cL(2), cR(2)+cU(2));
+    // push class-3 unknowns to which branch?
     const auto cc_3 = x[3] <= x[9] ? std::make_tuple(cL(3)+cU(3), cR(3)) 
                                    : std::make_tuple(cL(3), cR(3)+cU(3));
+    // push class-4 unknowns to which branch?
     const auto cc_4 = x[4] <= x[10] ? std::make_tuple(cL(4)+cU(4), cR(4)) 
                                     : std::make_tuple(cL(4), cR(4)+cU(4));
+    // push class-5 unknowns to which branch?
     const auto cc_5 = x[5] <= x[11] ? std::make_tuple(cL(5)+cU(5), cR(5)) 
                                     : std::make_tuple(cL(5), cR(5)+cU(5));
 
@@ -553,10 +556,10 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
     }
     catch(std::exception& e)
     {
-        Util::warn("caught NLOPT exception: {}", e.what());
+        if (strncmp(e.what(), "bug: more than iter", 19))
+            Util::warn("caught NLOPT exception: {}", e.what());
         return {};
     }
-    count__ = 0;
     Row<NY> pred_left;
     Row<NY> pred_right;
     for (size_t i = 0; i < NY; i++)

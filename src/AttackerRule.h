@@ -68,7 +68,7 @@ private:
     bool is_numerical_;
 };
 
-using AttkList = std::list<AttackerRule>;
+using AttkList = std::vector<AttackerRule>;
 using LoadType = std::tuple<AttkList, AttackType>;
 
 cpp::result<LoadType, std::string> 

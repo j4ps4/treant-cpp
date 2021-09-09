@@ -121,17 +121,18 @@ TupleVec<N> Attacker<N>::compute_attack(const Row<N>& rw, size_t feature_id, int
 template<size_t N>
 void Attacker<N>::compute_attacks(const DF<N>& X)
 {
-    const auto H = X.rows();
-    for (int64_t i = 0; i < H; i++)
-    {
-        const Row<N>& rw = X.row(i);
-        for (auto j : features_)
-        {
-            auto key = std::make_tuple(rw, j);
-            //compute_attack(rw, j, 0);
-            attacks_[key] = compute_attack(rw, j, 0);
-        }
-    }
+    return;
+    // const auto H = X.rows();
+    // for (int64_t i = 0; i < H; i++)
+    // {
+    //     const Row<N>& rw = X.row(i);
+    //     for (auto j : features_)
+    //     {
+    //         auto key = std::make_tuple(rw, j);
+    //         //compute_attack(rw, j, 0);
+    //         attacks_[key] = compute_attack(rw, j, 0);
+    //     }
+    // }
 }
 
 template<size_t N>
@@ -158,11 +159,12 @@ TupleVec<NX> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id, int cost)
 
     if (features_.contains(feature_id))
     {
-        auto attack_key = std::make_tuple(x, feature_id);
-        if (!attacks_.contains(attack_key))
-            attacks_[attack_key] = compute_attack(x, feature_id, 0);
+        // auto attack_key = std::make_tuple(x, feature_id);
+        // if (!attacks_.contains(attack_key))
+        //     attacks_[attack_key] = compute_attack(x, feature_id, 0);
 
-        auto& attacks_xf = attacks_.at(attack_key);
+        // auto& attacks_xf = attacks_.at(attack_key);
+        auto attacks_xf = compute_attack(x, feature_id, 0);
         TupleVec<NX> out;
         std::copy_if(attacks_xf.begin(), attacks_xf.end(), std::back_inserter(out), [this, cost](auto& pair){
             return std::get<1>(pair) <= budget_ - cost;
@@ -185,11 +187,12 @@ TupleVec<NX> Attacker<NX>::max_attack(const Row<NX>& x, size_t feature_id)
 
     if (features_.contains(feature_id))
     {
-        auto attack_key = std::make_tuple(x, feature_id);
-        if (!attacks_.contains(attack_key))
-            attacks_[attack_key] = compute_attack(x, feature_id, 0);
+        // auto attack_key = std::make_tuple(x, feature_id);
+        // if (!attacks_.contains(attack_key))
+        //     attacks_[attack_key] = compute_attack(x, feature_id, 0);
 
-        auto& attacks_xf = attacks_.at(attack_key);
+        // auto& attacks_xf = attacks_.at(attack_key);
+        auto attacks_xf = compute_attack(x, feature_id, 0);
         TupleVec<NX> out;
         auto max_cost_it = std::max_element(attacks_xf.begin(), attacks_xf.end(), [](const auto& pair1, const auto& pair2){
             return std::get<1>(pair1) < std::get<1>(pair2);

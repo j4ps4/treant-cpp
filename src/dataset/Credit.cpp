@@ -67,8 +67,8 @@ cpp::result<std::tuple<DF<CREDIT_X>,DF<CREDIT_Y>>,std::string> read_test()
     return df::read_bz2<CREDIT_X,CREDIT_Y,0>(test_file.c_str());
 }
 
-cpp::result<std::unique_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int budget, const DF<CREDIT_X>& X,
-    const std::set<size_t>& id_set, bool print = true)
+cpp::result<std::shared_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int budget, const DF<CREDIT_X>& X,
+    const std::set<size_t>& id_set)
 {
     std::filesystem::path& attack_file = default_json_file;
     if (!json_file.empty())
@@ -77,10 +77,8 @@ cpp::result<std::unique_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int bu
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
-    auto atkr = std::make_unique<Attacker<CREDIT_X>>(std::move(rulz), budget);
-    if (print)
-        Util::info("computing attacks...");
-    atkr->compute_attacks(X);
+    auto atkr = std::make_shared<Attacker<CREDIT_X>>(std::move(rulz), budget);
+   
     return atkr;
 }
 
@@ -95,12 +93,6 @@ cpp::result<std::unique_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int bu
 //     Util::info("computing attacks...");
 //     atkr_.compute_attacks<ATTACK_TYPES>(X.df_, attack_file, FEATURE_ID{});
 // }
-
-
-RobustDecisionTree<CREDIT_X,CREDIT_Y> new_RDT(TreeArguments<CREDIT_X,CREDIT_Y>&& args)
-{
-    return RobustDecisionTree<CREDIT_X,CREDIT_Y>(std::move(args));
-}
 
 void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
 {
@@ -127,34 +119,35 @@ void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
     fmt::print("X: a dataframe of size ({}x{})\n", X.rows(), X.cols());
     fmt::print("Y: a dataframe of size ({}x{})\n", Y.rows(), Y.cols());
 
-    RobustDecisionTree<CREDIT_X,CREDIT_Y> tree;
+    json_file = args.attack_file;
+    auto m_atkr = credit::new_Attacker(args.budget, X, args.feature_ids);
+    if (m_atkr.has_error())
+        Util::die("{}", m_atkr.error());
+    args.tree_args.attacker = std::move(m_atkr.value());
 
-    if (args.tree_args.algo != TrainingAlgo::Standard)
-    {
-        json_file = args.attack_file;
-        auto m_atkr = credit::new_Attacker(args.budget, X, args.feature_ids);
-        if (m_atkr.has_error())
-            Util::die("{}", m_atkr.error());
-        args.tree_args.attacker = std::move(m_atkr.value());
-        tree = credit::new_RDT(std::move(args.tree_args));
-    }
-    else
-    {
-        tree = credit::new_RDT(std::move(args.tree_args));
-    }
+    auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter);
+    args.tree_args.optimizer = std::move(optimz);
 
+    RobustForest<CREDIT_X,CREDIT_Y> forest(args.n_trees, std::move(args.tree_args));
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-    tree.fit(X, Y);
+    forest.fit(X, Y);
     double linear_time = TIME;
     fmt::print("time elapsed: ");
     fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
-    tree.print_test_score(X_test, Y_test, Y);
-    auto model_name = args.output.empty() ? tree.get_model_name() : args.output;
-    auto full_model_name = models_dir / model_name;
-    Util::info("saving trained model to {}", full_model_name.native());
-    if (!std::filesystem::exists(models_dir))
-        std::filesystem::create_directory(models_dir);
-    tree.dump_to_disk(full_model_name);
+    forest.print_test_score(X_test, Y_test, Y);
+
+    // std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+    // tree.fit(X, Y);
+    // double linear_time = TIME;
+    // fmt::print("time elapsed: ");
+    // fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
+    // tree.print_test_score(X_test, Y_test, Y);
+    // auto model_name = args.output.empty() ? tree.get_model_name() : args.output;
+    // auto full_model_name = models_dir / model_name;
+    // Util::info("saving trained model to {}", full_model_name.native());
+    // if (!std::filesystem::exists(models_dir))
+    //     std::filesystem::create_directory(models_dir);
+    // tree.dump_to_disk(full_model_name);
 }
 
 void load_and_test(const std::filesystem::path& fn, const std::string& attack_file,
@@ -185,7 +178,7 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
         json_file = attack_file;
         for (int budget : budgets)
         {
-            auto m_atkr = credit::new_Attacker(budget, X_test, id_set, false);
+            auto m_atkr = credit::new_Attacker(budget, X_test, id_set);
             if (m_atkr.has_error())
                 Util::die("{}", m_atkr.error());
             auto ptr = m_atkr.value().get();

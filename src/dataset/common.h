@@ -11,4 +11,8 @@ struct TrainArguments
 	int budget;
 	std::set<size_t> feature_ids;
 	std::string output;
+    SplitFunction split;
+    TrainingAlgo algo;
+    int maxiter;
+    size_t n_trees;
 };

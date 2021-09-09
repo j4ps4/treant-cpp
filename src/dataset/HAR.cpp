@@ -67,8 +67,8 @@ cpp::result<std::tuple<DF<HAR_X>,DF<HAR_Y>>,std::string> read_test()
     return df::read_bz2<HAR_X,HAR_Y,1>(test_file.c_str());
 }
 
-cpp::result<std::unique_ptr<Attacker<HAR_X>>,std::string> new_Attacker(int budget, const DF<HAR_X>& X,
-    const std::set<size_t>& id_set, bool print = true)
+cpp::result<std::shared_ptr<Attacker<HAR_X>>,std::string> new_Attacker(int budget, const DF<HAR_X>& X,
+    const std::set<size_t>& id_set)
 {
     std::filesystem::path& attack_file = default_json_file;
     if (!json_file.empty())
@@ -77,10 +77,8 @@ cpp::result<std::unique_ptr<Attacker<HAR_X>>,std::string> new_Attacker(int budge
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
-    auto atkr = std::make_unique<Attacker<HAR_X>>(std::move(rulz), budget);
-    if (print)
-        Util::info("computing attacks...");
-    atkr->compute_attacks(X);
+    auto atkr = std::make_shared<Attacker<HAR_X>>(std::move(rulz), budget);
+
     return atkr;
 }
 
@@ -129,19 +127,17 @@ void train_and_save(TrainArguments<HAR_X,HAR_Y>&& args)
 
     RobustDecisionTree<HAR_X,HAR_Y> tree;
 
-    if (args.tree_args.algo != TrainingAlgo::Standard)
-    {
-        json_file = args.attack_file;
-        auto m_atkr = har::new_Attacker(args.budget, X, args.feature_ids);
-        if (m_atkr.has_error())
-            Util::die("{}", m_atkr.error());
-        args.tree_args.attacker = std::move(m_atkr.value());
-        tree = har::new_RDT(std::move(args.tree_args));
-    }
-    else
-    {
-        tree = har::new_RDT(std::move(args.tree_args));
-    }
+    json_file = args.attack_file;
+    auto m_atkr = har::new_Attacker(args.budget, X, args.feature_ids);
+    if (m_atkr.has_error())
+        Util::die("{}", m_atkr.error());
+    args.tree_args.attacker = std::move(m_atkr.value());
+
+    auto optimz = std::make_shared<SplitOptimizer<HAR_X,HAR_Y>>(args.split, args.algo, args.maxiter);
+    args.tree_args.optimizer = std::move(optimz);
+
+    tree = har::new_RDT(std::move(args.tree_args));
+    
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
     tree.fit(X, Y);
     double linear_time = TIME;
@@ -184,7 +180,7 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
         json_file = attack_file;
         for (int budget : budgets)
         {
-            auto m_atkr = har::new_Attacker(budget, X_test, id_set, false);
+            auto m_atkr = har::new_Attacker(budget, X_test, id_set);
             if (m_atkr.has_error())
                 Util::die("{}", m_atkr.error());
             auto ptr = m_atkr.value().get();

@@ -19,7 +19,6 @@ Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y
     if (X_train.size() == 0)
         return new Node<NY>();
 
-    DF<NX> X = DF_index<NX>(X_train, rows);
     DF<NY> y = DF_index<NY>(y_train, rows);
     Node<NY>* node = new Node<NY>(new_node);
     node->set_prediction(node_prediction);
@@ -122,7 +121,7 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
             {
                 rows.push_back(distrib(rd_));
             }
-            std::sort(rows.begin(), rows.end();
+            std::sort(rows.begin(), rows.end());
         } 
         else
         {
@@ -135,7 +134,8 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
     else
     {
         rows.reserve(NR);
-        std::generate_n(std::back_inserter(rows), NR, []{static size_t s = 0; return s++;});
+        for (size_t i = 0; i < NR; i++)
+            rows.push_back(i);
     }
 
     // null prediction
@@ -304,7 +304,7 @@ RobustDecisionTree<NX,NY> RobustDecisionTree<NX,NY>::load_from_disk(const std::f
         size_t min_instances_per_node;
         bool isTrained;
         bool affine;
-        std::unique_ptr<Attacker<NX>> attacker;
+        std::shared_ptr<Attacker<NX>> attacker;
         archive(root, id, max_depth, min_instances_per_node, isTrained, affine, attacker);
         return RobustDecisionTree<NX,NY>(root, id, max_depth, min_instances_per_node, isTrained, affine,
             attacker);

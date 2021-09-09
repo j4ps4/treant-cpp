@@ -16,36 +16,13 @@
 template<size_t NX, size_t NY>
 struct TreeArguments
 {
-    TreeArguments(TreeArguments<NX,NY>&& other) = default;
-    TreeArguments(const TreeArguments<NX,NY>& other) :
-        id(other.id),
-        attacker(std::make_unique<Attacker<NX>>(*(other.attacker->get()))),
-        fun(other.fun),
-        algo(other.algo),
-        max_depth(other.max_depth),
-        min_instances_per_node(other.min_instances_per_node),
-        maxiter(other.maxiter),
-        affine(other.affine),
-        feature_bl(other.feature_bl),
-        useParallel(other.useParallel),
-        par_par(other.par_par),
-        bootstrap_samples(other.bootstrap_samples),
-        bootstrap_features(other.bootstrap_features),
-        replace_samples(other.replace_samples),
-        replace_features(other.replace_features),
-        max_samples(other.max_samples),
-        max_features(other.max_features)
-        {}
-    
+    std::shared_ptr<Attacker<NX>> attacker;
+    std::shared_ptr<SplitOptimizer<NX,NY>> optimizer;
+    std::set<size_t> feature_bl;
     int id;
-    std::unique_ptr<Attacker<NX>> attacker;
-    SplitFunction fun;
-    TrainingAlgo algo;
     size_t max_depth;
     size_t min_instances_per_node;
-    int maxiter;
     bool affine;
-    std::set<size_t> feature_bl;
     bool useParallel;
 	double par_par;
     bool bootstrap_samples;
@@ -62,28 +39,27 @@ class RobustDecisionTree
     using ConstrVec = std::vector<Constraint<NX,NY>>;
 public:
     RobustDecisionTree(TreeArguments<NX,NY>&& args, uint64_t seed = 0) :
-        id_(args.id), max_depth_(args.max_depth), min_instances_per_node_(args.min_instances_per_node),
-        attacker_(std::move(args.attacker)), affine_(args.affine), start_feature_bl_(args.feature_bl),
+        attacker_(args.attacker), optimizer_(args.optimizer), start_feature_bl_(args.feature_bl),
+        id_(args.id), max_depth_(args.max_depth),
+        min_instances_per_node_(args.min_instances_per_node), affine_(args.affine), 
         useParallel_(args.useParallel), par_par_(args.par_par), bootstrap_samples_(args.bootstrap_samples),
         bootstrap_features_(args.bootstrap_features), replace_samples_(args.replace_samples),
         replace_features_(args.replace_features), max_samples_(args.max_samples),
-        max_features_(args.max_features), rd_(seed)
+        max_features_(args.max_features), rd_(seed), isTrained_(false)
     {
-        optimizer_ = std::make_unique<SplitOptimizer<NX,NY>>(args.fun, args.algo, args.maxiter);
-        isTrained_ = false;
     }
 
     RobustDecisionTree(std::unique_ptr<Node<NY>>& root, int id, size_t max_depth,
         size_t min_instances_per_node, bool isTrained, bool affine, 
-        std::unique_ptr<Attacker<NX>>& attacker)
+        std::shared_ptr<Attacker<NX>>& attacker) :
+            attacker_(attacker),
+            id_(id),
+            max_depth_(max_depth),
+            min_instances_per_node_(min_instances_per_node),
+            isTrained_(isTrained),
+            affine_(affine)
         {
             root_.swap(root);
-            id_ = id;
-            max_depth_ = max_depth;
-            min_instances_per_node_ = min_instances_per_node;
-            isTrained_ = isTrained;
-            affine_ = affine;
-            attacker_.swap(attacker);
         }
     
     RobustDecisionTree() = default;
@@ -101,6 +77,8 @@ public:
     void dump_to_disk(const std::filesystem::path& fn) const;
 
     static RobustDecisionTree<NX, NY> load_from_disk(const std::filesystem::path& fn);
+
+    int get_id() const noexcept {return id_;}
     
     std::string get_model_name() const;
     
@@ -129,15 +107,15 @@ private:
     void feature_importance_(const Node<NY>* node, std::map<size_t,double>& dict) const;
     
     std::unique_ptr<Node<NY>> root_;
+    std::shared_ptr<Attacker<NX>> attacker_;
+    std::shared_ptr<SplitOptimizer<NX,NY>> optimizer_;
+    std::set<size_t> start_feature_bl_;
+    std::mt19937_64 rd_;
     int id_;
     size_t max_depth_;
     size_t min_instances_per_node_;
     bool isTrained_;
-    std::unique_ptr<Attacker<NX>> attacker_;
     bool affine_;
-    std::set<size_t> start_feature_bl_;
-    std::unique_ptr<SplitOptimizer<NX,NY>> optimizer_;
-    std::mt19937_64 rd_;
     bool useParallel_;
     double par_par_;
     bool bootstrap_samples_;

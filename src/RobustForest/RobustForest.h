@@ -3,9 +3,6 @@
 #include "RobustDecisionTree.h"
 
 template<size_t NX, size_t NY>
-using TreePtr = std::unique_ptr<RobustDecisionTree<NX,NY>>;
-
-template<size_t NX, size_t NY>
 class RobustForest
 {
 public:
@@ -39,7 +36,7 @@ public:
 private:
 	TreeArguments<NX,NY> tree_args_;
 	size_t n_trees_;
-	std::vector<TreePtr<NX,NY>> trees_;
+	std::vector<RobustDecisionTree<NX,NY>> trees_;
 	bool is_trained_;
 };
 

@@ -54,7 +54,7 @@ public:
     OptimTupl optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, 
         const std::set<size_t>& feature_blacklist, int n_sample_features, 
         Attacker<NX>& attacker, CostMap& costs, 
-        ConstrVec& constraints, double current_score, Row<NY> current_prediction_score);
+        ConstrVec& constraints, double current_score, Row<NY> current_prediction_score) const;
 
     TrainingAlgo get_algorithm() const noexcept {return algo_;}
     
@@ -76,12 +76,12 @@ private:
                                        const Row<NY2>& pred);
 
     double split_loss(const DF<NY>& L, const NRow& pred_left,
-        const DF<NY>& R, const NRow& pred_right);
+        const DF<NY>& R, const NRow& pred_right) const;
 
     std::tuple<IdxVec, IdxVec, IdxVec, std::optional<IcmlTupl>> split_icml2019(
         const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, Attacker<NX>& attacker,
         const CostMap& costs, size_t feature_id, double feature_value
-    );
+    ) const;
 
     std::optional<IcmlTupl> optimize_loss_under_attack(const DF<NY>& y, const Row<NY>& current_prediction_score,
         const IdxVec& split_left, const IdxVec& split_right, 
@@ -90,12 +90,12 @@ private:
     std::tuple<IdxVec, IdxVec, IdxVec> simulate_split(
         const DF<NX>& X, const IdxVec& rows, Attacker<NX>& attacker,
         const CostMap& costs, size_t feature_id, double feature_value
-    );
+    ) const;
 
     std::tuple<IdxVec, IdxVec, std::optional<IcmlTupl>> simple_split(
         const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
         size_t feature_id, double feature_value
-    );
+    ) const;
     
     const SplitFunction split_;
     const TrainingAlgo algo_;

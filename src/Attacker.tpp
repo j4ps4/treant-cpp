@@ -119,7 +119,7 @@ TupleVec<N> Attacker<N>::compute_attack(const Row<N>& rw, size_t feature_id, int
 }
 
 template<size_t N>
-void Attacker<N>::compute_attacks(const DF<N>& X)
+void Attacker<N>::compute_attacks(const DF<N>& X) const
 {
     return;
     // const auto H = X.rows();
@@ -154,7 +154,7 @@ void Attacker<NX>::compute_target_features()
 }
 
 template<size_t NX>
-TupleVec<NX> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id, int cost)
+TupleVec<NX> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id, int cost) const
 {
 
     if (features_.contains(feature_id))
@@ -182,7 +182,7 @@ TupleVec<NX> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id, int cost)
 }
 
 template<size_t NX>
-TupleVec<NX> Attacker<NX>::max_attack(const Row<NX>& x, size_t feature_id)
+TupleVec<NX> Attacker<NX>::max_attack(const Row<NX>& x, size_t feature_id) const
 {
 
     if (features_.contains(feature_id))

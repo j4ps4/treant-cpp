@@ -75,15 +75,17 @@ int main(int argc, char** argv)
         cxxopts::value<std::vector<double>>())
         ("attack", "attack given instance, comma separated list of values",
         cxxopts::value<std::vector<double>>())
+        ("batch", "train a number of trees in batch mode, using given batch file",
+        cxxopts::value<std::string>())
 
         ("h,help", "print usage");
 
     options.add_options("file")
         ("data", "dataset to use",
         cxxopts::value<std::string>())
-        ("o,output", "model output name",
+        ("O,output", "model output name",
         cxxopts::value<std::string>()->default_value(""))
-        ("m,model", "trained model on which to operate",
+        ("M,model", "trained model on which to operate",
         cxxopts::value<std::string>())
         ("attack_file", "json file describing the attacks",
         cxxopts::value<std::string>()->default_value(""));
@@ -91,11 +93,11 @@ int main(int argc, char** argv)
     options.add_options("tree")
         ("algo", "training algorithm: robust, icml2019, standard",
         cxxopts::value<std::string>()->default_value("robust"))
-        ("budget", "maximum budget of attacker",
+        ("B,budget", "maximum budget of attacker",
         cxxopts::value<int>()->default_value("5"))
         ("maxiter", "maximum nlopt iterations",
         cxxopts::value<int>()->default_value("100"))
-        ("maxdepth", "maximum depth of tree",
+        ("D,maxdepth", "maximum depth of tree",
         cxxopts::value<size_t>()->default_value("8"))
         ("N,n_trees", "amount of trees in ensemble",
         cxxopts::value<size_t>()->default_value("1"))
@@ -194,7 +196,6 @@ int main(int argc, char** argv)
 
         if (!opts.count("data"))
                 throw std::invalid_argument("missing --data");
-
         auto dataset = opts["data"].as<std::string>();
         auto algostr = opts["algo"].as<std::string>();
         auto outputstr = opts["output"].as<std::string>();
@@ -220,6 +221,22 @@ int main(int argc, char** argv)
         auto algo = parse_algo(algostr);
 
         if (dataset == "credit")
+        {
+            if (opts.count("batch"))
+            {
+                auto batch_file = opts["batch"].as<std::string>();
+                credit::batch_train_and_save(
+                    {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
+                                .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=true,
+                                .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
+                                .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
+                                .replace_features=replace_features, .max_samples=max_samples, 
+                                .max_features=max_features},
+                    .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
+                    .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
+                    .n_trees=n_trees}, batch_file
+                );
+            }
             credit::train_and_save(
                 {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
                             .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=true,
@@ -231,6 +248,7 @@ int main(int argc, char** argv)
                 .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
                 .n_trees=n_trees}
             );
+        }
         else if (dataset == "har")
             har::train_and_save( 
                  {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,

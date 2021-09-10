@@ -8,6 +8,9 @@ class RobustForest
 public:
 	RobustForest(size_t N, TreeArguments<NX,NY>&& args);
 
+	RobustForest(size_t N, TreeArguments<NX,NY>&& args, 
+        const std::vector<std::tuple<int,Attacker<NX>*>>& atkrs);
+
     RobustForest() = default;
 	
     void fit(const DF<NX>& X_train, const DF<NY>& y_train);

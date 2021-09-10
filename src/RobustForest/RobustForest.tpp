@@ -17,6 +17,25 @@ RobustForest<NX,NY>::RobustForest(size_t N, TreeArguments<NX,NY>&& args) :
 }
 
 template<size_t NX, size_t NY>
+RobustForest<NX,NY>::RobustForest(size_t N, TreeArguments<NX,NY>&& args,
+	const std::vector<std::tuple<int,Attacker<NX>*>>& atkrs) :
+	tree_args_(std::move(args)), n_trees_(N), is_trained_(false)
+{
+	if (n_trees_ > atkrs.size())
+		Util::die("not enough attackers");
+	uint64_t seed = 0;
+	for (size_t i = 0; i < n_trees_; i++)
+	{
+		TreeArguments<NX,NY> new_args = tree_args_;
+		int id = std::get<0>(atkrs.at(i));
+		auto atkr = std::get<1>(atkrs.at(i));
+		new_args.id = id;
+		new_args.attacker.reset(atkr);
+		trees_.emplace_back(std::move(new_args), seed++);
+	}
+}
+
+template<size_t NX, size_t NY>
 void RobustForest<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
 {
 	thread_pool pool;

@@ -91,7 +91,7 @@ public:
 
     bool is_filled() const;
 
-    void compute_attacks(const DF<NX>& X);
+    void compute_attacks(const DF<NX>& X) const;
     
     void print_rules() const;
 
@@ -104,9 +104,9 @@ public:
     void set_budget(int budget) noexcept {budget_ = budget;}
 
     // returns attacks against a given instance, when cost has been spent already
-    TupleVec<NX> attack(const Row<NX>& x, size_t feature_id, int cost);
+    TupleVec<NX> attack(const Row<NX>& x, size_t feature_id, int cost) const;
     // return only the maximum attack
-    TupleVec<NX> max_attack(const Row<NX>& x, size_t feature_id);
+    TupleVec<NX> max_attack(const Row<NX>& x, size_t feature_id) const;
 
     // returns first attack for a given instance, budget is the remaining budget for attacks
     TupleVec<NX> single_attack(const Row<NX>& x, size_t feature_id, int budget) const;

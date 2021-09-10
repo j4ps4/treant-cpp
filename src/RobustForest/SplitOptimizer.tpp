@@ -228,7 +228,7 @@ template<size_t NX, size_t NY>
 double SplitOptimizer<NX,NY>::logloss_under_attack(const DF<NY>& left,
                                        const DF<NY>& right,
                                        const DF<NY>& unknown,
-                                       const Row<NY2>& pred) // length 2xN
+                                       const Row<NY2>& pred)
 {
     //constexpr size_t H = NY/2;
     const Row<NY> left_p = pred.template head<NY>().max(EPS).min(1-EPS).log();
@@ -253,7 +253,7 @@ double SplitOptimizer<NX,NY>::evaluate_split(const DF<NY>& y_true,
 
 template<size_t NX, size_t NY>
 double SplitOptimizer<NX,NY>::split_loss(const DF<NY>& L, const NRow& pred_left,
-    const DF<NY>& R, const NRow& pred_right)
+    const DF<NY>& R, const NRow& pred_right) const
 {
     if (L.rows() == 0)
     {
@@ -283,7 +283,7 @@ double SplitOptimizer<NX,NY>::split_loss(const DF<NY>& L, const NRow& pred_left,
 template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::split_icml2019(
     const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, Attacker<NX>& attacker,
-    const CostMap& costs, size_t feature_id, double feature_value) 
+    const CostMap& costs, size_t feature_id, double feature_value) const
     -> std::tuple<IdxVec, IdxVec, IdxVec, std::optional<IcmlTupl>>
 {
     //indices of instances which surely DO satisfy the boolean spitting predicate, disregarding the attacker
@@ -427,7 +427,7 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
 template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::simple_split(
     const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
-    size_t feature_id, double feature_value)
+    size_t feature_id, double feature_value) const
     -> std::tuple<IdxVec, IdxVec, std::optional<IcmlTupl>>
 {
     IdxVec split_left;
@@ -452,7 +452,7 @@ auto SplitOptimizer<NX,NY>::simple_split(
 template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::simulate_split(
     const DF<NX>& X, const IdxVec& rows, Attacker<NX>& attacker,
-    const CostMap& costs, size_t feature_id, double feature_value)
+    const CostMap& costs, size_t feature_id, double feature_value) const
     -> std::tuple<IdxVec, IdxVec, IdxVec>
 {
     IdxVec split_left;
@@ -584,7 +584,7 @@ template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
     const std::set<size_t>& feature_blacklist, int n_sample_features,
     Attacker<NX>& attacker, CostMap& costs,
-    ConstrVec& constraints, double current_score, Row<NY> current_prediction_score) -> OptimTupl
+    ConstrVec& constraints, double current_score, Row<NY> current_prediction_score) const -> OptimTupl
 {
     double best_gain = 0.0;
     size_t best_split_feature_id = -1;

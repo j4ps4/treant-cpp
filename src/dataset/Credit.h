@@ -23,6 +23,7 @@ namespace credit
     RobustDecisionTree<CREDIT_X,CREDIT_Y> new_RDT(TreeArguments<CREDIT_X,CREDIT_Y>&& args);
 
     void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args);
+    void batch_train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, const std::string& batch_file);
 
     void load_and_test(const std::filesystem::path& model, const std::string& attack_file,
         const std::set<size_t>& id_set, int max_budget);

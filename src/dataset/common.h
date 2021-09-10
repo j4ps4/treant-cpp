@@ -16,3 +16,9 @@ struct TrainArguments
     int maxiter;
     size_t n_trees;
 };
+
+template<size_t NX>
+std::vector<std::tuple<int,Attacker<NX>*>> parse_batch_file(const std::string& batch_file,
+	const std::string& attack_file, int budget);
+
+#include "common.tpp"

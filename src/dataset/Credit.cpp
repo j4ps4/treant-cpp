@@ -135,6 +135,7 @@ void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
     fmt::print("time elapsed: ");
     fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
     forest.print_test_score(X_test, Y_test, Y);
+    std::exit(0);
 
     // std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
     // tree.fit(X, Y);
@@ -148,6 +149,45 @@ void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
     // if (!std::filesystem::exists(models_dir))
     //     std::filesystem::create_directory(models_dir);
     // tree.dump_to_disk(full_model_name);
+}
+
+void batch_train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, const std::string& batch_file)
+{
+    auto m_df = credit::read_train();
+    if (m_df.has_error())
+        Util::die("{}", m_df.error());
+    auto& df_tupl = m_df.value();
+    auto& X = std::get<0>(df_tupl);
+    auto& Y = std::get<1>(df_tupl);
+
+    if (args.n_inst > 0)
+    {
+        X.conservativeResize(args.n_inst, Eigen::NoChange);
+        Y.conservativeResize(args.n_inst, Eigen::NoChange);
+    }
+
+    auto m_test = credit::read_test();
+    if (m_test.has_error())
+        Util::die("{}", m_test.error());
+    auto& test_tupl = m_test.value();
+    auto& X_test = std::get<0>(test_tupl);
+    auto& Y_test = std::get<1>(test_tupl);
+
+    fmt::print("X: a dataframe of size ({}x{})\n", X.rows(), X.cols());
+    fmt::print("Y: a dataframe of size ({}x{})\n", Y.rows(), Y.cols());
+
+    auto attackers = parse_batch_file<CREDIT_X>(batch_file, args.attack_file, args.budget);
+
+    auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter);
+    args.tree_args.optimizer = std::move(optimz);
+    RobustForest<CREDIT_X,CREDIT_Y> forest(args.n_trees, std::move(args.tree_args), attackers);
+    std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+    forest.fit(X, Y);
+    double linear_time = TIME;
+    fmt::print("time elapsed: ");
+    fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
+    forest.print_test_score(X_test, Y_test, Y);
+    std::exit(0);
 }
 
 void load_and_test(const std::filesystem::path& fn, const std::string& attack_file,

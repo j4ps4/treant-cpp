@@ -109,10 +109,10 @@ void train_and_save(TrainArguments<HAR_X,HAR_Y>&& args)
     auto& X = std::get<0>(df_tupl);
     auto& Y = std::get<1>(df_tupl);
 
-    if (args.n_inst > 0)
+    if (n_inst > 0)
     {
-        X.conservativeResize(args.n_inst, Eigen::NoChange);
-        Y.conservativeResize(args.n_inst, Eigen::NoChange);
+        X.conservativeResize(n_inst, Eigen::NoChange);
+        Y.conservativeResize(n_inst, Eigen::NoChange);
     }
 
     auto m_test = har::read_test();

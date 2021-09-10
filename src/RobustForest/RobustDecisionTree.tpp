@@ -318,16 +318,6 @@ RobustDecisionTree<NX,NY> RobustDecisionTree<NX,NY>::load_from_disk(const std::f
 template<size_t NX, size_t NY>
 std::string RobustDecisionTree<NX,NY>::get_model_name() const
 {
-    auto bl_string = [this]()->std::string{
-        if (start_feature_bl_.empty())
-            return "";
-        std::stringstream ss;
-        ss << "-BL";
-        for (auto f : start_feature_bl_)
-            ss << f << ",";
-        auto s = ss.str();
-        return s.substr(0, s.size()-1); 
-    };
 	std::string algo_str;
     if (!optimizer_)
         return "null-tree";
@@ -339,9 +329,9 @@ std::string RobustDecisionTree<NX,NY>::get_model_name() const
     else
         algo_str = "Standard";
     if (algo == TrainingAlgo::Standard)
-    	return fmt::format("{}-D{}{}.cereal", algo_str, max_depth_, bl_string());
+    	return fmt::format("{}-D{}.cereal", algo_str, max_depth_);
     else
-    	return fmt::format("{}-B{}-D{}{}.cereal", algo_str, attacker_->get_budget(), max_depth_, bl_string());
+    	return fmt::format("{}-B{}-D{}.cereal", algo_str, attacker_->get_budget(), max_depth_);
 }
 
 template<size_t NX, size_t NY>
@@ -402,7 +392,6 @@ double RobustDecisionTree<NX,NY>::get_attacked_score(Attacker<NX>& attacker,
     const auto& feats = attacker.target_features();
     for (int64_t i = 0; i < X.rows(); i++)
     {
-        total_attacks++;
         Eigen::Index max_ind;
         Y.row(i).maxCoeff(&max_ind);
         const auto inst = X.row(i);
@@ -424,7 +413,20 @@ double RobustDecisionTree<NX,NY>::get_attacked_score(Attacker<NX>& attacker,
             }
         }
     }
-    return 100.0 - 100.0 * static_cast<double>(score) / static_cast<double>(total_attacks);
+    std::vector<size_t> pred_vec;
+    pred_vec.reserve(attack_vec.size());
+    for (const auto& [inst, y] : attack_vec)
+        pred_vec.push_back(predict(inst));
+
+    const auto S = attack_vec.size();
+    for (size_t i = 0; i < S; i++)
+    {
+        const auto true_y = std::get<1>(attack_vec[i]);
+        const auto pred_y = pred_vec[i];
+        if (true_y != pred_y)
+            score++;
+    }
+    return 100.0 - 100.0 * static_cast<double>(score) / static_cast<double>(S);
 }
 
 template<size_t NX, size_t NY>

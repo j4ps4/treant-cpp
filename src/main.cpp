@@ -7,6 +7,7 @@
 #include <filesystem>
 
 #include "dataset/Credit.h"
+#include "dataset/Covertype.h"
 #include "dataset/HAR.h"
 #include "util.h"
 
@@ -273,5 +274,6 @@ int main(int argc, char** argv)
     {
         Util::die("{}", e.what());
     }
+    
     return 0;
 }

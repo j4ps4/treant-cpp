@@ -5,6 +5,10 @@
 #include <iostream>
 
 #include <fmt/core.h>
+// #include <cereal/types/unordered_map.hpp>
+// #include <cereal/types/vector.hpp>
+// #include <cereal/types/tuple.hpp>
+// #include <cereal/archives/binary.hpp>
 #include <fstream>
 
 #include "util.h"
@@ -31,6 +35,33 @@ bool check_equal_perturbation(const TupleVec<N>& attacks, const PairT<N>& y)
         }
     }
     return false;
+}
+
+template<typename T>
+struct head_impl;
+
+template<std::size_t I, std::size_t... Is>
+struct head_impl<std::index_sequence<I, Is...>>
+{
+    static constexpr size_t value = I;
+};
+
+template<typename T>
+struct tail_impl;
+
+template<std::size_t I, std::size_t... Is>
+struct tail_impl<std::index_sequence<I, Is...>>
+{
+    using value = std::index_sequence<Is...>;
+};
+
+template<typename T>
+using tail = typename tail_impl<T>::value;
+
+template<typename T>
+constexpr size_t head()
+{
+    return head_impl<T>::value;
 }
 
 template<size_t N>
@@ -134,6 +165,17 @@ void Attacker<N>::compute_attacks(const DF<N>& X) const
     //     }
     // }
 }
+
+// template<typename... Ts>
+// void Attacker<Ts...>::load_attacks(const std::filesystem::path& fn)
+// {
+//     std::ifstream is(fn, std::ios::binary);
+//     cereal::BinaryInputArchive archive(is);
+//     AttackDict<Ts...> attacks;
+//     archive(attacks);
+//     attacks_ = std::move(attacks);
+//     Util::info("loaded {} attacks.\n", attacks_.size());
+// }
 
 template<size_t N>
 void Attacker<N>::print_rules() const

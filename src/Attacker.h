@@ -6,7 +6,6 @@
 #include <tuple>
 #include <array>
 #include <filesystem>
-#include <optional>
 
 #include <cereal/types/set.hpp>
 #include <cereal/types/list.hpp>

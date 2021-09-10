@@ -1,0 +1,11 @@
+{
+    "attacks": [{
+            "Elevation": [{
+                "pre": "(2000, 3000)",
+                "post": 100,
+                "cost": 10,
+                "is_numerical": true
+            }]
+        }
+        ]
+}

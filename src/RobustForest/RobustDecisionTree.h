@@ -71,6 +71,10 @@ public:
     size_t predict(const Row<NX>& instance) const;
     size_t predict(const std::vector<double>& instance) const;
     DF<NY> predict_proba(const DF<NX>& X_test) const;
+    Row<NY> predict_proba_single(const Row<NX>& instance) const
+    {
+        return predict_proba_(instance, root_.get());
+    }
 
     double classification_error(const DF<NY>& Y_test, const DF<NY>& Y_pred) const;
 
@@ -87,6 +91,8 @@ public:
     double get_attacked_score(Attacker<NX>& attacker, const DF<NX>& X, const DF<NY>& Y) const;
     double get_own_attacked_score(const DF<NX>& X, const DF<NY>& Y) const;
 
+    int get_attacker_budget() const {return attacker_->get_budget();}
+
     void set_attacker_budget(int budget) 
     {
         if (!attacker_)
@@ -95,6 +101,12 @@ public:
     }
 
     std::map<size_t, double> feature_importance() const;
+
+    template<typename Archive>
+    void serialize(Archive& archive)
+    {
+        archive(root_, attacker_, id_, isTrained_);
+    }
 
 private:
     Node<NY>* fit_(const DF<NX>& X_train, const DF<NY>& y_train, size_t spawn_thresh, const std::vector<size_t> rows,

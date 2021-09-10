@@ -103,10 +103,10 @@ void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
     auto& X = std::get<0>(df_tupl);
     auto& Y = std::get<1>(df_tupl);
 
-    if (n_inst > 0)
+    if (args.n_inst > 0)
     {
-        X.conservativeResize(n_inst, Eigen::NoChange);
-        Y.conservativeResize(n_inst, Eigen::NoChange);
+        X.conservativeResize(args.n_inst, Eigen::NoChange);
+        Y.conservativeResize(args.n_inst, Eigen::NoChange);
     }
 
     auto m_test = credit::read_test();
@@ -129,26 +129,19 @@ void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
     args.tree_args.optimizer = std::move(optimz);
 
     RobustForest<CREDIT_X,CREDIT_Y> forest(args.n_trees, std::move(args.tree_args));
+
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
     forest.fit(X, Y);
     double linear_time = TIME;
     fmt::print("time elapsed: ");
     fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
     forest.print_test_score(X_test, Y_test, Y);
-    std::exit(0);
-
-    // std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-    // tree.fit(X, Y);
-    // double linear_time = TIME;
-    // fmt::print("time elapsed: ");
-    // fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
-    // tree.print_test_score(X_test, Y_test, Y);
-    // auto model_name = args.output.empty() ? tree.get_model_name() : args.output;
-    // auto full_model_name = models_dir / model_name;
-    // Util::info("saving trained model to {}", full_model_name.native());
-    // if (!std::filesystem::exists(models_dir))
-    //     std::filesystem::create_directory(models_dir);
-    // tree.dump_to_disk(full_model_name);
+    auto model_name = args.output.empty() ? forest.get_model_name() : args.output;
+    auto full_model_name = models_dir / model_name;
+    Util::info("saving trained model to {}", full_model_name.native());
+    if (!std::filesystem::exists(models_dir))
+        std::filesystem::create_directory(models_dir);
+    forest.dump_to_disk(full_model_name);
 }
 
 void batch_train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, const std::string& batch_file)
@@ -187,6 +180,14 @@ void batch_train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, const std::s
     fmt::print("time elapsed: ");
     fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
     forest.print_test_score(X_test, Y_test, Y);
+
+    auto model_name = args.output.empty() ? forest.get_model_name() : args.output;
+    auto full_model_name = models_dir / model_name;
+    Util::info("saving trained model to {}", full_model_name.native());
+    if (!std::filesystem::exists(models_dir))
+        std::filesystem::create_directory(models_dir);
+    forest.dump_to_disk(full_model_name);
+
     std::exit(0);
 }
 

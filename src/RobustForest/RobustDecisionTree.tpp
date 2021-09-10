@@ -217,7 +217,7 @@ size_t RobustDecisionTree<NX,NY>::predict(const std::vector<double>& instance) c
     if (isTrained_)
     {
         if (instance.size() < NX)
-            throw std::invalid_argument(fmt::format("expected a vector of length {}", NX));
+            throw std::invalid_argument(fmt::format("predict: expected a vector of length {}", NX));
         Row<NX> converted(1, NX);
         for (int64_t i = 0; i < NX; i++)
             converted(i) = instance.at(i);
@@ -329,9 +329,9 @@ std::string RobustDecisionTree<NX,NY>::get_model_name() const
     else
         algo_str = "Standard";
     if (algo == TrainingAlgo::Standard)
-    	return fmt::format("{}-D{}.cereal", algo_str, max_depth_);
+    	return fmt::format("{}-D{}.tree", algo_str, max_depth_);
     else
-    	return fmt::format("{}-B{}-D{}.cereal", algo_str, attacker_->get_budget(), max_depth_);
+    	return fmt::format("{}-B{}-D{}.tree", algo_str, attacker_->get_budget(), max_depth_);
 }
 
 template<size_t NX, size_t NY>
@@ -413,20 +413,7 @@ double RobustDecisionTree<NX,NY>::get_attacked_score(Attacker<NX>& attacker,
             }
         }
     }
-    std::vector<size_t> pred_vec;
-    pred_vec.reserve(attack_vec.size());
-    for (const auto& [inst, y] : attack_vec)
-        pred_vec.push_back(predict(inst));
-
-    const auto S = attack_vec.size();
-    for (size_t i = 0; i < S; i++)
-    {
-        const auto true_y = std::get<1>(attack_vec[i]);
-        const auto pred_y = pred_vec[i];
-        if (true_y != pred_y)
-            score++;
-    }
-    return 100.0 - 100.0 * static_cast<double>(score) / static_cast<double>(S);
+    return 100.0 - 100.0 * static_cast<double>(score) / static_cast<double>(total_attacks);
 }
 
 template<size_t NX, size_t NY>

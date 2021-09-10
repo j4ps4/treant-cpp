@@ -15,6 +15,7 @@ constexpr size_t HAR_Y = 6;
 #include "../DF2/DF_def.h"
 #include "../Attacker.h"
 #include "../RobustForest/RobustDecisionTree.h"
+#include "common.h"
 
 namespace har
 {

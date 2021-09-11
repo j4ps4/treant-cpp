@@ -49,8 +49,9 @@ Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y
            best_split_feature_value, next_best_split_feature_id,
            best_pred_left, best_pred_right, best_loss,
            costs_left, costs_right, 
-           constraints_left, constraints_right] = optimizer_->optimize_gain(X_train, y_train, rows, feature_blacklist, -1,
-                                      *(attacker_.get()), costs, constraints, current_score, node_prediction);
+           constraints_left, constraints_right] = optimizer_->optimize_gain(X_train, y_train, rows, feature_blacklist,
+                                      *(attacker_.get()), costs, constraints, current_score, node_prediction,
+                                      bootstrap_features_, n_sample_features_, rd_);
 
     Util::log<4>("tree {}: best_gain: {}", id_, best_gain);
     if (best_gain > EPS)
@@ -136,6 +137,10 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
         rows.reserve(NR);
         for (size_t i = 0; i < NR; i++)
             rows.push_back(i);
+    }
+    if (bootstrap_features_)
+    {
+        n_sample_features_ = std::min(NX, static_cast<size_t>(max_features_ * NX));
     }
 
     // null prediction

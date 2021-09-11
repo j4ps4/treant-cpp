@@ -138,6 +138,7 @@ private:
     bool replace_features_;
     double max_samples_;
     double max_features_;
+    size_t n_sample_features_;
 };
 
 #include "RobustDecisionTree.tpp"

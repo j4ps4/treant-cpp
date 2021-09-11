@@ -8,9 +8,12 @@
 #include "../util.h"
 
 std::mutex print_mut;
+int verbosity = 3;
 
 namespace har
 {
+
+void set_verbosity(int verb) {verbosity = verb;}
 
 const std::filesystem::path data_dir = "data/har/";
 const std::filesystem::path models_dir = data_dir / "models";
@@ -104,8 +107,8 @@ void train_and_save(TrainArguments<HAR_X,HAR_Y>&& args)
     auto& X_test = std::get<0>(test_tupl);
     auto& Y_test = std::get<1>(test_tupl);
 
-    fmt::print("X: a dataframe of size ({}x{})\n", X.rows(), X.cols());
-    fmt::print("Y: a dataframe of size ({}x{})\n", Y.rows(), Y.cols());
+    Util::log<4>("X: a dataframe of size ({}x{})\n", X.rows(), X.cols());
+    Util::log<4>("Y: a dataframe of size ({}x{})\n", Y.rows(), Y.cols());
 
     json_file = args.attack_file;
     auto m_atkr = har::new_Attacker(args.budget, X, args.feature_ids);
@@ -154,8 +157,8 @@ void batch_train_and_save(TrainArguments<HAR_X,HAR_Y>&& args, const std::string&
     auto& X_test = std::get<0>(test_tupl);
     auto& Y_test = std::get<1>(test_tupl);
 
-    fmt::print("X: a dataframe of size ({}x{})\n", X.rows(), X.cols());
-    fmt::print("Y: a dataframe of size ({}x{})\n", Y.rows(), Y.cols());
+    Util::log<4>("X: a dataframe of size ({}x{})\n", X.rows(), X.cols());
+    Util::log<4>("Y: a dataframe of size ({}x{})\n", Y.rows(), Y.cols());
 
     auto attackers = parse_batch_file<HAR_X>(batch_file, args.attack_file, args.budget);
 

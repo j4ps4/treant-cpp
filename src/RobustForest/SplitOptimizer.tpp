@@ -715,8 +715,6 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     // Continue iff there's an actual gain
     if (best_gain > 0.0)
     {
-        if (best_split_unknown_id.size() > 0)
-            Util::info("best_split_unknown size: {}", best_split_unknown_id.size());
         if (best_split_unknown_id.size() > 0 && algo_ == TrainingAlgo::Icml2019)
         {
             // Assign unknown instance either to left or right split, according to ICML2019 strategy

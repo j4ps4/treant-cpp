@@ -58,7 +58,7 @@ void RobustForest<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
 	}
 	pool.wait_for_tasks();
 	is_trained_ = true;
-	Util::info("{} trees have been fit!", n_trees_);
+	Util::log<3>("{} trees have been fit!", n_trees_);
 }
 
 static size_t mode(const std::vector<size_t>& a)

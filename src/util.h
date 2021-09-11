@@ -10,6 +10,7 @@
 #include <mutex>
 
 extern std::mutex print_mut;
+extern int verbosity;
 
 namespace Util {
 
@@ -25,35 +26,47 @@ template<typename... Args>
 template<typename... Args>
 void err(const char* msg, Args... args)
 {
-    fmt::print(stderr, fg(fmt::color::crimson)|fmt::emphasis::bold, "error: ");
-    fmt::print(stderr, msg, args...);
-    fmt::print(stderr, "\n");
+    if (verbosity > 0)
+    {
+        fmt::print(stderr, fg(fmt::color::crimson)|fmt::emphasis::bold, "error: ");
+        fmt::print(stderr, msg, args...);
+        fmt::print(stderr, "\n");
+    }
 }
 
 template<typename... Args>
 void warn(const char* msg, Args... args)
 {
-    std::unique_lock lock(print_mut);
-    fmt::print(fg(fmt::color::yellow)|fmt::emphasis::bold, "warning: ");
-    fmt::print(msg, args...);
-    fmt::print("\n");
+    if (verbosity > 0)
+    {
+        std::unique_lock lock(print_mut);
+        fmt::print(fg(fmt::color::yellow)|fmt::emphasis::bold, "warning: ");
+        fmt::print(msg, args...);
+        fmt::print("\n");
+    }
 }
 
 template<typename... Args>
 void info(const char* msg, Args... args)
 {
-    std::unique_lock lock(print_mut);
-    fmt::print(fg(fmt::color::sky_blue)|fmt::emphasis::bold, "info: ");
-    fmt::print(msg, args...);
-    fmt::print("\n");
+    if (verbosity > 1)
+    {
+        std::unique_lock lock(print_mut);
+        fmt::print(fg(fmt::color::sky_blue)|fmt::emphasis::bold, "info: ");
+        fmt::print(msg, args...);
+        fmt::print("\n");
+    }
 }
 
-template<typename... Args>
+template<int verb, typename... Args>
 void log(const char* msg, Args... args)
 {
-    std::unique_lock lock(print_mut);
-    fmt::print(msg, args...);
-    fmt::print("\n");
+    if (verbosity >= verb)
+    {
+        std::unique_lock lock(print_mut);
+        fmt::print(msg, args...);
+        fmt::print("\n");
+    }
 }
 
 

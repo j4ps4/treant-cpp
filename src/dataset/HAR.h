@@ -28,4 +28,5 @@ namespace har
     void classify(const std::filesystem::path& model, const std::vector<double>& inst);
     void attack_instance(const std::string& attack_file, const std::vector<double>& inst,
         const std::set<size_t>& id_set, int budget, int cost);
+    void set_verbosity(int verb);
 }

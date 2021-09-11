@@ -22,23 +22,23 @@ Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y
     DF<NY> y = DF_index<NY>(y_train, rows);
     Node<NY>* node = new Node<NY>(new_node);
     node->set_prediction(node_prediction);
-    Util::log("tree {}: current depth: {}", id_, depth);
+    Util::log<4>("tree {}: current depth: {}", id_, depth);
     auto current_prediction = node->get_prediction();
     // not needed?
     //auto current_prediction_score = node->get_prediction_score(); 
     auto current_score = optimizer_->evaluate_split(y, node_prediction);
     node->set_loss(current_score);
-    Util::log("tree {}: current node's loss: {:.5f}", id_, current_score);
+    Util::log<4>("tree {}: current node's loss: {:.5f}", id_, current_score);
 
     if (depth == max_depth_)
     {
-        Util::log("tree {}: current depth {} is equal to maximum depth of this tree", id_, depth);
+        Util::log<4>("tree {}: current depth {} is equal to maximum depth of this tree", id_, depth);
         return node;
     }
 
     if (rows.size() < min_instances_per_node_)
     {
-        Util::log("tree {}: number of instances ended up in the current node ({}) are less than the minimum ({})",
+        Util::log<4>("tree {}: number of instances ended up in the current node ({}) are less than the minimum ({})",
             id_, rows.size(), min_instances_per_node_);
         return node;
     }
@@ -52,7 +52,7 @@ Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y
            constraints_left, constraints_right] = optimizer_->optimize_gain(X_train, y_train, rows, feature_blacklist, -1,
                                       *(attacker_.get()), costs, constraints, current_score, node_prediction);
 
-    Util::log("tree {}: best_gain: {}", id_, best_gain);
+    Util::log<4>("tree {}: best_gain: {}", id_, best_gain);
     if (best_gain > EPS)
     {
         node->set_loss(best_loss);
@@ -159,7 +159,7 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
     if (!root_->is_dummy())
     {
         isTrained_ = true;
-        Util::log("Fitting Tree ID {} completed (is_trained = {})!",
+        Util::log<3>("Fitting Tree ID {} completed (is_trained = {})!",
             id_, isTrained_);
     }
 }

@@ -78,6 +78,8 @@ int main(int argc, char** argv)
         cxxopts::value<std::vector<double>>())
         ("batch", "train a number of trees in batch mode, using given batch file",
         cxxopts::value<std::string>())
+        ("V,verbosity", "output verbosity: 0 (nothing) - 4 (everything)",
+        cxxopts::value<int>()->default_value("3"))
 
         ("h,help", "print usage");
 
@@ -216,6 +218,7 @@ int main(int argc, char** argv)
         std::set<size_t> feature_bl;
         for (auto f : feature_bl_vec)
             feature_bl.insert(f);
+        auto verb = opts["verbosity"].as<int>();
 
         toLower(dataset); 
         toLower(algostr); 
@@ -223,6 +226,7 @@ int main(int argc, char** argv)
 
         if (dataset == "credit")
         {
+            credit::set_verbosity(verb);
             if (opts.count("batch"))
             {
                 auto batch_file = opts["batch"].as<std::string>();
@@ -252,6 +256,7 @@ int main(int argc, char** argv)
         }
         else if (dataset == "har")
         {
+            har::set_verbosity(verb);
             if (opts.count("batch"))
             {
                 auto batch_file = opts["batch"].as<std::string>();

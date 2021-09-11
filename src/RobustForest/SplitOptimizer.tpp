@@ -50,8 +50,7 @@ struct loss_data
 template<size_t NY>
 static double logloss_nlopt(unsigned n, const double* x, double* grad, void* data)
 {
-    throw std::runtime_error("logloss_nlopt not implemented for this N");
-    return 0.0;
+    Util::die("logloss_nlopt not implemented for this N");
 }
 
 template<>
@@ -149,6 +148,73 @@ double logloss_nlopt<6>(unsigned n, const double* x, double* grad, void* data)
 
 }
 
+template<>
+double logloss_nlopt<7>(unsigned n, const double* x, double* grad, void* data)
+{
+    loss_data<7>* d = static_cast<loss_data<7>*>(data);
+    const auto& cL = d->C_L;
+    const auto& cU = d->C_U;
+    const auto& cR = d->C_R;
+
+    // safe log
+    auto mlog = [](double x){return std::log(std::min(std::max(x,EPS),1-EPS));};
+
+    // push class-0 unknowns to which branch?
+    const auto cc_0 = x[0] <= x[7] ? std::make_tuple(cL(0)+cU(0), cR(0)) 
+                                   : std::make_tuple(cL(0), cR(0)+cU(0));
+    // push class-1 unknowns to which branch?
+    const auto cc_1 = x[1] <= x[8] ? std::make_tuple(cL(1)+cU(1), cR(1)) 
+                                   : std::make_tuple(cL(1), cR(1)+cU(1));
+    // push class-2 unknowns to which branch?
+    const auto cc_2 = x[2] <= x[9] ? std::make_tuple(cL(2)+cU(2), cR(2)) 
+                                   : std::make_tuple(cL(2), cR(2)+cU(2));
+    // push class-3 unknowns to which branch?
+    const auto cc_3 = x[3] <= x[10] ? std::make_tuple(cL(3)+cU(3), cR(3)) 
+                                   : std::make_tuple(cL(3), cR(3)+cU(3));
+    // push class-4 unknowns to which branch?
+    const auto cc_4 = x[4] <= x[11] ? std::make_tuple(cL(4)+cU(4), cR(4)) 
+                                    : std::make_tuple(cL(4), cR(4)+cU(4));
+    // push class-5 unknowns to which branch?
+    const auto cc_5 = x[5] <= x[12] ? std::make_tuple(cL(5)+cU(5), cR(5)) 
+                                    : std::make_tuple(cL(5), cR(5)+cU(5));
+    // push class-6 unknowns to which branch?
+    const auto cc_6 = x[6] <= x[13] ? std::make_tuple(cL(6)+cU(6), cR(6)) 
+                                    : std::make_tuple(cL(6), cR(6)+cU(6));
+
+    if (grad != nullptr)
+    {
+        grad[0] = std::get<0>(cc_0) * -1.0/x[0];
+        grad[1] = std::get<0>(cc_1) * -1.0/x[1];
+        grad[2] = std::get<0>(cc_2) * -1.0/x[2];
+        grad[3] = std::get<0>(cc_3) * -1.0/x[3];
+        grad[4] = std::get<0>(cc_4) * -1.0/x[4];
+        grad[5] = std::get<0>(cc_5) * -1.0/x[5];
+        grad[6] = std::get<0>(cc_6) * -1.0/x[6];
+        grad[7] = std::get<1>(cc_0) * -1.0/x[7];
+        grad[8] = std::get<1>(cc_1) * -1.0/x[8];
+        grad[9] = std::get<1>(cc_2) * -1.0/x[9];
+        grad[10] = std::get<1>(cc_3) * -1.0/x[10];
+        grad[11] = std::get<1>(cc_4) * -1.0/x[11];
+        grad[12] = std::get<1>(cc_5) * -1.0/x[12];
+        grad[13] = std::get<1>(cc_6) * -1.0/x[13];
+    }
+    return std::get<0>(cc_0) * -mlog(x[0])
+         + std::get<0>(cc_1) * -mlog(x[1])
+         + std::get<0>(cc_2) * -mlog(x[2])
+         + std::get<0>(cc_3) * -mlog(x[3])
+         + std::get<0>(cc_4) * -mlog(x[4])
+         + std::get<0>(cc_5) * -mlog(x[5])
+         + std::get<0>(cc_6) * -mlog(x[6])
+         + std::get<1>(cc_0) * -mlog(x[7])
+         + std::get<1>(cc_1) * -mlog(x[8])
+         + std::get<1>(cc_2) * -mlog(x[9])
+         + std::get<1>(cc_3) * -mlog(x[10])
+         + std::get<1>(cc_4) * -mlog(x[11])
+         + std::get<1>(cc_5) * -mlog(x[12])
+         + std::get<1>(cc_6) * -mlog(x[13]);
+
+}
+
 // Equality constraints: lower and upper halves of x must each sum to 1
 template<size_t NY>
 static double eq_constr1(unsigned n, const double* x, double* grad, void* data) {return 0.0;};
@@ -187,6 +253,29 @@ double eq_constr1<6>(unsigned n, const double* x, double* grad, void* data)
     return x[0] + x[1] + x[2] + x[3] + x[4] + x[5] - 1.0;
 }
 
+template<>
+double eq_constr1<7>(unsigned n, const double* x, double* grad, void* data)
+{
+    if (grad != nullptr)
+    {
+        grad[0] = 1.0;
+        grad[1] = 1.0;
+        grad[2] = 1.0;
+        grad[3] = 1.0;
+        grad[4] = 1.0;
+        grad[5] = 1.0;
+        grad[6] = 1.0;
+        grad[7] = 0.0;
+        grad[8] = 0.0;
+        grad[9] = 0.0;
+        grad[10] = 0.0;
+        grad[11] = 0.0;
+        grad[12] = 0.0;
+        grad[13] = 0.0;
+    }
+    return x[0] + x[1] + x[2] + x[3] + x[4] + x[5] + x[6] - 1.0;
+}
+
 template<size_t NY>
 static double eq_constr2(unsigned n, const double* x, double* grad, void* data) {return 0.0;};
 
@@ -222,6 +311,29 @@ double eq_constr2<6>(unsigned n, const double* x, double* grad, void* data)
         grad[11] = 1.0;
     }
     return x[6] + x[7] + x[8] + x[9] + x[10] + x[11] - 1.0;
+}
+
+template<>
+double eq_constr2<7>(unsigned n, const double* x, double* grad, void* data)
+{
+    if (grad != nullptr)
+    {
+        grad[0] = 0.0;
+        grad[1] = 0.0;
+        grad[2] = 0.0;
+        grad[3] = 0.0;
+        grad[4] = 0.0;
+        grad[5] = 0.0;
+        grad[6] = 0.0;
+        grad[7] = 1.0;
+        grad[8] = 1.0;
+        grad[9] = 1.0;
+        grad[10] = 1.0;
+        grad[11] = 1.0;
+        grad[12] = 1.0;
+        grad[13] = 1.0;
+    }
+    return x[7] + x[8] + x[9] + x[10] + x[11] + x[12] + x[13] - 1.0;
 }
 
 template<size_t NX, size_t NY>

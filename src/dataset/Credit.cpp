@@ -85,18 +85,6 @@ cpp::result<std::shared_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int bu
     return atkr;
 }
 
-// void attack_dataset(const DF<CREDIT_SIZE>& X, ForceCompute force)
-// {
-//     // const auto attack_file = attack_filename();
-//     // if (force == ForceCompute::No && std::filesystem::exists(attack_file))
-//     // {
-//     //     Util::info("loading attacked dataset from {}...", attack_file.c_str());
-//     //     atkr_.load_attacks(attack_file);
-//     // }
-//     Util::info("computing attacks...");
-//     atkr_.compute_attacks<ATTACK_TYPES>(X.df_, attack_file, FEATURE_ID{});
-// }
-
 void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
 {
     auto m_df = credit::read_train();
@@ -119,8 +107,8 @@ void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
     auto& X_test = std::get<0>(test_tupl);
     auto& Y_test = std::get<1>(test_tupl);
 
-    Util::log<4>("X: a dataframe of size ({}x{})\n", X.rows(), X.cols());
-    Util::log<4>("Y: a dataframe of size ({}x{})\n", Y.rows(), Y.cols());
+    Util::log<4>("X: a dataframe of size ({}x{})", X.rows(), X.cols());
+    Util::log<4>("Y: a dataframe of size ({}x{})", Y.rows(), Y.cols());
 
     json_file = args.attack_file;
     auto m_atkr = credit::new_Attacker(args.budget, X, args.feature_ids);
@@ -169,8 +157,8 @@ void batch_train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, const std::s
     auto& X_test = std::get<0>(test_tupl);
     auto& Y_test = std::get<1>(test_tupl);
 
-    Util::log<4>("X: a dataframe of size ({}x{})\n", X.rows(), X.cols());
-    Util::log<4>("Y: a dataframe of size ({}x{})\n", Y.rows(), Y.cols());
+    Util::log<4>("X: a dataframe of size ({}x{})", X.rows(), X.cols());
+    Util::log<4>("Y: a dataframe of size ({}x{})", Y.rows(), Y.cols());
 
     auto attackers = parse_batch_file<CREDIT_X>(batch_file, args.attack_file, args.budget);
 

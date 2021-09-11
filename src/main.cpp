@@ -25,7 +25,7 @@ TrainingAlgo parse_algo(const std::string& s)
 
 enum class DataSet
 {
-    Credit, Har
+    Credit, Har, Covertype
 };
 
 std::tuple<DataSet, std::filesystem::path> parseTest(const std::string& s)
@@ -38,6 +38,8 @@ std::tuple<DataSet, std::filesystem::path> parseTest(const std::string& s)
         return {DataSet::Credit, p};
     else if (dirname == "har")
         return {DataSet::Har, p};
+    else if (dirname == "covertype")
+        return {DataSet::Covertype, p};
     else
         Util::die("model path is not valid");
 }
@@ -52,6 +54,8 @@ DataSet parseAttack(const std::string& s)
         return DataSet::Credit;
     else if (dirname == "har")
         return DataSet::Har;
+    else if (dirname == "covertype")
+        return DataSet::Covertype;
     else
         Util::die("attack_file path is not valid");
 }
@@ -106,9 +110,9 @@ int main(int argc, char** argv)
         cxxopts::value<size_t>()->default_value("1"))
         ("n_inst", "number of instances to use in training",
         cxxopts::value<int>()->default_value("-1"))
-        ("bootstrap_instances", "bootstrap instances when training an ensemble",
+        ("sample_instances", "sample instances when training an ensemble",
         cxxopts::value<bool>()->default_value("false"))
-        ("bootstrap_features", "bootstrap features when training an ensemble",
+        ("sample_features", "sample features when training an ensemble",
         cxxopts::value<bool>()->default_value("false"))
         ("replace_instances", "whether the random sampling of instances should be with replacement",
         cxxopts::value<bool>()->default_value("false"))
@@ -118,6 +122,8 @@ int main(int argc, char** argv)
         cxxopts::value<double>()->default_value("1.0"))
         ("max_features", "proportion of features sampled",
         cxxopts::value<double>()->default_value("1.0"))
+        ("affine", "don't consider the same features again when growing tree downward",
+        cxxopts::value<bool>()->default_value("true"))
         ("par", "train single tree in parallel mode",
         cxxopts::value<bool>()->default_value("false"))
         ("feature_blacklist", "features to ignore when considering a split",
@@ -161,6 +167,8 @@ int main(int argc, char** argv)
                 credit::load_and_test(path, attack_file, feature_id, budget);
             else if (dataset == DataSet::Har)
                 har::load_and_test(path, attack_file, feature_id, budget);
+            else if (dataset == DataSet::Covertype)
+                covertype::load_and_test(path, attack_file, feature_id, budget);
             return 0;
         }
         else if (opts.count("gain"))
@@ -171,6 +179,8 @@ int main(int argc, char** argv)
                 credit::put_gain_values(path);
             else if (dataset == DataSet::Har)
                 har::put_gain_values(path);
+            else if (dataset == DataSet::Covertype)
+                covertype::put_gain_values(path);
             return 0;
         }
         else if (opts.count("classify"))
@@ -182,6 +192,8 @@ int main(int argc, char** argv)
                 credit::classify(path, inst_vec);
             else if (dataset == DataSet::Har)
                 har::classify(path, inst_vec);
+            else if (dataset == DataSet::Covertype)
+                covertype::classify(path, inst_vec);
             return 0;
         }
         else if (opts.count("attack"))
@@ -194,6 +206,8 @@ int main(int argc, char** argv)
                 credit::attack_instance(attack_file, att_inst, feature_id, budget, cost);
             else if (dataset == DataSet::Har)
                 har::attack_instance(attack_file, att_inst, feature_id, budget, cost);
+            else if (dataset == DataSet::Covertype)
+                covertype::attack_instance(attack_file, att_inst, feature_id, budget, cost);
             return 0;
         }
 
@@ -207,9 +221,10 @@ int main(int argc, char** argv)
         auto maxdepth = opts["maxdepth"].as<size_t>();
         auto n_inst = opts["n_inst"].as<int>();
         auto par_par = opts["par_par"].as<double>();
+        auto affine = opts["affine"].as<bool>();
         auto par = opts["par"].as<bool>();
-        auto bootstrap_samples = opts["bootstrap_instances"].as<bool>();
-        auto bootstrap_features = opts["bootstrap_features"].as<bool>();
+        auto bootstrap_samples = opts["sample_instances"].as<bool>();
+        auto bootstrap_features = opts["sample_features"].as<bool>();
         auto replace_samples = opts["replace_instances"].as<bool>();
         auto replace_features = opts["replace_features"].as<bool>();
         auto max_samples = opts["max_instances"].as<double>();
@@ -232,7 +247,7 @@ int main(int argc, char** argv)
                 auto batch_file = opts["batch"].as<std::string>();
                 credit::batch_train_and_save(
                     {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
-                                .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=true,
+                                .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=affine,
                                 .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
                                 .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
                                 .replace_features=replace_features, .max_samples=max_samples, 
@@ -244,7 +259,7 @@ int main(int argc, char** argv)
             }
             credit::train_and_save(
                 {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
-                            .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=true,
+                            .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=affine,
                             .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
                             .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
                             .replace_features=replace_features, .max_samples=max_samples, 
@@ -262,7 +277,7 @@ int main(int argc, char** argv)
                 auto batch_file = opts["batch"].as<std::string>();
                 har::batch_train_and_save(
                     {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
-                                .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=true,
+                                .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=affine,
                                 .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
                                 .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
                                 .replace_features=replace_features, .max_samples=max_samples, 
@@ -274,7 +289,37 @@ int main(int argc, char** argv)
             }
             har::train_and_save( 
                  {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
-                            .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=true,
+                            .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=affine,
+                            .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
+                            .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
+                            .replace_features=replace_features, .max_samples=max_samples, 
+                            .max_features=max_features},
+                .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
+                .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter,
+                .n_trees=n_trees}
+            );
+        }
+        else if (dataset == "covertype")
+        {
+            covertype::set_verbosity(verb);
+            if (opts.count("batch"))
+            {
+                auto batch_file = opts["batch"].as<std::string>();
+                covertype::batch_train_and_save(
+                    {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
+                                .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=affine,
+                                .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
+                                .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
+                                .replace_features=replace_features, .max_samples=max_samples, 
+                                .max_features=max_features},
+                    .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
+                    .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
+                    .n_trees=n_trees}, batch_file
+                );
+            }
+            covertype::train_and_save( 
+                 {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
+                            .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=affine,
                             .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
                             .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
                             .replace_features=replace_features, .max_samples=max_samples, 
@@ -285,7 +330,7 @@ int main(int argc, char** argv)
             );
         }
         else
-            Util::die("--data must be one of following: credit, har");
+            Util::die("--data must be one of following: credit, har, covertype");
         
     }
     catch(const std::invalid_argument& e)

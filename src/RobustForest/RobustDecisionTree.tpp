@@ -381,7 +381,7 @@ static void att_recur(RowSet<NX>& set, const Row<NX>& inst, const Attacker<NX>& 
 }
 
 template<size_t NX, size_t NY>
-double RobustDecisionTree<NX,NY>::get_attacked_score(Attacker<NX>& attacker,
+double RobustDecisionTree<NX,NY>::get_attacked_score(const Attacker<NX>& attacker,
     const DF<NX>& X, const DF<NY>& Y) const
 {
     if (!isTrained_)

@@ -208,8 +208,8 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
     auto& X_test = std::get<0>(test_tupl);
     auto& Y_test = std::get<1>(test_tupl);
 
-    auto tree = RobustDecisionTree<CREDIT_X,CREDIT_Y>::load_from_disk(fn);
-    tree.print_test_score(X_test, Y_test, Y);
+    auto forest = RobustForest<CREDIT_X,CREDIT_Y>::load_from_disk(fn);
+    forest.print_test_score(X_test, Y_test, Y);
 
     std::vector<int> budgets(max_budget);
     std::iota(budgets.begin(), budgets.end(), 1);
@@ -223,38 +223,81 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
             if (m_atkr.has_error())
                 Util::die("{}", m_atkr.error());
             auto ptr = m_atkr.value().get();
-            double score = tree.get_attacked_score(*ptr, X_test, Y_test);
-            fmt::print("budget {}: test score {:.2f}%\n", budget, score);
+            auto scores = forest.get_attacked_score(*ptr, X_test, Y_test);
+            if (forest.get_type() == ForestType::Bundle)
+            {
+                for (size_t i = 0; i < scores.size(); i++)
+                {
+                    auto score = scores[i];
+                    fmt::print("budget {}: tree {}: test score {:.2f}%\n", budget, i, score);
+                }
+            }
+            else
+            {
+                auto score = scores[0];
+                fmt::print("budget {}: test score {:.2f}%\n", budget, score);
+            }
         }
     }
     else
     {
         for (int budget : budgets)
         {
-            tree.set_attacker_budget(budget);
-            double score = tree.get_own_attacked_score(X_test, Y_test);
-            fmt::print("budget {}: test score {:.2f}%\n", budget, score);
+            forest.set_attacker_budget(budget);
+            auto scores = forest.get_own_attacked_score(X_test, Y_test);
+            if (forest.get_type() == ForestType::Bundle)
+            {
+                for (size_t i = 0; i < scores.size(); i++)
+                {
+                    auto score = scores[i];
+                    fmt::print("budget {}: tree {}: test score {:.2f}%\n", budget, i, score);
+                }
+            }
+            else
+            {
+                auto score = scores[0];
+                fmt::print("budget {}: test score {:.2f}%\n", budget, score);
+            }
         }
     }
 }
 
 void put_gain_values(const std::filesystem::path& fn)
 {
-    auto tree = RobustDecisionTree<CREDIT_X,CREDIT_Y>::load_from_disk(fn);
-    auto gains = tree.feature_importance();
+    auto forest = RobustForest<CREDIT_X,CREDIT_Y>::load_from_disk(fn);
 
-    std::map<double,size_t> ordered;
-    for (auto [fid, gain] : gains)
-        ordered[gain] = fid;
-    fmt::print("Gain\tFeature\n");
-    for (auto [gain, fid] : ordered)
-        fmt::print("{:.2f}\t{}\n", gain, fid);
+    if (forest.get_type() == ForestType::Forest)
+    {
+        auto gains = forest.feature_importance();
+
+        std::map<double,size_t> ordered;
+        for (auto [fid, gain] : gains)
+            ordered[gain] = fid;
+        fmt::print("Gain\tFeature\n");
+        for (auto [gain, fid] : ordered)
+            fmt::print("{:.2f}\t{}\n", gain, fid);
+    }
+    else
+    {
+        const auto N = forest.get_N();
+        for (size_t i = 0; i < N; i++)
+        {
+            auto gains = forest.feature_importance(i);
+
+            std::map<double,size_t> ordered;
+            for (auto [fid, gain] : gains)
+                ordered[gain] = fid;
+            fmt::print("tree {}:\nGain\tFeature\n", i);
+            for (auto [gain, fid] : ordered)
+                fmt::print("{:.2f}\t{}\n", gain, fid);
+        }
+    }
 }
 
 void classify(const std::filesystem::path& model, const std::vector<double>& inst)
 {
-    auto tree = RobustDecisionTree<CREDIT_X,CREDIT_Y>::load_from_disk(model);
-    auto prediction = tree.predict(inst);
+    auto forest = RobustForest<CREDIT_X,CREDIT_Y>::load_from_disk(model);
+    auto prediction = forest.predict(inst);
     fmt::print("{}\n", prediction);
 }
 

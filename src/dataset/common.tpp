@@ -6,6 +6,8 @@ template<size_t NX>
 std::vector<std::tuple<int,Attacker<NX>*>> parse_batch_file(const std::string& batch_file,
 	const std::string& attack_file, int budget)
 {
+	if (attack_file.empty())
+		throw std::invalid_argument("attack file must be given");
 	static const auto chars = {',', '\n'};
 	std::vector<std::tuple<int,Attacker<NX>*>> result;
 	try

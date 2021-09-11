@@ -82,24 +82,6 @@ cpp::result<std::shared_ptr<Attacker<HAR_X>>,std::string> new_Attacker(int budge
     return atkr;
 }
 
-// void attack_dataset(const DF<CREDIT_SIZE>& X, ForceCompute force)
-// {
-//     // const auto attack_file = attack_filename();
-//     // if (force == ForceCompute::No && std::filesystem::exists(attack_file))
-//     // {
-//     //     Util::info("loading attacked dataset from {}...", attack_file.c_str());
-//     //     atkr_.load_attacks(attack_file);
-//     // }
-//     Util::info("computing attacks...");
-//     atkr_.compute_attacks<ATTACK_TYPES>(X.df_, attack_file, FEATURE_ID{});
-// }
-
-
-RobustDecisionTree<HAR_X,HAR_Y> new_RDT(TreeArguments<HAR_X,HAR_Y>&& args)
-{
-    return RobustDecisionTree<HAR_X,HAR_Y>(std::move(args));
-}
-
 void train_and_save(TrainArguments<HAR_X,HAR_Y>&& args)
 {
     auto m_df = har::read_train();
@@ -125,8 +107,6 @@ void train_and_save(TrainArguments<HAR_X,HAR_Y>&& args)
     fmt::print("X: a dataframe of size ({}x{})\n", X.rows(), X.cols());
     fmt::print("Y: a dataframe of size ({}x{})\n", Y.rows(), Y.cols());
 
-    RobustDecisionTree<HAR_X,HAR_Y> tree;
-
     json_file = args.attack_file;
     auto m_atkr = har::new_Attacker(args.budget, X, args.feature_ids);
     if (m_atkr.has_error())
@@ -136,20 +116,67 @@ void train_and_save(TrainArguments<HAR_X,HAR_Y>&& args)
     auto optimz = std::make_shared<SplitOptimizer<HAR_X,HAR_Y>>(args.split, args.algo, args.maxiter);
     args.tree_args.optimizer = std::move(optimz);
 
-    tree = har::new_RDT(std::move(args.tree_args));
-    
+    RobustForest<HAR_X,HAR_Y> forest(args.n_trees, std::move(args.tree_args));
+
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-    tree.fit(X, Y);
+    forest.fit(X, Y);
     double linear_time = TIME;
     fmt::print("time elapsed: ");
     fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
-    tree.print_test_score(X_test, Y_test, Y);
-    auto model_name = args.output.empty() ? tree.get_model_name() : args.output;
+    forest.print_test_score(X_test, Y_test, Y);
+    auto model_name = args.output.empty() ? forest.get_model_name() : args.output;
     auto full_model_name = models_dir / model_name;
     Util::info("saving trained model to {}", full_model_name.native());
     if (!std::filesystem::exists(models_dir))
         std::filesystem::create_directory(models_dir);
-    tree.dump_to_disk(full_model_name);
+    forest.dump_to_disk(full_model_name);
+}
+
+void batch_train_and_save(TrainArguments<HAR_X,HAR_Y>&& args, const std::string& batch_file)
+{
+    auto m_df = har::read_train();
+    if (m_df.has_error())
+        Util::die("{}", m_df.error());
+    auto& df_tupl = m_df.value();
+    auto& X = std::get<0>(df_tupl);
+    auto& Y = std::get<1>(df_tupl);
+
+    if (args.n_inst > 0)
+    {
+        X.conservativeResize(args.n_inst, Eigen::NoChange);
+        Y.conservativeResize(args.n_inst, Eigen::NoChange);
+    }
+
+    auto m_test = har::read_test();
+    if (m_test.has_error())
+        Util::die("{}", m_test.error());
+    auto& test_tupl = m_test.value();
+    auto& X_test = std::get<0>(test_tupl);
+    auto& Y_test = std::get<1>(test_tupl);
+
+    fmt::print("X: a dataframe of size ({}x{})\n", X.rows(), X.cols());
+    fmt::print("Y: a dataframe of size ({}x{})\n", Y.rows(), Y.cols());
+
+    auto attackers = parse_batch_file<HAR_X>(batch_file, args.attack_file, args.budget);
+
+    auto optimz = std::make_shared<SplitOptimizer<HAR_X,HAR_Y>>(args.split, args.algo, args.maxiter);
+    args.tree_args.optimizer = std::move(optimz);
+    RobustForest<HAR_X,HAR_Y> forest(args.n_trees, std::move(args.tree_args), attackers);
+    std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+    forest.fit(X, Y);
+    double linear_time = TIME;
+    fmt::print("time elapsed: ");
+    fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
+    forest.print_test_score(X_test, Y_test, Y);
+
+    auto model_name = args.output.empty() ? forest.get_model_name() : args.output;
+    auto full_model_name = models_dir / model_name;
+    Util::info("saving trained model to {}", full_model_name.native());
+    if (!std::filesystem::exists(models_dir))
+        std::filesystem::create_directory(models_dir);
+    forest.dump_to_disk(full_model_name);
+
+    std::exit(0);
 }
 
 void load_and_test(const std::filesystem::path& fn, const std::string& attack_file,
@@ -169,8 +196,8 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
     auto& X_test = std::get<0>(test_tupl);
     auto& Y_test = std::get<1>(test_tupl);
 
-    auto tree = RobustDecisionTree<HAR_X,HAR_Y>::load_from_disk(fn);
-    tree.print_test_score(X_test, Y_test, Y);
+    auto forest = RobustForest<HAR_X,HAR_Y>::load_from_disk(fn);
+    forest.print_test_score(X_test, Y_test, Y);
 
     std::vector<int> budgets(max_budget);
     std::iota(budgets.begin(), budgets.end(), 1);
@@ -184,38 +211,81 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
             if (m_atkr.has_error())
                 Util::die("{}", m_atkr.error());
             auto ptr = m_atkr.value().get();
-            double score = tree.get_attacked_score(*ptr, X_test, Y_test);
-            fmt::print("budget {}: test score {:.2f}%\n", budget, score);
+            auto scores = forest.get_attacked_score(*ptr, X_test, Y_test);
+            if (forest.get_type() == ForestType::Bundle)
+            {
+                for (size_t i = 0; i < scores.size(); i++)
+                {
+                    auto score = scores[i];
+                    fmt::print("budget {}: tree {}: test score {:.2f}%\n", budget, i, score);
+                }
+            }
+            else
+            {
+                auto score = scores[0];
+                fmt::print("budget {}: test score {:.2f}%\n", budget, score);
+            }
         }
     }
     else
     {
         for (int budget : budgets)
         {
-            tree.set_attacker_budget(budget);
-            double score = tree.get_own_attacked_score(X_test, Y_test);
-            fmt::print("budget {}: test score {:.2f}%\n", budget, score);
+            forest.set_attacker_budget(budget);
+            auto scores = forest.get_own_attacked_score(X_test, Y_test);
+            if (forest.get_type() == ForestType::Bundle)
+            {
+                for (size_t i = 0; i < scores.size(); i++)
+                {
+                    auto score = scores[i];
+                    fmt::print("budget {}: tree {}: test score {:.2f}%\n", budget, i, score);
+                }
+            }
+            else
+            {
+                auto score = scores[0];
+                fmt::print("budget {}: test score {:.2f}%\n", budget, score);
+            }
         }
     }
 }
 
 void put_gain_values(const std::filesystem::path& fn)
 {
-    auto tree = RobustDecisionTree<HAR_X,HAR_Y>::load_from_disk(fn);
-    auto gains = tree.feature_importance();
+    auto forest = RobustForest<HAR_X,HAR_Y>::load_from_disk(fn);
 
-    std::map<double,size_t> ordered;
-    for (auto [fid, gain] : gains)
-        ordered[gain] = fid;
-    fmt::print("Gain\tFeature\n");
-    for (auto [gain, fid] : ordered)
-        fmt::print("{:.2f}\t{}\n", gain, fid);
+    if (forest.get_type() == ForestType::Forest)
+    {
+        auto gains = forest.feature_importance();
+
+        std::map<double,size_t> ordered;
+        for (auto [fid, gain] : gains)
+            ordered[gain] = fid;
+        fmt::print("Gain\tFeature\n");
+        for (auto [gain, fid] : ordered)
+            fmt::print("{:.2f}\t{}\n", gain, fid);
+    }
+    else
+    {
+        const auto N = forest.get_N();
+        for (size_t i = 0; i < N; i++)
+        {
+            auto gains = forest.feature_importance(i);
+
+            std::map<double,size_t> ordered;
+            for (auto [fid, gain] : gains)
+                ordered[gain] = fid;
+            fmt::print("tree {}:\nGain\tFeature\n", i);
+            for (auto [gain, fid] : ordered)
+                fmt::print("{:.2f}\t{}\n", gain, fid);
+        }
+    }
 }
 
 void classify(const std::filesystem::path& model, const std::vector<double>& inst)
 {
-    auto tree = RobustDecisionTree<HAR_X,HAR_Y>::load_from_disk(model);
-    auto prediction = tree.predict(inst);
+    auto forest = RobustForest<HAR_X,HAR_Y>::load_from_disk(model);
+    auto prediction = forest.predict(inst);
     fmt::print("{}\n", prediction);
 }
 

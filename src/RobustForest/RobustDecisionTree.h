@@ -88,10 +88,12 @@ public:
     
     void print_test_score(const DF<NX>& X_test, const DF<NY>& Y_test, const DF<NY>& Y_train) const;
 
-    double get_attacked_score(Attacker<NX>& attacker, const DF<NX>& X, const DF<NY>& Y) const;
+    double get_attacked_score(const Attacker<NX>& attacker, const DF<NX>& X, const DF<NY>& Y) const;
     double get_own_attacked_score(const DF<NX>& X, const DF<NY>& Y) const;
 
     int get_attacker_budget() const {return attacker_->get_budget();}
+    
+    const Attacker<NX>* get_attacker() const {return attacker_.get();}
 
     void set_attacker_budget(int budget) 
     {

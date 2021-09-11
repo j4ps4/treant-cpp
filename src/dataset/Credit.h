@@ -13,15 +13,11 @@ constexpr size_t CREDIT_Y = 2;
 #include "../result.hpp"
 #include "../DF2/DF_def.h"
 #include "../Attacker.h"
-#include "../RobustForest/RobustDecisionTree.h"
 #include "../RobustForest/RobustForest.h"
 #include "common.h"
 
 namespace credit
 {
-    // Create a robust decision tree
-    RobustDecisionTree<CREDIT_X,CREDIT_Y> new_RDT(TreeArguments<CREDIT_X,CREDIT_Y>&& args);
-
     void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args);
     void batch_train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, const std::string& batch_file);
 

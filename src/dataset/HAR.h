@@ -14,15 +14,13 @@ constexpr size_t HAR_Y = 6;
 #include "../result.hpp"
 #include "../DF2/DF_def.h"
 #include "../Attacker.h"
-#include "../RobustForest/RobustDecisionTree.h"
+#include "../RobustForest/RobustForest.h"
 #include "common.h"
 
 namespace har
 {
-    // Create a robust decision tree
-    RobustDecisionTree<HAR_X,HAR_Y> new_RDT(TreeArguments<HAR_X,HAR_Y>&& args);
-
     void train_and_save(TrainArguments<HAR_X,HAR_Y>&& args);
+    void batch_train_and_save(TrainArguments<HAR_X,HAR_Y>&& args, const std::string& batch_file);
 
     void load_and_test(const std::filesystem::path& model, const std::string& attack_file, 
         const std::set<size_t>& id_set, int max_budget);

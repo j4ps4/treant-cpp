@@ -19,8 +19,8 @@ namespace
 template<size_t N>
 bool is_equal_perturbation(const PairT<N>& x, const PairT<N>& y)
 {
-    return (std::get<0>(x) == std::get<0>(y)).all();
-        // std::get<1>(x) <= std::get<1>(y);
+    return (std::get<0>(x) == std::get<0>(y)).all()
+        && std::get<1>(x) <= std::get<1>(y);
 }
 
 template<size_t N>
@@ -35,33 +35,6 @@ bool check_equal_perturbation(const TupleVec<N>& attacks, const PairT<N>& y)
         }
     }
     return false;
-}
-
-template<typename T>
-struct head_impl;
-
-template<std::size_t I, std::size_t... Is>
-struct head_impl<std::index_sequence<I, Is...>>
-{
-    static constexpr size_t value = I;
-};
-
-template<typename T>
-struct tail_impl;
-
-template<std::size_t I, std::size_t... Is>
-struct tail_impl<std::index_sequence<I, Is...>>
-{
-    using value = std::index_sequence<Is...>;
-};
-
-template<typename T>
-using tail = typename tail_impl<T>::value;
-
-template<typename T>
-constexpr size_t head()
-{
-    return head_impl<T>::value;
 }
 
 template<size_t N>

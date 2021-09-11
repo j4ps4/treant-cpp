@@ -12,9 +12,9 @@ template<size_t NX, size_t NY>
 class RobustForest
 {
 private:
-    RobustForest(size_t n_trees, std::vector<RobustDecisionTree<NX,NY>> trees,
+    RobustForest(size_t n_trees, std::vector<RobustDecisionTree<NX,NY>>&& trees,
         bool is_trained, ForestType type) :
-        n_trees_(n_trees), trees_(trees), is_trained_(is_trained), type_(type) {}
+        n_trees_(n_trees), trees_(std::move(trees)), is_trained_(is_trained), type_(type) {}
 public:
 	RobustForest(size_t N, TreeArguments<NX,NY>&& args);
 
@@ -36,15 +36,19 @@ public:
     static RobustForest<NX, NY> load_from_disk(const std::filesystem::path& fn);
     
     std::string get_model_name() const;
+
+    ForestType get_type() const {return type_;}
+    
+    size_t get_N() const {return n_trees_;}
     
     void print_test_score(const DF<NX>& X_test, const DF<NY>& Y_test, const DF<NY>& Y_train) const;
 
-    double get_attacked_score(Attacker<NX>& attacker, const DF<NX>& X, const DF<NY>& Y) const;
-    double get_own_attacked_score(const DF<NX>& X, const DF<NY>& Y) const;
+    std::vector<double> get_attacked_score(const Attacker<NX>& attacker, const DF<NX>& X, const DF<NY>& Y) const;
+    std::vector<double> get_own_attacked_score(const DF<NX>& X, const DF<NY>& Y) const;
 
     void set_attacker_budget(int budget);
 
-    std::map<size_t, double> feature_importance() const;
+    std::map<size_t, double> feature_importance(size_t tree_id = 0) const;
 
 private:
 	TreeArguments<NX,NY> tree_args_;

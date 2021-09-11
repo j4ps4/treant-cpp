@@ -251,6 +251,22 @@ int main(int argc, char** argv)
             );
         }
         else if (dataset == "har")
+        {
+            if (opts.count("batch"))
+            {
+                auto batch_file = opts["batch"].as<std::string>();
+                har::batch_train_and_save(
+                    {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
+                                .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=true,
+                                .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
+                                .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
+                                .replace_features=replace_features, .max_samples=max_samples, 
+                                .max_features=max_features},
+                    .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
+                    .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
+                    .n_trees=n_trees}, batch_file
+                );
+            }
             har::train_and_save( 
                  {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
                             .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=true,
@@ -262,6 +278,7 @@ int main(int argc, char** argv)
                 .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter,
                 .n_trees=n_trees}
             );
+        }
         else
             Util::die("--data must be one of following: credit, har");
         

@@ -10,6 +10,8 @@ template<size_t NX, size_t NY>
 RobustForest<NX,NY>::RobustForest(size_t N, TreeArguments<NX,NY>&& args) :
 	tree_args_(std::move(args)), n_trees_(N), is_trained_(false), type_(ForestType::Forest)
 {
+    if (N == 0)
+        throw std::runtime_error("N must be larger than 0");
 	uint64_t seed = 0;
 	int id = 0;
 	for (size_t i = 0; i < n_trees_; i++)
@@ -25,6 +27,8 @@ RobustForest<NX,NY>::RobustForest(size_t N, TreeArguments<NX,NY>&& args,
 	const std::vector<std::tuple<int,Attacker<NX>*>>& atkrs) :
 	tree_args_(std::move(args)), n_trees_(N), is_trained_(false), type_(ForestType::Bundle)
 {
+    if (N == 0)
+        throw std::runtime_error("N must be larger than 0");
 	if (n_trees_ > atkrs.size())
 		Util::die("not enough attackers");
 	uint64_t seed = 0;
@@ -84,6 +88,9 @@ size_t RobustForest<NX,NY>::predict(const Row<NX>& instance) const
 {
     if (is_trained_)
     {
+        if (type_ == ForestType::Bundle)
+            Util::warn("predict: forest is bundle, calculating mode doesn't make sense");
+
 		std::vector<size_t> predictions(n_trees_);
 		for (int64_t j = 0; j < n_trees_; j++)
 		{
@@ -104,8 +111,9 @@ size_t RobustForest<NX,NY>::predict(const std::vector<double>& instance) const
 {
 	if (is_trained_)
 	{
-        if (instance.size() < NX)
-            throw std::invalid_argument(fmt::format("predict: expected a vector of length {}", NX));
+        if (instance.size() != NX)
+            throw std::runtime_error(fmt::format("predict: expected a vector of length {}, got {}", 
+                NX, instance.size()));
         Row<NX> converted(1, NX);
         for (int64_t i = 0; i < NX; i++)
             converted(i) = instance.at(i);
@@ -123,6 +131,9 @@ DF<NY> RobustForest<NX,NY>::predict_proba(const DF<NX>& X_test) const
 {
     if (is_trained_)
     {
+        if (type_ == ForestType::Bundle)
+            Util::warn("predict_proba: forest is bundle, calculating mean doesn't make sense");
+
         const auto rows = X_test.rows();
         DF<NY> out = Eigen::ArrayXXd::Zero(rows, NY);
         for (int64_t i = 0; i < rows; i++)
@@ -211,9 +222,7 @@ std::string RobustForest<NX,NY>::get_model_name() const
 		extension = "bundle";
 	else
 		extension = n_trees_ > 1 ? "forest" : "tree";
-	int budget = tree_args_.attacker == nullptr 
-		? trees_[0].get_attacker_budget() 
-		: tree_args_.attacker->get_budget();
+	int budget = trees_[0].get_attacker_budget();
     if (algo == TrainingAlgo::Standard)
     	return fmt::format("{}-N{}-D{}.{}", algo_str, n_trees_, tree_args_.max_depth, extension);
     else
@@ -247,10 +256,113 @@ RobustForest<NX,NY> RobustForest<NX,NY>::load_from_disk(const std::filesystem::p
 		bool is_trained;
 		ForestType type;
         archive(n_trees, trees, is_trained, type);
-        return RobustDecisionTree<NX,NY>(n_trees, trees, is_trained, type);
+        return RobustForest<NX,NY>(n_trees, std::move(trees), is_trained, type);
     }
     catch (std::exception& e)
     {
         Util::die("failed to load model {}: {}", fn.c_str(), e.what());
+    }
+}
+
+template<size_t NX, size_t NY>
+std::vector<double> RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& attacker, const DF<NX>& X, const DF<NY>& Y) const
+{
+    if (!is_trained_)
+        Util::die("forest is not trained");
+
+    std::vector<double> out;
+    
+    if (type_ == ForestType::Bundle)
+    {
+        for (size_t i = 0; i < n_trees_; i++)
+        {
+            out.push_back(trees_[i].get_attacked_score(attacker, X, Y));
+        }
+        return out;
+    }
+
+    size_t score = 0;
+    size_t total_attacks = 0;
+    const auto& feats = attacker.target_features();
+    for (int64_t i = 0; i < X.rows(); i++)
+    {
+        total_attacks++;
+        Eigen::Index max_ind;
+        Y.row(i).maxCoeff(&max_ind);
+        const auto inst = X.row(i);
+        const auto true_y = static_cast<size_t>(max_ind);
+        const auto pred_y = predict(inst);
+        if (true_y != pred_y)
+        {
+            score++;
+        }
+        RowSet<NX> set;
+        att_recur<NX>(set, inst, attacker, feats, attacker.get_budget());
+        for (auto& att : set)
+        {
+            total_attacks++;
+            const auto pred_att = predict(att);
+            if (true_y != pred_att)
+            {
+                score++;
+            }
+        }
+    }
+    double ret = 100.0 - 100.0 * static_cast<double>(score) / static_cast<double>(total_attacks);
+    out.push_back(ret);
+    return out;
+}
+
+template<size_t NX, size_t NY>
+std::vector<double> RobustForest<NX,NY>::get_own_attacked_score(const DF<NX>& X, const DF<NY>& Y) const
+{
+    if (type_ == ForestType::Bundle)
+    {
+        std::vector<double> out;
+        for (size_t i = 0; i < n_trees_; i++)
+        {
+            out.push_back(trees_[i].get_own_attacked_score(X, Y));
+        }
+        return out;
+    }
+    else
+    {
+        const auto& attacker = *trees_[0].get_attacker();
+        return get_attacked_score(attacker, X, Y);
+    }
+}
+
+template<size_t NX, size_t NY>
+void RobustForest<NX,NY>::set_attacker_budget(int budget)
+{
+    if (type_ == ForestType::Bundle)
+    {
+        for (size_t i = 0; i < n_trees_; i++)
+        {
+            trees_[i].set_attacker_budget(budget);
+        }
+    }
+    else
+    {
+        trees_[0].set_attacker_budget(budget);
+    }
+
+}
+
+template<size_t NX, size_t NY>
+std::map<size_t, double> RobustForest<NX,NY>::feature_importance(size_t tree_id) const
+{
+    if (type_ == ForestType::Bundle)
+        return trees_[tree_id].feature_importance();
+    else
+    {
+        std::map<size_t, double> sum_map;
+        for (size_t i = 0; i < n_trees_; i++)
+        {
+            auto import = trees_[i].feature_importance();
+            for (const auto& [fid, gain] : import)
+                sum_map[fid] += gain;
+        }
+        return sum_map;
     }
 }

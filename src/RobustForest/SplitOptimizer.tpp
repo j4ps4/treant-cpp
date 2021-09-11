@@ -407,7 +407,7 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
 
     for (auto row_id : rows)
     {
-        auto attacks = attacker.max_attack(X.row(row_id), feature_id);
+        auto attacks = attacker.attack(X.row(row_id), feature_id, 0);
         bool all_left = true;
         bool all_right = true;
         for (auto& [inst, c]: attacks)

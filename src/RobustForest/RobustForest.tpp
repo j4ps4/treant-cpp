@@ -281,34 +281,36 @@ std::vector<double> RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& 
         return out;
     }
 
-    size_t score = 0;
-    size_t total_attacks = 0;
+    const size_t N = X.rows();
+    size_t correct = 0;
+    // size_t attack_success = 0;
+    // size_t total_attacks = 0;
     const auto& feats = attacker.target_features();
-    for (int64_t i = 0; i < X.rows(); i++)
+    for (int64_t i = 0; i < N; i++)
     {
-        total_attacks++;
         Eigen::Index max_ind;
         Y.row(i).maxCoeff(&max_ind);
-        const auto inst = X.row(i);
+        const auto& inst = X.row(i);
         const auto true_y = static_cast<size_t>(max_ind);
         const auto pred_y = predict(inst);
-        if (true_y != pred_y)
+        if (true_y == pred_y)
         {
-            score++;
-        }
-        RowSet<NX> set;
-        att_recur<NX>(set, inst, attacker, feats, attacker.get_budget());
-        for (auto& att : set)
-        {
-            total_attacks++;
-            const auto pred_att = predict(att);
-            if (true_y != pred_att)
+            correct++;
+            RowSet<NX> set;
+            att_recur<NX>(set, inst, attacker, feats, attacker.get_budget());
+            for (auto& att : set)
             {
-                score++;
+                const auto pred_att = predict(att);
+                if (true_y != pred_att)
+                {
+                    correct--;
+                    break;
+                }
             }
         }
     }
-    double ret = 100.0 - 100.0 * static_cast<double>(score) / static_cast<double>(total_attacks);
+    // double ret = 100.0 - 100.0 * static_cast<double>(score) / static_cast<double>(total_attacks);
+    double ret = 100.0 * static_cast<double>(correct) / static_cast<double>(N);
     out.push_back(ret);
     return out;
 }

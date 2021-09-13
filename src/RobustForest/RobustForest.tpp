@@ -222,13 +222,15 @@ std::string RobustForest<NX,NY>::get_model_name() const
 		extension = "bundle";
 	else
 		extension = n_trees_ > 1 ? "forest" : "tree";
-	int budget = trees_[0].get_attacker_budget();
     if (algo == TrainingAlgo::Standard)
     	return fmt::format("{}-N{}-D{}.{}", algo_str, n_trees_, tree_args_.max_depth, extension);
     else if (algo == TrainingAlgo::Icml2019)
     	return fmt::format("{}-N{}-D{}.{}", algo_str, n_trees_, tree_args_.max_depth, extension);
     else
+    {
+	    int budget = trees_[0].get_attacker_budget();
     	return fmt::format("{}-N{}-B{}-D{}.{}", algo_str, n_trees_, budget, tree_args_.max_depth, extension);
+    }
 }
 
 template<size_t NX, size_t NY>

@@ -45,8 +45,9 @@ class SplitOptimizer
     #define NY2 SplitOptimizer<NX,NY>::NY2V
     static constexpr size_t NY2V = 2*NY;
 public:
-    SplitOptimizer(SplitFunction split, TrainingAlgo algo, int maxiter) :
-    split_(split), algo_(algo), maxiter_(maxiter) {}
+    SplitOptimizer(SplitFunction split, TrainingAlgo algo, int maxiter, double epsilon,
+        std::set<size_t> perturb_ids) :
+    split_(split), algo_(algo), maxiter_(maxiter), epsilon_(epsilon), chen_perturb_ids_(perturb_ids) {}
 
     double evaluate_split(const DF<NY>& y_true,
                           const NRow& y_pred) const;
@@ -57,6 +58,8 @@ public:
         bool bootstrap_features, size_t n_sample_features, std::mt19937_64& rd) const;
 
     TrainingAlgo get_algorithm() const noexcept {return algo_;}
+
+    double get_epsilon() const noexcept {return epsilon_;}
     
 private:
     static double sse(const DF<NY>& y_true,
@@ -101,7 +104,8 @@ private:
     const TrainingAlgo algo_;
     const int maxiter_;
     const nlopt::algorithm optim_algo_ = nlopt::LD_SLSQP;
-
+    const double epsilon_;
+	const std::set<size_t> chen_perturb_ids_;
 };
 
 #include "SplitOptimizer.tpp"

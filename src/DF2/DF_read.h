@@ -114,6 +114,115 @@ cpp::result<void, std::string> read_buffer(const char* fn, std::unique_ptr<char[
     return {};
 }
 
+cpp::result<void, std::string> read_idx_buf(const char* fn, std::unique_ptr<uint8_t[]>& buf, 
+    int& nBuf_out, size_t& nl_out, size_t& rowlen_out)
+{
+    FILE*   f;
+    BZFILE* b;
+    size_t nLines = 0;
+    int     nBuf = 0;
+    int     nBufTot = 0;
+    int     bzerror;
+    int     nWritten;
+
+    constexpr int tmpSize = 524288;
+    constexpr int WORD = 4;
+    uint8_t tmpBuf[tmpSize];
+    uint8_t headerBuf[WORD];
+    int32_t dims[64];
+
+    auto readWord = [&]()->cpp::result<void, std::string>{
+        nBuf = BZ2_bzRead(&bzerror, b, headerBuf, WORD);
+        nBufTot += nBuf;
+        if (nBuf < WORD)
+        {
+            int bzerrorstore = bzerror;
+            BZ2_bzReadClose (&bzerror, b);
+            return cpp::failure(fmt::format("while parsing the header of {}: unexpected end of file", fn));
+        }
+        return {};
+    };
+
+    f = fopen(fn, "r");
+    if (!f) {
+        return cpp::failure(fmt::format("cannot open {}: {}", fn, strerror(errno)));
+    }
+    b = BZ2_bzReadOpen ( &bzerror, f, 0, 0, NULL, 0);
+    if ( bzerror != BZ_OK ) {
+        int bzerrorstore = bzerror;
+        BZ2_bzReadClose ( &bzerror, b );
+        return cpp::failure(fmt::format("bzerror: {}", bzerrorstore));
+    }
+    auto res = readWord();
+    if (res.has_error())
+        return cpp::failure(res.error());
+
+    // data dimension
+    const uint8_t dim = headerBuf[3];
+    if (dim > 64)
+        return cpp::failure("sorry, data dimensionality too large");
+    for (uint8_t d = 0; d < dim; d++)
+    {
+        res = readWord();
+        if (res.has_error())
+            return cpp::failure(res.error());
+        int32_t word = (headerBuf[3]<<0 | headerBuf[2]<<8 | headerBuf[1]<<16 | headerBuf[0]<<24);
+        dims[d] = word;
+    }
+    // "lines" is the number of items
+    nl_out = dims[0];
+    size_t rowlen = 1;
+    for (uint8_t d = 1; d < dim; d++)
+        rowlen *= dims[d];
+    rowlen_out = rowlen;
+
+    bzerror = BZ_OK;
+    while ( bzerror == BZ_OK ) {
+        nBuf = BZ2_bzRead ( &bzerror, b, tmpBuf, tmpSize);
+        nBufTot += nBuf;
+        if (bzerror == BZ_STREAM_END) { // returns BZ_STREAM_END when file ends
+            break;
+        }
+    }
+    if (bzerror != BZ_STREAM_END) {
+        int bzerrorstore = bzerror;
+        BZ2_bzReadClose( &bzerror, b );
+        return cpp::failure(fmt::format("bzerror: {}", bzerrorstore));
+    } else {
+        BZ2_bzReadClose( &bzerror, b );
+    }
+
+    auto arr = std::make_unique<uint8_t[]>(nBufTot);
+    fseek(f, 0, SEEK_SET);
+    b = BZ2_bzReadOpen ( &bzerror, f, 0, 0, NULL, 0);
+    if ( bzerror != BZ_OK ) {
+        int bzerrorstore = bzerror;
+        BZ2_bzReadClose ( &bzerror, b );
+        return cpp::failure(fmt::format("bzerror: {}", bzerrorstore));
+    }
+
+    bzerror = BZ_OK;
+    nBuf = BZ2_bzRead ( &bzerror, b, arr.get(), nBufTot);
+    if (bzerror == BZ_OK)
+    {
+        BZ2_bzReadClose ( &bzerror, b );
+        return cpp::failure(std::string("couldn't read whole file into buffer!!!"));
+    }
+    if (bzerror != BZ_STREAM_END) {
+        int bzerrorstore = bzerror;
+        BZ2_bzReadClose( &bzerror, b );
+        return cpp::failure(fmt::format("bzerror: {}", bzerrorstore));
+    } else {
+        BZ2_bzReadClose( &bzerror, b );
+    }
+
+    fclose(f);
+    nBuf_out = nBufTot;
+    buf = std::move(arr);
+    return {};
+
+}
+
 void read_val(char* start, char* end, double& val)
 {
     val = strtod(start, nullptr);
@@ -146,6 +255,21 @@ void read_line(DF<N>& data, char* buf, int bufS, size_t row_id, char*& bufOut)
     }
     data.row(row_id) = row;
     bufOut = bufE+1;
+}
+
+template<size_t N>
+void read_idx_line(DF<N>& data, uint8_t*& buf, int bufS, size_t row_id)
+{
+    uint8_t* ptr;
+    Row<N> row(1, N);
+    for (size_t col = 0; col < N; col++)
+    {
+        double val = static_cast<double>(buf[col]);
+        row(col) = val;
+        ptr = &(buf[col]);
+    }
+    data.row(row_id) = row;
+    buf = ptr+1;
 }
 
 template<size_t N, int Min>
@@ -193,6 +317,32 @@ cpp::result<std::tuple<DF<NX>,DF<NY>>, std::string> read_bz2(const char* fn)
         read_encode_line<NY, Min>(Y_data, loc, nBuf, r, loc);
     }
     return std::make_tuple(X_data, Y_data);
+}
+
+template<size_t NX>
+cpp::result<DF<NX>, std::string> read_idx(const char* fn)
+{
+    int nBuf;
+    size_t nl;
+    size_t row_len;
+    std::unique_ptr<uint8_t[]> buf;
+
+    auto res = read_idx_buf(fn, buf, nBuf, nl, row_len);
+    if (res.has_error())
+        return cpp::failure(res.error());
+
+    if (row_len != NX)
+        return cpp::failure(fmt::format("row length of data is {}", row_len));
+
+    // skip the header
+
+    DF<NX> X_data(nl, NX);
+    auto loc = buf.get();
+    for (size_t r = 0; r < nl; r++)
+    {
+        read_idx_line<NX>(X_data, loc, nBuf, r);
+    }
+    return X_data;
 }
 
 }

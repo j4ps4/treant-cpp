@@ -405,43 +405,81 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
     IdxVec split_unknown_left;
     IdxVec split_unknown_right;
 
+    const bool perturb = epsilon_ > 0.0 && 
+        (chen_perturb_ids_.empty() || chen_perturb_ids_.contains(feature_id));
+
     for (auto row_id : rows)
     {
-        auto attacks = attacker.attack(X.row(row_id), feature_id, 0);
-        bool all_left = true;
-        bool all_right = true;
-        for (auto& [inst, c]: attacks)
+        if (perturb)
         {
-            if (inst[feature_id] <= feature_value)
-                all_right = false;
+            const auto& row = X.row(row_id);
+            const auto jth_feat = row[feature_id];
+            if (jth_feat < feature_value - epsilon_)
+                split_left.push_back(row_id);
+            else if (jth_feat > feature_value + epsilon_)
+                split_right.push_back(row_id);
+            else if (jth_feat >= feature_value - epsilon_ && jth_feat < feature_value)
+                    split_unknown_left.push_back(row_id);
+            else if (jth_feat >= feature_value && jth_feat <= feature_value + epsilon_)
+                    split_unknown_right.push_back(row_id);
             else
-                all_left = false;
-
-            if (!all_left && !all_right)
-                break;
-        }
-
-        if (all_left)
-        {
-            // it means the splitting predicate is ALWAYS satisfied by this instance, no matter what the attacker does
-            // as such, we can safely place this instance among those which surely go to the true (left) branch
-            split_left.push_back(row_id);
-        }
-        else if (all_right)
-        {
-            // it means the splitting predicate is NEVER satisfied by this instance, no matter what the attacker does
-            split_right.push_back(row_id);
+                throw std::runtime_error("split_icml2019 failure");
         }
         else
         {
-            if (X.row(row_id)[feature_id] <= feature_value)
-                split_unknown_left.push_back(row_id);
+            const auto& row = X.row(row_id);
+            const auto jth_feat = row[feature_id];
+            if (jth_feat <= feature_value)
+                split_left.push_back(row_id);
             else
-                split_unknown_right.push_back(row_id);
+                split_right.push_back(row_id);
         }
+        // auto attacks = attacker.attack(X.row(row_id), feature_id, 0);
+        // bool all_left = true;
+        // bool all_right = true;
+        // for (auto& [inst, c]: attacks)
+        // {
+        //     if (inst[feature_id] <= feature_value)
+        //         all_right = false;
+        //     else
+        //         all_left = false;
+
+        //     if (!all_left && !all_right)
+        //         break;
+        // }
+
+        // if (all_left)
+        // {
+        //     // it means the splitting predicate is ALWAYS satisfied by this instance, no matter what the attacker does
+        //     // as such, we can safely place this instance among those which surely go to the true (left) branch
+        //     split_left.push_back(row_id);
+        // }
+        // else if (all_right)
+        // {
+        //     // it means the splitting predicate is NEVER satisfied by this instance, no matter what the attacker does
+        //     split_right.push_back(row_id);
+        // }
+        // else
+        // {
+        //     if (X.row(row_id)[feature_id] <= feature_value)
+        //         split_unknown_left.push_back(row_id);
+        //     else
+        //         split_unknown_right.push_back(row_id);
+        // }
     }
     // Util::log("split_icml2019: split_left: {}, split_right: {}, split_unknown: {}", 
     //     split_left.size(), split_right.size(), split_unknown_left.size()+split_unknown_right.size());
+
+    if (!perturb)
+    {
+        auto L = DF_index<NY>(y, split_left);
+        auto R = DF_index<NY>(y, split_right);
+        auto pred_left = L.rows()>0 ? L.colwise().mean() : NRow();
+        auto pred_right = R.rows()>0 ? R.colwise().mean() : NRow();
+        auto loss = split_loss(L, pred_left, R, pred_right);
+        return {split_left, split_right, {}, std::make_tuple(pred_left, pred_right, loss)};
+    }
+
     std::vector<double> icml_options;
     IdxVec icml_left;
     IdxVec icml_right;
@@ -669,8 +707,10 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
     catch(std::exception& e)
     {
         if (strncmp(e.what(), "bug: more than iter", 19))
+        {
             Util::warn("caught NLOPT exception: {}", e.what());
-        return {};
+            return {};
+        }
     }
     Row<NY> pred_left;
     Row<NY> pred_right;

@@ -212,7 +212,7 @@ std::string RobustForest<NX,NY>::get_model_name() const
         return "null-forest";
     const auto algo = tree_args_.optimizer->get_algorithm();
     if (algo == TrainingAlgo::Icml2019)
-		algo_str = "ICML2019";
+		algo_str = fmt::format("ICML2019-E{}", tree_args_.optimizer->get_epsilon());
     else if (algo == TrainingAlgo::Robust)
     	algo_str = "Robust";
     else
@@ -224,6 +224,8 @@ std::string RobustForest<NX,NY>::get_model_name() const
 		extension = n_trees_ > 1 ? "forest" : "tree";
 	int budget = trees_[0].get_attacker_budget();
     if (algo == TrainingAlgo::Standard)
+    	return fmt::format("{}-N{}-D{}.{}", algo_str, n_trees_, tree_args_.max_depth, extension);
+    else if (algo == TrainingAlgo::Icml2019)
     	return fmt::format("{}-N{}-D{}.{}", algo_str, n_trees_, tree_args_.max_depth, extension);
     else
     	return fmt::format("{}-N{}-B{}-D{}.{}", algo_str, n_trees_, budget, tree_args_.max_depth, extension);

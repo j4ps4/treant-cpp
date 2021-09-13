@@ -15,6 +15,7 @@ struct TrainArguments
     TrainingAlgo algo;
     int maxiter;
     size_t n_trees;
+	double epsilon;
 };
 
 template<size_t NX>

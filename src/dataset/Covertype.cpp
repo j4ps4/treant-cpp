@@ -97,7 +97,8 @@ void train_and_save(TrainArguments<FOREST_X,FOREST_Y>&& args)
         Util::die("{}", m_atkr.error());
     args.tree_args.attacker = std::move(m_atkr.value());
 
-    auto optimz = std::make_shared<SplitOptimizer<FOREST_X,FOREST_Y>>(args.split, args.algo, args.maxiter);
+    auto optimz = std::make_shared<SplitOptimizer<FOREST_X,FOREST_Y>>(args.split, args.algo, args.maxiter,
+        args.epsilon, args.feature_ids);
     args.tree_args.optimizer = std::move(optimz);
 
     RobustForest<FOREST_X,FOREST_Y> forest(args.n_trees, std::move(args.tree_args));
@@ -143,7 +144,8 @@ void batch_train_and_save(TrainArguments<FOREST_X,FOREST_Y>&& args, const std::s
 
     auto attackers = parse_batch_file<FOREST_X>(batch_file, args.attack_file, args.budget);
 
-    auto optimz = std::make_shared<SplitOptimizer<FOREST_X,FOREST_Y>>(args.split, args.algo, args.maxiter);
+    auto optimz = std::make_shared<SplitOptimizer<FOREST_X,FOREST_Y>>(args.split, args.algo, args.maxiter,
+        args.epsilon, args.feature_ids);
     args.tree_args.optimizer = std::move(optimz);
     RobustForest<FOREST_X,FOREST_Y> forest(args.n_trees, std::move(args.tree_args), attackers);
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();

@@ -9,6 +9,7 @@
 #include "dataset/Credit.h"
 #include "dataset/Covertype.h"
 #include "dataset/HAR.h"
+#include "dataset/MNIST.h"
 #include "util.h"
 
 TrainingAlgo parse_algo(const std::string& s)
@@ -25,7 +26,7 @@ TrainingAlgo parse_algo(const std::string& s)
 
 enum class DataSet
 {
-    Credit, Har, Covertype
+    Credit, Har, Covertype, Mnist
 };
 
 std::tuple<DataSet, std::filesystem::path> parseTest(const std::string& s)
@@ -94,47 +95,49 @@ int main(int argc, char** argv)
         cxxopts::value<std::string>()->default_value(""))
         ("M,model", "trained model on which to operate",
         cxxopts::value<std::string>())
-        ("attack_file", "json file describing the attacks",
+        ("attack-file", "json file describing the attacks",
         cxxopts::value<std::string>()->default_value(""));
 
     options.add_options("tree")
-        ("algo", "training algorithm: robust, icml2019, standard",
+        ("algo", "training algorithm: robust (TREANT), icml2019 (Chen et al.), standard",
         cxxopts::value<std::string>()->default_value("robust"))
         ("B,budget", "maximum budget of attacker",
         cxxopts::value<int>()->default_value("5"))
         ("maxiter", "maximum nlopt iterations",
         cxxopts::value<int>()->default_value("100"))
+        ("epsilon", "radius of the l-inf ball (Chen et al.)",
+        cxxopts::value<double>()->default_value("0.3"))
         ("D,maxdepth", "maximum depth of tree",
         cxxopts::value<size_t>()->default_value("8"))
-        ("N,n_trees", "amount of trees in ensemble",
+        ("N,n-trees", "amount of trees in ensemble",
         cxxopts::value<size_t>()->default_value("1"))
-        ("n_inst", "number of instances to use in training",
+        ("n-inst", "number of instances to use in training",
         cxxopts::value<int>()->default_value("-1"))
-        ("sample_instances", "sample instances when training an ensemble",
+        ("sample-instances", "sample instances when training an ensemble",
         cxxopts::value<bool>()->default_value("false"))
-        ("sample_features", "sample features when training an ensemble",
+        ("sample-features", "sample features when training an ensemble",
         cxxopts::value<bool>()->default_value("false"))
-        ("replace_instances", "whether the random sampling of instances should be with replacement",
+        ("replace-instances", "whether the random sampling of instances should be with replacement",
         cxxopts::value<bool>()->default_value("false"))
-        ("replace_features", "whether the random sampling of features should be with replacement",
+        ("replace-features", "whether the random sampling of features should be with replacement",
         cxxopts::value<bool>()->default_value("false"))
-        ("max_instances", "proportion of instances sampled",
+        ("max-instances", "proportion of instances sampled",
         cxxopts::value<double>()->default_value("1.0"))
-        ("max_features", "proportion of features sampled",
+        ("max-features", "proportion of features sampled",
         cxxopts::value<double>()->default_value("1.0"))
         ("affine", "don't consider the same features again when growing tree downward",
         cxxopts::value<bool>()->default_value("true"))
         ("par", "train single tree in parallel mode",
         cxxopts::value<bool>()->default_value("false"))
-        ("feature_blacklist", "features to ignore when considering a split",
+        ("feature-blacklist", "features to ignore when considering a split",
         cxxopts::value<std::vector<size_t>>()->default_value(""))
-        ("feature_ids", "features to use in constructing ID# rules",
+        ("feature-ids", "features to use in ID# rules, and Chen et al.",
         cxxopts::value<std::vector<size_t>>()->default_value(""));
 
     options.add_options("internal")
         ("cost", "starting cost",
         cxxopts::value<int>()->default_value("0"))
-        ("par_par", "internal parallel mode argument",
+        ("par-par", "internal parallel mode argument",
         cxxopts::value<double>()->default_value("0.5"));
     
     try
@@ -151,12 +154,12 @@ int main(int argc, char** argv)
             return arg["model"].template as<std::string>();
         };
 
-        auto feature_id_vec = opts["feature_ids"].as<std::vector<size_t>>();
+        auto feature_id_vec = opts["feature-ids"].as<std::vector<size_t>>();
         std::set<size_t> feature_id;
         for (auto f : feature_id_vec)
             feature_id.insert(f);
 
-        auto attack_file = opts["attack_file"].as<std::string>();
+        auto attack_file = opts["attack-file"].as<std::string>();
         auto budget = opts["budget"].as<int>();
         auto cost = opts["cost"].as<int>();
         if (opts.count("test"))
@@ -199,7 +202,7 @@ int main(int argc, char** argv)
         else if (opts.count("attack"))
         {
             if (attack_file.empty())
-                throw std::invalid_argument("missing --attack_file");
+                throw std::invalid_argument("missing --attack-file");
             auto dataset = parseAttack(attack_file);
             auto att_inst = opts["attack"].as<std::vector<double>>();
             if (dataset == DataSet::Credit)
@@ -217,19 +220,20 @@ int main(int argc, char** argv)
         auto algostr = opts["algo"].as<std::string>();
         auto outputstr = opts["output"].as<std::string>();
         auto maxiter = opts["maxiter"].as<int>();
-        auto n_trees = opts["n_trees"].as<size_t>();
+        auto epsilon = opts["epsilon"].as<double>();
+        auto n_trees = opts["n-trees"].as<size_t>();
         auto maxdepth = opts["maxdepth"].as<size_t>();
-        auto n_inst = opts["n_inst"].as<int>();
-        auto par_par = opts["par_par"].as<double>();
+        auto n_inst = opts["n-inst"].as<int>();
+        auto par_par = opts["par-par"].as<double>();
         auto affine = opts["affine"].as<bool>();
         auto par = opts["par"].as<bool>();
-        auto bootstrap_samples = opts["sample_instances"].as<bool>();
-        auto bootstrap_features = opts["sample_features"].as<bool>();
-        auto replace_samples = opts["replace_instances"].as<bool>();
-        auto replace_features = opts["replace_features"].as<bool>();
-        auto max_samples = opts["max_instances"].as<double>();
-        auto max_features = opts["max_features"].as<double>();
-        auto feature_bl_vec = opts["feature_blacklist"].as<std::vector<size_t>>();
+        auto bootstrap_samples = opts["sample-instances"].as<bool>();
+        auto bootstrap_features = opts["sample-features"].as<bool>();
+        auto replace_samples = opts["replace-instances"].as<bool>();
+        auto replace_features = opts["replace-features"].as<bool>();
+        auto max_samples = opts["max-instances"].as<double>();
+        auto max_features = opts["max-features"].as<double>();
+        auto feature_bl_vec = opts["feature-blacklist"].as<std::vector<size_t>>();
         std::set<size_t> feature_bl;
         for (auto f : feature_bl_vec)
             feature_bl.insert(f);
@@ -254,7 +258,7 @@ int main(int argc, char** argv)
                                 .max_features=max_features},
                     .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                     .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
-                    .n_trees=n_trees}, batch_file
+                    .n_trees=n_trees, .epsilon=epsilon}, batch_file
                 );
             }
             credit::train_and_save(
@@ -266,7 +270,7 @@ int main(int argc, char** argv)
                             .max_features=max_features},
                 .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                 .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
-                .n_trees=n_trees}
+                .n_trees=n_trees, .epsilon=epsilon}
             );
         }
         else if (dataset == "har")
@@ -284,7 +288,7 @@ int main(int argc, char** argv)
                                 .max_features=max_features},
                     .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                     .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
-                    .n_trees=n_trees}, batch_file
+                    .n_trees=n_trees, .epsilon=epsilon}, batch_file
                 );
             }
             har::train_and_save( 
@@ -296,7 +300,7 @@ int main(int argc, char** argv)
                             .max_features=max_features},
                 .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                 .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter,
-                .n_trees=n_trees}
+                .n_trees=n_trees, .epsilon=epsilon}
             );
         }
         else if (dataset == "covertype")
@@ -314,7 +318,7 @@ int main(int argc, char** argv)
                                 .max_features=max_features},
                     .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                     .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
-                    .n_trees=n_trees}, batch_file
+                    .n_trees=n_trees, .epsilon=epsilon}, batch_file
                 );
             }
             covertype::train_and_save( 
@@ -326,11 +330,41 @@ int main(int argc, char** argv)
                             .max_features=max_features},
                 .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                 .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter,
-                .n_trees=n_trees}
+                .n_trees=n_trees, .epsilon=epsilon}
+            );
+        }
+        else if (dataset == "mnist")
+        {
+            mnist::set_verbosity(verb);
+            // if (opts.count("batch"))
+            // {
+            //     auto batch_file = opts["batch"].as<std::string>();
+            //     covertype::batch_train_and_save(
+            //         {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
+            //                     .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=affine,
+            //                     .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
+            //                     .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
+            //                     .replace_features=replace_features, .max_samples=max_samples, 
+            //                     .max_features=max_features},
+            //         .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
+            //         .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
+            //         .n_trees=n_trees}, batch_file
+            //     );
+            // }
+            mnist::train_and_save( 
+                 {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
+                            .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=affine,
+                            .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
+                            .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
+                            .replace_features=replace_features, .max_samples=max_samples, 
+                            .max_features=max_features},
+                .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
+                .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter,
+                .n_trees=n_trees, .epsilon=epsilon}
             );
         }
         else
-            Util::die("--data must be one of following: credit, har, covertype");
+            Util::die("--data must be one of following: credit, har, covertype, mnist");
         
     }
     catch(const std::invalid_argument& e)

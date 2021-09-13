@@ -121,6 +121,7 @@ cpp::result<void, std::string> read_idx_buf(const char* fn, std::unique_ptr<uint
     BZFILE* b;
     size_t nLines = 0;
     int     nBuf = 0;
+    int     nHeader = 0;
     int     nBufTot = 0;
     int     bzerror;
     int     nWritten;
@@ -133,7 +134,7 @@ cpp::result<void, std::string> read_idx_buf(const char* fn, std::unique_ptr<uint
 
     auto readWord = [&]()->cpp::result<void, std::string>{
         nBuf = BZ2_bzRead(&bzerror, b, headerBuf, WORD);
-        nBufTot += nBuf;
+        nHeader += nBuf;
         if (nBuf < WORD)
         {
             int bzerrorstore = bzerror;
@@ -200,8 +201,10 @@ cpp::result<void, std::string> read_idx_buf(const char* fn, std::unique_ptr<uint
         BZ2_bzReadClose ( &bzerror, b );
         return cpp::failure(fmt::format("bzerror: {}", bzerrorstore));
     }
-
     bzerror = BZ_OK;
+    // skip header
+    nBuf = BZ2_bzRead ( &bzerror, b, tmpBuf, nHeader);
+
     nBuf = BZ2_bzRead ( &bzerror, b, arr.get(), nBufTot);
     if (bzerror == BZ_OK)
     {
@@ -287,6 +290,17 @@ void read_encode_line(DF<N>& data, char* buf, int bufS, size_t row_id, char*& bu
     bufOut = bufE+1;
 }
 
+template<size_t N>
+void read_idx_line_enc(DF<N>& data, uint8_t*& buf, int bufS, size_t row_id)
+{
+    uint8_t* ptr;
+    Row<N> row = Row<N>::Zero();
+    uint8_t val = *buf;
+    row(val) = 1.0;
+    data.row(row_id) = row;
+    buf++;
+}
+
 }
 
 namespace df {
@@ -334,8 +348,6 @@ cpp::result<DF<NX>, std::string> read_idx(const char* fn)
     if (row_len != NX)
         return cpp::failure(fmt::format("row length of data is {}", row_len));
 
-    // skip the header
-
     DF<NX> X_data(nl, NX);
     auto loc = buf.get();
     for (size_t r = 0; r < nl; r++)
@@ -343,6 +355,29 @@ cpp::result<DF<NX>, std::string> read_idx(const char* fn)
         read_idx_line<NX>(X_data, loc, nBuf, r);
     }
     return X_data;
+}
+template<size_t NY>
+cpp::result<DF<NY>, std::string> read_idx_enc(const char* fn)
+{
+    int nBuf;
+    size_t nl;
+    size_t row_len;
+    std::unique_ptr<uint8_t[]> buf;
+
+    auto res = read_idx_buf(fn, buf, nBuf, nl, row_len);
+    if (res.has_error())
+        return cpp::failure(res.error());
+
+    if (row_len != 1)
+        return cpp::failure(fmt::format("row length of data is {}", row_len));
+
+    DF<NY> Y_data(nl, NY);
+    auto loc = buf.get();
+    for (size_t r = 0; r < nl; r++)
+    {
+        read_idx_line_enc<NY>(Y_data, loc, nBuf, r);
+    }
+    return Y_data;
 }
 
 }

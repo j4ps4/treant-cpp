@@ -85,6 +85,8 @@ public:
     int get_id() const noexcept {return id_;}
     
     std::string get_model_name() const;
+
+    bool is_trained() const noexcept {return isTrained_;}
     
     void print_test_score(const DF<NX>& X_test, const DF<NY>& Y_test, const DF<NY>& Y_train) const;
 

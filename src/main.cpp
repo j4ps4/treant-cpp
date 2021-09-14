@@ -119,8 +119,6 @@ int main(int argc, char** argv)
         cxxopts::value<bool>()->default_value("false"))
         ("replace-instances", "whether the random sampling of instances should be with replacement",
         cxxopts::value<bool>()->default_value("false"))
-        ("replace-features", "whether the random sampling of features should be with replacement",
-        cxxopts::value<bool>()->default_value("false"))
         ("max-instances", "proportion of instances sampled",
         cxxopts::value<double>()->default_value("1.0"))
         ("max-features", "proportion of features sampled",
@@ -135,6 +133,8 @@ int main(int argc, char** argv)
         cxxopts::value<std::vector<size_t>>()->default_value(""));
 
     options.add_options("internal")
+        ("replace-features", "whether the random sampling of features should be with replacement",
+        cxxopts::value<bool>()->default_value("false"))
         ("cost", "starting cost",
         cxxopts::value<int>()->default_value("0"))
         ("par-par", "internal parallel mode argument",

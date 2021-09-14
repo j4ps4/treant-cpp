@@ -46,19 +46,28 @@ RobustForest<NX,NY>::RobustForest(size_t N, TreeArguments<NX,NY>&& args,
 template<size_t NX, size_t NY>
 void RobustForest<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
 {
-	thread_pool pool;
-	Util::info("spawning a pool of {} threads...", pool.get_thread_count());
+    if (n_trees_ > 1)
+    {
+        thread_pool pool;
+        Util::info("spawning a pool of {} threads...", pool.get_thread_count());
 
-	for (size_t i = 0; i < n_trees_; i++)
-	{
-		auto& tree = trees_.at(i);
-		pool.push_task([&]{
-			tree.fit(X_train, y_train);
-		});
-	}
-	pool.wait_for_tasks();
-	is_trained_ = true;
-	Util::log<3>("{} trees have been fit!", n_trees_);
+        for (size_t i = 0; i < n_trees_; i++)
+        {
+            auto& tree = trees_.at(i);
+            pool.push_task([&]{
+                tree.fit(X_train, y_train);
+            });
+        }
+        pool.wait_for_tasks();
+        is_trained_ = true;
+        Util::log<3>("{} trees have been fit!", n_trees_);
+    }
+    else
+    {
+        trees_.front().fit(X_train, y_train);
+        if (trees_.front().is_trained())
+            is_trained_ = true;
+    }
 }
 
 static size_t mode(const std::vector<size_t>& a)
@@ -369,6 +378,9 @@ std::map<size_t, double> RobustForest<NX,NY>::feature_importance(size_t tree_id)
             for (const auto& [fid, gain] : import)
                 sum_map[fid] += gain;
         }
+        for (const auto& [fid, gain] : sum_map)
+            sum_map[fid] = gain / static_cast<double>(n_trees_);
         return sum_map;
+
     }
 }

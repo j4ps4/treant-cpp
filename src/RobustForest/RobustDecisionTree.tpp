@@ -131,6 +131,7 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
             std::sample(pop.begin(), pop.end(), std::back_inserter(rows), 
                 n_sample_instances, rd_);
         }
+        // TODO record OOB samples
     }
     else
     {

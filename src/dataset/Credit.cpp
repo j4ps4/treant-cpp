@@ -110,11 +110,14 @@ void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
     Util::log<4>("X: a dataframe of size ({}x{})", X.rows(), X.cols());
     Util::log<4>("Y: a dataframe of size ({}x{})", Y.rows(), Y.cols());
 
-    json_file = args.attack_file;
-    auto m_atkr = credit::new_Attacker(args.budget, X, args.feature_ids);
-    if (m_atkr.has_error())
-        Util::die("{}", m_atkr.error());
-    args.tree_args.attacker = std::move(m_atkr.value());
+    if (args.algo == TrainingAlgo::Robust)
+    {
+        json_file = args.attack_file;
+        auto m_atkr = credit::new_Attacker(args.budget, X, args.feature_ids);
+        if (m_atkr.has_error())
+            Util::die("{}", m_atkr.error());
+        args.tree_args.attacker = std::move(m_atkr.value());
+    }
 
     auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter,
         args.epsilon, args.feature_ids);

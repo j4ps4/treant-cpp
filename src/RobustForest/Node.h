@@ -77,7 +77,7 @@ public:
         temp.reserve(NY);
         temp.insert(temp.end(), prediction_score_.data(), prediction_score_.data()+NY);
         archive(dummy_, left_, right_, best_split_id_,
-                best_split_val_, temp, prediction_, loss_, gain_);
+                best_split_val_, temp, prediction_, gain_);
     }
 
     template<typename Archive>
@@ -85,7 +85,7 @@ public:
     {
         std::vector<double> temp;
         archive(dummy_, left_, right_, best_split_id_,
-                best_split_val_, temp, prediction_, loss_, gain_);
+                best_split_val_, temp, prediction_, gain_);
         for (size_t i = 0; i < temp.size(); i++)
             prediction_score_[i] = temp[i];
     }
@@ -98,6 +98,6 @@ private:
     double best_split_val_; // value of the corresponding feature
     Row<NY> prediction_score_;
     size_t prediction_;
-    double loss_;
     double gain_;
+    double loss_;
 };

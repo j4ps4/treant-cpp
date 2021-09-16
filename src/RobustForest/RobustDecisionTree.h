@@ -85,6 +85,9 @@ public:
     static RobustDecisionTree<NX, NY> load_from_disk(const std::filesystem::path& fn);
 
     int get_id() const noexcept {return id_;}
+    size_t get_max_depth() const noexcept {return max_depth_;}
+    size_t get_min_inst() const noexcept {return min_instances_per_node_;}
+    bool get_affine() const noexcept {return affine_;}
     
     std::string get_model_name() const;
 

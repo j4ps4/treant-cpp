@@ -9,7 +9,7 @@
 template<size_t NX, size_t NY>
 RobustForest<NX,NY>::RobustForest(size_t N, TreeArguments<NX,NY>&& args) :
 	tree_args_(std::move(args)), n_trees_(N), is_trained_(false),
-    type_(ForestType::Forest), N_folds_(1), best_model_(-1)
+    type_(ForestType::Forest), N_folds_(1)
 {
     if (N == 0)
         throw std::runtime_error("N must be larger than 0");
@@ -27,7 +27,7 @@ template<size_t NX, size_t NY>
 RobustForest<NX,NY>::RobustForest(size_t N, TreeArguments<NX,NY>&& args,
 	const std::vector<std::tuple<int,Attacker<NX>*>>& atkrs) :
 	tree_args_(std::move(args)), n_trees_(N), is_trained_(false),
-    type_(ForestType::Bundle), N_folds_(1), best_model_(-1)
+    type_(ForestType::Bundle), N_folds_(1)
 {
     if (N == 0)
         throw std::runtime_error("N must be larger than 0");
@@ -47,7 +47,7 @@ RobustForest<NX,NY>::RobustForest(size_t N, TreeArguments<NX,NY>&& args,
 
 template<size_t NX, size_t NY>
 RobustForest<NX,NY>::RobustForest(const std::vector<TreeArguments<NX,NY>>& args, size_t N_folds) :
-    is_trained_(false), type_(ForestType::Fold), N_folds_(N_folds), best_model_(-1)
+    is_trained_(false), type_(ForestType::Fold), N_folds_(N_folds)
 {
     if (N_folds < 1)
         throw std::runtime_error("N_folds must be larger than 0");
@@ -115,6 +115,8 @@ void RobustForest<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
 
         if (type_ == ForestType::Fold)
         {
+            std::ofstream log_out("cv_out.csv");
+            log_out << "maxdepth,min_inst,affine,cv_score\n";
             std::vector<DF<NX>> trainX;
             std::vector<DF<NX>> validX;
             std::vector<DF<NY>> trainY;
@@ -160,17 +162,21 @@ void RobustForest<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
                 }
                 // calculate mean, select best tree
                 tree_scores(i) = fold_scores.mean();
+                auto maxdepth = trees_.at(i*N_folds_).get_max_depth();
+                auto min_inst = trees_.at(i*N_folds_).get_min_inst();
+                auto affine = trees_.at(i*N_folds_).get_affine();
+                log_out << maxdepth << "," << min_inst << "," << affine << "," << tree_scores(i) << "\n";
             }
             Eigen::Index max_ind;
             tree_scores.maxCoeff(&max_ind);
-            best_model_ = max_ind;
             is_trained_ = true;
-            RobustDecisionTree<NX,NY> best = std::move(trees_.at(max_ind));
+            RobustDecisionTree<NX,NY> best = std::move(trees_.at(max_ind*N_folds_));
             trees_.clear();
             trees_.push_back(std::move(best));
             type_ = ForestType::Forest;
             Util::log<3>("{} trees have been fit using {}-fold cv!", n_trees_, N_folds_);
             n_trees_ = 1;
+            log_out.close();
             // for (size_t i = 0; i < n_trees_; i++)
             //     if (i != max_ind)
             //         trees_.erase(trees_.begin()+i);
@@ -359,14 +365,15 @@ std::string RobustForest<NX,NY>::get_model_name() const
 		extension = "bundle";
 	else
 		extension = n_trees_ > 1 ? "forest" : "tree";
+    auto md = trees_.front().get_max_depth();
     if (algo == TrainingAlgo::Standard)
-    	return fmt::format("{}-N{}-D{}.{}", algo_str, n_trees_, tree_args_.max_depth, extension);
+    	return fmt::format("{}-N{}-D{}.{}", algo_str, n_trees_, md, extension);
     else if (algo == TrainingAlgo::Icml2019)
-    	return fmt::format("{}-N{}-D{}.{}", algo_str, n_trees_, tree_args_.max_depth, extension);
+    	return fmt::format("{}-N{}-D{}.{}", algo_str, n_trees_, md, extension);
     else
     {
-	    int budget = trees_[0].get_attacker_budget();
-    	return fmt::format("{}-N{}-B{}-D{}.{}", algo_str, n_trees_, budget, tree_args_.max_depth, extension);
+	    int budget = trees_.front().get_attacker_budget();
+    	return fmt::format("{}-N{}-B{}-D{}.{}", algo_str, n_trees_, budget, md, extension);
     }
 }
 

@@ -60,7 +60,6 @@ private:
 	bool is_trained_;
     ForestType type_;
     size_t N_folds_;
-    size_t best_model_;
 };
 
 #include "RobustForest.tpp"

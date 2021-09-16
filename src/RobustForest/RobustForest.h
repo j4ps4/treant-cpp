@@ -4,8 +4,9 @@
 
 enum class ForestType
 {
-    Forest,
-    Bundle
+    Forest, // all trees have the same arguments
+    Bundle, // different attackers
+    Fold // different tree arguments
 };
 
 template<size_t NX, size_t NY>
@@ -20,6 +21,8 @@ public:
 
 	RobustForest(size_t N, TreeArguments<NX,NY>&& args, 
         const std::vector<std::tuple<int,Attacker<NX>*>>& atkrs);
+    
+    RobustForest(const std::vector<TreeArguments<NX,NY>>& args, size_t N_folds);
 
     RobustForest() = default;
 	
@@ -56,6 +59,8 @@ private:
 	std::vector<RobustDecisionTree<NX,NY>> trees_;
 	bool is_trained_;
     ForestType type_;
+    size_t N_folds_;
+    size_t best_model_;
 };
 
 #include "RobustForest.tpp"

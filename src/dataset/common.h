@@ -18,6 +18,14 @@ struct TrainArguments
 	double epsilon;
 };
 
+struct CrossvalArguments
+{
+	size_t N_folds;
+	std::vector<size_t> maxdepth;
+	std::vector<size_t> min_inst;
+	std::vector<bool> affine;
+};
+
 template<size_t NX>
 std::vector<std::tuple<int,Attacker<NX>*>> parse_batch_file(const std::string& batch_file,
 	const std::string& attack_file, int budget);

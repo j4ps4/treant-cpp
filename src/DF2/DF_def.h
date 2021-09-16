@@ -7,6 +7,8 @@ using DF = Eigen::Array<double,-1,N,Eigen::RowMajor>;
 template<size_t N>
 using Row = Eigen::Array<double,1,N,Eigen::RowMajor>;
 
+using DynRow = Eigen::Array<double,1,-1,Eigen::RowMajor>;
+
 // namespace
 // {
 

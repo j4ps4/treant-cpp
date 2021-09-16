@@ -709,8 +709,8 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
         if (strncmp(e.what(), "bug: more than iter", 19))
         {
             Util::warn("caught NLOPT exception: {}", e.what());
-            return {};
         }
+        return {};
     }
     Row<NY> pred_left;
     Row<NY> pred_right;

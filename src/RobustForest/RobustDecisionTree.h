@@ -78,6 +78,8 @@ public:
 
     double classification_error(const DF<NY>& Y_test, const DF<NY>& Y_pred) const;
 
+    double test_score(const DF<NX>& X_test, const DF<NY>& Y_test) const;
+
     void dump_to_disk(const std::filesystem::path& fn) const;
 
     static RobustDecisionTree<NX, NY> load_from_disk(const std::filesystem::path& fn);
@@ -93,14 +95,27 @@ public:
     double get_attacked_score(const Attacker<NX>& attacker, const DF<NX>& X, const DF<NY>& Y) const;
     double get_own_attacked_score(const DF<NX>& X, const DF<NY>& Y) const;
 
-    int get_attacker_budget() const {return attacker_->get_budget();}
+    int get_attacker_budget() const 
+    {
+        if (!attacker_)
+            throw std::runtime_error("attacker = NULL!!!");
+        return attacker_->get_budget();
+    }
     
-    const Attacker<NX>* get_attacker() const {return attacker_.get();}
+    const Attacker<NX>* get_attacker() const 
+    {
+        return attacker_.get();
+    }
+
+    const SplitOptimizer<NX,NY>* get_optimizer() const 
+    {
+        return optimizer_.get();
+    }
 
     void set_attacker_budget(int budget) 
     {
         if (!attacker_)
-            Util::die("attacker = NULL!!!");
+            throw std::runtime_error("attacker = NULL!!!");
         attacker_->set_budget(budget);
     }
 

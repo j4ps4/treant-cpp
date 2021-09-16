@@ -282,6 +282,14 @@ double RobustDecisionTree<NX,NY>::classification_error(const DF<NY>& Y_test,
 }
 
 template<size_t NX, size_t NY>
+double RobustDecisionTree<NX,NY>::test_score(const DF<NX>& X_test, const DF<NY>& Y_test) const
+{
+    auto Y_pred = predict_proba(X_test);
+    auto test_acc = 100.0 - 100.0 * classification_error(Y_test, Y_pred);
+    return test_acc;
+}
+
+template<size_t NX, size_t NY>
 void RobustDecisionTree<NX,NY>::dump_to_disk(const std::filesystem::path& fn) const
 {
     try 

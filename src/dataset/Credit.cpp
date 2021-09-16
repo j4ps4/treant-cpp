@@ -166,7 +166,9 @@ void batch_train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, const std::s
     auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter,
         args.epsilon, args.feature_ids);
     args.tree_args.optimizer = std::move(optimz);
+
     RobustForest<CREDIT_X,CREDIT_Y> forest(args.n_trees, std::move(args.tree_args), attackers);
+
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
     forest.fit(X, Y);
     double linear_time = TIME;
@@ -177,6 +179,86 @@ void batch_train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, const std::s
     auto model_name = args.output.empty() ? forest.get_model_name() : args.output;
     auto full_model_name = models_dir / model_name;
     Util::info("saving trained model to {}", full_model_name.native());
+    if (!std::filesystem::exists(models_dir))
+        std::filesystem::create_directory(models_dir);
+    forest.dump_to_disk(full_model_name);
+
+    std::exit(0);
+}
+
+void cross_val_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, CrossvalArguments&& cv_args)
+{
+    auto m_df = credit::read_train();
+    if (m_df.has_error())
+        Util::die("{}", m_df.error());
+    auto& df_tupl = m_df.value();
+    auto& X = std::get<0>(df_tupl);
+    auto& Y = std::get<1>(df_tupl);
+
+    if (args.n_inst > 0)
+    {
+        X.conservativeResize(args.n_inst, Eigen::NoChange);
+        Y.conservativeResize(args.n_inst, Eigen::NoChange);
+    }
+
+    auto m_test = credit::read_test();
+    if (m_test.has_error())
+        Util::die("{}", m_test.error());
+    auto& test_tupl = m_test.value();
+    auto& X_test = std::get<0>(test_tupl);
+    auto& Y_test = std::get<1>(test_tupl);
+
+    Util::log<4>("X: a dataframe of size ({}x{})", X.rows(), X.cols());
+    Util::log<4>("Y: a dataframe of size ({}x{})", Y.rows(), Y.cols());
+
+    if (args.algo == TrainingAlgo::Robust)
+    {
+        json_file = args.attack_file;
+        auto m_atkr = credit::new_Attacker(args.budget, X, args.feature_ids);
+        if (m_atkr.has_error())
+            Util::die("{}", m_atkr.error());
+        args.tree_args.attacker = std::move(m_atkr.value());
+    }
+
+    auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter,
+        args.epsilon, args.feature_ids);
+    args.tree_args.optimizer = std::move(optimz);
+
+    const auto L1 = cv_args.maxdepth.size();
+    const auto L2 = cv_args.min_inst.size();
+    const auto L3 = cv_args.affine.size();
+    const auto CV_MATRIX_SIZE = L1*L2*L3;
+    std::vector<TreeArguments<CREDIT_X,CREDIT_Y>> tree_args_v;
+    tree_args_v.reserve(CV_MATRIX_SIZE);
+    for (size_t i = 0; i < L1; i++)
+    {
+        auto maxdepth = cv_args.maxdepth[i];
+        for (size_t j = 0; j < L2; j++)
+        {
+            auto min_inst = cv_args.min_inst[j];
+            for (size_t k = 0; k < L3; k++)
+            {
+                bool affine = cv_args.affine[k];
+                TreeArguments<CREDIT_X,CREDIT_Y> prototype = args.tree_args;
+                prototype.max_depth = maxdepth;
+                prototype.min_instances_per_node = min_inst;
+                prototype.affine = affine;
+                tree_args_v.push_back(std::move(prototype));
+            }
+        }
+    }
+
+    auto forest = RobustForest<CREDIT_X,CREDIT_Y>(tree_args_v, cv_args.N_folds);
+
+    std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+    forest.fit(X, Y);
+    double linear_time = TIME;
+    fmt::print("time elapsed: ");
+    fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
+    forest.print_test_score(X_test, Y_test, Y);
+    auto model_name = args.output.empty() ? forest.get_model_name() : args.output;
+    auto full_model_name = models_dir / model_name;
+    Util::info("saving the best trained model to {}", full_model_name.native());
     if (!std::filesystem::exists(models_dir))
         std::filesystem::create_directory(models_dir);
     forest.dump_to_disk(full_model_name);

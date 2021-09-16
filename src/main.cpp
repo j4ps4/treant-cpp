@@ -77,6 +77,8 @@ int main(int argc, char** argv)
         cxxopts::value<bool>()->default_value("false"))
         ("gain", "compute feature importance values for a trained model",
         cxxopts::value<bool>()->default_value("false"))
+        ("cross-val", "perform N-fold cross-validation",
+        cxxopts::value<size_t>())
         ("classify", "classify given instance, comma separated list of values",
         cxxopts::value<std::vector<double>>())
         ("attack", "attack given instance, comma separated list of values",
@@ -108,7 +110,9 @@ int main(int argc, char** argv)
         ("epsilon", "radius of the l-inf ball (Chen et al.)",
         cxxopts::value<double>()->default_value("0.3"))
         ("D,maxdepth", "maximum depth of tree",
-        cxxopts::value<size_t>()->default_value("8"))
+        cxxopts::value<std::vector<size_t>>()->default_value("8"))
+        ("min-instances-per-node", "minimum instances per leaf node",
+        cxxopts::value<std::vector<size_t>>()->default_value("20"))
         ("N,n-trees", "amount of trees in ensemble",
         cxxopts::value<size_t>()->default_value("1"))
         ("n-inst", "number of instances to use in training",
@@ -124,7 +128,7 @@ int main(int argc, char** argv)
         ("max-features", "proportion of features sampled",
         cxxopts::value<double>()->default_value("1.0"))
         ("affine", "don't consider the same features again when growing tree downward",
-        cxxopts::value<bool>()->default_value("true"))
+        cxxopts::value<std::vector<bool>>()->default_value("true"))
         ("par", "train single tree in parallel mode",
         cxxopts::value<bool>()->default_value("false"))
         ("feature-blacklist", "features to ignore when considering a split",
@@ -222,10 +226,14 @@ int main(int argc, char** argv)
         auto maxiter = opts["maxiter"].as<int>();
         auto epsilon = opts["epsilon"].as<double>();
         auto n_trees = opts["n-trees"].as<size_t>();
-        auto maxdepth = opts["maxdepth"].as<size_t>();
+        auto maxdepth_v = opts["maxdepth"].as<std::vector<size_t>>();
+        auto maxdepth = maxdepth_v.front();
+        auto min_inst_v = opts["min-instances-per-node"].as<std::vector<size_t>>();
+        auto min_inst = min_inst_v.front();
         auto n_inst = opts["n-inst"].as<int>();
         auto par_par = opts["par-par"].as<double>();
-        auto affine = opts["affine"].as<bool>();
+        auto affine_v = opts["affine"].as<std::vector<bool>>();
+        auto affine = affine_v.front();
         auto par = opts["par"].as<bool>();
         auto bootstrap_samples = opts["sample-instances"].as<bool>();
         auto bootstrap_features = opts["sample-features"].as<bool>();
@@ -251,7 +259,7 @@ int main(int argc, char** argv)
                 auto batch_file = opts["batch"].as<std::string>();
                 credit::batch_train_and_save(
                     {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
-                                .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=affine,
+                                .id=0, .max_depth=maxdepth, .min_instances_per_node=min_inst, .affine=affine,
                                 .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
                                 .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
                                 .replace_features=replace_features, .max_samples=max_samples, 
@@ -261,9 +269,25 @@ int main(int argc, char** argv)
                     .n_trees=n_trees, .epsilon=epsilon}, batch_file
                 );
             }
+            else if (opts.count("cross-val"))
+            {
+                auto N_folds = opts["cross-val"].as<size_t>();
+                credit::cross_val_and_save(
+                    {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
+                                .id=0, .max_depth=maxdepth, .min_instances_per_node=min_inst, .affine=affine,
+                                .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
+                                .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
+                                .replace_features=replace_features, .max_samples=max_samples, 
+                                .max_features=max_features},
+                    .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
+                    .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
+                    .n_trees=n_trees, .epsilon=epsilon},
+                    {.N_folds=N_folds, .maxdepth=maxdepth_v, .min_inst=min_inst_v, .affine=affine_v}
+                );
+            }
             credit::train_and_save(
                 {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
-                            .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=affine,
+                            .id=0, .max_depth=maxdepth, .min_instances_per_node=min_inst, .affine=affine,
                             .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
                             .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
                             .replace_features=replace_features, .max_samples=max_samples, 
@@ -281,7 +305,7 @@ int main(int argc, char** argv)
                 auto batch_file = opts["batch"].as<std::string>();
                 har::batch_train_and_save(
                     {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
-                                .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=affine,
+                                .id=0, .max_depth=maxdepth, .min_instances_per_node=min_inst, .affine=affine,
                                 .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
                                 .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
                                 .replace_features=replace_features, .max_samples=max_samples, 
@@ -293,7 +317,7 @@ int main(int argc, char** argv)
             }
             har::train_and_save( 
                  {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
-                            .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=affine,
+                            .id=0, .max_depth=maxdepth, .min_instances_per_node=min_inst, .affine=affine,
                             .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
                             .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
                             .replace_features=replace_features, .max_samples=max_samples, 
@@ -311,7 +335,7 @@ int main(int argc, char** argv)
                 auto batch_file = opts["batch"].as<std::string>();
                 covertype::batch_train_and_save(
                     {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
-                                .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=affine,
+                                .id=0, .max_depth=maxdepth, .min_instances_per_node=min_inst, .affine=affine,
                                 .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
                                 .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
                                 .replace_features=replace_features, .max_samples=max_samples, 
@@ -323,7 +347,7 @@ int main(int argc, char** argv)
             }
             covertype::train_and_save( 
                  {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
-                            .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=affine,
+                            .id=0, .max_depth=maxdepth, .min_instances_per_node=min_inst, .affine=affine,
                             .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
                             .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
                             .replace_features=replace_features, .max_samples=max_samples, 
@@ -353,7 +377,7 @@ int main(int argc, char** argv)
             // }
             mnist::train_and_save( 
                  {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
-                            .id=0, .max_depth=maxdepth, .min_instances_per_node=20, .affine=affine,
+                            .id=0, .max_depth=maxdepth, .min_instances_per_node=min_inst, .affine=affine,
                             .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
                             .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
                             .replace_features=replace_features, .max_samples=max_samples, 

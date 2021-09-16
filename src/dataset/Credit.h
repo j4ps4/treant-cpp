@@ -20,6 +20,7 @@ namespace credit
 {
     void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args);
     void batch_train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, const std::string& batch_file);
+    void cross_val_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, CrossvalArguments&& cv_args);
 
     void load_and_test(const std::filesystem::path& model, const std::string& attack_file,
         const std::set<size_t>& id_set, int max_budget);

@@ -46,8 +46,13 @@ class SplitOptimizer
     static constexpr size_t NY2V = 2*NY;
 public:
     SplitOptimizer(SplitFunction split, TrainingAlgo algo, int maxiter, double epsilon,
-        std::set<size_t> perturb_ids) :
-    split_(split), algo_(algo), maxiter_(maxiter), epsilon_(epsilon), chen_perturb_ids_(perturb_ids) {}
+        std::set<size_t> perturb_ids, const std::vector<double>& epsilonCoeff = {}) :
+        split_(split), algo_(algo), maxiter_(maxiter), epsilon_(epsilon),
+        chen_perturb_ids_(perturb_ids), epsilonCoeff_(epsilonCoeff)
+    {
+        if (algo == TrainingAlgo::Icml2019 && epsilonCoeff.size() < NX)
+            throw std::runtime_error("epsilonCoeff too short");
+    }
 
     double evaluate_split(const DF<NY>& y_true,
                           const NRow& y_pred) const;
@@ -106,6 +111,7 @@ private:
     const nlopt::algorithm optim_algo_ = nlopt::LD_SLSQP;
     const double epsilon_;
 	const std::set<size_t> chen_perturb_ids_;
+    const std::vector<double> epsilonCoeff_;
 };
 
 #include "SplitOptimizer.tpp"

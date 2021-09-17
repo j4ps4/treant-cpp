@@ -29,6 +29,10 @@ std::filesystem::path json_file;
 //     return data_dir / format;
 // }
 
+static const std::vector<double> EPSILON_COEFF{490000.000,0.000,5.000,2.000,40.000,5.000,5.000,5.000,5.000,
+5.000,5.000,539726.961,431868.273,507410.805,495597.156,386337.289,637668.438,78464.703,91052.391,84712.023,
+79190.734,80594.391,99744.695};
+
 static const std::map<std::string, size_t> column_map{
     {{"LIMIT_BAL",0},
     {"SEX",1},
@@ -119,9 +123,18 @@ void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
         args.tree_args.attacker = std::move(m_atkr.value());
     }
 
-    auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter,
-        args.epsilon, args.feature_ids);
-    args.tree_args.optimizer = std::move(optimz);
+    if (args.algo == TrainingAlgo::Icml2019)
+    {
+        auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter,
+            args.epsilon, args.feature_ids, EPSILON_COEFF);
+        args.tree_args.optimizer = std::move(optimz);
+    }
+    else
+    {
+        auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter, 
+            args.epsilon, args.feature_ids);
+        args.tree_args.optimizer = std::move(optimz);
+    }
 
     RobustForest<CREDIT_X,CREDIT_Y> forest(args.n_trees, std::move(args.tree_args));
 
@@ -166,9 +179,18 @@ void batch_train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, const std::s
 
     auto attackers = parse_batch_file<CREDIT_X>(batch_file, args.attack_file, args.budget);
 
-    auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter,
-        args.epsilon, args.feature_ids);
-    args.tree_args.optimizer = std::move(optimz);
+    if (args.algo == TrainingAlgo::Icml2019)
+    {
+        auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter,
+            args.epsilon, args.feature_ids, EPSILON_COEFF);
+        args.tree_args.optimizer = std::move(optimz);
+    }
+    else
+    {
+        auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter, 
+            args.epsilon, args.feature_ids);
+        args.tree_args.optimizer = std::move(optimz);
+    }
 
     RobustForest<CREDIT_X,CREDIT_Y> forest(args.n_trees, std::move(args.tree_args), attackers);
 
@@ -223,9 +245,18 @@ void cross_val_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, CrossvalArgume
         args.tree_args.attacker = std::move(m_atkr.value());
     }
 
-    auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter,
-        args.epsilon, args.feature_ids);
-    args.tree_args.optimizer = std::move(optimz);
+    if (args.algo == TrainingAlgo::Icml2019)
+    {
+        auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter,
+            args.epsilon, args.feature_ids, EPSILON_COEFF);
+        args.tree_args.optimizer = std::move(optimz);
+    }
+    else
+    {
+        auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter, 
+            args.epsilon, args.feature_ids);
+        args.tree_args.optimizer = std::move(optimz);
+    }
 
     const auto L1 = cv_args.maxdepth.size();
     const auto L2 = cv_args.min_inst.size();
@@ -233,15 +264,15 @@ void cross_val_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, CrossvalArgume
     const auto CV_MATRIX_SIZE = L1*L2*L3;
     std::vector<TreeArguments<CREDIT_X,CREDIT_Y>> tree_args_v;
     tree_args_v.reserve(CV_MATRIX_SIZE);
-    for (size_t i = 0; i < L1; i++)
+    for (size_t k = 0; k < L3; k++)
     {
-        auto maxdepth = cv_args.maxdepth[i];
+        bool affine = cv_args.affine[k];
         for (size_t j = 0; j < L2; j++)
         {
             auto min_inst = cv_args.min_inst[j];
-            for (size_t k = 0; k < L3; k++)
+            for (size_t i = 0; i < L1; i++)
             {
-                bool affine = cv_args.affine[k];
+                auto maxdepth = cv_args.maxdepth[i];
                 TreeArguments<CREDIT_X,CREDIT_Y> prototype = args.tree_args;
                 prototype.max_depth = maxdepth;
                 prototype.min_instances_per_node = min_inst;
@@ -251,7 +282,7 @@ void cross_val_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, CrossvalArgume
         }
     }
 
-    auto forest = RobustForest<CREDIT_X,CREDIT_Y>(tree_args_v, cv_args.N_folds);
+    auto forest = RobustForest<CREDIT_X,CREDIT_Y>(tree_args_v, cv_args.N_folds, cv_args.logfile);
 
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
     forest.fit(X, Y);

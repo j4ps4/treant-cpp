@@ -41,6 +41,8 @@ std::tuple<DataSet, std::filesystem::path> parseTest(const std::string& s)
         return {DataSet::Har, p};
     else if (dirname == "covertype")
         return {DataSet::Covertype, p};
+    else if (dirname == "mnist")
+        return {DataSet::Mnist, p};
     else
         Util::die("model path is not valid");
 }
@@ -57,6 +59,8 @@ DataSet parseAttack(const std::string& s)
         return DataSet::Har;
     else if (dirname == "covertype")
         return DataSet::Covertype;
+    else if (dirname == "mnist")
+        return DataSet::Mnist;
     else
         Util::die("attack_file path is not valid");
 }
@@ -97,6 +101,8 @@ int main(int argc, char** argv)
         cxxopts::value<std::string>()->default_value(""))
         ("M,model", "trained model on which to operate",
         cxxopts::value<std::string>())
+        ("L,log-file", "output log file",
+        cxxopts::value<std::string>()->default_value(""))
         ("attack-file", "json file describing the attacks",
         cxxopts::value<std::string>()->default_value(""));
 
@@ -152,6 +158,7 @@ int main(int argc, char** argv)
             fmt::print("{}\n", options.help({"mode","file","tree"}));
             exit(0);
         }
+
         auto check_model = [](const auto& arg)->std::string{
             if (!arg.count("model"))
                 throw std::invalid_argument("missing --model");
@@ -176,6 +183,8 @@ int main(int argc, char** argv)
                 har::load_and_test(path, attack_file, feature_id, budget);
             else if (dataset == DataSet::Covertype)
                 covertype::load_and_test(path, attack_file, feature_id, budget);
+            else if (dataset == DataSet::Mnist)
+                mnist::load_and_test(path, attack_file, feature_id, budget);
             return 0;
         }
         else if (opts.count("gain"))
@@ -188,6 +197,8 @@ int main(int argc, char** argv)
                 har::put_gain_values(path);
             else if (dataset == DataSet::Covertype)
                 covertype::put_gain_values(path);
+            else if (dataset == DataSet::Mnist)
+                mnist::put_gain_values(path);
             return 0;
         }
         else if (opts.count("classify"))
@@ -201,6 +212,8 @@ int main(int argc, char** argv)
                 har::classify(path, inst_vec);
             else if (dataset == DataSet::Covertype)
                 covertype::classify(path, inst_vec);
+            else if (dataset == DataSet::Mnist)
+                mnist::classify(path, inst_vec);
             return 0;
         }
         else if (opts.count("attack"))
@@ -223,6 +236,7 @@ int main(int argc, char** argv)
         auto dataset = opts["data"].as<std::string>();
         auto algostr = opts["algo"].as<std::string>();
         auto outputstr = opts["output"].as<std::string>();
+        auto logfile = opts["log-file"].as<std::string>();
         auto maxiter = opts["maxiter"].as<int>();
         auto epsilon = opts["epsilon"].as<double>();
         auto n_trees = opts["n-trees"].as<size_t>();
@@ -282,7 +296,8 @@ int main(int argc, char** argv)
                     .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                     .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
                     .n_trees=n_trees, .epsilon=epsilon},
-                    {.N_folds=N_folds, .maxdepth=maxdepth_v, .min_inst=min_inst_v, .affine=affine_v}
+                    {.N_folds=N_folds, .logfile=logfile, .maxdepth=maxdepth_v, 
+                    .min_inst=min_inst_v, .affine=affine_v}
                 );
             }
             credit::train_and_save(

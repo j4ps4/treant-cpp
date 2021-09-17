@@ -22,7 +22,7 @@ public:
 	RobustForest(size_t N, TreeArguments<NX,NY>&& args, 
         const std::vector<std::tuple<int,Attacker<NX>*>>& atkrs);
     
-    RobustForest(const std::vector<TreeArguments<NX,NY>>& args, size_t N_folds);
+    RobustForest(const std::vector<TreeArguments<NX,NY>>& args, size_t N_folds, const std::string& log);
 
     RobustForest() = default;
 	
@@ -60,6 +60,7 @@ private:
 	bool is_trained_;
     ForestType type_;
     size_t N_folds_;
+    std::string logfile_;
 };
 
 #include "RobustForest.tpp"

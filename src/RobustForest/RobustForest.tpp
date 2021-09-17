@@ -46,11 +46,17 @@ RobustForest<NX,NY>::RobustForest(size_t N, TreeArguments<NX,NY>&& args,
 }
 
 template<size_t NX, size_t NY>
-RobustForest<NX,NY>::RobustForest(const std::vector<TreeArguments<NX,NY>>& args, size_t N_folds) :
+RobustForest<NX,NY>::RobustForest(const std::vector<TreeArguments<NX,NY>>& args, size_t N_folds,
+    const std::string& log) :
     is_trained_(false), type_(ForestType::Fold), N_folds_(N_folds)
 {
     if (N_folds < 1)
         throw std::runtime_error("N_folds must be larger than 0");
+
+    if (!log.empty())
+        logfile_ = log;
+    else
+        logfile_ = "cv-out.csv";
 
     n_trees_ = args.size();
     int id = 0;
@@ -115,7 +121,7 @@ void RobustForest<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
 
         if (type_ == ForestType::Fold)
         {
-            std::ofstream log_out("cv_out.csv");
+            std::ofstream log_out(logfile_);
             log_out << "maxdepth,min_inst,affine,cv_score\n";
             std::vector<DF<NX>> trainX;
             std::vector<DF<NX>> validX;

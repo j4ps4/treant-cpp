@@ -21,6 +21,7 @@ struct TrainArguments
 struct CrossvalArguments
 {
 	size_t N_folds;
+	std::string logfile;
 	std::vector<size_t> maxdepth;
 	std::vector<size_t> min_inst;
 	std::vector<bool> affine;

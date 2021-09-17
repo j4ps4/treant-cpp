@@ -28,6 +28,10 @@ std::filesystem::path json_file;
 //     return data_dir / format;
 // }
 
+static const std::vector<double> EPSILON_COEFF{2.000,2.000,2.000,2.000,1.916,2.000,2.000,
+1.968,2.000,2.000,2.000,2.000,2.000,2.000,2.000,2.000,2.000,2.000,2.000,2.000,2.000,2.000,
+1.920,2.000,2.000,1.926,1.942,2.000,1.822,2.000};
+
 static const std::map<std::string, size_t> column_map{
     {{ "tBodyAcc-mean()-X",0 },
     { "tBodyAcc-mean()-Y",1 },
@@ -110,15 +114,27 @@ void train_and_save(TrainArguments<HAR_X,HAR_Y>&& args)
     Util::log<4>("X: a dataframe of size ({}x{})", X.rows(), X.cols());
     Util::log<4>("Y: a dataframe of size ({}x{})", Y.rows(), Y.cols());
 
-    json_file = args.attack_file;
-    auto m_atkr = har::new_Attacker(args.budget, X, args.feature_ids);
-    if (m_atkr.has_error())
-        Util::die("{}", m_atkr.error());
-    args.tree_args.attacker = std::move(m_atkr.value());
+    if (args.algo == TrainingAlgo::Robust)
+    {
+        json_file = args.attack_file;
+        auto m_atkr = har::new_Attacker(args.budget, X, args.feature_ids);
+        if (m_atkr.has_error())
+            Util::die("{}", m_atkr.error());
+        args.tree_args.attacker = std::move(m_atkr.value());
+    }
 
-    auto optimz = std::make_shared<SplitOptimizer<HAR_X,HAR_Y>>(args.split, args.algo, args.maxiter, 
-        args.epsilon, args.feature_ids);
-    args.tree_args.optimizer = std::move(optimz);
+    if (args.algo == TrainingAlgo::Icml2019)
+    {
+        auto optimz = std::make_shared<SplitOptimizer<HAR_X,HAR_Y>>(args.split, args.algo, args.maxiter,
+            args.epsilon, args.feature_ids, EPSILON_COEFF);
+        args.tree_args.optimizer = std::move(optimz);
+    }
+    else
+    {
+        auto optimz = std::make_shared<SplitOptimizer<HAR_X,HAR_Y>>(args.split, args.algo, args.maxiter, 
+            args.epsilon, args.feature_ids);
+        args.tree_args.optimizer = std::move(optimz);
+    }
 
     RobustForest<HAR_X,HAR_Y> forest(args.n_trees, std::move(args.tree_args));
 
@@ -163,9 +179,19 @@ void batch_train_and_save(TrainArguments<HAR_X,HAR_Y>&& args, const std::string&
 
     auto attackers = parse_batch_file<HAR_X>(batch_file, args.attack_file, args.budget);
 
-    auto optimz = std::make_shared<SplitOptimizer<HAR_X,HAR_Y>>(args.split, args.algo, args.maxiter,
-        args.epsilon, args.feature_ids);
-    args.tree_args.optimizer = std::move(optimz);
+    if (args.algo == TrainingAlgo::Icml2019)
+    {
+        auto optimz = std::make_shared<SplitOptimizer<HAR_X,HAR_Y>>(args.split, args.algo, args.maxiter,
+            args.epsilon, args.feature_ids, EPSILON_COEFF);
+        args.tree_args.optimizer = std::move(optimz);
+    }
+    else
+    {
+        auto optimz = std::make_shared<SplitOptimizer<HAR_X,HAR_Y>>(args.split, args.algo, args.maxiter, 
+            args.epsilon, args.feature_ids);
+        args.tree_args.optimizer = std::move(optimz);
+    }
+    
     RobustForest<HAR_X,HAR_Y> forest(args.n_trees, std::move(args.tree_args), attackers);
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
     forest.fit(X, Y);

@@ -1,0 +1,5857 @@
+{
+    "attacks": [{
+            "65": [{
+                "pre": "(0.000, 2.935)",
+                "post": 4.857,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 2.935)",
+                "post": -4.857,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "66": [{
+                "pre": "(0.000, 4.099)",
+                "post": 6.465,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 4.099)",
+                "post": -6.465,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "67": [{
+                "pre": "(0.000, 5.175)",
+                "post": 7.770,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 5.175)",
+                "post": -7.770,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "68": [{
+                "pre": "(0.000, 6.575)",
+                "post": 9.410,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 6.575)",
+                "post": -9.410,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "69": [{
+                "pre": "(0.000, 8.021)",
+                "post": 10.982,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 8.021)",
+                "post": -10.982,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "70": [{
+                "pre": "(0.000, 9.400)",
+                "post": 12.397,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 9.400)",
+                "post": -12.397,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "71": [{
+                "pre": "(0.000, 10.175)",
+                "post": 13.099,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 10.175)",
+                "post": -13.099,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "72": [{
+                "pre": "(0.000, 10.422)",
+                "post": 13.400,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 10.422)",
+                "post": -13.400,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "73": [{
+                "pre": "(0.000, 9.826)",
+                "post": 12.866,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 9.826)",
+                "post": -12.866,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "74": [{
+                "pre": "(0.000, 8.622)",
+                "post": 11.637,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 8.622)",
+                "post": -11.637,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "75": [{
+                "pre": "(0.000, 7.061)",
+                "post": 10.032,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 7.061)",
+                "post": -10.032,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "76": [{
+                "pre": "(0.000, 5.025)",
+                "post": 7.647,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 5.025)",
+                "post": -7.647,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "77": [{
+                "pre": "(0.000, 3.412)",
+                "post": 5.557,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.412)",
+                "post": -5.557,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "91": [{
+                "pre": "(0.000, 3.027)",
+                "post": 4.962,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.027)",
+                "post": -4.962,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "92": [{
+                "pre": "(0.000, 4.803)",
+                "post": 7.298,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 4.803)",
+                "post": -7.298,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "93": [{
+                "pre": "(0.000, 7.362)",
+                "post": 10.292,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 7.362)",
+                "post": -10.292,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "94": [{
+                "pre": "(0.000, 10.273)",
+                "post": 13.267,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 10.273)",
+                "post": -13.267,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "95": [{
+                "pre": "(0.000, 13.574)",
+                "post": 16.271,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 13.574)",
+                "post": -16.271,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "96": [{
+                "pre": "(0.000, 16.854)",
+                "post": 18.895,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 16.854)",
+                "post": -18.895,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "97": [{
+                "pre": "(0.000, 20.495)",
+                "post": 21.597,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 20.495)",
+                "post": -21.597,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "98": [{
+                "pre": "(0.000, 23.830)",
+                "post": 23.895,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 23.830)",
+                "post": -23.895,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "99": [{
+                "pre": "(0.612, 25.863)",
+                "post": 25.251,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.612, 25.863)",
+                "post": -25.251,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "100": [{
+                "pre": "(0.629, 25.620)",
+                "post": 24.990,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.629, 25.620)",
+                "post": -24.990,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "101": [{
+                "pre": "(0.000, 23.729)",
+                "post": 23.832,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 23.729)",
+                "post": -23.832,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "102": [{
+                "pre": "(0.000, 20.294)",
+                "post": 21.500,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 20.294)",
+                "post": -21.500,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "103": [{
+                "pre": "(0.000, 16.028)",
+                "post": 18.330,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 16.028)",
+                "post": -18.330,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "104": [{
+                "pre": "(0.000, 11.295)",
+                "post": 14.202,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 11.295)",
+                "post": -14.202,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "105": [{
+                "pre": "(0.000, 7.532)",
+                "post": 10.515,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 7.532)",
+                "post": -10.515,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "106": [{
+                "pre": "(0.000, 4.514)",
+                "post": 6.907,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 4.514)",
+                "post": -6.907,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "118": [{
+                "pre": "(0.000, 4.354)",
+                "post": 6.622,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 4.354)",
+                "post": -6.622,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "119": [{
+                "pre": "(0.000, 7.625)",
+                "post": 10.412,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 7.625)",
+                "post": -10.412,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "120": [{
+                "pre": "(0.000, 12.180)",
+                "post": 14.809,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 12.180)",
+                "post": -14.809,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "121": [{
+                "pre": "(0.000, 18.295)",
+                "post": 19.802,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 18.295)",
+                "post": -19.802,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "122": [{
+                "pre": "(0.843, 25.778)",
+                "post": 24.935,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.843, 25.778)",
+                "post": -24.935,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "123": [{
+                "pre": "(4.526, 34.429)",
+                "post": 29.903,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(4.526, 34.429)",
+                "post": -29.903,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "124": [{
+                "pre": "(9.716, 44.357)",
+                "post": 34.641,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(9.716, 44.357)",
+                "post": -34.641,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "125": [{
+                "pre": "(15.740, 54.685)",
+                "post": 38.945,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(15.740, 54.685)",
+                "post": -38.945,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "126": [{
+                "pre": "(20.895, 62.787)",
+                "post": 41.892,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(20.895, 62.787)",
+                "post": -41.892,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "127": [{
+                "pre": "(23.639, 66.866)",
+                "post": 43.227,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(23.639, 66.866)",
+                "post": -43.227,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "128": [{
+                "pre": "(22.924, 65.754)",
+                "post": 42.830,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(22.924, 65.754)",
+                "post": -42.830,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "129": [{
+                "pre": "(18.793, 59.490)",
+                "post": 40.696,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(18.793, 59.490)",
+                "post": -40.696,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "130": [{
+                "pre": "(12.816, 49.840)",
+                "post": 37.024,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(12.816, 49.840)",
+                "post": -37.024,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "131": [{
+                "pre": "(6.859, 38.989)",
+                "post": 32.130,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(6.859, 38.989)",
+                "post": -32.130,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "132": [{
+                "pre": "(1.761, 27.901)",
+                "post": 26.140,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(1.761, 27.901)",
+                "post": -26.140,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "133": [{
+                "pre": "(0.000, 18.648)",
+                "post": 19.972,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 18.648)",
+                "post": -19.972,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "134": [{
+                "pre": "(0.000, 11.720)",
+                "post": 14.345,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 11.720)",
+                "post": -14.345,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "135": [{
+                "pre": "(0.000, 7.048)",
+                "post": 9.822,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 7.048)",
+                "post": -9.822,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "136": [{
+                "pre": "(0.000, 3.905)",
+                "post": 6.083,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.905)",
+                "post": -6.083,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "145": [{
+                "pre": "(0.000, 5.499)",
+                "post": 8.071,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 5.499)",
+                "post": -8.071,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "146": [{
+                "pre": "(0.000, 10.010)",
+                "post": 12.844,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 10.010)",
+                "post": -12.844,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "147": [{
+                "pre": "(0.000, 16.396)",
+                "post": 18.337,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 16.396)",
+                "post": -18.337,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "148": [{
+                "pre": "(0.708, 25.326)",
+                "post": 24.618,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.708, 25.326)",
+                "post": -24.618,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "149": [{
+                "pre": "(5.650, 36.786)",
+                "post": 31.136,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(5.650, 36.786)",
+                "post": -31.136,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "150": [{
+                "pre": "(12.863, 50.138)",
+                "post": 37.276,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(12.863, 50.138)",
+                "post": -37.276,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "151": [{
+                "pre": "(22.764, 65.649)",
+                "post": 42.885,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(22.764, 65.649)",
+                "post": -42.885,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "152": [{
+                "pre": "(34.999, 82.808)",
+                "post": 47.809,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(34.999, 82.808)",
+                "post": -47.809,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "153": [{
+                "pre": "(48.034, 99.575)",
+                "post": 51.541,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(48.034, 99.575)",
+                "post": -51.541,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "154": [{
+                "pre": "(58.311, 111.894)",
+                "post": 53.583,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(58.311, 111.894)",
+                "post": -53.583,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "155": [{
+                "pre": "(63.475, 117.724)",
+                "post": 54.249,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(63.475, 117.724)",
+                "post": -54.249,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "156": [{
+                "pre": "(61.950, 115.897)",
+                "post": 53.947,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(61.950, 115.897)",
+                "post": -53.947,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "157": [{
+                "pre": "(53.904, 106.459)",
+                "post": 52.555,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(53.904, 106.459)",
+                "post": -52.555,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "158": [{
+                "pre": "(41.210, 90.676)",
+                "post": 49.465,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(41.210, 90.676)",
+                "post": -49.465,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "159": [{
+                "pre": "(27.414, 72.173)",
+                "post": 44.759,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(27.414, 72.173)",
+                "post": -44.759,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "160": [{
+                "pre": "(15.166, 53.534)",
+                "post": 38.368,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(15.166, 53.534)",
+                "post": -38.368,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "161": [{
+                "pre": "(6.041, 36.979)",
+                "post": 30.939,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(6.041, 36.979)",
+                "post": -30.939,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "162": [{
+                "pre": "(0.515, 24.266)",
+                "post": 23.751,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.515, 24.266)",
+                "post": -23.751,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "163": [{
+                "pre": "(0.000, 15.361)",
+                "post": 17.443,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 15.361)",
+                "post": -17.443,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "164": [{
+                "pre": "(0.000, 8.701)",
+                "post": 11.416,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 8.701)",
+                "post": -11.416,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "165": [{
+                "pre": "(0.000, 3.662)",
+                "post": 5.636,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.662)",
+                "post": -5.636,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "172": [{
+                "pre": "(0.000, 4.661)",
+                "post": 7.083,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 4.661)",
+                "post": -7.083,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "173": [{
+                "pre": "(0.000, 9.461)",
+                "post": 12.341,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 9.461)",
+                "post": -12.341,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "174": [{
+                "pre": "(0.000, 16.772)",
+                "post": 18.670,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 16.772)",
+                "post": -18.670,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "175": [{
+                "pre": "(1.316, 27.193)",
+                "post": 25.877,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(1.316, 27.193)",
+                "post": -25.877,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "176": [{
+                "pre": "(7.529, 40.746)",
+                "post": 33.217,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(7.529, 40.746)",
+                "post": -33.217,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "177": [{
+                "pre": "(17.158, 57.419)",
+                "post": 40.262,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(17.158, 57.419)",
+                "post": -40.262,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "178": [{
+                "pre": "(30.015, 76.215)",
+                "post": 46.200,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(30.015, 76.215)",
+                "post": -46.200,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "179": [{
+                "pre": "(45.543, 96.282)",
+                "post": 50.739,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(45.543, 96.282)",
+                "post": -50.739,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "180": [{
+                "pre": "(62.347, 116.210)",
+                "post": 53.862,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(62.347, 116.210)",
+                "post": -53.862,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "181": [{
+                "pre": "(78.478, 133.988)",
+                "post": 55.510,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(78.478, 133.988)",
+                "post": -55.510,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "182": [{
+                "pre": "(90.463, 146.549)",
+                "post": 56.086,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(90.463, 146.549)",
+                "post": -56.086,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "183": [{
+                "pre": "(96.014, 152.182)",
+                "post": 56.168,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(96.014, 152.182)",
+                "post": -56.168,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "184": [{
+                "pre": "(93.628, 149.794)",
+                "post": 56.166,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(93.628, 149.794)",
+                "post": -56.166,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "185": [{
+                "pre": "(83.995, 140.071)",
+                "post": 56.076,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(83.995, 140.071)",
+                "post": -56.076,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "186": [{
+                "pre": "(68.641, 123.576)",
+                "post": 54.935,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(68.641, 123.576)",
+                "post": -54.935,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "187": [{
+                "pre": "(49.230, 101.100)",
+                "post": 51.870,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(49.230, 101.100)",
+                "post": -51.870,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "188": [{
+                "pre": "(30.769, 77.305)",
+                "post": 46.535,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(30.769, 77.305)",
+                "post": -46.535,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "189": [{
+                "pre": "(15.788, 54.837)",
+                "post": 39.049,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(15.788, 54.837)",
+                "post": -39.049,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "190": [{
+                "pre": "(5.526, 36.458)",
+                "post": 30.932,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(5.526, 36.458)",
+                "post": -30.932,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "191": [{
+                "pre": "(0.000, 22.934)",
+                "post": 22.983,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 22.934)",
+                "post": -22.983,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "192": [{
+                "pre": "(0.000, 13.176)",
+                "post": 15.577,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 13.176)",
+                "post": -15.577,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "193": [{
+                "pre": "(0.000, 6.312)",
+                "post": 8.912,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 6.312)",
+                "post": -8.912,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "199": [{
+                "pre": "(0.000, 3.113)",
+                "post": 5.034,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.113)",
+                "post": -5.034,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "200": [{
+                "pre": "(0.000, 7.428)",
+                "post": 10.232,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 7.428)",
+                "post": -10.232,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "201": [{
+                "pre": "(0.000, 14.235)",
+                "post": 16.613,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 14.235)",
+                "post": -16.613,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "202": [{
+                "pre": "(0.386, 24.486)",
+                "post": 24.101,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.386, 24.486)",
+                "post": -24.101,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "203": [{
+                "pre": "(6.456, 38.447)",
+                "post": 31.991,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(6.456, 38.447)",
+                "post": -31.991,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "204": [{
+                "pre": "(16.530, 56.059)",
+                "post": 39.529,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(16.530, 56.059)",
+                "post": -39.529,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "205": [{
+                "pre": "(30.831, 76.966)",
+                "post": 46.135,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(30.831, 76.966)",
+                "post": -46.135,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "206": [{
+                "pre": "(48.327, 99.203)",
+                "post": 50.876,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(48.327, 99.203)",
+                "post": -50.876,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "207": [{
+                "pre": "(67.236, 120.970)",
+                "post": 53.734,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(67.236, 120.970)",
+                "post": -53.734,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "208": [{
+                "pre": "(84.091, 139.068)",
+                "post": 54.976,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(84.091, 139.068)",
+                "post": -54.976,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "209": [{
+                "pre": "(97.398, 152.602)",
+                "post": 55.204,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(97.398, 152.602)",
+                "post": -55.204,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "210": [{
+                "pre": "(105.151, 160.367)",
+                "post": 55.216,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(105.151, 160.367)",
+                "post": -55.216,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "211": [{
+                "pre": "(107.868, 162.929)",
+                "post": 55.061,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(107.868, 162.929)",
+                "post": -55.061,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "212": [{
+                "pre": "(105.782, 160.895)",
+                "post": 55.113,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(105.782, 160.895)",
+                "post": -55.113,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "213": [{
+                "pre": "(99.009, 154.346)",
+                "post": 55.337,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(99.009, 154.346)",
+                "post": -55.337,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "214": [{
+                "pre": "(85.801, 141.292)",
+                "post": 55.491,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(85.801, 141.292)",
+                "post": -55.491,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "215": [{
+                "pre": "(66.586, 120.902)",
+                "post": 54.316,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(66.586, 120.902)",
+                "post": -54.316,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "216": [{
+                "pre": "(44.513, 95.042)",
+                "post": 50.529,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(44.513, 95.042)",
+                "post": -50.529,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "217": [{
+                "pre": "(24.862, 68.804)",
+                "post": 43.942,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(24.862, 68.804)",
+                "post": -43.942,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "218": [{
+                "pre": "(10.445, 45.843)",
+                "post": 35.397,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(10.445, 45.843)",
+                "post": -35.397,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "219": [{
+                "pre": "(1.991, 28.411)",
+                "post": 26.420,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(1.991, 28.411)",
+                "post": -26.420,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "220": [{
+                "pre": "(0.000, 15.959)",
+                "post": 17.851,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 15.959)",
+                "post": -17.851,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "221": [{
+                "pre": "(0.000, 7.910)",
+                "post": 10.654,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 7.910)",
+                "post": -10.654,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "222": [{
+                "pre": "(0.000, 2.771)",
+                "post": 4.516,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 2.771)",
+                "post": -4.516,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "227": [{
+                "pre": "(0.000, 5.181)",
+                "post": 7.727,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 5.181)",
+                "post": -7.727,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "228": [{
+                "pre": "(0.000, 10.467)",
+                "post": 13.438,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 10.467)",
+                "post": -13.438,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "229": [{
+                "pre": "(0.000, 18.541)",
+                "post": 20.114,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 18.541)",
+                "post": -20.114,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "230": [{
+                "pre": "(2.804, 30.833)",
+                "post": 28.029,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(2.804, 30.833)",
+                "post": -28.029,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "231": [{
+                "pre": "(11.430, 47.765)",
+                "post": 36.336,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(11.430, 47.765)",
+                "post": -36.336,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "232": [{
+                "pre": "(24.913, 68.947)",
+                "post": 44.034,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(24.913, 68.947)",
+                "post": -44.034,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "233": [{
+                "pre": "(43.091, 93.123)",
+                "post": 50.033,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(43.091, 93.123)",
+                "post": -50.033,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "234": [{
+                "pre": "(63.482, 117.101)",
+                "post": 53.618,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(63.482, 117.101)",
+                "post": -53.618,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "235": [{
+                "pre": "(80.872, 136.080)",
+                "post": 55.208,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(80.872, 136.080)",
+                "post": -55.208,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "236": [{
+                "pre": "(91.658, 147.213)",
+                "post": 55.555,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(91.658, 147.213)",
+                "post": -55.555,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "237": [{
+                "pre": "(95.552, 151.236)",
+                "post": 55.685,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(95.552, 151.236)",
+                "post": -55.685,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "238": [{
+                "pre": "(95.241, 150.835)",
+                "post": 55.594,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(95.241, 150.835)",
+                "post": -55.594,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "239": [{
+                "pre": "(94.640, 150.041)",
+                "post": 55.401,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(94.640, 150.041)",
+                "post": -55.401,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "240": [{
+                "pre": "(95.039, 150.421)",
+                "post": 55.383,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(95.039, 150.421)",
+                "post": -55.383,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "241": [{
+                "pre": "(94.389, 149.899)",
+                "post": 55.510,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(94.389, 149.899)",
+                "post": -55.510,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "242": [{
+                "pre": "(88.415, 144.107)",
+                "post": 55.692,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(88.415, 144.107)",
+                "post": -55.692,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "243": [{
+                "pre": "(73.060, 128.161)",
+                "post": 55.101,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(73.060, 128.161)",
+                "post": -55.101,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "244": [{
+                "pre": "(51.168, 103.468)",
+                "post": 52.300,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(51.168, 103.468)",
+                "post": -52.300,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "245": [{
+                "pre": "(29.738, 76.058)",
+                "post": 46.320,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(29.738, 76.058)",
+                "post": -46.320,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "246": [{
+                "pre": "(13.040, 50.582)",
+                "post": 37.542,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(13.040, 50.582)",
+                "post": -37.542,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "247": [{
+                "pre": "(2.644, 30.072)",
+                "post": 27.428,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(2.644, 30.072)",
+                "post": -27.428,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "248": [{
+                "pre": "(0.000, 16.273)",
+                "post": 18.175,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 16.273)",
+                "post": -18.175,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "249": [{
+                "pre": "(0.000, 8.006)",
+                "post": 10.799,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 8.006)",
+                "post": -10.799,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "254": [{
+                "pre": "(0.000, 2.928)",
+                "post": 4.831,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 2.928)",
+                "post": -4.831,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "255": [{
+                "pre": "(0.000, 6.338)",
+                "post": 9.236,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 6.338)",
+                "post": -9.236,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "256": [{
+                "pre": "(0.000, 11.836)",
+                "post": 14.780,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 11.836)",
+                "post": -14.780,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "257": [{
+                "pre": "(0.000, 20.646)",
+                "post": 21.678,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 20.646)",
+                "post": -21.678,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "258": [{
+                "pre": "(4.443, 34.610)",
+                "post": 30.167,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(4.443, 34.610)",
+                "post": -30.167,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "259": [{
+                "pre": "(14.994, 54.015)",
+                "post": 39.021,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(14.994, 54.015)",
+                "post": -39.021,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "260": [{
+                "pre": "(31.294, 78.108)",
+                "post": 46.814,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(31.294, 78.108)",
+                "post": -46.814,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "261": [{
+                "pre": "(52.042, 104.234)",
+                "post": 52.192,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(52.042, 104.234)",
+                "post": -52.192,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "262": [{
+                "pre": "(71.541, 126.536)",
+                "post": 54.995,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(71.541, 126.536)",
+                "post": -54.995,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "263": [{
+                "pre": "(82.738, 138.463)",
+                "post": 55.725,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(82.738, 138.463)",
+                "post": -55.725,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "264": [{
+                "pre": "(82.954, 138.621)",
+                "post": 55.668,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(82.954, 138.621)",
+                "post": -55.668,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "265": [{
+                "pre": "(77.026, 132.081)",
+                "post": 55.054,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(77.026, 132.081)",
+                "post": -55.054,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "266": [{
+                "pre": "(71.803, 126.291)",
+                "post": 54.488,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(71.803, 126.291)",
+                "post": -54.488,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "267": [{
+                "pre": "(72.201, 126.576)",
+                "post": 54.374,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(72.201, 126.576)",
+                "post": -54.374,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "268": [{
+                "pre": "(77.001, 131.666)",
+                "post": 54.665,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(77.001, 131.666)",
+                "post": -54.665,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "269": [{
+                "pre": "(83.247, 138.517)",
+                "post": 55.271,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(83.247, 138.517)",
+                "post": -55.271,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "270": [{
+                "pre": "(83.294, 138.862)",
+                "post": 55.568,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(83.294, 138.862)",
+                "post": -55.568,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "271": [{
+                "pre": "(71.652, 126.642)",
+                "post": 54.990,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(71.652, 126.642)",
+                "post": -54.990,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "272": [{
+                "pre": "(50.896, 103.185)",
+                "post": 52.289,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(50.896, 103.185)",
+                "post": -52.289,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "273": [{
+                "pre": "(29.491, 75.921)",
+                "post": 46.430,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(29.491, 75.921)",
+                "post": -46.430,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "274": [{
+                "pre": "(12.737, 50.160)",
+                "post": 37.424,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(12.737, 50.160)",
+                "post": -37.424,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "275": [{
+                "pre": "(2.131, 28.654)",
+                "post": 26.523,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(2.131, 28.654)",
+                "post": -26.523,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "276": [{
+                "pre": "(0.000, 14.173)",
+                "post": 16.424,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 14.173)",
+                "post": -16.424,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "277": [{
+                "pre": "(0.000, 6.420)",
+                "post": 9.043,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 6.420)",
+                "post": -9.043,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "282": [{
+                "pre": "(0.000, 2.999)",
+                "post": 4.953,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 2.999)",
+                "post": -4.953,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "283": [{
+                "pre": "(0.000, 6.215)",
+                "post": 9.081,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 6.215)",
+                "post": -9.081,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "284": [{
+                "pre": "(0.000, 11.561)",
+                "post": 14.544,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 11.561)",
+                "post": -14.544,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "285": [{
+                "pre": "(0.000, 20.740)",
+                "post": 21.727,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 20.740)",
+                "post": -21.727,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "286": [{
+                "pre": "(5.093, 35.986)",
+                "post": 30.893,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(5.093, 35.986)",
+                "post": -30.893,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "287": [{
+                "pre": "(17.095, 57.283)",
+                "post": 40.188,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(17.095, 57.283)",
+                "post": -40.188,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "288": [{
+                "pre": "(35.599, 83.832)",
+                "post": 48.233,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(35.599, 83.832)",
+                "post": -48.233,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "289": [{
+                "pre": "(56.814, 109.983)",
+                "post": 53.169,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(56.814, 109.983)",
+                "post": -53.169,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "290": [{
+                "pre": "(72.637, 127.815)",
+                "post": 55.178,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(72.637, 127.815)",
+                "post": -55.178,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "291": [{
+                "pre": "(75.476, 130.862)",
+                "post": 55.386,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(75.476, 130.862)",
+                "post": -55.386,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "292": [{
+                "pre": "(66.898, 120.886)",
+                "post": 53.988,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(66.898, 120.886)",
+                "post": -53.988,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "293": [{
+                "pre": "(56.934, 108.971)",
+                "post": 52.037,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(56.934, 108.971)",
+                "post": -52.037,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "294": [{
+                "pre": "(53.683, 105.162)",
+                "post": 51.479,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(53.683, 105.162)",
+                "post": -51.479,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "295": [{
+                "pre": "(58.228, 110.822)",
+                "post": 52.595,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(58.228, 110.822)",
+                "post": -52.595,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "296": [{
+                "pre": "(67.016, 120.721)",
+                "post": 53.705,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(67.016, 120.721)",
+                "post": -53.705,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "297": [{
+                "pre": "(76.992, 131.863)",
+                "post": 54.871,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(76.992, 131.863)",
+                "post": -54.871,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "298": [{
+                "pre": "(78.665, 133.898)",
+                "post": 55.233,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(78.665, 133.898)",
+                "post": -55.233,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "299": [{
+                "pre": "(66.942, 121.502)",
+                "post": 54.560,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(66.942, 121.502)",
+                "post": -54.560,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "300": [{
+                "pre": "(46.237, 97.461)",
+                "post": 51.224,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(46.237, 97.461)",
+                "post": -51.224,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "301": [{
+                "pre": "(25.840, 70.795)",
+                "post": 44.955,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(25.840, 70.795)",
+                "post": -44.955,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "302": [{
+                "pre": "(10.534, 46.422)",
+                "post": 35.888,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(10.534, 46.422)",
+                "post": -35.888,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "303": [{
+                "pre": "(1.056, 25.940)",
+                "post": 24.884,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(1.056, 25.940)",
+                "post": -24.884,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "304": [{
+                "pre": "(0.000, 11.819)",
+                "post": 14.438,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 11.819)",
+                "post": -14.438,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "305": [{
+                "pre": "(0.000, 4.689)",
+                "post": 7.077,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 4.689)",
+                "post": -7.077,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "311": [{
+                "pre": "(0.000, 5.184)",
+                "post": 7.807,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 5.184)",
+                "post": -7.807,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "312": [{
+                "pre": "(0.000, 10.277)",
+                "post": 13.263,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 10.277)",
+                "post": -13.263,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "313": [{
+                "pre": "(0.000, 20.161)",
+                "post": 21.214,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 20.161)",
+                "post": -21.214,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "314": [{
+                "pre": "(5.525, 36.742)",
+                "post": 31.217,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(5.525, 36.742)",
+                "post": -31.217,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "315": [{
+                "pre": "(19.223, 60.486)",
+                "post": 41.263,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(19.223, 60.486)",
+                "post": -41.263,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "316": [{
+                "pre": "(39.374, 88.804)",
+                "post": 49.430,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(39.374, 88.804)",
+                "post": -49.430,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "317": [{
+                "pre": "(60.286, 114.133)",
+                "post": 53.847,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(60.286, 114.133)",
+                "post": -53.847,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "318": [{
+                "pre": "(71.233, 126.328)",
+                "post": 55.095,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(71.233, 126.328)",
+                "post": -55.095,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "319": [{
+                "pre": "(67.662, 122.072)",
+                "post": 54.410,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(67.662, 122.072)",
+                "post": -54.410,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "320": [{
+                "pre": "(55.669, 107.698)",
+                "post": 52.030,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(55.669, 107.698)",
+                "post": -52.030,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "321": [{
+                "pre": "(48.312, 98.373)",
+                "post": 50.061,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(48.312, 98.373)",
+                "post": -50.061,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "322": [{
+                "pre": "(50.453, 101.837)",
+                "post": 51.384,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(50.453, 101.837)",
+                "post": -51.384,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "323": [{
+                "pre": "(58.803, 112.048)",
+                "post": 53.244,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(58.803, 112.048)",
+                "post": -53.244,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "324": [{
+                "pre": "(70.305, 124.281)",
+                "post": 53.976,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(70.305, 124.281)",
+                "post": -53.976,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "325": [{
+                "pre": "(79.999, 134.966)",
+                "post": 54.966,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(79.999, 134.966)",
+                "post": -54.966,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "326": [{
+                "pre": "(77.905, 133.114)",
+                "post": 55.209,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(77.905, 133.114)",
+                "post": -55.209,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "327": [{
+                "pre": "(62.047, 116.012)",
+                "post": 53.964,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(62.047, 116.012)",
+                "post": -53.964,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "328": [{
+                "pre": "(40.194, 89.695)",
+                "post": 49.502,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(40.194, 89.695)",
+                "post": -49.502,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "329": [{
+                "pre": "(21.221, 63.773)",
+                "post": 42.551,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(21.221, 63.773)",
+                "post": -42.551,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "330": [{
+                "pre": "(8.199, 42.483)",
+                "post": 34.285,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(8.199, 42.483)",
+                "post": -34.285,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "331": [{
+                "pre": "(0.412, 24.749)",
+                "post": 24.337,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.412, 24.749)",
+                "post": -24.337,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "332": [{
+                "pre": "(0.000, 10.653)",
+                "post": 13.327,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 10.653)",
+                "post": -13.327,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "333": [{
+                "pre": "(0.000, 3.078)",
+                "post": 4.946,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.078)",
+                "post": -4.946,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "339": [{
+                "pre": "(0.000, 4.082)",
+                "post": 6.407,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 4.082)",
+                "post": -6.407,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "340": [{
+                "pre": "(0.000, 9.092)",
+                "post": 12.047,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 9.092)",
+                "post": -12.047,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "341": [{
+                "pre": "(0.000, 20.229)",
+                "post": 21.242,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 20.229)",
+                "post": -21.242,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "342": [{
+                "pre": "(6.610, 38.946)",
+                "post": 32.337,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(6.610, 38.946)",
+                "post": -32.337,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "343": [{
+                "pre": "(22.113, 65.037)",
+                "post": 42.924,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(22.113, 65.037)",
+                "post": -42.924,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "344": [{
+                "pre": "(43.593, 94.349)",
+                "post": 50.756,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(43.593, 94.349)",
+                "post": -50.756,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "345": [{
+                "pre": "(63.013, 117.500)",
+                "post": 54.487,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(63.013, 117.500)",
+                "post": -54.487,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "346": [{
+                "pre": "(70.359, 125.429)",
+                "post": 55.069,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(70.359, 125.429)",
+                "post": -55.069,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "347": [{
+                "pre": "(64.036, 118.130)",
+                "post": 54.094,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(64.036, 118.130)",
+                "post": -54.094,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "348": [{
+                "pre": "(53.711, 105.703)",
+                "post": 51.992,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(53.711, 105.703)",
+                "post": -51.992,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "349": [{
+                "pre": "(53.607, 105.132)",
+                "post": 51.525,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(53.607, 105.132)",
+                "post": -51.525,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "350": [{
+                "pre": "(62.112, 116.565)",
+                "post": 54.452,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(62.112, 116.565)",
+                "post": -54.452,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "351": [{
+                "pre": "(74.005, 129.424)",
+                "post": 55.420,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(74.005, 129.424)",
+                "post": -55.420,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "352": [{
+                "pre": "(85.577, 140.499)",
+                "post": 54.921,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(85.577, 140.499)",
+                "post": -54.921,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "353": [{
+                "pre": "(89.804, 145.358)",
+                "post": 55.553,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(89.804, 145.358)",
+                "post": -55.553,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "354": [{
+                "pre": "(79.615, 135.238)",
+                "post": 55.623,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(79.615, 135.238)",
+                "post": -55.623,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "355": [{
+                "pre": "(57.923, 111.115)",
+                "post": 53.192,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(57.923, 111.115)",
+                "post": -53.192,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "356": [{
+                "pre": "(34.839, 82.336)",
+                "post": 47.497,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(34.839, 82.336)",
+                "post": -47.497,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "357": [{
+                "pre": "(17.914, 58.613)",
+                "post": 40.700,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(17.914, 58.613)",
+                "post": -40.700,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "358": [{
+                "pre": "(7.027, 40.451)",
+                "post": 33.424,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(7.027, 40.451)",
+                "post": -33.424,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "359": [{
+                "pre": "(0.269, 25.155)",
+                "post": 24.886,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.269, 25.155)",
+                "post": -24.886,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "360": [{
+                "pre": "(0.000, 11.275)",
+                "post": 13.960,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 11.275)",
+                "post": -13.960,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "367": [{
+                "pre": "(0.000, 3.268)",
+                "post": 5.321,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.268)",
+                "post": -5.321,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "368": [{
+                "pre": "(0.000, 8.769)",
+                "post": 11.703,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 8.769)",
+                "post": -11.703,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "369": [{
+                "pre": "(0.000, 21.781)",
+                "post": 22.294,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 21.781)",
+                "post": -22.294,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "370": [{
+                "pre": "(8.438, 42.669)",
+                "post": 34.231,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(8.438, 42.669)",
+                "post": -34.231,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "371": [{
+                "pre": "(25.270, 69.897)",
+                "post": 44.627,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(25.270, 69.897)",
+                "post": -44.627,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "372": [{
+                "pre": "(46.769, 98.495)",
+                "post": 51.726,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(46.769, 98.495)",
+                "post": -51.726,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "373": [{
+                "pre": "(64.307, 119.041)",
+                "post": 54.734,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(64.307, 119.041)",
+                "post": -54.734,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "374": [{
+                "pre": "(69.365, 124.411)",
+                "post": 55.046,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(69.365, 124.411)",
+                "post": -55.046,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "375": [{
+                "pre": "(64.018, 118.178)",
+                "post": 54.160,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(64.018, 118.178)",
+                "post": -54.160,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "376": [{
+                "pre": "(60.279, 113.456)",
+                "post": 53.176,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(60.279, 113.456)",
+                "post": -53.176,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "377": [{
+                "pre": "(69.787, 124.146)",
+                "post": 54.359,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(69.787, 124.146)",
+                "post": -54.359,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "378": [{
+                "pre": "(82.918, 139.825)",
+                "post": 56.907,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(82.918, 139.825)",
+                "post": -56.907,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "379": [{
+                "pre": "(96.070, 151.874)",
+                "post": 55.803,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(96.070, 151.874)",
+                "post": -55.803,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "380": [{
+                "pre": "(102.320, 157.293)",
+                "post": 54.974,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(102.320, 157.293)",
+                "post": -54.974,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "381": [{
+                "pre": "(98.562, 154.637)",
+                "post": 56.075,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(98.562, 154.637)",
+                "post": -56.075,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "382": [{
+                "pre": "(80.993, 136.768)",
+                "post": 55.775,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(80.993, 136.768)",
+                "post": -55.775,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "383": [{
+                "pre": "(54.984, 107.331)",
+                "post": 52.347,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(54.984, 107.331)",
+                "post": -52.347,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "384": [{
+                "pre": "(32.000, 78.452)",
+                "post": 46.452,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(32.000, 78.452)",
+                "post": -46.452,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "385": [{
+                "pre": "(17.024, 57.385)",
+                "post": 40.360,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(17.024, 57.385)",
+                "post": -40.360,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "386": [{
+                "pre": "(7.114, 40.831)",
+                "post": 33.717,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(7.114, 40.831)",
+                "post": -33.717,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "387": [{
+                "pre": "(0.701, 26.586)",
+                "post": 25.885,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.701, 26.586)",
+                "post": -25.885,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "388": [{
+                "pre": "(0.000, 12.857)",
+                "post": 15.509,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 12.857)",
+                "post": -15.509,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "389": [{
+                "pre": "(0.000, 3.041)",
+                "post": 4.912,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.041)",
+                "post": -4.912,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "396": [{
+                "pre": "(0.000, 8.991)",
+                "post": 11.850,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 8.991)",
+                "post": -11.850,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "397": [{
+                "pre": "(0.361, 24.342)",
+                "post": 23.981,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.361, 24.342)",
+                "post": -23.981,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "398": [{
+                "pre": "(10.473, 46.583)",
+                "post": 36.111,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(10.473, 46.583)",
+                "post": -36.111,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "399": [{
+                "pre": "(27.567, 73.449)",
+                "post": 45.882,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(27.567, 73.449)",
+                "post": -45.882,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "400": [{
+                "pre": "(47.684, 99.818)",
+                "post": 52.134,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(47.684, 99.818)",
+                "post": -52.134,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "401": [{
+                "pre": "(63.019, 117.719)",
+                "post": 54.700,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(63.019, 117.719)",
+                "post": -54.700,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "402": [{
+                "pre": "(67.688, 122.466)",
+                "post": 54.778,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(67.688, 122.466)",
+                "post": -54.778,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "403": [{
+                "pre": "(66.193, 120.384)",
+                "post": 54.191,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(66.193, 120.384)",
+                "post": -54.191,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "404": [{
+                "pre": "(70.775, 124.883)",
+                "post": 54.107,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(70.775, 124.883)",
+                "post": -54.107,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "405": [{
+                "pre": "(87.534, 143.309)",
+                "post": 55.776,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(87.534, 143.309)",
+                "post": -55.776,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "406": [{
+                "pre": "(101.835, 158.699)",
+                "post": 56.864,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(101.835, 158.699)",
+                "post": -56.864,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "407": [{
+                "pre": "(112.173, 166.934)",
+                "post": 54.761,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(112.173, 166.934)",
+                "post": -54.761,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "408": [{
+                "pre": "(109.641, 164.561)",
+                "post": 54.920,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(109.641, 164.561)",
+                "post": -54.920,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "409": [{
+                "pre": "(99.991, 156.181)",
+                "post": 56.190,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(99.991, 156.181)",
+                "post": -56.190,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "410": [{
+                "pre": "(79.226, 134.763)",
+                "post": 55.537,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(79.226, 134.763)",
+                "post": -55.537,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "411": [{
+                "pre": "(53.488, 105.620)",
+                "post": 52.132,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(53.488, 105.620)",
+                "post": -52.132,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "412": [{
+                "pre": "(32.606, 79.587)",
+                "post": 46.980,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(32.606, 79.587)",
+                "post": -46.980,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "413": [{
+                "pre": "(18.317, 59.569)",
+                "post": 41.252,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(18.317, 59.569)",
+                "post": -41.252,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "414": [{
+                "pre": "(8.206, 42.869)",
+                "post": 34.663,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(8.206, 42.869)",
+                "post": -34.663,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "415": [{
+                "pre": "(1.247, 27.985)",
+                "post": 26.738,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(1.247, 27.985)",
+                "post": -26.738,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "416": [{
+                "pre": "(0.000, 13.971)",
+                "post": 16.500,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 13.971)",
+                "post": -16.500,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "417": [{
+                "pre": "(0.000, 3.795)",
+                "post": 5.949,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.795)",
+                "post": -5.949,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "423": [{
+                "pre": "(0.000, 2.878)",
+                "post": 4.745,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 2.878)",
+                "post": -4.745,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "424": [{
+                "pre": "(0.000, 9.900)",
+                "post": 12.678,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 9.900)",
+                "post": -12.678,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "425": [{
+                "pre": "(1.413, 27.404)",
+                "post": 25.991,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(1.413, 27.404)",
+                "post": -25.991,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "426": [{
+                "pre": "(12.194, 49.783)",
+                "post": 37.588,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(12.194, 49.783)",
+                "post": -37.588,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "427": [{
+                "pre": "(28.101, 74.319)",
+                "post": 46.218,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(28.101, 74.319)",
+                "post": -46.218,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "428": [{
+                "pre": "(45.631, 97.250)",
+                "post": 51.619,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(45.631, 97.250)",
+                "post": -51.619,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "429": [{
+                "pre": "(58.690, 112.774)",
+                "post": 54.085,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(58.690, 112.774)",
+                "post": -54.085,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "430": [{
+                "pre": "(64.247, 118.515)",
+                "post": 54.269,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(64.247, 118.515)",
+                "post": -54.269,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "431": [{
+                "pre": "(67.154, 121.331)",
+                "post": 54.177,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(67.154, 121.331)",
+                "post": -54.177,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "432": [{
+                "pre": "(77.653, 132.441)",
+                "post": 54.789,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(77.653, 132.441)",
+                "post": -54.789,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "433": [{
+                "pre": "(95.052, 151.356)",
+                "post": 56.304,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(95.052, 151.356)",
+                "post": -56.304,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "434": [{
+                "pre": "(107.535, 163.843)",
+                "post": 56.308,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(107.535, 163.843)",
+                "post": -56.308,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "435": [{
+                "pre": "(111.778, 166.442)",
+                "post": 54.664,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(111.778, 166.442)",
+                "post": -54.664,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "436": [{
+                "pre": "(103.965, 159.644)",
+                "post": 55.678,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(103.965, 159.644)",
+                "post": -55.678,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "437": [{
+                "pre": "(93.283, 149.590)",
+                "post": 56.307,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(93.283, 149.590)",
+                "post": -56.307,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "438": [{
+                "pre": "(73.879, 128.802)",
+                "post": 54.922,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(73.879, 128.802)",
+                "post": -54.922,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "439": [{
+                "pre": "(52.339, 104.420)",
+                "post": 52.081,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(52.339, 104.420)",
+                "post": -52.081,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "440": [{
+                "pre": "(34.388, 82.178)",
+                "post": 47.790,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(34.388, 82.178)",
+                "post": -47.790,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "441": [{
+                "pre": "(20.064, 62.438)",
+                "post": 42.374,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(20.064, 62.438)",
+                "post": -42.374,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "442": [{
+                "pre": "(9.272, 44.689)",
+                "post": 35.417,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(9.272, 44.689)",
+                "post": -35.417,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "443": [{
+                "pre": "(1.514, 28.267)",
+                "post": 26.753,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(1.514, 28.267)",
+                "post": -26.753,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "444": [{
+                "pre": "(0.000, 14.131)",
+                "post": 16.606,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 14.131)",
+                "post": -16.606,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "445": [{
+                "pre": "(0.000, 4.583)",
+                "post": 7.008,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 4.583)",
+                "post": -7.008,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "451": [{
+                "pre": "(0.000, 3.188)",
+                "post": 5.131,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.188)",
+                "post": -5.131,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "452": [{
+                "pre": "(0.000, 11.587)",
+                "post": 14.234,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 11.587)",
+                "post": -14.234,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "453": [{
+                "pre": "(2.623, 30.435)",
+                "post": 27.811,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(2.623, 30.435)",
+                "post": -27.811,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "454": [{
+                "pre": "(13.283, 51.827)",
+                "post": 38.544,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(13.283, 51.827)",
+                "post": -38.544,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "455": [{
+                "pre": "(27.065, 72.825)",
+                "post": 45.760,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(27.065, 72.825)",
+                "post": -45.760,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "456": [{
+                "pre": "(41.159, 91.464)",
+                "post": 50.305,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(41.159, 91.464)",
+                "post": -50.305,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "457": [{
+                "pre": "(51.618, 104.155)",
+                "post": 52.538,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(51.618, 104.155)",
+                "post": -52.538,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "458": [{
+                "pre": "(57.163, 110.251)",
+                "post": 53.088,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(57.163, 110.251)",
+                "post": -53.088,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "459": [{
+                "pre": "(62.634, 116.263)",
+                "post": 53.629,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(62.634, 116.263)",
+                "post": -53.629,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "460": [{
+                "pre": "(73.636, 128.636)",
+                "post": 55.001,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(73.636, 128.636)",
+                "post": -55.001,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "461": [{
+                "pre": "(87.626, 144.089)",
+                "post": 56.464,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(87.626, 144.089)",
+                "post": -56.464,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "462": [{
+                "pre": "(98.312, 154.635)",
+                "post": 56.322,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(98.312, 154.635)",
+                "post": -56.322,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "463": [{
+                "pre": "(99.606, 155.248)",
+                "post": 55.642,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(99.606, 155.248)",
+                "post": -55.642,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "464": [{
+                "pre": "(93.020, 149.093)",
+                "post": 56.073,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(93.020, 149.093)",
+                "post": -56.073,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "465": [{
+                "pre": "(83.410, 139.026)",
+                "post": 55.616,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(83.410, 139.026)",
+                "post": -55.616,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "466": [{
+                "pre": "(68.244, 122.500)",
+                "post": 54.256,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(68.244, 122.500)",
+                "post": -54.256,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "467": [{
+                "pre": "(51.347, 103.362)",
+                "post": 52.015,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(51.347, 103.362)",
+                "post": -52.015,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "468": [{
+                "pre": "(35.401, 83.814)",
+                "post": 48.413,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(35.401, 83.814)",
+                "post": -48.413,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "469": [{
+                "pre": "(20.725, 63.356)",
+                "post": 42.631,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(20.725, 63.356)",
+                "post": -42.631,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "470": [{
+                "pre": "(9.138, 44.319)",
+                "post": 35.181,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(9.138, 44.319)",
+                "post": -35.181,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "471": [{
+                "pre": "(1.225, 27.262)",
+                "post": 26.037,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(1.225, 27.262)",
+                "post": -26.037,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "472": [{
+                "pre": "(0.000, 13.705)",
+                "post": 16.180,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 13.705)",
+                "post": -16.180,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "473": [{
+                "pre": "(0.000, 5.116)",
+                "post": 7.657,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 5.116)",
+                "post": -7.657,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "479": [{
+                "pre": "(0.000, 4.179)",
+                "post": 6.450,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 4.179)",
+                "post": -6.450,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "480": [{
+                "pre": "(0.000, 14.319)",
+                "post": 16.733,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 14.319)",
+                "post": -16.733,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "481": [{
+                "pre": "(3.747, 33.302)",
+                "post": 29.556,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(3.747, 33.302)",
+                "post": -29.556,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "482": [{
+                "pre": "(13.958, 52.944)",
+                "post": 38.987,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(13.958, 52.944)",
+                "post": -38.987,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "483": [{
+                "pre": "(25.668, 70.685)",
+                "post": 45.018,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(25.668, 70.685)",
+                "post": -45.018,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "484": [{
+                "pre": "(36.112, 84.809)",
+                "post": 48.697,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(36.112, 84.809)",
+                "post": -48.697,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "485": [{
+                "pre": "(43.870, 94.566)",
+                "post": 50.696,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(43.870, 94.566)",
+                "post": -50.696,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "486": [{
+                "pre": "(48.875, 100.488)",
+                "post": 51.614,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(48.875, 100.488)",
+                "post": -51.614,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "487": [{
+                "pre": "(54.371, 107.102)",
+                "post": 52.731,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(54.371, 107.102)",
+                "post": -52.731,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "488": [{
+                "pre": "(62.441, 116.732)",
+                "post": 54.291,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(62.441, 116.732)",
+                "post": -54.291,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "489": [{
+                "pre": "(74.228, 129.673)",
+                "post": 55.445,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(74.228, 129.673)",
+                "post": -55.445,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "490": [{
+                "pre": "(84.637, 140.596)",
+                "post": 55.958,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(84.637, 140.596)",
+                "post": -55.958,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "491": [{
+                "pre": "(87.494, 143.379)",
+                "post": 55.885,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(87.494, 143.379)",
+                "post": -55.885,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "492": [{
+                "pre": "(84.480, 140.010)",
+                "post": 55.530,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(84.480, 140.010)",
+                "post": -55.530,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "493": [{
+                "pre": "(77.061, 131.987)",
+                "post": 54.926,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(77.061, 131.987)",
+                "post": -54.926,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "494": [{
+                "pre": "(65.557, 119.696)",
+                "post": 54.139,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(65.557, 119.696)",
+                "post": -54.139,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "495": [{
+                "pre": "(51.171, 103.352)",
+                "post": 52.181,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(51.171, 103.352)",
+                "post": -52.181,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "496": [{
+                "pre": "(35.143, 83.514)",
+                "post": 48.371,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(35.143, 83.514)",
+                "post": -48.371,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "497": [{
+                "pre": "(19.780, 61.837)",
+                "post": 42.057,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(19.780, 61.837)",
+                "post": -42.057,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "498": [{
+                "pre": "(8.000, 41.886)",
+                "post": 33.886,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(8.000, 41.886)",
+                "post": -33.886,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "499": [{
+                "pre": "(0.531, 25.139)",
+                "post": 24.609,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.531, 25.139)",
+                "post": -24.609,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "500": [{
+                "pre": "(0.000, 12.815)",
+                "post": 15.317,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 12.815)",
+                "post": -15.317,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "501": [{
+                "pre": "(0.000, 5.417)",
+                "post": 8.000,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 5.417)",
+                "post": -8.000,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "507": [{
+                "pre": "(0.000, 5.682)",
+                "post": 8.325,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 5.682)",
+                "post": -8.325,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "508": [{
+                "pre": "(0.000, 17.191)",
+                "post": 19.139,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 17.191)",
+                "post": -19.139,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "509": [{
+                "pre": "(4.854, 35.982)",
+                "post": 31.128,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(4.854, 35.982)",
+                "post": -31.128,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "510": [{
+                "pre": "(15.030, 54.792)",
+                "post": 39.763,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(15.030, 54.792)",
+                "post": -39.763,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "511": [{
+                "pre": "(25.644, 70.721)",
+                "post": 45.077,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(25.644, 70.721)",
+                "post": -45.077,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "512": [{
+                "pre": "(34.233, 82.321)",
+                "post": 48.088,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(34.233, 82.321)",
+                "post": -48.088,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "513": [{
+                "pre": "(40.974, 91.015)",
+                "post": 50.041,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(40.974, 91.015)",
+                "post": -50.041,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "514": [{
+                "pre": "(46.044, 97.450)",
+                "post": 51.406,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(46.044, 97.450)",
+                "post": -51.406,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "515": [{
+                "pre": "(50.371, 102.795)",
+                "post": 52.424,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(50.371, 102.795)",
+                "post": -52.424,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "516": [{
+                "pre": "(56.519, 109.726)",
+                "post": 53.207,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(56.519, 109.726)",
+                "post": -53.207,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "517": [{
+                "pre": "(67.846, 122.413)",
+                "post": 54.567,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(67.846, 122.413)",
+                "post": -54.567,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "518": [{
+                "pre": "(78.763, 134.351)",
+                "post": 55.588,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(78.763, 134.351)",
+                "post": -55.588,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "519": [{
+                "pre": "(84.463, 139.940)",
+                "post": 55.477,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(84.463, 139.940)",
+                "post": -55.477,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "520": [{
+                "pre": "(83.799, 138.897)",
+                "post": 55.099,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(83.799, 138.897)",
+                "post": -55.099,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "521": [{
+                "pre": "(77.467, 132.569)",
+                "post": 55.102,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(77.467, 132.569)",
+                "post": -55.102,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "522": [{
+                "pre": "(66.363, 120.874)",
+                "post": 54.511,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(66.363, 120.874)",
+                "post": -54.511,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "523": [{
+                "pre": "(50.468, 102.787)",
+                "post": 52.319,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(50.468, 102.787)",
+                "post": -52.319,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "524": [{
+                "pre": "(32.873, 80.529)",
+                "post": 47.656,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(32.873, 80.529)",
+                "post": -47.656,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "525": [{
+                "pre": "(17.391, 58.134)",
+                "post": 40.743,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(17.391, 58.134)",
+                "post": -40.743,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "526": [{
+                "pre": "(6.385, 38.708)",
+                "post": 32.323,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(6.385, 38.708)",
+                "post": -32.323,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "527": [{
+                "pre": "(0.000, 22.955)",
+                "post": 23.146,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 22.955)",
+                "post": -23.146,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "528": [{
+                "pre": "(0.000, 11.815)",
+                "post": 14.472,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 11.815)",
+                "post": -14.472,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "529": [{
+                "pre": "(0.000, 5.098)",
+                "post": 7.599,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 5.098)",
+                "post": -7.599,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "535": [{
+                "pre": "(0.000, 6.964)",
+                "post": 9.840,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 6.964)",
+                "post": -9.840,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "536": [{
+                "pre": "(0.000, 19.012)",
+                "post": 20.576,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 19.012)",
+                "post": -20.576,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "537": [{
+                "pre": "(5.634, 37.835)",
+                "post": 32.202,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(5.634, 37.835)",
+                "post": -32.202,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "538": [{
+                "pre": "(16.447, 57.219)",
+                "post": 40.772,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(16.447, 57.219)",
+                "post": -40.772,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "539": [{
+                "pre": "(27.896, 74.062)",
+                "post": 46.166,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(27.896, 74.062)",
+                "post": -46.166,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "540": [{
+                "pre": "(37.682, 87.019)",
+                "post": 49.337,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(37.682, 87.019)",
+                "post": -49.337,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "541": [{
+                "pre": "(45.568, 96.975)",
+                "post": 51.406,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(45.568, 96.975)",
+                "post": -51.406,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "542": [{
+                "pre": "(51.512, 104.249)",
+                "post": 52.737,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(51.512, 104.249)",
+                "post": -52.737,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "543": [{
+                "pre": "(55.830, 109.439)",
+                "post": 53.608,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(55.830, 109.439)",
+                "post": -53.608,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "544": [{
+                "pre": "(62.828, 117.107)",
+                "post": 54.278,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(62.828, 117.107)",
+                "post": -54.278,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "545": [{
+                "pre": "(73.828, 128.984)",
+                "post": 55.156,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(73.828, 128.984)",
+                "post": -55.156,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "546": [{
+                "pre": "(84.579, 140.312)",
+                "post": 55.732,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(84.579, 140.312)",
+                "post": -55.732,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "547": [{
+                "pre": "(90.041, 145.566)",
+                "post": 55.525,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(90.041, 145.566)",
+                "post": -55.525,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "548": [{
+                "pre": "(88.274, 143.575)",
+                "post": 55.301,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(88.274, 143.575)",
+                "post": -55.301,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "549": [{
+                "pre": "(79.659, 135.206)",
+                "post": 55.547,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(79.659, 135.206)",
+                "post": -55.547,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "550": [{
+                "pre": "(65.025, 119.530)",
+                "post": 54.506,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(65.025, 119.530)",
+                "post": -54.506,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "551": [{
+                "pre": "(46.255, 97.511)",
+                "post": 51.256,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(46.255, 97.511)",
+                "post": -51.256,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "552": [{
+                "pre": "(27.933, 73.668)",
+                "post": 45.735,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(27.933, 73.668)",
+                "post": -45.735,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "553": [{
+                "pre": "(13.555, 51.832)",
+                "post": 38.277,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(13.555, 51.832)",
+                "post": -38.277,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "554": [{
+                "pre": "(3.959, 33.587)",
+                "post": 29.628,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(3.959, 33.587)",
+                "post": -29.628,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "555": [{
+                "pre": "(0.000, 19.529)",
+                "post": 20.745,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 19.529)",
+                "post": -20.745,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "556": [{
+                "pre": "(0.000, 10.091)",
+                "post": 12.903,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 10.091)",
+                "post": -12.903,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "557": [{
+                "pre": "(0.000, 4.486)",
+                "post": 6.834,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 4.486)",
+                "post": -6.834,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "563": [{
+                "pre": "(0.000, 7.421)",
+                "post": 10.331,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 7.421)",
+                "post": -10.331,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "564": [{
+                "pre": "(0.000, 18.695)",
+                "post": 20.363,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 18.695)",
+                "post": -20.363,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "565": [{
+                "pre": "(5.027, 36.361)",
+                "post": 31.334,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(5.027, 36.361)",
+                "post": -31.334,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "566": [{
+                "pre": "(16.703, 57.467)",
+                "post": 40.765,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(16.703, 57.467)",
+                "post": -40.765,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "567": [{
+                "pre": "(30.167, 77.421)",
+                "post": 47.255,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(30.167, 77.421)",
+                "post": -47.255,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "568": [{
+                "pre": "(43.284, 94.455)",
+                "post": 51.171,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(43.284, 94.455)",
+                "post": -51.171,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "569": [{
+                "pre": "(54.483, 107.836)",
+                "post": 53.353,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(54.483, 107.836)",
+                "post": -53.353,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "570": [{
+                "pre": "(63.134, 117.678)",
+                "post": 54.544,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(63.134, 117.678)",
+                "post": -54.544,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "571": [{
+                "pre": "(70.282, 125.491)",
+                "post": 55.209,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(70.282, 125.491)",
+                "post": -55.209,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "572": [{
+                "pre": "(78.934, 134.535)",
+                "post": 55.601,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(78.934, 134.535)",
+                "post": -55.601,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "573": [{
+                "pre": "(89.438, 145.241)",
+                "post": 55.803,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(89.438, 145.241)",
+                "post": -55.803,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "574": [{
+                "pre": "(97.084, 152.821)",
+                "post": 55.738,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(97.084, 152.821)",
+                "post": -55.738,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "575": [{
+                "pre": "(97.752, 153.360)",
+                "post": 55.608,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(97.752, 153.360)",
+                "post": -55.608,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "576": [{
+                "pre": "(90.407, 146.026)",
+                "post": 55.619,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(90.407, 146.026)",
+                "post": -55.619,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "577": [{
+                "pre": "(76.178, 131.434)",
+                "post": 55.256,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(76.178, 131.434)",
+                "post": -55.256,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "578": [{
+                "pre": "(57.244, 110.509)",
+                "post": 53.266,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(57.244, 110.509)",
+                "post": -53.266,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "579": [{
+                "pre": "(36.819, 85.652)",
+                "post": 48.833,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(36.819, 85.652)",
+                "post": -48.833,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "580": [{
+                "pre": "(19.975, 61.930)",
+                "post": 41.954,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(19.975, 61.930)",
+                "post": -41.954,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "581": [{
+                "pre": "(8.042, 41.846)",
+                "post": 33.804,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(8.042, 41.846)",
+                "post": -33.804,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "582": [{
+                "pre": "(0.976, 26.281)",
+                "post": 25.305,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.976, 26.281)",
+                "post": -25.305,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "583": [{
+                "pre": "(0.000, 15.268)",
+                "post": 17.460,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 15.268)",
+                "post": -17.460,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "584": [{
+                "pre": "(0.000, 8.292)",
+                "post": 11.157,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 8.292)",
+                "post": -11.157,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "585": [{
+                "pre": "(0.000, 3.566)",
+                "post": 5.633,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.566)",
+                "post": -5.633,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "591": [{
+                "pre": "(0.000, 6.438)",
+                "post": 9.197,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 6.438)",
+                "post": -9.197,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "592": [{
+                "pre": "(0.000, 15.443)",
+                "post": 17.621,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 15.443)",
+                "post": -17.621,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "593": [{
+                "pre": "(2.799, 31.002)",
+                "post": 28.202,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(2.799, 31.002)",
+                "post": -28.202,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "594": [{
+                "pre": "(13.611, 52.008)",
+                "post": 38.397,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(13.611, 52.008)",
+                "post": -38.397,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "595": [{
+                "pre": "(28.351, 74.791)",
+                "post": 46.440,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(28.351, 74.791)",
+                "post": -46.440,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "596": [{
+                "pre": "(44.600, 96.248)",
+                "post": 51.648,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(44.600, 96.248)",
+                "post": -51.648,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "597": [{
+                "pre": "(60.040, 114.464)",
+                "post": 54.425,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(60.040, 114.464)",
+                "post": -54.425,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "598": [{
+                "pre": "(73.201, 128.770)",
+                "post": 55.569,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(73.201, 128.770)",
+                "post": -55.569,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "599": [{
+                "pre": "(84.591, 140.321)",
+                "post": 55.730,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(84.591, 140.321)",
+                "post": -55.730,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "600": [{
+                "pre": "(94.823, 150.365)",
+                "post": 55.542,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(94.823, 150.365)",
+                "post": -55.542,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "601": [{
+                "pre": "(102.782, 157.963)",
+                "post": 55.181,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(102.782, 157.963)",
+                "post": -55.181,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "602": [{
+                "pre": "(104.197, 159.493)",
+                "post": 55.296,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(104.197, 159.493)",
+                "post": -55.296,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "603": [{
+                "pre": "(97.127, 152.609)",
+                "post": 55.482,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(97.127, 152.609)",
+                "post": -55.482,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "604": [{
+                "pre": "(82.373, 137.679)",
+                "post": 55.306,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(82.373, 137.679)",
+                "post": -55.306,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "605": [{
+                "pre": "(62.590, 116.342)",
+                "post": 53.751,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(62.590, 116.342)",
+                "post": -53.751,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "606": [{
+                "pre": "(41.637, 91.546)",
+                "post": 49.909,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(41.637, 91.546)",
+                "post": -49.909,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "607": [{
+                "pre": "(23.788, 67.406)",
+                "post": 43.618,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(23.788, 67.406)",
+                "post": -43.618,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "608": [{
+                "pre": "(10.667, 46.447)",
+                "post": 35.780,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(10.667, 46.447)",
+                "post": -35.780,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "609": [{
+                "pre": "(2.565, 30.027)",
+                "post": 27.462,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(2.565, 30.027)",
+                "post": -27.462,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "610": [{
+                "pre": "(0.000, 18.519)",
+                "post": 20.015,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 18.519)",
+                "post": -20.015,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "611": [{
+                "pre": "(0.000, 11.018)",
+                "post": 13.817,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 11.018)",
+                "post": -13.817,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "612": [{
+                "pre": "(0.000, 6.097)",
+                "post": 8.788,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 6.097)",
+                "post": -8.788,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "619": [{
+                "pre": "(0.000, 4.532)",
+                "post": 6.888,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 4.532)",
+                "post": -6.888,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "620": [{
+                "pre": "(0.000, 10.619)",
+                "post": 13.349,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 10.619)",
+                "post": -13.349,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "621": [{
+                "pre": "(0.000, 21.992)",
+                "post": 22.293,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 21.992)",
+                "post": -22.293,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "622": [{
+                "pre": "(7.163, 39.619)",
+                "post": 32.456,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(7.163, 39.619)",
+                "post": -32.456,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "623": [{
+                "pre": "(19.753, 61.524)",
+                "post": 41.771,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(19.753, 61.524)",
+                "post": -41.771,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "624": [{
+                "pre": "(36.480, 85.459)",
+                "post": 48.979,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(36.480, 85.459)",
+                "post": -48.979,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "625": [{
+                "pre": "(54.243, 107.768)",
+                "post": 53.526,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(54.243, 107.768)",
+                "post": -53.526,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "626": [{
+                "pre": "(71.231, 126.992)",
+                "post": 55.760,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(71.231, 126.992)",
+                "post": -55.760,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "627": [{
+                "pre": "(84.886, 141.315)",
+                "post": 56.428,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(84.886, 141.315)",
+                "post": -56.428,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "628": [{
+                "pre": "(94.412, 150.637)",
+                "post": 56.225,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(94.412, 150.637)",
+                "post": -56.225,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "629": [{
+                "pre": "(97.269, 153.336)",
+                "post": 56.067,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(97.269, 153.336)",
+                "post": -56.067,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "630": [{
+                "pre": "(92.559, 148.668)",
+                "post": 56.108,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(92.559, 148.668)",
+                "post": -56.108,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "631": [{
+                "pre": "(79.362, 135.010)",
+                "post": 55.648,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(79.362, 135.010)",
+                "post": -55.648,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "632": [{
+                "pre": "(60.890, 114.523)",
+                "post": 53.632,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(60.890, 114.523)",
+                "post": -53.632,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "633": [{
+                "pre": "(41.158, 90.788)",
+                "post": 49.630,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(41.158, 90.788)",
+                "post": -49.630,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "634": [{
+                "pre": "(23.688, 66.979)",
+                "post": 43.291,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(23.688, 66.979)",
+                "post": -43.291,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "635": [{
+                "pre": "(10.870, 46.592)",
+                "post": 35.723,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(10.870, 46.592)",
+                "post": -35.723,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "636": [{
+                "pre": "(2.960, 30.847)",
+                "post": 27.887,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(2.960, 30.847)",
+                "post": -27.887,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "637": [{
+                "pre": "(0.000, 19.493)",
+                "post": 20.664,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 19.493)",
+                "post": -20.664,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "638": [{
+                "pre": "(0.000, 12.096)",
+                "post": 14.774,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 12.096)",
+                "post": -14.774,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "639": [{
+                "pre": "(0.000, 7.279)",
+                "post": 10.108,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 7.279)",
+                "post": -10.108,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "640": [{
+                "pre": "(0.000, 3.816)",
+                "post": 5.962,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.816)",
+                "post": -5.962,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "648": [{
+                "pre": "(0.000, 6.065)",
+                "post": 8.665,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 6.065)",
+                "post": -8.665,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "649": [{
+                "pre": "(0.000, 12.458)",
+                "post": 14.887,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 12.458)",
+                "post": -14.887,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "650": [{
+                "pre": "(0.476, 23.585)",
+                "post": 23.109,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.476, 23.585)",
+                "post": -23.109,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "651": [{
+                "pre": "(7.757, 40.123)",
+                "post": 32.366,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(7.757, 40.123)",
+                "post": -32.366,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "652": [{
+                "pre": "(19.721, 60.792)",
+                "post": 41.070,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(19.721, 60.792)",
+                "post": -41.070,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "653": [{
+                "pre": "(34.967, 82.818)",
+                "post": 47.852,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(34.967, 82.818)",
+                "post": -47.852,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "654": [{
+                "pre": "(51.128, 103.410)",
+                "post": 52.281,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(51.128, 103.410)",
+                "post": -52.281,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "655": [{
+                "pre": "(64.745, 119.320)",
+                "post": 54.575,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(64.745, 119.320)",
+                "post": -54.575,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "656": [{
+                "pre": "(72.068, 127.340)",
+                "post": 55.272,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(72.068, 127.340)",
+                "post": -55.272,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "657": [{
+                "pre": "(71.613, 126.717)",
+                "post": 55.104,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(71.613, 126.717)",
+                "post": -55.104,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "658": [{
+                "pre": "(63.622, 117.562)",
+                "post": 53.940,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(63.622, 117.562)",
+                "post": -53.940,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "659": [{
+                "pre": "(49.863, 101.304)",
+                "post": 51.442,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(49.863, 101.304)",
+                "post": -51.442,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "660": [{
+                "pre": "(34.084, 81.088)",
+                "post": 47.004,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(34.084, 81.088)",
+                "post": -47.004,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "661": [{
+                "pre": "(19.773, 60.615)",
+                "post": 40.842,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(19.773, 60.615)",
+                "post": -40.842,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "662": [{
+                "pre": "(8.719, 42.275)",
+                "post": 33.556,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(8.719, 42.275)",
+                "post": -33.556,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "663": [{
+                "pre": "(2.048, 28.432)",
+                "post": 26.383,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(2.048, 28.432)",
+                "post": -26.383,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "664": [{
+                "pre": "(0.000, 18.507)",
+                "post": 19.967,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 18.507)",
+                "post": -19.967,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "665": [{
+                "pre": "(0.000, 11.609)",
+                "post": 14.379,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 11.609)",
+                "post": -14.379,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "666": [{
+                "pre": "(0.000, 7.257)",
+                "post": 10.103,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 7.257)",
+                "post": -10.103,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "667": [{
+                "pre": "(0.000, 4.294)",
+                "post": 6.624,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 4.294)",
+                "post": -6.624,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "676": [{
+                "pre": "(0.000, 2.904)",
+                "post": 4.722,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 2.904)",
+                "post": -4.722,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "677": [{
+                "pre": "(0.000, 5.800)",
+                "post": 8.398,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 5.800)",
+                "post": -8.398,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "678": [{
+                "pre": "(0.000, 11.044)",
+                "post": 13.682,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 11.044)",
+                "post": -13.682,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "679": [{
+                "pre": "(0.000, 19.375)",
+                "post": 20.463,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 19.375)",
+                "post": -20.463,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "680": [{
+                "pre": "(2.970, 30.685)",
+                "post": 27.716,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(2.970, 30.685)",
+                "post": -27.716,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "681": [{
+                "pre": "(9.652, 44.502)",
+                "post": 34.850,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(9.652, 44.502)",
+                "post": -34.850,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "682": [{
+                "pre": "(17.844, 58.363)",
+                "post": 40.519,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(17.844, 58.363)",
+                "post": -40.519,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "683": [{
+                "pre": "(24.983, 69.104)",
+                "post": 44.121,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(24.983, 69.104)",
+                "post": -44.121,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "684": [{
+                "pre": "(28.834, 74.384)",
+                "post": 45.550,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(28.834, 74.384)",
+                "post": -45.550,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "685": [{
+                "pre": "(28.324, 73.601)",
+                "post": 45.277,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(28.324, 73.601)",
+                "post": -45.277,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "686": [{
+                "pre": "(23.889, 66.986)",
+                "post": 43.097,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(23.889, 66.986)",
+                "post": -43.097,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "687": [{
+                "pre": "(17.118, 56.371)",
+                "post": 39.252,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(17.118, 56.371)",
+                "post": -39.252,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "688": [{
+                "pre": "(10.109, 44.775)",
+                "post": 34.666,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(10.109, 44.775)",
+                "post": -34.666,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "689": [{
+                "pre": "(4.400, 33.817)",
+                "post": 29.417,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(4.400, 33.817)",
+                "post": -29.417,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "690": [{
+                "pre": "(0.270, 23.958)",
+                "post": 23.688,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.270, 23.958)",
+                "post": -23.688,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "691": [{
+                "pre": "(0.000, 16.483)",
+                "post": 18.537,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 16.483)",
+                "post": -18.537,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "692": [{
+                "pre": "(0.000, 10.806)",
+                "post": 13.693,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 10.806)",
+                "post": -13.693,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "693": [{
+                "pre": "(0.000, 6.889)",
+                "post": 9.792,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 6.889)",
+                "post": -9.792,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "694": [{
+                "pre": "(0.000, 4.281)",
+                "post": 6.659,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 4.281)",
+                "post": -6.659,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "706": [{
+                "pre": "(0.000, 5.455)",
+                "post": 8.099,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 5.455)",
+                "post": -8.099,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "707": [{
+                "pre": "(0.000, 9.374)",
+                "post": 12.387,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 9.374)",
+                "post": -12.387,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "708": [{
+                "pre": "(0.000, 14.881)",
+                "post": 17.475,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 14.881)",
+                "post": -17.475,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "709": [{
+                "pre": "(0.000, 20.845)",
+                "post": 22.032,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 20.845)",
+                "post": -22.032,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "710": [{
+                "pre": "(0.865, 26.873)",
+                "post": 26.008,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.865, 26.873)",
+                "post": -26.008,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "711": [{
+                "pre": "(2.543, 30.894)",
+                "post": 28.351,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(2.543, 30.894)",
+                "post": -28.351,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "712": [{
+                "pre": "(3.385, 32.815)",
+                "post": 29.431,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(3.385, 32.815)",
+                "post": -29.431,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "713": [{
+                "pre": "(3.214, 32.337)",
+                "post": 29.123,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(3.214, 32.337)",
+                "post": -29.123,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "714": [{
+                "pre": "(2.144, 29.471)",
+                "post": 27.327,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(2.144, 29.471)",
+                "post": -27.327,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "715": [{
+                "pre": "(0.660, 25.588)",
+                "post": 24.928,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.660, 25.588)",
+                "post": -24.928,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "716": [{
+                "pre": "(0.000, 21.727)",
+                "post": 22.458,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 21.727)",
+                "post": -22.458,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "717": [{
+                "pre": "(0.000, 17.480)",
+                "post": 19.378,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 17.480)",
+                "post": -19.378,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "718": [{
+                "pre": "(0.000, 13.197)",
+                "post": 15.951,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 13.197)",
+                "post": -15.951,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "719": [{
+                "pre": "(0.000, 9.354)",
+                "post": 12.385,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 9.354)",
+                "post": -12.385,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "720": [{
+                "pre": "(0.000, 6.191)",
+                "post": 9.000,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 6.191)",
+                "post": -9.000,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "721": [{
+                "pre": "(0.000, 3.967)",
+                "post": 6.283,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.967)",
+                "post": -6.283,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "734": [{
+                "pre": "(0.000, 3.062)",
+                "post": 5.047,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.062)",
+                "post": -5.047,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "735": [{
+                "pre": "(0.000, 4.984)",
+                "post": 7.569,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 4.984)",
+                "post": -7.569,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "736": [{
+                "pre": "(0.000, 7.659)",
+                "post": 10.685,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 7.659)",
+                "post": -10.685,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "737": [{
+                "pre": "(0.000, 10.064)",
+                "post": 13.105,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 10.064)",
+                "post": -13.105,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "738": [{
+                "pre": "(0.000, 12.548)",
+                "post": 15.396,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 12.548)",
+                "post": -15.396,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "739": [{
+                "pre": "(0.000, 14.518)",
+                "post": 17.076,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 14.518)",
+                "post": -17.076,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "740": [{
+                "pre": "(0.000, 15.267)",
+                "post": 17.645,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 15.267)",
+                "post": -17.645,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "741": [{
+                "pre": "(0.000, 14.927)",
+                "post": 17.335,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 14.927)",
+                "post": -17.335,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "742": [{
+                "pre": "(0.000, 13.768)",
+                "post": 16.396,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 13.768)",
+                "post": -16.396,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "743": [{
+                "pre": "(0.000, 11.716)",
+                "post": 14.530,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 11.716)",
+                "post": -14.530,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "744": [{
+                "pre": "(0.000, 10.060)",
+                "post": 13.051,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 10.060)",
+                "post": -13.051,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "745": [{
+                "pre": "(0.000, 8.155)",
+                "post": 11.126,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 8.155)",
+                "post": -11.126,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "746": [{
+                "pre": "(0.000, 6.228)",
+                "post": 9.054,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 6.228)",
+                "post": -9.054,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "747": [{
+                "pre": "(0.000, 4.483)",
+                "post": 6.949,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 4.483)",
+                "post": -6.949,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "748": [{
+                "pre": "(0.000, 3.120)",
+                "post": 5.159,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.120)",
+                "post": -5.159,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "768": [{
+                "pre": "(0.000, 3.001)",
+                "post": 4.949,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.001)",
+                "post": -4.949,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "769": [{
+                "pre": "(0.000, 3.199)",
+                "post": 5.216,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.199)",
+                "post": -5.216,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "770": [{
+                "pre": "(0.000, 3.539)",
+                "post": 5.702,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.539)",
+                "post": -5.702,
+                "cost": 1,
+                "is_numerical": true
+            }],
+            "771": [{
+                "pre": "(0.000, 3.221)",
+                "post": 5.259,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0.000, 3.221)",
+                "post": -5.259,
+                "cost": 1,
+                "is_numerical": true
+            }]
+        }
+    ]
+}

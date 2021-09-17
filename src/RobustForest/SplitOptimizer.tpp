@@ -215,6 +215,8 @@ double logloss_nlopt<7>(unsigned n, const double* x, double* grad, void* data)
 
 }
 
+#include "logloss_10.tpp"
+
 // Equality constraints: lower and upper halves of x must each sum to 1
 template<size_t NY>
 static double eq_constr1(unsigned n, const double* x, double* grad, void* data) {return 0.0;};
@@ -336,6 +338,8 @@ double eq_constr2<7>(unsigned n, const double* x, double* grad, void* data)
     return x[7] + x[8] + x[9] + x[10] + x[11] + x[12] + x[13] - 1.0;
 }
 
+#include "eq_constraint_10.tpp"
+
 template<size_t NX, size_t NY>
 double SplitOptimizer<NX,NY>::logloss_under_attack(const DF<NY>& left,
                                        const DF<NY>& right,
@@ -405,7 +409,8 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
     IdxVec split_unknown_left;
     IdxVec split_unknown_right;
 
-    const bool perturb = epsilon_ > 0.0 && 
+    const double epsilon = epsilon_ * epsilonCoeff_[feature_id];
+    const bool perturb = epsilon > 0.0 && 
         (chen_perturb_ids_.empty() || chen_perturb_ids_.contains(feature_id));
 
     for (auto row_id : rows)
@@ -414,13 +419,13 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
         {
             const auto& row = X.row(row_id);
             const auto jth_feat = row[feature_id];
-            if (jth_feat < feature_value - epsilon_)
+            if (jth_feat < feature_value - epsilon)
                 split_left.push_back(row_id);
-            else if (jth_feat > feature_value + epsilon_)
+            else if (jth_feat > feature_value + epsilon)
                 split_right.push_back(row_id);
-            else if (jth_feat >= feature_value - epsilon_ && jth_feat < feature_value)
+            else if (jth_feat >= feature_value - epsilon && jth_feat < feature_value)
                     split_unknown_left.push_back(row_id);
-            else if (jth_feat >= feature_value && jth_feat <= feature_value + epsilon_)
+            else if (jth_feat >= feature_value && jth_feat <= feature_value + epsilon)
                     split_unknown_right.push_back(row_id);
             else
                 throw std::runtime_error("split_icml2019 failure");

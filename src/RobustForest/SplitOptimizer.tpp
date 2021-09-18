@@ -661,6 +661,16 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
     const IdxVec& split_unknown, FunVec& constraints, 
     std::vector<Constr_data<NY>>& constr_data) const -> std::optional<IcmlTupl>
 {
+    if (split_unknown.empty() && constraints.empty())
+    {
+        auto L = DF_index<NY>(y, split_left);
+        auto R = DF_index<NY>(y, split_right);
+        auto pred_left = L.rows()>0 ? L.colwise().mean() : NRow();
+        auto pred_right = R.rows()>0 ? R.colwise().mean() : NRow();
+        auto loss = split_loss(L, pred_left, R, pred_right);
+        return IcmlTupl{pred_left, pred_right, loss};
+    }
+
     auto L = DF_index<NY>(y, split_left);
     auto U = DF_index<NY>(y, split_unknown);
     auto R = DF_index<NY>(y, split_right);
@@ -711,10 +721,10 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
     }
     catch(std::exception& e)
     {
-        if (strncmp(e.what(), "bug: more than iter", 19))
-        {
+        // if (strncmp(e.what(), "bug: more than iter", 19))
+        // {
             Util::warn("caught NLOPT exception: {}", e.what());
-        }
+        // }
         return {};
     }
     Row<NY> pred_left;

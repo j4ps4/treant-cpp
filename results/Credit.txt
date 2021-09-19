@@ -1,0 +1,17 @@
+ICML2019 python:
+memory: 359mb
+time elapsed: 0h 12m 2.02s
+test score: 79.85% (dummy classifier: 78.90%)
+Robust python:
+memory: 386mb
+time elapsed: 0h 18m 32.37s
+test score: 80.33% (dummy classifier: 78.90%)
+ICML2019 cpp:
+memory: 125mb
+time elapsed: 0h 0m 49.02s
+test score: 80.27% (dummy classifier: 78.90%)
+Robust cpp:
+memory: 127mb
+time elapsed: 0h 0m 37.10s
+test score: 80.33% (dummy classifier: 78.90%)
+

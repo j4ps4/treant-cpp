@@ -1,0 +1,44 @@
+ICML2019 cpp:
+time elapsed: 0h 49m 8.49s
+test score: 59.86% (dummy classifier: 18.22%)
+ICML2019 python:
+
+Robust cpp:
+time elapsed: 0h 59m 41.17s
+test score: 63.73% (dummy classifier: 18.22%)
+Run2:
+time elapsed: 0h 52m 57.72s
+test score: 63.32% (dummy classifier: 18.22%)
+Inf-Ball+
+time elapsed: 1h 17m 10.85s
+test score: 63.32% (dummy classifier: 18.22%)
+
+Robust cpp Inf-Ball+
+time elapsed: 0h 24m 54.08s
+test score: 60.03% (dummy classifier: 18.22%)
+Robust Attack2
+time elapsed: 0h 25m 17.14s
+test score: 60.03% (dummy classifier: 18.22%)
+time elapsed: 0h 17m 18.79s
+test score: 60.03% (dummy classifier: 18.22%)
+
+./treant --data=har --attack_file data/har/attacks2-ID.json --feature_ids 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 --par -O Robust0-20.tree
+time elapsed: 7h 45m 24.84s
+test score: 48.73% (dummy classifier: 18.22%)
+./treant --data=har --algo=standard  --feature_blacklist 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 --par -O StandardBL.tree
+time elapsed: 0h 1m 13.13s
+test score: 52.97% (dummy classifier: 18.22%)
+
+
+./treant --data=har --attack_file data/har/attacks2-ID.json --feature_ids 0,1,2,3,4,5,6,7,8,9,10 --par -O Robust0-10.tree
+time elapsed: 2h 23m 27.91s
+test score: 59.08% (dummy classifier: 18.22%)
+budget 1-7: test score 59.04%
+./treant --data=har --algo=standard  --feature_blacklist 0,1,2,3,4,5,6,7,8,9,10 --par -O StandardBL.tree
+time elapsed: 0h 3m 9.17s
+test score: 57.75% (dummy classifier: 18.22%)
+budget 1-7: test score 57.75%
+
+/treant --data=har --attack_file data/har/attacks0-10.json --par -O Robust0-10.tree
+time elapsed: 0h 43m 17.08s
+test score: 63.25%

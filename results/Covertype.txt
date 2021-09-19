@@ -1,0 +1,52 @@
+
+./treant --algo=standard --data=covertype --attack_file data/covertype/attacks2.json -N 24 --sample_instances --max_instances 0.8  --maxdepth=10
+time elapsed: 0h 9m 57.27s
+test score: 52.70% (dummy classifier: 37.05%)
+info: saving trained model to data/covertype/models/Standard-N24-D10.forest
+budget 1: test score 44.59%
+budget 2: test score 44.33%
+budget 3: test score 42.20%
+budget 4: test score 42.59%
+budget 5: test score 43.15%
+budget 6: test score 43.71%
+budget 7: test score 44.19%
+budget 8: test score 44.57%
+
+/treant --algo=robust --data=covertype --attack_file data/covertype/attacks2.json -N 24 --sample_instances --max_instances 0.8 --maxdepth=10
+time elapsed: 1h 24m 40.14s
+test score: 48.53% (dummy classifier: 37.05%)
+info: saving trained model to data/covertype/models/Robust-N24-B5-D10.forest
+budget 1: test score 49.45%
+budget 2: test score 49.58%
+budget 3: test score 49.74%
+budget 4: test score 49.81%
+budget 5: test score 49.87%
+budget 6: test score 49.89%
+budget 7: test score 49.91%
+budget 8: test score 49.92%
+
+
+./treant --algo=standard --data=covertype --attack_file data/covertype/attacks2.json -N 24 --sample_instances --max_instances 0.8 --sample_features --max_features 0.75  --maxdepth=10
+time elapsed: 0h 7m 52.60s
+test score: 59.35%
+budget 1: test score 46.44%
+budget 2: test score 44.88%
+budget 3: test score 42.64%
+budget 4: test score 42.95%
+budget 5: test score 43.45%
+budget 6: test score 43.97%
+budget 7: test score 44.40%
+budget 8: test score 44.75%
+
+
+./treant --algo=robust --data=covertype --attack_file data/covertype/attacks2.json -N 24 --sample_instances --max_instances 0.8 --sample_features --max_features 0.75  --maxdepth=10
+time elapsed: 1h 5m 50.80s
+test score: 51.29% (dummy classifier: 37.05%)
+budget 1: test score 46.07%
+budget 2: test score 46.42%
+budget 3: test score 46.25%
+budget 4: test score 46.36%
+budget 5: test score 46.43%
+budget 6: test score 46.44%
+budget 7: test score 46.45%
+budget 8: test score 46.46%

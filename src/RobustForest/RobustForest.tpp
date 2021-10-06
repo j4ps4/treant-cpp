@@ -418,6 +418,30 @@ RobustForest<NX,NY> RobustForest<NX,NY>::load_from_disk(const std::filesystem::p
     }
 }
 
+template<size_t NX>
+using RowSetF = std::set<Row<NX>, CompareRows<NX>>;
+
+template<size_t NX, size_t NY>
+static bool att_recur_f(const RobustForest<NX,NY>& rf, const Row<NX>& inst, const Attacker<NX>& attacker, 
+    const std::set<size_t>& features, int budget, size_t true_y)
+{
+    if (budget <= 0)
+        return false;
+    for (auto& f : features)
+    {
+        auto attacks = attacker.single_attack(inst, f, budget);
+        for (const auto& [att, new_budg] : attacks)
+        {
+            if (rf.predict(att) != true_y)
+                return true;
+            bool res = att_recur_f<NX,NY>(rf, att, attacker, features, new_budg, true_y);
+            if (res)
+                return true;
+        }
+    }
+    return false;
+}
+
 template<size_t NX, size_t NY>
 std::vector<double> RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& attacker, const DF<NX>& X, const DF<NY>& Y) const
 {
@@ -450,17 +474,17 @@ std::vector<double> RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& 
         if (true_y == pred_y)
         {
             correct++;
-            RowSet<NX> set;
-            att_recur<NX>(set, inst, attacker, feats, attacker.get_budget());
-            for (auto& att : set)
-            {
-                const auto pred_att = predict(att);
-                if (true_y != pred_att)
-                {
-                    correct--;
-                    break;
-                }
-            }
+            if (att_recur_f<NX,NY>(*this, inst, attacker, feats, attacker.get_budget(), true_y))
+                correct--;
+            // for (auto& att : set)
+            // {
+            //     const auto pred_att = predict(att);
+            //     if (true_y != pred_att)
+            //     {
+            //         correct--;
+            //         break;
+            //     }
+            // }
         }
     }
     // double ret = 100.0 - 100.0 * static_cast<double>(score) / static_cast<double>(total_attacks);

@@ -12,17 +12,57 @@ time elapsed: 1h 11m 14.47s
 test score: 83.59% (dummy classifier: 11.35%)
 
 With pre-conditions
-Attempt 1: -> Robust-N1-B5-D8.tree.old
-./treant --data=mnist --attack-file data/mnist/attacks_meanlimit.json --par -V 4
-time elapsed: 14h 38m 58.41s
-test score: 31.23% (dummy classifier: 11.35%)
-Attempt 2:-> Robust-N1-B5-D8.tree
-time elapsed: 9h 21m 46.21s
-test score: 83.59% (dummy classifier: 11.35%)
+./treant --data=mnist --attack-file data/mnist/ib_attacks_meanlimit.json --par --n-inst 6
+000  -O RobustIbMeanlimit-B5-6000In.tree
+time elapsed: 2h 56m 55.31s
+test score: 78.65% (dummy classifier: 11.35%)
+
 Without pre-conditions
+./treant --data=mnist --attack-file data/mnist/attacks-nopre.json --par --n-inst 1000 -V 4 -O RobustNoPre-B5.tree
+time elapsed: 1h 41m 42.92s
+test score: 12.97% (dummy classifier: 10.28%)
+Training budget 1
+./treant --data=mnist --attack-file data/mnist/attacks-nopre.json --par --n-inst 1000 -B 1 -O RobustNoPre-B1.tree
+time elapsed: 2h 5m 4.37s
+test score: 45.34% (dummy classifier: 10.28%)
+budget 0: test score 51.00% (dummy classifier: 14.00%)
+budget 1: test score 48.00%
+budget 2: test score 1.00%
+budget 3: test score 0.00%
+Training budget 2
+time elapsed: 3h 26m 9.66s
+test score: 23.75% (dummy classifier: 10.28%)
+budget 0: test score 19.00%
+budget 1: test score 14.00%
+budget 2: test score 10.00%
+budget 3: test score 0.00%
+Attack Method 2, No IB
+ ./treant --data=mnist --attack-file data/mnist/attacks-nopre.json --par --n-inst 1000 -B 2 -O RobustNoPre-B2-AM2.tree
+time elapsed: 3h 33m 18.01s
+test score: 23.75% (dummy classifier: 10.28%)
+IB
+./treant --data=mnist --attack-file data/mnist/ib-attacks-nopre.json --par --n-inst 1000 -V 4 -O RobustIbNoPre-B5.tree
+time elapsed: 1h 58m 18.13s
+test score: 37.39% (dummy classifier: 10.28%)
+budget 1: test score 28.00%
+budget 2: test score 10.00%
+ ./treant --data=mnist --attack-file data/mnist/ib-attacks-nopre.json --par --n-inst 6000  -O RobustIbNoPre-B5-6000In.tree
+time elapsed: 11h 52m 48.86s
+test score: 22.36% (dummy classifier: 11.35%)
+budget 1: test score 22.00%
+budget 2: test score 1.00%
+budget 3: test score 1.00%
+./treant --data=mnist --attack-file data/mnist/ib-attacks-nopre.json --par --n-inst 10000  -O RobustIbNoPre-B5.tree
+time elapsed: 33h 19m 10.40s
+test score: 12.93% (dummy classifier: 11.35%)
 
 
 CHen:
 ./treant --data=mnist --algo=icml2019 --epsilon=0.3 --par
 time elapsed: 2h 14m 13.05s
 test score: 81.88% (dummy classifier: 11.35%)
+./treant --data=mnist --algo=icml2019 --epsilon 0.3 --par --n-inst 1000 -O ICML2019-E0.3-1000In.tree
+time elapsed: 0h 0m 27.86s
+test score: 64.65% (dummy classifier: 10.28%)
+budget 1: test score 54.00%
+budget 2: test score 0.00%

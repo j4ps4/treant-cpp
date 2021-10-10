@@ -3,6 +3,7 @@
 #include <ranges>
 
 #include "../DF2/DF_util.h"
+#include "../thread_pool.hpp"
 
 template<size_t NX, size_t NY>
 double SplitOptimizer<NX,NY>::sse(const DF<NY>& y_true,
@@ -751,7 +752,7 @@ template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
     const std::set<size_t>& feature_blacklist, Attacker<NX>& attacker, CostMap& costs, 
     ConstrVec& constraints, double current_score, Row<NY> current_prediction_score, 
-    bool bootstrap_features, size_t n_sample_features, std::mt19937_64& rd) const -> OptimTupl
+    bool bootstrap_features, size_t n_sample_features, std::mt19937_64& rd, bool par) const -> OptimTupl
 {
     double best_gain = 0.0;
     size_t best_split_feature_id = -1;
@@ -763,10 +764,6 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     NRow best_pred_left;
     NRow best_pred_right;
     double best_residue;
-    IdxVec split_left;
-    IdxVec split_right;
-    IdxVec split_unknown;
-    std::optional<IcmlTupl> optimizer_res;
 
     // create a dictionary containing individual values for each feature_id
     //  (limited to the slice of data located at this node)
@@ -800,89 +797,203 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
         feature_map[f_id] = feats;
     }
 
+    if (par)
+    {
+    thread_pool pool;
+    std::mutex mut;
+
     for (const auto& [feature_id, feats] : feature_map)
     {
-        // Util::log("testing feature {}", feature_id);
-        for (size_t feats_idx = 0; feats_idx < feats.size(); feats_idx++)
-        {
-            // Util::log("feats: {}", feats);
-            double feature_value = feats[feats_idx];
-            if (algo_ == TrainingAlgo::Icml2019)
-            {
-                auto split_res = split_icml2019(X, y, rows, attacker, costs, feature_id, feature_value);
-                split_left = std::get<0>(split_res);
-                split_right = std::get<1>(split_res);
-                split_unknown = std::get<2>(split_res);
-                optimizer_res = std::get<3>(split_res);
-            }
-            else if (algo_ == TrainingAlgo::Robust)
-            {
-                auto split_res = simulate_split(X, rows, attacker, costs, feature_id, feature_value);
-                split_left = std::get<0>(split_res);
-                split_right = std::get<1>(split_res);
-                split_unknown = std::get<2>(split_res);
+        pool.parallelize_loop(0, feats.size(), 
+            [&](const size_t& low, const size_t& high){ // block [low, high)
+                std::vector<size_t> my_features;
+                for (size_t i = low; i < high; i++)
+                    my_features.push_back(feats.at(i));
+                IdxVec split_left;
+                IdxVec split_right;
+                IdxVec split_unknown;
+                std::optional<IcmlTupl> optimizer_res;
 
-                FunVec updated_constraints;
-                std::vector<Constr_data<NY>> constr_data;
-                // if (constraints.size() > 0)
-                //     Util::info("propagating {} constraints.", constraints.size());
-                for (const auto& c : constraints)
+                const size_t n_mf = my_features.size();
+                // Util::log("testing feature {}", feature_id);
+                for (size_t feats_idx = 0; feats_idx < n_mf; feats_idx++)
                 {
-                    auto c_left = c.propagate_left(attacker, feature_id, feature_value);
-                    auto c_right = c.propagate_right(attacker, feature_id, feature_value);
-                    if (c_left && c_right)
-                        updated_constraints.push_back(c.encode_for_optimizer(Direction::U));
-                    else if (c_left)
-                        updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
-                    else if (c_right)
-                        updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
-                    constr_data.push_back(Constr_data<NY>{c.get_y_ptr(), c.get_bound_ptr()});
+                    size_t feature_value = my_features[feats_idx];
+                    // Util::log("feats: {}", feats);
+                    if (algo_ == TrainingAlgo::Icml2019)
+                    {
+                        auto split_res = split_icml2019(X, y, rows, attacker, costs, feature_id, feature_value);
+                        split_left = std::get<0>(split_res);
+                        split_right = std::get<1>(split_res);
+                        split_unknown = std::get<2>(split_res);
+                        optimizer_res = std::get<3>(split_res);
+                    }
+                    else if (algo_ == TrainingAlgo::Robust)
+                    {
+                        auto split_res = simulate_split(X, rows, attacker, costs, feature_id, feature_value);
+                        split_left = std::get<0>(split_res);
+                        split_right = std::get<1>(split_res);
+                        split_unknown = std::get<2>(split_res);
+
+                        FunVec updated_constraints;
+                        std::vector<Constr_data<NY>> constr_data;
+                        // if (constraints.size() > 0)
+                        //     Util::info("propagating {} constraints.", constraints.size());
+                        for (const auto& c : constraints)
+                        {
+                            auto c_left = c.propagate_left(attacker, feature_id, feature_value);
+                            auto c_right = c.propagate_right(attacker, feature_id, feature_value);
+                            if (c_left && c_right)
+                                updated_constraints.push_back(c.encode_for_optimizer(Direction::U));
+                            else if (c_left)
+                                updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
+                            else if (c_right)
+                                updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
+                            constr_data.push_back(Constr_data<NY>{c.get_y_ptr(), c.get_bound_ptr()});
+                        }
+                        optimizer_res = optimize_loss_under_attack(y, current_prediction_score,
+                            split_left, split_right, split_unknown, updated_constraints, constr_data);
+                    }
+                    else // Standard decision tree
+                    {
+                        auto split_res = simple_split(X, y, rows, feature_id, feature_value);
+                        split_left = std::get<0>(split_res);
+                        split_right = std::get<1>(split_res);
+                        optimizer_res = std::get<2>(split_res);
+                    }
+                    if (optimizer_res)
+                    {
+                        auto optim_res = optimizer_res.value();
+                        auto y_pred_left = std::get<0>(optim_res);
+                        auto y_pred_right = std::get<1>(optim_res);
+                        auto residue = std::get<2>(optim_res);
+
+                        // std::cout << "pred_left: " << y_pred_left;
+                        // std::cout << ", pred_right: " << y_pred_right;
+                        // std::cout << ", fun: " << residue << "\n";
+                        // std::exit(0);
+
+                        // compute gain
+                        //Util::log("current score: {}", current_score);
+                        double gain = current_score - residue;
+                        //Util::log("current gain: {}, best gain: {}, residue: {}", gain, best_gain, residue);
+                        //std::exit(0);
+
+                        // if gain obtained with this split simulation is greater than the best gain so far
+                        std::unique_lock gain_lock(mut);
+                        if (gain > best_gain)
+                        {
+                            best_gain = gain;
+                            best_split_feature_id = feature_id;
+                            best_split_feature_value = feature_value;
+                            if (feats_idx < feats.size() - 1)
+                                next_best_split_feature_value = feats[feats_idx+1];
+                            else
+                                next_best_split_feature_value = best_split_feature_value;
+                            
+                            best_split_left_id = split_left;
+                            best_split_right_id = split_right;
+                            best_split_unknown_id = split_unknown;
+                            best_pred_left = y_pred_left;
+                            best_pred_right = y_pred_right;
+                            best_residue = residue;
+                        }
+                    }
                 }
-                optimizer_res = optimize_loss_under_attack(y, current_prediction_score,
-                    split_left, split_right, split_unknown, updated_constraints, constr_data);
             }
-            else // Standard decision tree
+        );
+    }
+    }
+    else
+    {
+        IdxVec split_left;
+        IdxVec split_right;
+        IdxVec split_unknown;
+        std::optional<IcmlTupl> optimizer_res;
+        for (const auto& [feature_id, feats] : feature_map)
+        {
+            // Util::log("testing feature {}", feature_id);
+            for (size_t feats_idx = 0; feats_idx < feats.size(); feats_idx++)
             {
-                auto split_res = simple_split(X, y, rows, feature_id, feature_value);
-                split_left = std::get<0>(split_res);
-                split_right = std::get<1>(split_res);
-                optimizer_res = std::get<2>(split_res);
-            }
-            if (optimizer_res)
-            {
-                auto optim_res = optimizer_res.value();
-                auto y_pred_left = std::get<0>(optim_res);
-                auto y_pred_right = std::get<1>(optim_res);
-                auto residue = std::get<2>(optim_res);
-
-                // std::cout << "pred_left: " << y_pred_left;
-                // std::cout << ", pred_right: " << y_pred_right;
-                // std::cout << ", fun: " << residue << "\n";
-                // std::exit(0);
-
-                // compute gain
-                //Util::log("current score: {}", current_score);
-                double gain = current_score - residue;
-                //Util::log("current gain: {}, best gain: {}, residue: {}", gain, best_gain, residue);
-                //std::exit(0);
-
-                // if gain obtained with this split simulation is greater than the best gain so far
-                if (gain > best_gain)
+                // Util::log("feats: {}", feats);
+                double feature_value = feats[feats_idx];
+                if (algo_ == TrainingAlgo::Icml2019)
                 {
-                    best_gain = gain;
-                    best_split_feature_id = feature_id;
-                    best_split_feature_value = feature_value;
-                    if (feats_idx < feats.size() - 1)
-                        next_best_split_feature_value = feats[feats_idx+1];
-                    else
-                        next_best_split_feature_value = best_split_feature_value;
-                    
-                    best_split_left_id = split_left;
-                    best_split_right_id = split_right;
-                    best_split_unknown_id = split_unknown;
-                    best_pred_left = y_pred_left;
-                    best_pred_right = y_pred_right;
-                    best_residue = residue;
+                    auto split_res = split_icml2019(X, y, rows, attacker, costs, feature_id, feature_value);
+                    split_left = std::get<0>(split_res);
+                    split_right = std::get<1>(split_res);
+                    split_unknown = std::get<2>(split_res);
+                    optimizer_res = std::get<3>(split_res);
+                }
+                else if (algo_ == TrainingAlgo::Robust)
+                {
+                    auto split_res = simulate_split(X, rows, attacker, costs, feature_id, feature_value);
+                    split_left = std::get<0>(split_res);
+                    split_right = std::get<1>(split_res);
+                    split_unknown = std::get<2>(split_res);
+
+                    FunVec updated_constraints;
+                    std::vector<Constr_data<NY>> constr_data;
+                    // if (constraints.size() > 0)
+                    //     Util::info("propagating {} constraints.", constraints.size());
+                    for (const auto& c : constraints)
+                    {
+                        auto c_left = c.propagate_left(attacker, feature_id, feature_value);
+                        auto c_right = c.propagate_right(attacker, feature_id, feature_value);
+                        if (c_left && c_right)
+                            updated_constraints.push_back(c.encode_for_optimizer(Direction::U));
+                        else if (c_left)
+                            updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
+                        else if (c_right)
+                            updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
+                        constr_data.push_back(Constr_data<NY>{c.get_y_ptr(), c.get_bound_ptr()});
+                    }
+                    optimizer_res = optimize_loss_under_attack(y, current_prediction_score,
+                        split_left, split_right, split_unknown, updated_constraints, constr_data);
+                }
+                else // Standard decision tree
+                {
+                    auto split_res = simple_split(X, y, rows, feature_id, feature_value);
+                    split_left = std::get<0>(split_res);
+                    split_right = std::get<1>(split_res);
+                    optimizer_res = std::get<2>(split_res);
+                }
+                if (optimizer_res)
+                {
+                    auto optim_res = optimizer_res.value();
+                    auto y_pred_left = std::get<0>(optim_res);
+                    auto y_pred_right = std::get<1>(optim_res);
+                    auto residue = std::get<2>(optim_res);
+
+                    // std::cout << "pred_left: " << y_pred_left;
+                    // std::cout << ", pred_right: " << y_pred_right;
+                    // std::cout << ", fun: " << residue << "\n";
+                    // std::exit(0);
+
+                    // compute gain
+                    //Util::log("current score: {}", current_score);
+                    double gain = current_score - residue;
+                    //Util::log("current gain: {}, best gain: {}, residue: {}", gain, best_gain, residue);
+                    //std::exit(0);
+
+                    // if gain obtained with this split simulation is greater than the best gain so far
+                    if (gain > best_gain)
+                    {
+                        best_gain = gain;
+                        best_split_feature_id = feature_id;
+                        best_split_feature_value = feature_value;
+                        if (feats_idx < feats.size() - 1)
+                            next_best_split_feature_value = feats[feats_idx+1];
+                        else
+                            next_best_split_feature_value = best_split_feature_value;
+                        
+                        best_split_left_id = split_left;
+                        best_split_right_id = split_right;
+                        best_split_unknown_id = split_unknown;
+                        best_pred_left = y_pred_left;
+                        best_pred_right = y_pred_right;
+                        best_residue = residue;
+                    }
                 }
             }
         }

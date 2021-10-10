@@ -131,7 +131,7 @@ public:
     }
 
 private:
-    Node<NY>* fit_(const DF<NX>& X_train, const DF<NY>& y_train, size_t spawn_thresh, const std::vector<size_t> rows,
+    Node<NY>* fit_(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
         std::map<int64_t,int> costs, ConstrVec constraints,
         const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth);
 

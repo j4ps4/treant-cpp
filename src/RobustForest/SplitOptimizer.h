@@ -60,7 +60,7 @@ public:
     OptimTupl optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, 
         const std::set<size_t>& feature_blacklist, Attacker<NX>& attacker, CostMap& costs, 
         ConstrVec& constraints, double current_score,Row<NY> current_prediction_score, 
-        bool bootstrap_features, size_t n_sample_features, std::mt19937_64& rd) const;
+        bool bootstrap_features, size_t n_sample_features, std::mt19937_64& rd, bool par) const;
 
     TrainingAlgo get_algorithm() const noexcept {return algo_;}
 

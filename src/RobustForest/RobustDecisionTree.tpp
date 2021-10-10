@@ -4,16 +4,11 @@
 
 #include <algorithm>
 #include <numeric>
-#include <thread>
-#include <future>
 
 #include "../util.h"
 
-static std::mutex mut;
-const static auto N_T = std::thread::hardware_concurrency();
-
 template<size_t NX, size_t NY>
-Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y_train, size_t spawn_thresh, const std::vector<size_t> rows,
+Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
     std::map<int64_t,int> costs, ConstrVec constraints, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth)
 {
     if (X_train.size() == 0)
@@ -51,7 +46,7 @@ Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y
            costs_left, costs_right, 
            constraints_left, constraints_right] = optimizer_->optimize_gain(X_train, y_train, rows, feature_blacklist,
                                       *(attacker_.get()), costs, constraints, current_score, node_prediction,
-                                      bootstrap_features_, n_sample_features_, rd_);
+                                      bootstrap_features_, n_sample_features_, rd_, useParallel_);
 
     Util::log<4>("tree {}: best_gain: {}", id_, best_gain);
     if (best_gain > EPS)
@@ -68,34 +63,10 @@ Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y
             updated_feature_bl.insert(best_split_feature_id);
         }
 
-        bool spawn_left = useParallel_ && best_split_left.size() > spawn_thresh;
-        bool spawn_right = useParallel_ && best_split_right.size() > spawn_thresh;
-        std::future<Node<NY>*> left_fut;
-        std::future<Node<NY>*> right_fut;
-        size_t new_thresh = depth != 0 ? static_cast<double>(spawn_thresh) / (depth*par_par_) : spawn_thresh / 2;
-        if (spawn_left)
-        {
-            left_fut = std::async(std::launch::async, [&]{
-                    return fit_(X_train, y_train, new_thresh, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1);
-                });
-        }
-        if (spawn_right)
-        {
-            right_fut = std::async(std::launch::async, [&]{
-                    return fit_(X_train, y_train, new_thresh, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1);
-                });
-        }
-        if (!spawn_left)
-            node->set_left(fit_(X_train, y_train, new_thresh, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1));
+        node->set_left(fit_(X_train, y_train, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1));
 
-        if (!spawn_right)
-            node->set_right(fit_(X_train, y_train, new_thresh, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1));
+        node->set_right(fit_(X_train, y_train, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1));
 
-        if (spawn_left)
-            node->set_left(left_fut.get());
-
-        if (spawn_right)
-            node->set_right(right_fut.get());
     }
     return node;
 }
@@ -157,10 +128,8 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
     for (int64_t i = 0; i < rows.size(); i++)
         costs[rows.at(i)] = 0;
 
-    size_t spawn_thresh = rows.size() / N_T;
-
     ConstrVec constraints;
-    root_.reset(fit_(X_train, y_train, spawn_thresh, rows, costs, constraints, node_prediction, start_feature_bl_, 0));
+    root_.reset(fit_(X_train, y_train, rows, costs, constraints, node_prediction, start_feature_bl_, 0));
 
     if (!root_->is_dummy())
     {

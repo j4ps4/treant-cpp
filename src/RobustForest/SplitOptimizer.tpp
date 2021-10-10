@@ -361,11 +361,11 @@ template<size_t NX, size_t NY>
 double SplitOptimizer<NX,NY>::evaluate_split(const DF<NY>& y_true,
                           const Row<NY>& y_pred) const
 {
-    // Use logloss_nlopt
-    if (split_ == SplitFunction::LogLoss)
+    // Use logloss
+    // if (split_ == SplitFunction::LogLoss)
         return logloss(y_true, y_pred);
-    else
-        return sse(y_true, y_pred);
+    // else
+    //     return sse(y_true, y_pred);
 }
 
 template<size_t NX, size_t NY>
@@ -698,10 +698,10 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
         optimizer.set_xtol_rel(tol);
         optimizer.set_maxeval(maxiter_);
         loss_data<NY> d = {CL, CU, CR};
-        if (split_ == SplitFunction::LogLoss)
+        // if (split_ == SplitFunction::LogLoss)
             optimizer.set_min_objective(logloss_nlopt<NY>, &d);
-        else
-            throw std::runtime_error("not implemented");
+        // else
+        //     throw std::runtime_error("not implemented");
 
         // if (constraints.size() > 0)
         //     Util::log("using {} constraints.", constraints.size());

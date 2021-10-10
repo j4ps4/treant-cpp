@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import time
 import random 
 import numpy as np
@@ -6,8 +7,9 @@ import torch
 import subprocess
 #import torch.nn as nn
 
-# import torchvision.datasets as dsets
-# import torchvision.transforms as transforms
+import torchvision.datasets as dsets
+from torch.utils.data import DataLoader
+import torchvision.transforms as transforms
 # from torch.autograd import Variable
 # from torch.utils.data.dataset import Dataset
 # import os
@@ -125,6 +127,22 @@ learning_rate = 0.001
 #         _, predict = torch.max(output.data, 1)
 #         return predict[0]
 
+class MNIST():
+    def __init__(self,model):
+        self.cmdlst = ["./treant", "--model", "data/mnist/models/"+model, "--classify"]
+
+    def predict(self, inst):
+        inst=inst*255
+        repr = str(inst)
+        starting = repr.find("[[[")
+        closing = repr.find("]]]")
+        repr = repr[starting+3:closing].replace(' ', '').replace('\n','').replace(']','').replace('[','')
+        pr = subprocess.run(self.cmdlst+[repr], text=True, capture_output=True)
+        if pr.returncode != 0:
+            raise RuntimeError("treant died: {}".format(pr.stderr))
+        res = int(pr.stdout)
+        return res
+
 class Treant():
     def __init__(self):
         self.cmdlst = ["./treant", "--model", "data/har/models/Standard-D8.cereal", "--classify"]
@@ -171,11 +189,11 @@ def load_mnist_data():
     """
     # MNIST Dataset
     train_dataset = dsets.MNIST(root='./data/mnist', train=True, transform=transforms.ToTensor(), download=True)
-    test_dataset = dsets.MNIST(root='./data/mnist', train=False, transform=transforms.ToTensor())
+    test_dataset = dsets.MNIST(root='./data/mnist', train=False, transform=transforms.ToTensor(), download=True)
 
     # Data Loader (Input Pipeline)
-    train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=1000, shuffle=True)
-    test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=10, shuffle=False)
+    train_loader = DataLoader(dataset=train_dataset, batch_size=10, shuffle=False)
+    test_loader = DataLoader(dataset=test_dataset, batch_size=10, shuffle=False)
 
     return train_loader, test_loader, train_dataset, test_dataset
 
@@ -187,8 +205,8 @@ def load_model(model, filename):
     """ Load the training model """
     model.load_state_dict(torch.load(filename))
 
-# if __name__ == '__main__':
-#     train_loader, test_loader, train_dataset, test_dataset = load_mnist_data()
+if __name__ == '__main__':
+    train_loader, test_loader, train_dataset, test_dataset = load_mnist_data()
 #     net = MNIST()
 #     if torch.cuda.is_available():
 #         net.cuda()

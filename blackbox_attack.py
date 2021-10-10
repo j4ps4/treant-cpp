@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
 import time
 import random 
+import sys
 import numpy as np
 import torch 
 import torch.nn as nn
@@ -7,7 +9,7 @@ import torch.nn as nn
 # import torchvision.transforms as transforms
 from torch.autograd import Variable
 import torch.nn.functional as F
-from models import Treant, load_har_data
+from models import Treant, MNIST, load_mnist_data, load_har_data
 
 
 def attack_untargeted(model, train_dataset, x0, y0, alpha = 0.2, beta = 0.001, iterations = 1000):
@@ -27,9 +29,9 @@ def attack_untargeted(model, train_dataset, x0, y0, alpha = 0.2, beta = 0.001, i
 
     print("Searching for the initial direction on %d samples: " % (num_samples))
     timestart = time.time()
-    samples = set(random.sample(range(len(train_dataset[0])), num_samples))
-    for i in range(len(train_dataset[0])):
-        xi = train_dataset[0][i]
+    samples = set(random.sample(range(len(train_dataset)), num_samples))
+    for i, (xi, yi) in enumerate(train_dataset):
+        #xi = train_dataset[0][i]
         if i not in samples:
             continue
         query_count += 1
@@ -199,24 +201,25 @@ def fine_grained_binary_search(model, x0, y0, theta, initial_lbd, current_best):
             lbd_lo = lbd_mid
     return lbd_hi, nquery
 
-def attack_mnist(alpha=0.2, beta=0.001, isTarget= False, num_attacks= 100):
+def attack_mnist(model_name, alpha=0.2, beta=0.001, isTarget= False, num_attacks= 100):
     train_loader, test_loader, train_dataset, test_dataset = load_mnist_data()
     print("Length of test_set: ", len(test_dataset))
     dataset = train_dataset
+    outfile=open("mnist_attacks.txt","w")
 
-    net = MNIST()
+    model = MNIST(model=model_name)
     if torch.cuda.is_available():
         net.cuda()
         net = torch.nn.DataParallel(net, device_ids=[0])
         
-    load_model(net, 'models/mnist_gpu.pt')
+    #load_model(net, 'models/mnist_gpu.pt')
     #load_model(net, 'models/mnist_cpu.pt')
-    net.eval()
+    #net.eval()
 
-    model = net.module if torch.cuda.is_available() else net
+    #model = net.module if torch.cuda.is_available() else net
 
-    def single_attack(image, label, target = None):
-        show_image(image.numpy())
+    def single_attack(image, label, outfile, target = None):
+        #show_image(image.numpy())
         print("Original label: ", label)
         print("Predicted label: ", model.predict(image))
         if target == None:
@@ -224,8 +227,13 @@ def attack_mnist(alpha=0.2, beta=0.001, isTarget= False, num_attacks= 100):
         else:
             print("Targeted attack: %d" % target)
             adversarial = attack_targeted(model, dataset, image, label, target, alpha = alpha, beta = beta, iterations = 1000)
-        show_image(adversarial.numpy())
-        print("Predicted label for adversarial example: ", model.predict(adversarial))
+        #show_image(adversarial.numpy())
+        prediction=model.predict(adversarial)
+        if label == model.predict(image):
+            outfile.write("\noriginal X: "+str(image))
+            outfile.write("\nadversarial X: "+str(adversarial))
+            outfile.write("\nY: "+str(prediction))
+        print("Predicted label for adversarial example: ", prediction)
         return torch.norm(adversarial - image)
 
     print("\n\n Running {} attack on {} random  MNIST test images for alpha= {} beta= {}\n\n".format("targetted" if isTarget else "untargetted", num_attacks, alpha, beta))
@@ -239,7 +247,7 @@ def attack_mnist(alpha=0.2, beta=0.001, isTarget= False, num_attacks= 100):
         print("\n\n\n\n======== Image %d =========" % idx)
         #target = None if not isTarget else random.choice(list(range(label)) + list(range(label+1, 10)))
         target = None if not isTarget else (1+label) % 10
-        total_distortion += single_attack(image, label, target)
+        total_distortion += single_attack(image, label, outfile, target)
     
     print("Average distortion on random {} images is {}".format(num_attacks, total_distortion/num_attacks))
 
@@ -277,8 +285,8 @@ if __name__ == '__main__':
     timestart = time.time()
     random.seed(0)
     
-    #attack_mnist(alpha=2, beta=0.005, isTarget= False)
-    attack_har(alpha=5, beta=0.001, num_attacks=3)
+    attack_mnist(sys.argv[1], alpha=2, beta=0.005, num_attacks=3)
+    #attack_har(alpha=5, beta=0.001, num_attacks=3)
     #attack_imagenet(arch='resnet50', alpha=10, beta=0.005, isTarget= False)
     #attack_imagenet(arch='vgg19', alpha=0.05, beta=0.001, isTarget= False, num_attacks= 10)
 

@@ -19,8 +19,8 @@ namespace
 template<size_t N>
 bool is_equal_perturbation(const PairT<N>& x, const PairT<N>& y)
 {
-    return (std::get<0>(x) == std::get<0>(y)).all()
-        && std::get<1>(x) <= std::get<1>(y);
+    return (std::get<0>(x) == std::get<0>(y)).all();
+        // && std::get<1>(x) <= std::get<1>(y);
 }
 
 template<size_t N>

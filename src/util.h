@@ -70,7 +70,6 @@ void log(const char* msg, Args... args)
     }
 }
 
-
 template<typename T>
 auto numeral(T arg) { return +arg; }
 

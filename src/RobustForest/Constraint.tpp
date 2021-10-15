@@ -1,4 +1,5 @@
 #include <algorithm>
+#include "../def.h"
 
 template<size_t NX, size_t NY>
 std::optional<Constraint<NX,NY>> Constraint<NX,NY>::propagate_left(Attacker<NX>& attacker, 
@@ -46,9 +47,31 @@ std::optional<Constraint<NX,NY>> Constraint<NX,NY>::propagate_right(Attacker<NX>
     }
 }
 
+template<size_t N>
+bool check_x(const double* x)
+{
+    for (size_t i = 0; i < N; i++)
+        if (x[i] == 0.0 || x[i] == 1.0)
+            return false;
+    return true;
+}
+template<size_t N>
+void print_x(const double* x)
+{
+    for (size_t i = 0; i < N; i++)
+        std::cout << x[i] << ", ";
+    std::cout << "\n";
+}
+
 template<size_t NY, size_t NY2>
 double ineq_L_LT(unsigned int n, const double* x, double* grad, void* data)
 {
+    // if (!check_x<NY2>(x))
+    // {
+    //     fmt::print("ERROR ineq_L_LT: faulty x in constraint\n");
+    //     print_x<NY2>(x);
+    //     std::exit(1);
+    // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
     const auto& y = *(c_data->y);
     const auto& bound = *(c_data->bound);
@@ -56,7 +79,7 @@ double ineq_L_LT(unsigned int n, const double* x, double* grad, void* data)
     {
         for (size_t i = 0; i < NY; i++)
         {
-            grad[i] = -y(i)/x[i];
+            grad[i] = -y(i)/std::max(EPS,x[i]);
         }
         for (size_t i = NY; i < NY2; i++)
         {
@@ -64,11 +87,18 @@ double ineq_L_LT(unsigned int n, const double* x, double* grad, void* data)
         }
     }
     Eigen::Map<const Row<NY2>> pred(x);
-    return -(y * (pred.template head<NY>().log())).sum() + (y * bound.log()).sum();
+    //return -(y * (pred.template head<NY>().log())).sum() + (y * bound.log()).sum();
+    return -(y * (pred.template head<NY>().max(EPS).min(1-EPS).log())).sum() + (y * bound.log()).sum();
 }
 template<size_t NY, size_t NY2>
 double ineq_L_GTE(unsigned int n, const double* x, double* grad, void* data)
 {
+    // if (!check_x<NY2>(x))
+    // {
+    //     fmt::print("ERROR ineq_L_GTE: faulty x in constraint\n");
+    //     print_x<NY2>(x);
+    //     std::exit(1);
+    // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
     const auto& y = *(c_data->y);
     const auto& bound = *(c_data->bound);
@@ -76,7 +106,7 @@ double ineq_L_GTE(unsigned int n, const double* x, double* grad, void* data)
     {
         for (size_t i = 0; i < NY; i++)
         {
-            grad[i] = y(i)/x[i];
+            grad[i] = y(i)/std::max(EPS,x[i]);
         }
         for (size_t i = NY; i < NY2; i++)
         {
@@ -84,11 +114,17 @@ double ineq_L_GTE(unsigned int n, const double* x, double* grad, void* data)
         }
     }
     Eigen::Map<const Row<NY2>> pred(x);
-    return (y * (pred.template head<NY>().log())).sum() - (y * bound.log()).sum();
+    return (y * (pred.template head<NY>().max(EPS).min(1-EPS).log())).sum() - (y * bound.log()).sum();
 }
 template<size_t NY, size_t NY2>
 double ineq_R_LT(unsigned int n, const double* x, double* grad, void* data)
 {
+    // if (!check_x<NY2>(x))
+    // {
+    //     fmt::print("ERROR ineq_R_LT: faulty x in constraint\n");
+    //     print_x<NY2>(x);
+    //     std::exit(1);
+    // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
     const auto& y = *(c_data->y);
     const auto& bound = *(c_data->bound);
@@ -100,15 +136,21 @@ double ineq_R_LT(unsigned int n, const double* x, double* grad, void* data)
         }
         for (size_t i = NY; i < NY2; i++)
         {
-            grad[i] = -y(i-NY)/x[i];
+            grad[i] = -y(i-NY)/std::max(EPS,x[i]);
         }
     }
     Eigen::Map<const Row<NY2>> pred(x);
-    return -(y * (pred.template tail<NY>().log())).sum() + (y * bound.log()).sum();
+    return -(y * (pred.template tail<NY>().max(EPS).min(1-EPS).log())).sum() + (y * bound.log()).sum();
 }
 template<size_t NY, size_t NY2>
 double ineq_R_GTE(unsigned int n, const double* x, double* grad, void* data)
 {
+    // if (!check_x<NY2>(x))
+    // {
+    //     fmt::print("ERROR ineq_R_GTE: faulty x in constraint\n");
+    //     print_x<NY2>(x);
+    //     std::exit(1);
+    // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
     const auto& y = *(c_data->y);
     const auto& bound = *(c_data->bound);
@@ -120,28 +162,34 @@ double ineq_R_GTE(unsigned int n, const double* x, double* grad, void* data)
         }
         for (size_t i = NY; i < NY2; i++)
         {
-            grad[i] = y(i-NY)/x[i];
+            grad[i] = y(i-NY)/std::max(EPS,x[i]);
         }
     }
     Eigen::Map<const Row<NY2>> pred(x);
-    return (y * (pred.template tail<NY>().log())).sum() - (y * bound.log()).sum();
+    return (y * (pred.template tail<NY>().max(EPS).min(1-EPS).log())).sum() - (y * bound.log()).sum();
 }
 template<size_t NY, size_t NY2>
 double ineq_U_LT(unsigned int n, const double* x, double* grad, void* data)
 {
+    // if (!check_x<NY2>(x))
+    // {
+    //     fmt::print("ERROR ineq_U_LT: faulty x in constraint\n");
+    //     print_x<NY2>(x);
+    //     std::exit(1);
+    // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
     const auto& y = *(c_data->y);
     const auto& bound = *(c_data->bound);
     Eigen::Map<const Row<NY2>> pred(x);
-    const double s1 = (y * (pred.template head<NY>().log())).sum();
-    const double s2 = (y * (pred.template tail<NY>().log())).sum();
+    const double s1 = (y * (pred.template head<NY>().max(EPS).min(1-EPS).log())).sum();
+    const double s2 = (y * (pred.template tail<NY>().max(EPS).min(1-EPS).log())).sum();
     if (grad != nullptr)
     {
         if (s1 >= s2)
         {
             for (size_t i = 0; i < NY; i++)
             {
-                grad[i] = -y(i)/x[i];
+                grad[i] = -y(i)/std::max(EPS,x[i]);
             }
             for (size_t i = NY; i < NY2; i++)
             {
@@ -156,7 +204,7 @@ double ineq_U_LT(unsigned int n, const double* x, double* grad, void* data)
             }
             for (size_t i = NY; i < NY2; i++)
             {
-                grad[i] = -y(i-NY)/x[i];
+                grad[i] = -y(i-NY)/std::max(EPS,x[i]);
             }
         }
     }
@@ -165,19 +213,25 @@ double ineq_U_LT(unsigned int n, const double* x, double* grad, void* data)
 template<size_t NY, size_t NY2>
 double ineq_U_GTE(unsigned int n, const double* x, double* grad, void* data)
 {
+    // if (!check_x<NY2>(x))
+    // {
+    //     fmt::print("ERROR ineq_U_GTE: faulty x in constraint\n");
+    //     print_x<NY2>(x);
+    //     std::exit(1);
+    // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
     const auto& y = *(c_data->y);
     const auto& bound = *(c_data->bound);
     Eigen::Map<const Row<NY2>> pred(x);
-    const double s1 = (y * (pred.template head<NY>().log())).sum();
-    const double s2 = (y * (pred.template tail<NY>().log())).sum();
+    const double s1 = (y * (pred.template head<NY>().max(EPS).min(1-EPS).log())).sum();
+    const double s2 = (y * (pred.template tail<NY>().max(EPS).min(1-EPS).log())).sum();
     if (grad != nullptr)
     {
         if (s1 < s2)
         {
             for (size_t i = 0; i < NY; i++)
             {
-                grad[i] = y(i)/x[i];
+                grad[i] = y(i)/std::max(EPS,x[i]);
             }
             for (size_t i = NY; i < NY2; i++)
             {
@@ -192,7 +246,7 @@ double ineq_U_GTE(unsigned int n, const double* x, double* grad, void* data)
             }
             for (size_t i = NY; i < NY2; i++)
             {
-                grad[i] = y(i-NY)/x[i];
+                grad[i] = y(i-NY)/std::max(EPS,x[i]);
             }
         }
     }
@@ -254,6 +308,40 @@ template<size_t NY>
 std::string Constr_data<NY>::debug_str() const
 {
     std::stringstream ss;
+    // if (direct == Direction::L)
+    // {
+    //     if (ineq == Ineq::LT)
+    //     {
+    //         ss << "sum(" << *y
+    //         return ineq_L_LT<NY,NY2C>;
+    //     }
+    //     else
+    //     {
+    //         return ineq_L_GTE<NY,NY2C>;
+    //     }
+    // }
+    // else if (direct == Direction::R)
+    // {
+    //     if (ineq == Ineq::LT)
+    //     {
+    //         return ineq_R_LT<NY,NY2C>;
+    //     }
+    //     else
+    //     {
+    //         return ineq_R_GTE<NY,NY2C>;
+    //     }
+    // }
+    // else
+    // {
+    //     if (ineq == Ineq::LT)
+    //     {
+    //         return ineq_U_LT<NY,NY2C>;
+    //     }
+    //     else
+    //     {
+    //         return ineq_U_GTE<NY,NY2C>;
+    //     }
+    // }
     ss << "y: " << *y << "\n";
     ss << "bound: " << *bound << "\n";
     return ss.str();

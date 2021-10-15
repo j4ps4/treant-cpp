@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <mutex>
 
 template<size_t N>
 DF<N> DF_index(const DF<N>& in, const std::vector<size_t>& idxs)
@@ -39,9 +40,9 @@ size_t dominant_class(const DF<NY>& y)
 }
 
 template<size_t N>
-void row_printf(const char* msg, const Row<N>& row)
+void row_printf(const char* fmt, const Row<N>& row)
 {
-    std::cout << msg << " [" << row << "]\n";
+    fmt::print(fmt, row);
 }
 
 template<size_t N>

@@ -29,26 +29,26 @@ const auto cc_9 = x[9] <= x[19] ? std::make_tuple(cL(9)+cU(9), cR(9))
                                    : std::make_tuple(cL(9), cR(9)+cU(9));
 if (grad != nullptr)
     {
-grad[0] = std::get<0>(cc_0) * -1.0/x[0];
-grad[1] = std::get<0>(cc_1) * -1.0/x[1];
-grad[2] = std::get<0>(cc_2) * -1.0/x[2];
-grad[3] = std::get<0>(cc_3) * -1.0/x[3];
-grad[4] = std::get<0>(cc_4) * -1.0/x[4];
-grad[5] = std::get<0>(cc_5) * -1.0/x[5];
-grad[6] = std::get<0>(cc_6) * -1.0/x[6];
-grad[7] = std::get<0>(cc_7) * -1.0/x[7];
-grad[8] = std::get<0>(cc_8) * -1.0/x[8];
-grad[9] = std::get<0>(cc_9) * -1.0/x[9];
-grad[10] = std::get<1>(cc_0) * -1.0/x[10];
-grad[11] = std::get<1>(cc_1) * -1.0/x[11];
-grad[12] = std::get<1>(cc_2) * -1.0/x[12];
-grad[13] = std::get<1>(cc_3) * -1.0/x[13];
-grad[14] = std::get<1>(cc_4) * -1.0/x[14];
-grad[15] = std::get<1>(cc_5) * -1.0/x[15];
-grad[16] = std::get<1>(cc_6) * -1.0/x[16];
-grad[17] = std::get<1>(cc_7) * -1.0/x[17];
-grad[18] = std::get<1>(cc_8) * -1.0/x[18];
-grad[19] = std::get<1>(cc_9) * -1.0/x[19];
+grad[0] = std::get<0>(cc_0) * -1.0/std::max(EPS,x[0]);
+grad[1] = std::get<0>(cc_1) * -1.0/std::max(EPS,x[1]);
+grad[2] = std::get<0>(cc_2) * -1.0/std::max(EPS,x[2]);
+grad[3] = std::get<0>(cc_3) * -1.0/std::max(EPS,x[3]);
+grad[4] = std::get<0>(cc_4) * -1.0/std::max(EPS,x[4]);
+grad[5] = std::get<0>(cc_5) * -1.0/std::max(EPS,x[5]);
+grad[6] = std::get<0>(cc_6) * -1.0/std::max(EPS,x[6]);
+grad[7] = std::get<0>(cc_7) * -1.0/std::max(EPS,x[7]);
+grad[8] = std::get<0>(cc_8) * -1.0/std::max(EPS,x[8]);
+grad[9] = std::get<0>(cc_9) * -1.0/std::max(EPS,x[9]);
+grad[10] = std::get<1>(cc_0) * -1.0/std::max(EPS,x[10]);
+grad[11] = std::get<1>(cc_1) * -1.0/std::max(EPS,x[11]);
+grad[12] = std::get<1>(cc_2) * -1.0/std::max(EPS,x[12]);
+grad[13] = std::get<1>(cc_3) * -1.0/std::max(EPS,x[13]);
+grad[14] = std::get<1>(cc_4) * -1.0/std::max(EPS,x[14]);
+grad[15] = std::get<1>(cc_5) * -1.0/std::max(EPS,x[15]);
+grad[16] = std::get<1>(cc_6) * -1.0/std::max(EPS,x[16]);
+grad[17] = std::get<1>(cc_7) * -1.0/std::max(EPS,x[17]);
+grad[18] = std::get<1>(cc_8) * -1.0/std::max(EPS,x[18]);
+grad[19] = std::get<1>(cc_9) * -1.0/std::max(EPS,x[19]);
 }
 return std::get<0>(cc_0) * -mlog(x[0])
  + std::get<0>(cc_1) * -mlog(x[1])

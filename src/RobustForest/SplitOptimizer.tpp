@@ -2,8 +2,12 @@
 #include <algorithm>
 #include <ranges>
 
+#include <mutex>
+
 #include "../DF2/DF_util.h"
 #include "../thread_pool.hpp"
+
+std::mutex dbg_mut;
 
 template<size_t NX, size_t NY>
 double SplitOptimizer<NX,NY>::sse(const DF<NY>& y_true,
@@ -681,10 +685,13 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
 
     // seed
     std::vector<double> x(NY2);
+    std::vector<double> x_0(NY2);
     for (size_t i = 0; i < NY; i++)
     {
         x[i] = current_prediction_score(i);
         x[i+NY] = current_prediction_score(i);
+        x_0[i] = current_prediction_score(i);
+        x_0[i+NY] = current_prediction_score(i);
     }
 
     double minf;
@@ -694,7 +701,7 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
         nlopt::opt optimizer(optim_algo_, NY2);
         optimizer.set_lower_bounds(0);
         optimizer.set_upper_bounds(1);
-        double tol = 1e-6;
+        double tol = 1e-10;
         optimizer.set_xtol_rel(tol);
         optimizer.set_maxeval(maxiter_);
         loss_data<NY> d = {CL, CU, CR};
@@ -704,7 +711,7 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
         //     throw std::runtime_error("not implemented");
 
         // if (constraints.size() > 0)
-        //     Util::log("using {} constraints.", constraints.size());
+        //     fmt::print("using {} constraints.\n", constraints.size());
         for (size_t i = 0; i < constraints.size(); i++)
         {
             auto fun = constraints[i];
@@ -722,9 +729,21 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
     }
     catch(std::exception& e)
     {
-        // if (strncmp(e.what(), "bug: more than iter", 19))
+        Util::warn("caught NLOPT exception: {}", e.what());
+        // if (strncmp(e.what(), "bug: more than iter", 19) == 0)
         // {
-            Util::warn("caught NLOPT exception: {}", e.what());
+        //     std::unique_lock lock(dbg_mut);
+        //     row_printf<NY>("CL = {}\n", CL);
+        //     row_printf<NY>("CR = {}\n", CR);
+        //     row_printf<NY>("CU = {}\n", CU);
+        //     fmt::print("x_0 = {}\n", x_0);
+        //     fmt::print("x = {}\n", x);
+        //     fmt::print("f = {}\n", minf);
+        //     fmt::print("{} constraints\n", constraints.size());
+        //     // fmt::print("*** Start Of Constraints ***\n");
+        //     // for (const auto& c : constr_data)
+        //     //     fmt::print("{}\n", c.debug_str());
+        //     // fmt::print("*** End Of Constraints ***\n");
         // }
         return {};
     }

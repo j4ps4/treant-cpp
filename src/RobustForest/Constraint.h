@@ -21,6 +21,8 @@ struct Constr_data
 {
     const Row<NY>* y;
     const Row<NY>* bound;
+    // const Ineq ineq;
+    // const Direction direct;
     std::string debug_str() const;
 };
 

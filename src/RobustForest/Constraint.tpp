@@ -64,7 +64,7 @@ void print_x(const double* x)
 }
 
 template<size_t NY, size_t NY2>
-double ineq_L_LT(unsigned int n, const double* x, double* grad, void* data)
+double ineq_L_GTE(unsigned int n, const double* x, double* grad, void* data)
 {
     // if (!check_x<NY2>(x))
     // {
@@ -88,10 +88,11 @@ double ineq_L_LT(unsigned int n, const double* x, double* grad, void* data)
     }
     Eigen::Map<const Row<NY2>> pred(x);
     //return -(y * (pred.template head<NY>().log())).sum() + (y * bound.log()).sum();
+    // sum(y * log(bound)) <= sum(y * log(predLeft))
     return -(y * (pred.template head<NY>().max(EPS).min(1-EPS).log())).sum() + (y * bound.log()).sum();
 }
 template<size_t NY, size_t NY2>
-double ineq_L_GTE(unsigned int n, const double* x, double* grad, void* data)
+double ineq_L_LT(unsigned int n, const double* x, double* grad, void* data)
 {
     // if (!check_x<NY2>(x))
     // {
@@ -117,7 +118,7 @@ double ineq_L_GTE(unsigned int n, const double* x, double* grad, void* data)
     return (y * (pred.template head<NY>().max(EPS).min(1-EPS).log())).sum() - (y * bound.log()).sum();
 }
 template<size_t NY, size_t NY2>
-double ineq_R_LT(unsigned int n, const double* x, double* grad, void* data)
+double ineq_R_GTE(unsigned int n, const double* x, double* grad, void* data)
 {
     // if (!check_x<NY2>(x))
     // {
@@ -143,7 +144,7 @@ double ineq_R_LT(unsigned int n, const double* x, double* grad, void* data)
     return -(y * (pred.template tail<NY>().max(EPS).min(1-EPS).log())).sum() + (y * bound.log()).sum();
 }
 template<size_t NY, size_t NY2>
-double ineq_R_GTE(unsigned int n, const double* x, double* grad, void* data)
+double ineq_R_LT(unsigned int n, const double* x, double* grad, void* data)
 {
     // if (!check_x<NY2>(x))
     // {
@@ -169,7 +170,7 @@ double ineq_R_GTE(unsigned int n, const double* x, double* grad, void* data)
     return (y * (pred.template tail<NY>().max(EPS).min(1-EPS).log())).sum() - (y * bound.log()).sum();
 }
 template<size_t NY, size_t NY2>
-double ineq_U_LT(unsigned int n, const double* x, double* grad, void* data)
+double ineq_U_GTE(unsigned int n, const double* x, double* grad, void* data)
 {
     // if (!check_x<NY2>(x))
     // {
@@ -211,7 +212,7 @@ double ineq_U_LT(unsigned int n, const double* x, double* grad, void* data)
     return -std::max(s1, s2) + (y * bound.log()).sum();
 }
 template<size_t NY, size_t NY2>
-double ineq_U_GTE(unsigned int n, const double* x, double* grad, void* data)
+double ineq_U_LT(unsigned int n, const double* x, double* grad, void* data)
 {
     // if (!check_x<NY2>(x))
     // {

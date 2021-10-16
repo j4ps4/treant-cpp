@@ -16,6 +16,7 @@ struct TrainArguments
     int maxiter;
     size_t n_trees;
 	double epsilon;
+	bool always_ret;
 };
 
 struct CrossvalArguments

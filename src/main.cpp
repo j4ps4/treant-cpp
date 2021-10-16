@@ -140,7 +140,9 @@ int main(int argc, char** argv)
         ("feature-blacklist", "features to ignore when considering a split",
         cxxopts::value<std::vector<size_t>>()->default_value(""))
         ("feature-ids", "features to use in ID# rules, and Chen et al.",
-        cxxopts::value<std::vector<size_t>>()->default_value(""));
+        cxxopts::value<std::vector<size_t>>()->default_value(""))
+        ("nlopt-always-return", "should nlopt return a value even when thrown exception",
+        cxxopts::value<bool>()->default_value("true"));
 
     options.add_options("internal")
         ("replace-features", "whether the random sampling of features should be with replacement",
@@ -249,6 +251,7 @@ int main(int argc, char** argv)
         auto affine_v = opts["affine"].as<std::vector<bool>>();
         auto affine = affine_v.front();
         auto par = opts["par"].as<bool>();
+        auto always_ret = opts["nlopt-always-return"].as<bool>();
         auto bootstrap_samples = opts["sample-instances"].as<bool>();
         auto bootstrap_features = opts["sample-features"].as<bool>();
         auto replace_samples = opts["replace-instances"].as<bool>();
@@ -280,7 +283,7 @@ int main(int argc, char** argv)
                                 .max_features=max_features},
                     .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                     .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
-                    .n_trees=n_trees, .epsilon=epsilon}, batch_file
+                    .n_trees=n_trees, .epsilon=epsilon, .always_ret=always_ret}, batch_file
                 );
             }
             else if (opts.count("cross-val"))
@@ -295,7 +298,7 @@ int main(int argc, char** argv)
                                 .max_features=max_features},
                     .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                     .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
-                    .n_trees=n_trees, .epsilon=epsilon},
+                    .n_trees=n_trees, .epsilon=epsilon, .always_ret=always_ret},
                     {.N_folds=N_folds, .logfile=logfile, .maxdepth=maxdepth_v, 
                     .min_inst=min_inst_v, .affine=affine_v}
                 );
@@ -309,7 +312,7 @@ int main(int argc, char** argv)
                             .max_features=max_features},
                 .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                 .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
-                .n_trees=n_trees, .epsilon=epsilon}
+                .n_trees=n_trees, .epsilon=epsilon, .always_ret=always_ret}
             );
         }
         else if (dataset == "har")
@@ -327,7 +330,7 @@ int main(int argc, char** argv)
                                 .max_features=max_features},
                     .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                     .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
-                    .n_trees=n_trees, .epsilon=epsilon}, batch_file
+                    .n_trees=n_trees, .epsilon=epsilon, .always_ret=always_ret}, batch_file
                 );
             }
             har::train_and_save( 
@@ -339,7 +342,7 @@ int main(int argc, char** argv)
                             .max_features=max_features},
                 .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                 .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter,
-                .n_trees=n_trees, .epsilon=epsilon}
+                .n_trees=n_trees, .epsilon=epsilon, .always_ret=always_ret}
             );
         }
         else if (dataset == "covertype")
@@ -357,7 +360,7 @@ int main(int argc, char** argv)
                                 .max_features=max_features},
                     .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                     .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter, 
-                    .n_trees=n_trees, .epsilon=epsilon}, batch_file
+                    .n_trees=n_trees, .epsilon=epsilon, .always_ret=always_ret}, batch_file
                 );
             }
             covertype::train_and_save( 
@@ -369,7 +372,7 @@ int main(int argc, char** argv)
                             .max_features=max_features},
                 .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                 .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter,
-                .n_trees=n_trees, .epsilon=epsilon}
+                .n_trees=n_trees, .epsilon=epsilon, .always_ret=always_ret}
             );
         }
         else if (dataset == "mnist")
@@ -399,7 +402,7 @@ int main(int argc, char** argv)
                             .max_features=max_features},
                 .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
                 .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter,
-                .n_trees=n_trees, .epsilon=epsilon}
+                .n_trees=n_trees, .epsilon=epsilon, .always_ret=always_ret}
             );
         }
         else

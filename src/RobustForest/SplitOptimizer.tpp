@@ -729,8 +729,8 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
     }
     catch(std::exception& e)
     {
-        Util::warn("caught NLOPT exception: {}", e.what());
-        // if (strncmp(e.what(), "bug: more than iter", 19) == 0)
+        //Util::warn("caught NLOPT exception: {}", e.what());
+        // if (!constraints.empty())
         // {
         //     std::unique_lock lock(dbg_mut);
         //     row_printf<NY>("CL = {}\n", CL);
@@ -740,12 +740,12 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
         //     fmt::print("x = {}\n", x);
         //     fmt::print("f = {}\n", minf);
         //     fmt::print("{} constraints\n", constraints.size());
-        //     // fmt::print("*** Start Of Constraints ***\n");
-        //     // for (const auto& c : constr_data)
-        //     //     fmt::print("{}\n", c.debug_str());
-        //     // fmt::print("*** End Of Constraints ***\n");
+        //     for (const auto& c : constr_data)
+        //         fmt::print("{}\n", c.debug_str());
+        //     // std::exit(1);
         // }
-        return {};
+        if (!alwaysRet_)
+            return {};
     }
     Row<NY> pred_left;
     Row<NY> pred_right;

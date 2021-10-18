@@ -63,8 +63,10 @@ void print_x(const double* x)
     std::cout << "\n";
 }
 
+static auto mlog = [](double x){return std::log(std::min(std::max(x,EPS),1-EPS));};
+
 template<size_t NY, size_t NY2>
-double ineq_L_GTE(unsigned int n, const double* x, double* grad, void* data)
+double ineq_L_LT(unsigned int n, const double* x, double* grad, void* data)
 {
     // if (!check_x<NY2>(x))
     // {
@@ -73,26 +75,24 @@ double ineq_L_GTE(unsigned int n, const double* x, double* grad, void* data)
     //     std::exit(1);
     // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
-    const auto& y = *(c_data->y);
+    const size_t y = (c_data->y);
     const auto& bound = *(c_data->bound);
     if (grad != nullptr)
     {
-        for (size_t i = 0; i < NY; i++)
-        {
-            grad[i] = -y(i)/std::max(EPS,x[i]);
-        }
-        for (size_t i = NY; i < NY2; i++)
-        {
+        for (size_t i = 0; i < NY2; i++)
             grad[i] = 0.0;
-        }
+        grad[y] = -1.0 / std::max(EPS,x[y]);
     }
     Eigen::Map<const Row<NY2>> pred(x);
     //return -(y * (pred.template head<NY>().log())).sum() + (y * bound.log()).sum();
-    // sum(y * log(bound)) <= sum(y * log(predLeft))
-    return -(y * (pred.template head<NY>().max(EPS).min(1-EPS).log())).sum() + (y * bound.log()).sum();
+    // logloss(predLeft) <= logloss(bound)
+    // <=> logloss(predLeft) - logloss(bound) <= 0
+    // -log(predLeft) + log(bound)
+    auto predLeft = pred.template head<NY>();
+    return -mlog(predLeft(y)) + mlog(bound(y));
 }
 template<size_t NY, size_t NY2>
-double ineq_L_LT(unsigned int n, const double* x, double* grad, void* data)
+double ineq_L_GTE(unsigned int n, const double* x, double* grad, void* data)
 {
     // if (!check_x<NY2>(x))
     // {
@@ -101,24 +101,23 @@ double ineq_L_LT(unsigned int n, const double* x, double* grad, void* data)
     //     std::exit(1);
     // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
-    const auto& y = *(c_data->y);
+    const auto y = (c_data->y);
     const auto& bound = *(c_data->bound);
     if (grad != nullptr)
     {
-        for (size_t i = 0; i < NY; i++)
-        {
-            grad[i] = y(i)/std::max(EPS,x[i]);
-        }
-        for (size_t i = NY; i < NY2; i++)
-        {
+        for (size_t i = 0; i < NY2; i++)
             grad[i] = 0.0;
-        }
+        grad[y] = 1.0 / std::max(EPS,x[y]);
     }
     Eigen::Map<const Row<NY2>> pred(x);
-    return (y * (pred.template head<NY>().max(EPS).min(1-EPS).log())).sum() - (y * bound.log()).sum();
+    auto predLeft = pred.template head<NY>();
+    // sum(y * -log(predLeft)) >= sum(y * -log(bound))
+    // <=> -sum(y * -log(predLeft)) + sum(y * -log(bound)) <= 0
+    // <=> sum(y * log(predLeft)) + sum(y * -log(bound)) <= 0
+    return mlog(predLeft(y)) - mlog(bound(y));
 }
 template<size_t NY, size_t NY2>
-double ineq_R_GTE(unsigned int n, const double* x, double* grad, void* data)
+double ineq_R_LT(unsigned int n, const double* x, double* grad, void* data)
 {
     // if (!check_x<NY2>(x))
     // {
@@ -127,24 +126,23 @@ double ineq_R_GTE(unsigned int n, const double* x, double* grad, void* data)
     //     std::exit(1);
     // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
-    const auto& y = *(c_data->y);
+    const auto y = (c_data->y);
     const auto& bound = *(c_data->bound);
     if (grad != nullptr)
     {
-        for (size_t i = 0; i < NY; i++)
-        {
+        for (size_t i = 0; i < NY2; i++)
             grad[i] = 0.0;
-        }
-        for (size_t i = NY; i < NY2; i++)
-        {
-            grad[i] = -y(i-NY)/std::max(EPS,x[i]);
-        }
+        grad[y+NY] = -1.0 / std::max(EPS,x[y+NY]);
     }
     Eigen::Map<const Row<NY2>> pred(x);
-    return -(y * (pred.template tail<NY>().max(EPS).min(1-EPS).log())).sum() + (y * bound.log()).sum();
+    auto predRight = pred.template tail<NY>();
+    // sum(y * -log(predRight)) <= sum(y * -log(bound))
+    // <=> sum(y * -log(predRight)) - sum(y * -log(bound)) <= 0
+    // <=> sum(y * -log(predRight)) + sum(y * log(bound)) <= 0
+    return -mlog(predRight(y)) + mlog(bound(y));
 }
 template<size_t NY, size_t NY2>
-double ineq_R_LT(unsigned int n, const double* x, double* grad, void* data)
+double ineq_R_GTE(unsigned int n, const double* x, double* grad, void* data)
 {
     // if (!check_x<NY2>(x))
     // {
@@ -153,24 +151,20 @@ double ineq_R_LT(unsigned int n, const double* x, double* grad, void* data)
     //     std::exit(1);
     // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
-    const auto& y = *(c_data->y);
+    const auto& y = (c_data->y);
     const auto& bound = *(c_data->bound);
     if (grad != nullptr)
     {
-        for (size_t i = 0; i < NY; i++)
-        {
+        for (size_t i = 0; i < NY2; i++)
             grad[i] = 0.0;
-        }
-        for (size_t i = NY; i < NY2; i++)
-        {
-            grad[i] = y(i-NY)/std::max(EPS,x[i]);
-        }
+        grad[y+NY] = 1.0 / std::max(EPS,x[y+NY]);
     }
     Eigen::Map<const Row<NY2>> pred(x);
-    return (y * (pred.template tail<NY>().max(EPS).min(1-EPS).log())).sum() - (y * bound.log()).sum();
+    auto predRight = pred.template tail<NY>();
+    return mlog(predRight(y)) - mlog(bound(y));
 }
 template<size_t NY, size_t NY2>
-double ineq_U_GTE(unsigned int n, const double* x, double* grad, void* data)
+double ineq_U_LT(unsigned int n, const double* x, double* grad, void* data)
 {
     // if (!check_x<NY2>(x))
     // {
@@ -179,40 +173,32 @@ double ineq_U_GTE(unsigned int n, const double* x, double* grad, void* data)
     //     std::exit(1);
     // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
-    const auto& y = *(c_data->y);
+    const auto y = (c_data->y);
     const auto& bound = *(c_data->bound);
     Eigen::Map<const Row<NY2>> pred(x);
-    const double s1 = (y * (pred.template head<NY>().max(EPS).min(1-EPS).log())).sum();
-    const double s2 = (y * (pred.template tail<NY>().max(EPS).min(1-EPS).log())).sum();
+    auto predLeft = pred.template head<NY>();
+    auto predRight = pred.template tail<NY>();
+    const double s1 = -mlog(predLeft(y));
+    const double s2 = -mlog(predRight(y));
     if (grad != nullptr)
     {
+        for (size_t i = 0; i < NY2; i++)
+            grad[i] = 0.0;
         if (s1 >= s2)
         {
-            for (size_t i = 0; i < NY; i++)
-            {
-                grad[i] = -y(i)/std::max(EPS,x[i]);
-            }
-            for (size_t i = NY; i < NY2; i++)
-            {
-                grad[i] = 0.0;
-            }
+            grad[y] = -1.0 / std::max(EPS,x[y]);
         }
         else
         {
-            for (size_t i = 0; i < NY; i++)
-            {
-                grad[i] = 0.0;
-            }
-            for (size_t i = NY; i < NY2; i++)
-            {
-                grad[i] = -y(i-NY)/std::max(EPS,x[i]);
-            }
+            grad[y+NY] = -1.0 / std::max(EPS,x[y+NY]);
         }
     }
-    return -std::max(s1, s2) + (y * bound.log()).sum();
+    // max(logloss(predLeft), logloss(predRight)) <= logloss(bound)
+    // <=> max(..) - logloss(bound) <= 0
+    return std::max(s1, s2) + mlog(bound(y));
 }
 template<size_t NY, size_t NY2>
-double ineq_U_LT(unsigned int n, const double* x, double* grad, void* data)
+double ineq_U_GTE(unsigned int n, const double* x, double* grad, void* data)
 {
     // if (!check_x<NY2>(x))
     // {
@@ -221,37 +207,29 @@ double ineq_U_LT(unsigned int n, const double* x, double* grad, void* data)
     //     std::exit(1);
     // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
-    const auto& y = *(c_data->y);
+    const auto y = (c_data->y);
     const auto& bound = *(c_data->bound);
     Eigen::Map<const Row<NY2>> pred(x);
-    const double s1 = (y * (pred.template head<NY>().max(EPS).min(1-EPS).log())).sum();
-    const double s2 = (y * (pred.template tail<NY>().max(EPS).min(1-EPS).log())).sum();
+    auto predLeft = pred.template head<NY>();
+    auto predRight = pred.template tail<NY>();
+    const double s1 = -mlog(predLeft(y));
+    const double s2 = -mlog(predRight(y));
     if (grad != nullptr)
     {
+        for (size_t i = 0; i < NY2; i++)
+            grad[i] = 0.0;
         if (s1 < s2)
         {
-            for (size_t i = 0; i < NY; i++)
-            {
-                grad[i] = y(i)/std::max(EPS,x[i]);
-            }
-            for (size_t i = NY; i < NY2; i++)
-            {
-                grad[i] = 0.0;
-            }
+            grad[y] = 1.0 / std::max(EPS,x[y]);
         }
         else
         {
-            for (size_t i = 0; i < NY; i++)
-            {
-                grad[i] = 0.0;
-            }
-            for (size_t i = NY; i < NY2; i++)
-            {
-                grad[i] = y(i-NY)/std::max(EPS,x[i]);
-            }
+            grad[y+NY] = 1.0 / std::max(EPS,x[y+NY]);
         }
     }
-    return std::min(s1, s2) - (y * bound.log()).sum();
+    // min(ll0, ll1) >= logloss(bound)
+    // <=> -min(..) + logloss(bound) <= 0
+    return -std::min(s1, s2) - mlog(bound(y));
 }
 
 template<size_t NX, size_t NY>
@@ -343,7 +321,7 @@ std::string Constr_data<NY>::debug_str() const
     //         return ineq_U_GTE<NY,NY2C>;
     //     }
     // }
-    ss << "y: " << *y << "\n";
+    ss << "y: " << y << "\n";
     ss << "bound: " << *bound << "\n";
     return ss.str();
 }

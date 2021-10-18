@@ -685,13 +685,13 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
 
     // seed
     std::vector<double> x(NY2);
-    std::vector<double> x_0(NY2);
+    // std::vector<double> x_0(NY2);
     for (size_t i = 0; i < NY; i++)
     {
         x[i] = current_prediction_score(i);
         x[i+NY] = current_prediction_score(i);
-        x_0[i] = current_prediction_score(i);
-        x_0[i+NY] = current_prediction_score(i);
+        // x_0[i] = current_prediction_score(i);
+        // x_0[i+NY] = current_prediction_score(i);
     }
 
     double minf;
@@ -733,20 +733,20 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
     catch(std::exception& e)
     {
         Util::warn("caught NLOPT exception: {}", e.what());
-        if (!constraints.empty())
-        {
-            std::unique_lock lock(dbg_mut);
-            row_printf<NY>("CL = {}\n", CL);
-            row_printf<NY>("CR = {}\n", CR);
-            row_printf<NY>("CU = {}\n", CU);
-            fmt::print("x_0 = {}\n", x_0);
-            fmt::print("x = {}\n", x);
-            fmt::print("f = {}\n", minf);
-            fmt::print("{} constraints\n", constraints.size());
-            for (const auto& c : constr_data)
-                fmt::print("{}\n", c.debug_str());
-            std::exit(1);
-        }
+        // if (!constraints.empty())
+        // {
+        //     std::unique_lock lock(dbg_mut);
+        //     row_printf<NY>("CL = {}\n", CL);
+        //     row_printf<NY>("CR = {}\n", CR);
+        //     row_printf<NY>("CU = {}\n", CU);
+        //     fmt::print("x_0 = {}\n", x_0);
+        //     fmt::print("x = {}\n", x);
+        //     fmt::print("f = {}\n", minf);
+        //     fmt::print("{} constraints\n", constraints.size());
+        //     for (const auto& c : constr_data)
+        //         fmt::print("{}\n", c.debug_str());
+        //     std::exit(1);
+        // }
         if (!alwaysRet_)
             return {};
     }
@@ -873,7 +873,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                                     updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
                                 else if (c_right)
                                     updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
-                                constr_data.push_back(Constr_data<NY>{c.get_y_ptr(), c.get_bound_ptr()});
+                                constr_data.push_back(Constr_data<NY>{c.get_y(), c.get_bound_ptr()});
                             }
                         }
                         optimizer_res = optimize_loss_under_attack(y, current_prediction_score,
@@ -973,7 +973,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                                 updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
                             else if (c_right)
                                 updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
-                            constr_data.push_back(Constr_data<NY>{c.get_y_ptr(), c.get_bound_ptr()});
+                            constr_data.push_back(Constr_data<NY>{c.get_y(), c.get_bound_ptr()});
                         }
                     }
                     optimizer_res = optimize_loss_under_attack(y, current_prediction_score,
@@ -1100,6 +1100,9 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 int min_right = *(std::ranges::min_element(min_vec));
                 // Util::log("min_right_vec: {}", min_vec);
                 // Util::log("min_left: {}, min_right: {}", min_left, min_right);
+                Eigen::Index u_classid;
+                y.row(u).maxCoeff(&u_classid);
+                size_t u_c = static_cast<size_t>(u_classid);
                 if (unknown_to_left(i) > unknown_to_right(i))
                 {
                     // Assign unknown instance to left as the distance is larger
@@ -1107,8 +1110,8 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                     costs[u] = min_left;
                     if (useConstraints_)
                     {
-                        constraints_left.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::GTE, min_left, best_pred_right));
-                        constraints_right.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::LT, min_left, best_pred_right));
+                        constraints_left.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::GTE, min_left, best_pred_right));
+                        constraints_right.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::LT, min_left, best_pred_right));
                     }
                 }
                 else
@@ -1118,8 +1121,8 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                     costs[u] = min_right;
                     if (useConstraints_)
                     {
-                        constraints_left.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::LT, min_right, best_pred_left));
-                        constraints_right.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::GTE, min_right, best_pred_left));
+                        constraints_left.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::LT, min_right, best_pred_left));
+                        constraints_right.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::GTE, min_right, best_pred_left));
                     }
                 }
             }

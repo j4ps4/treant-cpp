@@ -145,13 +145,13 @@ void train_and_save(TrainArguments<MNIST_X,MNIST_Y>&& args)
     if (args.algo == TrainingAlgo::Icml2019)
     {
         auto optimz = std::make_shared<SplitOptimizer<MNIST_X,MNIST_Y>>(args.split, args.algo, args.maxiter,
-            args.epsilon, args.feature_ids, args.always_ret, EPSILON_COEFF);
+            args.epsilon, args.feature_ids, args.always_ret, args.use_constraints, EPSILON_COEFF);
         args.tree_args.optimizer = std::move(optimz);
     }
     else
     {
         auto optimz = std::make_shared<SplitOptimizer<MNIST_X,MNIST_Y>>(args.split, args.algo, args.maxiter,
-            args.epsilon, args.feature_ids, args.always_ret);
+            args.epsilon, args.feature_ids, args.always_ret, args.use_constraints);
         args.tree_args.optimizer = std::move(optimz);
     }
     args.tree_args.feature_bl = MNIST_BL2;

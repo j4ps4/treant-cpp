@@ -712,11 +712,14 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
 
         // if (constraints.size() > 0)
         //     fmt::print("using {} constraints.\n", constraints.size());
-        for (size_t i = 0; i < constraints.size(); i++)
+        if (useConstraints_)
         {
-            auto fun = constraints[i];
-            auto c_data = &constr_data[i];
-            optimizer.add_inequality_constraint(*(fun.target<double(*)(unsigned,const double*,double*,void*)>()), c_data, 1e-8);
+            for (size_t i = 0; i < constraints.size(); i++)
+            {
+                auto fun = constraints[i];
+                auto c_data = &constr_data[i];
+                optimizer.add_inequality_constraint(*(fun.target<double(*)(unsigned,const double*,double*,void*)>()), c_data, 1e-8);
+            }
         }
         optimizer.add_equality_constraint(eq_constr1<NY>, nullptr, 1e-8);
         optimizer.add_equality_constraint(eq_constr2<NY>, nullptr, 1e-8);
@@ -729,21 +732,21 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
     }
     catch(std::exception& e)
     {
-        //Util::warn("caught NLOPT exception: {}", e.what());
-        // if (!constraints.empty())
-        // {
-        //     std::unique_lock lock(dbg_mut);
-        //     row_printf<NY>("CL = {}\n", CL);
-        //     row_printf<NY>("CR = {}\n", CR);
-        //     row_printf<NY>("CU = {}\n", CU);
-        //     fmt::print("x_0 = {}\n", x_0);
-        //     fmt::print("x = {}\n", x);
-        //     fmt::print("f = {}\n", minf);
-        //     fmt::print("{} constraints\n", constraints.size());
-        //     for (const auto& c : constr_data)
-        //         fmt::print("{}\n", c.debug_str());
-        //     // std::exit(1);
-        // }
+        Util::warn("caught NLOPT exception: {}", e.what());
+        if (!constraints.empty())
+        {
+            std::unique_lock lock(dbg_mut);
+            row_printf<NY>("CL = {}\n", CL);
+            row_printf<NY>("CR = {}\n", CR);
+            row_printf<NY>("CU = {}\n", CU);
+            fmt::print("x_0 = {}\n", x_0);
+            fmt::print("x = {}\n", x);
+            fmt::print("f = {}\n", minf);
+            fmt::print("{} constraints\n", constraints.size());
+            for (const auto& c : constr_data)
+                fmt::print("{}\n", c.debug_str());
+            std::exit(1);
+        }
         if (!alwaysRet_)
             return {};
     }
@@ -858,17 +861,20 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                         std::vector<Constr_data<NY>> constr_data;
                         // if (constraints.size() > 0)
                         //     Util::info("propagating {} constraints.", constraints.size());
-                        for (const auto& c : constraints)
+                        if (useConstraints_)
                         {
-                            auto c_left = c.propagate_left(attacker, feature_id, feature_value);
-                            auto c_right = c.propagate_right(attacker, feature_id, feature_value);
-                            if (c_left && c_right)
-                                updated_constraints.push_back(c.encode_for_optimizer(Direction::U));
-                            else if (c_left)
-                                updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
-                            else if (c_right)
-                                updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
-                            constr_data.push_back(Constr_data<NY>{c.get_y_ptr(), c.get_bound_ptr()});
+                            for (const auto& c : constraints)
+                            {
+                                auto c_left = c.propagate_left(attacker, feature_id, feature_value);
+                                auto c_right = c.propagate_right(attacker, feature_id, feature_value);
+                                if (c_left && c_right)
+                                    updated_constraints.push_back(c.encode_for_optimizer(Direction::U));
+                                else if (c_left)
+                                    updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
+                                else if (c_right)
+                                    updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
+                                constr_data.push_back(Constr_data<NY>{c.get_y_ptr(), c.get_bound_ptr()});
+                            }
                         }
                         optimizer_res = optimize_loss_under_attack(y, current_prediction_score,
                             split_left, split_right, split_unknown, updated_constraints, constr_data);
@@ -955,17 +961,20 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                     std::vector<Constr_data<NY>> constr_data;
                     // if (constraints.size() > 0)
                     //     Util::info("propagating {} constraints.", constraints.size());
-                    for (const auto& c : constraints)
+                    if (useConstraints_)
                     {
-                        auto c_left = c.propagate_left(attacker, feature_id, feature_value);
-                        auto c_right = c.propagate_right(attacker, feature_id, feature_value);
-                        if (c_left && c_right)
-                            updated_constraints.push_back(c.encode_for_optimizer(Direction::U));
-                        else if (c_left)
-                            updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
-                        else if (c_right)
-                            updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
-                        constr_data.push_back(Constr_data<NY>{c.get_y_ptr(), c.get_bound_ptr()});
+                        for (const auto& c : constraints)
+                        {
+                            auto c_left = c.propagate_left(attacker, feature_id, feature_value);
+                            auto c_right = c.propagate_right(attacker, feature_id, feature_value);
+                            if (c_left && c_right)
+                                updated_constraints.push_back(c.encode_for_optimizer(Direction::U));
+                            else if (c_left)
+                                updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
+                            else if (c_right)
+                                updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
+                            constr_data.push_back(Constr_data<NY>{c.get_y_ptr(), c.get_bound_ptr()});
+                        }
                     }
                     optimizer_res = optimize_loss_under_attack(y, current_prediction_score,
                         split_left, split_right, split_unknown, updated_constraints, constr_data);
@@ -1056,14 +1065,17 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
             const auto unknown_to_right = norm(unknown_to_right1);
             // Util::log("unknown_to_left: ({}x{})", unknown_to_left.rows(), unknown_to_left.cols());
             // Util::log("unknown_to_right: ({}x{})", unknown_to_right.rows(), unknown_to_right.cols());
-            for (const auto& c : constraints)
+            if (useConstraints_)
             {
-                auto c_l = c.propagate_left(attacker, best_split_feature_id, best_split_feature_value);
-                if (c_l)
-                    constraints_left.push_back(c_l.value());
-                auto c_r = c.propagate_right(attacker, best_split_feature_id, best_split_feature_value);
-                if (c_r)
-                    constraints_right.push_back(c_r.value());
+                for (const auto& c : constraints)
+                {
+                    auto c_l = c.propagate_left(attacker, best_split_feature_id, best_split_feature_value);
+                    if (c_l)
+                        constraints_left.push_back(c_l.value());
+                    auto c_r = c.propagate_right(attacker, best_split_feature_id, best_split_feature_value);
+                    if (c_r)
+                        constraints_right.push_back(c_r.value());
+                }
             }
             const auto NU = best_split_unknown_id.size();
             for (size_t i = 0; i < NU; i++)
@@ -1093,16 +1105,22 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                     // Assign unknown instance to left as the distance is larger
                     best_split_left_id.push_back(u);
                     costs[u] = min_left;
-                    constraints_left.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::GTE, min_left, best_pred_right));
-                    constraints_right.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::LT, min_left, best_pred_right));
+                    if (useConstraints_)
+                    {
+                        constraints_left.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::GTE, min_left, best_pred_right));
+                        constraints_right.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::LT, min_left, best_pred_right));
+                    }
                 }
                 else
                 {
                     // Assign unknown instance to right as the distance is larger
                     best_split_right_id.push_back(u);
                     costs[u] = min_right;
-                    constraints_left.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::LT, min_right, best_pred_left));
-                    constraints_right.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::GTE, min_right, best_pred_left));
+                    if (useConstraints_)
+                    {
+                        constraints_left.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::LT, min_right, best_pred_left));
+                        constraints_right.push_back(Constraint<NX,NY>(X.row(u), y.row(u), Ineq::GTE, min_right, best_pred_left));
+                    }
                 }
             }
         }

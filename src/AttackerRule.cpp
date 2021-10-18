@@ -150,6 +150,7 @@ load_attack_rules(const std::filesystem::path& fn, const std::map<std::string,
         return cpp::failure(fmt::format("{}: not valid attacks file", fn.c_str()));
     auto attacks_arr = attacks.array_items();
     load_helper(column_map, type, attacks_arr, out, id_set);
+    Util::info("loaded {} rules.", out.size());
     return std::make_tuple(out, type);
 }
 

@@ -126,13 +126,13 @@ void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
     if (args.algo == TrainingAlgo::Icml2019)
     {
         auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter,
-            args.epsilon, args.feature_ids, args.always_ret, EPSILON_COEFF);
+            args.epsilon, args.feature_ids, args.always_ret, args.use_constraints, EPSILON_COEFF);
         args.tree_args.optimizer = std::move(optimz);
     }
     else
     {
         auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter, 
-            args.epsilon, args.feature_ids, args.always_ret);
+            args.epsilon, args.feature_ids, args.always_ret, args.use_constraints);
         args.tree_args.optimizer = std::move(optimz);
     }
 
@@ -182,13 +182,13 @@ void batch_train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, const std::s
     if (args.algo == TrainingAlgo::Icml2019)
     {
         auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter,
-            args.epsilon, args.feature_ids, args.always_ret, EPSILON_COEFF);
+            args.epsilon, args.feature_ids, args.always_ret, args.use_constraints, EPSILON_COEFF);
         args.tree_args.optimizer = std::move(optimz);
     }
     else
     {
         auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter, 
-            args.epsilon, args.feature_ids, args.always_ret);
+            args.epsilon, args.feature_ids, args.always_ret, args.use_constraints);
         args.tree_args.optimizer = std::move(optimz);
     }
 
@@ -248,13 +248,13 @@ void cross_val_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, CrossvalArgume
     if (args.algo == TrainingAlgo::Icml2019)
     {
         auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter,
-            args.epsilon, args.feature_ids, args.always_ret, EPSILON_COEFF);
+            args.epsilon, args.feature_ids, args.always_ret, args.use_constraints, EPSILON_COEFF);
         args.tree_args.optimizer = std::move(optimz);
     }
     else
     {
         auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter, 
-            args.epsilon, args.feature_ids, args.always_ret);
+            args.epsilon, args.feature_ids, args.always_ret, args.use_constraints);
         args.tree_args.optimizer = std::move(optimz);
     }
 

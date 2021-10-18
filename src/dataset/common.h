@@ -17,6 +17,7 @@ struct TrainArguments
     size_t n_trees;
 	double epsilon;
 	bool always_ret;
+	bool use_constraints;
 };
 
 struct CrossvalArguments

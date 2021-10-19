@@ -732,7 +732,7 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
     }
     catch(std::exception& e)
     {
-        Util::warn("caught NLOPT exception: {}", e.what());
+        // Util::warn("caught NLOPT exception: {}", e.what());
         // if (!constraints.empty())
         // {
         //     std::unique_lock lock(dbg_mut);
@@ -828,7 +828,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     {
         pool.parallelize_loop(0, feats.size(), 
             [&](const size_t& low, const size_t& high){ // block [low, high)
-                std::vector<size_t> my_features;
+                std::vector<double> my_features;
                 for (size_t i = low; i < high; i++)
                     my_features.push_back(feats.at(i));
                 IdxVec split_left;
@@ -840,7 +840,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 // Util::log("testing feature {}", feature_id);
                 for (size_t feats_idx = 0; feats_idx < n_mf; feats_idx++)
                 {
-                    size_t feature_value = my_features[feats_idx];
+                    double feature_value = my_features[feats_idx];
                     // Util::log("feats: {}", feats);
                     if (algo_ == TrainingAlgo::Icml2019)
                     {

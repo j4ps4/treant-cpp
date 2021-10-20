@@ -18,7 +18,17 @@ DF<N> DF_index(const DF<N>& in, const std::vector<size_t>& idxs)
 template<size_t NY>
 Row<NY> num_classes(const DF<NY>& y)
 {
+    //return y.rows()>0 ? y.colwise().sum() : Row<NY>::Zero();
 	return y.colwise().sum();
+}
+
+template<size_t NY>
+Row<NY> null_pred(const DF<NY>& y)
+{
+    if (y.rows()>0)
+        return y.colwise().mean();
+    else
+        return Row<NY>::Ones()/NY;
 }
 
 template<size_t NY>
@@ -37,6 +47,12 @@ size_t dominant_class(const DF<NY>& y)
     Eigen::Index max_ind;
     cc.maxCoeff(&max_ind);
     return max_ind;
+}
+
+template<size_t N>
+std::string row_str(const Row<N>& row)
+{
+    return fmt::format("{}", row);
 }
 
 template<size_t N>

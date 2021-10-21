@@ -81,10 +81,10 @@ double logloss_nlopt<2>(unsigned n, const double* x, double* grad, void* data)
 
     if (grad != nullptr)
     {
-        grad[0] = std::get<0>(cc_0) * -1.0/x[0];
-        grad[1] = std::get<0>(cc_1) * -1.0/x[1];
-        grad[2] = std::get<1>(cc_0) * -1.0/x[2];
-        grad[3] = std::get<1>(cc_1) * -1.0/x[3];
+        grad[0] = std::get<0>(cc_0) * -1.0/std::max(EPS,x[0]);
+        grad[1] = std::get<0>(cc_1) * -1.0/std::max(EPS,x[1]);
+        grad[2] = std::get<1>(cc_0) * -1.0/std::max(EPS,x[2]);
+        grad[3] = std::get<1>(cc_1) * -1.0/std::max(EPS,x[3]);
     }
     return std::get<0>(cc_0) * -mlog(x[0])
          + std::get<0>(cc_1) * -mlog(x[1])
@@ -96,6 +96,12 @@ double logloss_nlopt<2>(unsigned n, const double* x, double* grad, void* data)
 template<>
 double logloss_nlopt<6>(unsigned n, const double* x, double* grad, void* data)
 {
+    // if (!check_x<12>(x))
+    // {
+    //     fmt::print("ERROR: faulty x: ");
+    //     print_x<12>(x);
+    //     // std::exit(1);
+    // }
     loss_data<6>* d = static_cast<loss_data<6>*>(data);
     const auto& cL = d->C_L;
     const auto& cU = d->C_U;
@@ -125,18 +131,18 @@ double logloss_nlopt<6>(unsigned n, const double* x, double* grad, void* data)
 
     if (grad != nullptr)
     {
-        grad[0] = std::get<0>(cc_0) * -1.0/x[0];
-        grad[1] = std::get<0>(cc_1) * -1.0/x[1];
-        grad[2] = std::get<0>(cc_2) * -1.0/x[2];
-        grad[3] = std::get<0>(cc_3) * -1.0/x[3];
-        grad[4] = std::get<0>(cc_4) * -1.0/x[4];
-        grad[5] = std::get<0>(cc_5) * -1.0/x[5];
-        grad[6] = std::get<1>(cc_0) * -1.0/x[6];
-        grad[7] = std::get<1>(cc_1) * -1.0/x[7];
-        grad[8] = std::get<1>(cc_2) * -1.0/x[8];
-        grad[9] = std::get<1>(cc_3) * -1.0/x[9];
-        grad[10] = std::get<1>(cc_4) * -1.0/x[10];
-        grad[11] = std::get<1>(cc_5) * -1.0/x[11];
+        grad[0] = std::get<0>(cc_0) * -1.0/std::max(EPS,x[0]);
+        grad[1] = std::get<0>(cc_1) * -1.0/std::max(EPS,x[1]);
+        grad[2] = std::get<0>(cc_2) * -1.0/std::max(EPS,x[2]);
+        grad[3] = std::get<0>(cc_3) * -1.0/std::max(EPS,x[3]);
+        grad[4] = std::get<0>(cc_4) * -1.0/std::max(EPS,x[4]);
+        grad[5] = std::get<0>(cc_5) * -1.0/std::max(EPS,x[5]);
+        grad[6] = std::get<1>(cc_0) * -1.0/std::max(EPS,x[6]);
+        grad[7] = std::get<1>(cc_1) * -1.0/std::max(EPS,x[7]);
+        grad[8] = std::get<1>(cc_2) * -1.0/std::max(EPS,x[8]);
+        grad[9] = std::get<1>(cc_3) * -1.0/std::max(EPS,x[9]);
+        grad[10] = std::get<1>(cc_4) * -1.0/std::max(EPS,x[10]);
+        grad[11] = std::get<1>(cc_5) * -1.0/std::max(EPS,x[11]);
     }
     return std::get<0>(cc_0) * -mlog(x[0])
          + std::get<0>(cc_1) * -mlog(x[1])
@@ -599,8 +605,8 @@ auto SplitOptimizer<NX,NY>::simple_split(
     }
     auto L = DF_index<NY>(y, split_left);
     auto R = DF_index<NY>(y, split_right);
-    auto pred_left = L.rows()>0 ? L.colwise().mean() : NRow();
-    auto pred_right = R.rows()>0 ? R.colwise().mean() : NRow();
+    auto pred_left = null_pred<NY>(L);
+    auto pred_right = null_pred<NY>(R);
     auto loss = split_loss(L, pred_left, R, pred_right);
     return {split_left, split_right, std::make_tuple(pred_left, pred_right, loss)};
 }
@@ -818,7 +824,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     if (par)
     {
     thread_pool pool;
-    std::mutex mut;
+    std::mutex gain_mut;
 
     for (const auto& [feature_id, feats] : feature_map)
     {
@@ -901,14 +907,15 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                         //std::exit(0);
 
                         // if gain obtained with this split simulation is greater than the best gain so far
-                        std::unique_lock gain_lock(mut);
+                        {
+                        std::unique_lock gain_lock(gain_mut);
                         if (gain > best_gain)
                         {
                             best_gain = gain;
                             best_split_feature_id = feature_id;
                             best_split_feature_value = feature_value;
-                            if (feats_idx < feats.size() - 1)
-                                next_best_split_feature_value = feats[feats_idx+1];
+                            if (low+feats_idx < feats.size() - 1)
+                                next_best_split_feature_value = feats[low+feats_idx+1];
                             else
                                 next_best_split_feature_value = best_split_feature_value;
                             
@@ -918,6 +925,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                             best_pred_left = y_pred_left;
                             best_pred_right = y_pred_right;
                             best_residue = residue;
+                        }
                         }
                     }
                 }

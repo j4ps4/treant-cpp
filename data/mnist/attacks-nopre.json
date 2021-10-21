@@ -1,0 +1,5857 @@
+{
+    "attacks": [{
+            "65": [{
+                "pre": "(0, 255)",
+                "post": 4.857,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -4.857,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "66": [{
+                "pre": "(0, 255)",
+                "post": 6.465,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -6.465,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "67": [{
+                "pre": "(0, 255)",
+                "post": 7.770,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -7.770,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "68": [{
+                "pre": "(0, 255)",
+                "post": 9.410,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -9.410,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "69": [{
+                "pre": "(0, 255)",
+                "post": 10.982,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -10.982,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "70": [{
+                "pre": "(0, 255)",
+                "post": 12.397,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -12.397,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "71": [{
+                "pre": "(0, 255)",
+                "post": 13.099,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -13.099,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "72": [{
+                "pre": "(0, 255)",
+                "post": 13.400,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -13.400,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "73": [{
+                "pre": "(0, 255)",
+                "post": 12.866,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -12.866,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "74": [{
+                "pre": "(0, 255)",
+                "post": 11.637,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -11.637,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "75": [{
+                "pre": "(0, 255)",
+                "post": 10.032,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -10.032,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "76": [{
+                "pre": "(0, 255)",
+                "post": 7.647,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -7.647,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "77": [{
+                "pre": "(0, 255)",
+                "post": 5.557,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -5.557,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "91": [{
+                "pre": "(0, 255)",
+                "post": 4.962,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -4.962,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "92": [{
+                "pre": "(0, 255)",
+                "post": 7.298,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -7.298,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "93": [{
+                "pre": "(0, 255)",
+                "post": 10.292,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -10.292,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "94": [{
+                "pre": "(0, 255)",
+                "post": 13.267,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -13.267,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "95": [{
+                "pre": "(0, 255)",
+                "post": 16.271,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -16.271,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "96": [{
+                "pre": "(0, 255)",
+                "post": 18.895,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -18.895,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "97": [{
+                "pre": "(0, 255)",
+                "post": 21.597,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -21.597,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "98": [{
+                "pre": "(0, 255)",
+                "post": 23.895,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -23.895,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "99": [{
+                "pre": "(0, 255)",
+                "post": 25.251,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -25.251,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "100": [{
+                "pre": "(0, 255)",
+                "post": 24.990,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -24.990,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "101": [{
+                "pre": "(0, 255)",
+                "post": 23.832,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -23.832,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "102": [{
+                "pre": "(0, 255)",
+                "post": 21.500,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -21.500,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "103": [{
+                "pre": "(0, 255)",
+                "post": 18.330,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -18.330,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "104": [{
+                "pre": "(0, 255)",
+                "post": 14.202,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -14.202,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "105": [{
+                "pre": "(0, 255)",
+                "post": 10.515,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -10.515,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "106": [{
+                "pre": "(0, 255)",
+                "post": 6.907,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -6.907,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "118": [{
+                "pre": "(0, 255)",
+                "post": 6.622,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -6.622,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "119": [{
+                "pre": "(0, 255)",
+                "post": 10.412,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -10.412,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "120": [{
+                "pre": "(0, 255)",
+                "post": 14.809,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -14.809,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "121": [{
+                "pre": "(0, 255)",
+                "post": 19.802,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -19.802,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "122": [{
+                "pre": "(0, 255)",
+                "post": 24.935,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -24.935,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "123": [{
+                "pre": "(0, 255)",
+                "post": 29.903,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -29.903,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "124": [{
+                "pre": "(0, 255)",
+                "post": 34.641,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -34.641,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "125": [{
+                "pre": "(0, 255)",
+                "post": 38.945,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -38.945,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "126": [{
+                "pre": "(0, 255)",
+                "post": 41.892,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -41.892,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "127": [{
+                "pre": "(0, 255)",
+                "post": 43.227,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -43.227,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "128": [{
+                "pre": "(0, 255)",
+                "post": 42.830,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -42.830,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "129": [{
+                "pre": "(0, 255)",
+                "post": 40.696,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -40.696,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "130": [{
+                "pre": "(0, 255)",
+                "post": 37.024,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -37.024,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "131": [{
+                "pre": "(0, 255)",
+                "post": 32.130,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -32.130,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "132": [{
+                "pre": "(0, 255)",
+                "post": 26.140,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -26.140,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "133": [{
+                "pre": "(0, 255)",
+                "post": 19.972,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -19.972,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "134": [{
+                "pre": "(0, 255)",
+                "post": 14.345,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -14.345,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "135": [{
+                "pre": "(0, 255)",
+                "post": 9.822,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -9.822,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "136": [{
+                "pre": "(0, 255)",
+                "post": 6.083,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -6.083,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "145": [{
+                "pre": "(0, 255)",
+                "post": 8.071,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -8.071,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "146": [{
+                "pre": "(0, 255)",
+                "post": 12.844,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -12.844,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "147": [{
+                "pre": "(0, 255)",
+                "post": 18.337,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -18.337,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "148": [{
+                "pre": "(0, 255)",
+                "post": 24.618,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -24.618,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "149": [{
+                "pre": "(0, 255)",
+                "post": 31.136,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -31.136,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "150": [{
+                "pre": "(0, 255)",
+                "post": 37.276,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -37.276,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "151": [{
+                "pre": "(0, 255)",
+                "post": 42.885,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -42.885,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "152": [{
+                "pre": "(0, 255)",
+                "post": 47.809,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -47.809,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "153": [{
+                "pre": "(0, 255)",
+                "post": 51.541,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.541,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "154": [{
+                "pre": "(0, 255)",
+                "post": 53.583,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.583,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "155": [{
+                "pre": "(0, 255)",
+                "post": 54.249,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.249,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "156": [{
+                "pre": "(0, 255)",
+                "post": 53.947,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.947,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "157": [{
+                "pre": "(0, 255)",
+                "post": 52.555,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.555,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "158": [{
+                "pre": "(0, 255)",
+                "post": 49.465,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -49.465,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "159": [{
+                "pre": "(0, 255)",
+                "post": 44.759,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -44.759,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "160": [{
+                "pre": "(0, 255)",
+                "post": 38.368,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -38.368,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "161": [{
+                "pre": "(0, 255)",
+                "post": 30.939,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -30.939,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "162": [{
+                "pre": "(0, 255)",
+                "post": 23.751,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -23.751,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "163": [{
+                "pre": "(0, 255)",
+                "post": 17.443,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -17.443,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "164": [{
+                "pre": "(0, 255)",
+                "post": 11.416,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -11.416,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "165": [{
+                "pre": "(0, 255)",
+                "post": 5.636,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -5.636,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "172": [{
+                "pre": "(0, 255)",
+                "post": 7.083,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -7.083,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "173": [{
+                "pre": "(0, 255)",
+                "post": 12.341,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -12.341,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "174": [{
+                "pre": "(0, 255)",
+                "post": 18.670,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -18.670,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "175": [{
+                "pre": "(0, 255)",
+                "post": 25.877,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -25.877,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "176": [{
+                "pre": "(0, 255)",
+                "post": 33.217,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -33.217,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "177": [{
+                "pre": "(0, 255)",
+                "post": 40.262,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -40.262,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "178": [{
+                "pre": "(0, 255)",
+                "post": 46.200,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -46.200,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "179": [{
+                "pre": "(0, 255)",
+                "post": 50.739,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -50.739,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "180": [{
+                "pre": "(0, 255)",
+                "post": 53.862,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.862,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "181": [{
+                "pre": "(0, 255)",
+                "post": 55.510,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.510,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "182": [{
+                "pre": "(0, 255)",
+                "post": 56.086,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.086,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "183": [{
+                "pre": "(0, 255)",
+                "post": 56.168,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.168,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "184": [{
+                "pre": "(0, 255)",
+                "post": 56.166,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.166,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "185": [{
+                "pre": "(0, 255)",
+                "post": 56.076,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.076,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "186": [{
+                "pre": "(0, 255)",
+                "post": 54.935,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.935,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "187": [{
+                "pre": "(0, 255)",
+                "post": 51.870,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.870,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "188": [{
+                "pre": "(0, 255)",
+                "post": 46.535,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -46.535,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "189": [{
+                "pre": "(0, 255)",
+                "post": 39.049,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -39.049,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "190": [{
+                "pre": "(0, 255)",
+                "post": 30.932,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -30.932,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "191": [{
+                "pre": "(0, 255)",
+                "post": 22.983,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -22.983,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "192": [{
+                "pre": "(0, 255)",
+                "post": 15.577,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -15.577,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "193": [{
+                "pre": "(0, 255)",
+                "post": 8.912,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -8.912,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "199": [{
+                "pre": "(0, 255)",
+                "post": 5.034,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -5.034,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "200": [{
+                "pre": "(0, 255)",
+                "post": 10.232,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -10.232,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "201": [{
+                "pre": "(0, 255)",
+                "post": 16.613,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -16.613,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "202": [{
+                "pre": "(0, 255)",
+                "post": 24.101,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -24.101,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "203": [{
+                "pre": "(0, 255)",
+                "post": 31.991,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -31.991,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "204": [{
+                "pre": "(0, 255)",
+                "post": 39.529,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -39.529,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "205": [{
+                "pre": "(0, 255)",
+                "post": 46.135,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -46.135,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "206": [{
+                "pre": "(0, 255)",
+                "post": 50.876,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -50.876,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "207": [{
+                "pre": "(0, 255)",
+                "post": 53.734,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.734,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "208": [{
+                "pre": "(0, 255)",
+                "post": 54.976,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.976,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "209": [{
+                "pre": "(0, 255)",
+                "post": 55.204,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.204,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "210": [{
+                "pre": "(0, 255)",
+                "post": 55.216,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.216,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "211": [{
+                "pre": "(0, 255)",
+                "post": 55.061,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.061,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "212": [{
+                "pre": "(0, 255)",
+                "post": 55.113,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.113,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "213": [{
+                "pre": "(0, 255)",
+                "post": 55.337,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.337,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "214": [{
+                "pre": "(0, 255)",
+                "post": 55.491,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.491,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "215": [{
+                "pre": "(0, 255)",
+                "post": 54.316,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.316,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "216": [{
+                "pre": "(0, 255)",
+                "post": 50.529,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -50.529,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "217": [{
+                "pre": "(0, 255)",
+                "post": 43.942,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -43.942,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "218": [{
+                "pre": "(0, 255)",
+                "post": 35.397,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -35.397,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "219": [{
+                "pre": "(0, 255)",
+                "post": 26.420,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -26.420,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "220": [{
+                "pre": "(0, 255)",
+                "post": 17.851,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -17.851,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "221": [{
+                "pre": "(0, 255)",
+                "post": 10.654,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -10.654,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "222": [{
+                "pre": "(0, 255)",
+                "post": 4.516,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -4.516,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "227": [{
+                "pre": "(0, 255)",
+                "post": 7.727,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -7.727,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "228": [{
+                "pre": "(0, 255)",
+                "post": 13.438,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -13.438,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "229": [{
+                "pre": "(0, 255)",
+                "post": 20.114,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -20.114,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "230": [{
+                "pre": "(0, 255)",
+                "post": 28.029,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -28.029,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "231": [{
+                "pre": "(0, 255)",
+                "post": 36.336,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -36.336,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "232": [{
+                "pre": "(0, 255)",
+                "post": 44.034,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -44.034,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "233": [{
+                "pre": "(0, 255)",
+                "post": 50.033,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -50.033,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "234": [{
+                "pre": "(0, 255)",
+                "post": 53.618,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.618,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "235": [{
+                "pre": "(0, 255)",
+                "post": 55.208,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.208,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "236": [{
+                "pre": "(0, 255)",
+                "post": 55.555,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.555,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "237": [{
+                "pre": "(0, 255)",
+                "post": 55.685,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.685,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "238": [{
+                "pre": "(0, 255)",
+                "post": 55.594,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.594,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "239": [{
+                "pre": "(0, 255)",
+                "post": 55.401,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.401,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "240": [{
+                "pre": "(0, 255)",
+                "post": 55.383,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.383,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "241": [{
+                "pre": "(0, 255)",
+                "post": 55.510,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.510,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "242": [{
+                "pre": "(0, 255)",
+                "post": 55.692,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.692,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "243": [{
+                "pre": "(0, 255)",
+                "post": 55.101,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.101,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "244": [{
+                "pre": "(0, 255)",
+                "post": 52.300,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.300,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "245": [{
+                "pre": "(0, 255)",
+                "post": 46.320,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -46.320,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "246": [{
+                "pre": "(0, 255)",
+                "post": 37.542,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -37.542,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "247": [{
+                "pre": "(0, 255)",
+                "post": 27.428,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -27.428,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "248": [{
+                "pre": "(0, 255)",
+                "post": 18.175,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -18.175,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "249": [{
+                "pre": "(0, 255)",
+                "post": 10.799,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -10.799,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "254": [{
+                "pre": "(0, 255)",
+                "post": 4.831,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -4.831,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "255": [{
+                "pre": "(0, 255)",
+                "post": 9.236,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -9.236,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "256": [{
+                "pre": "(0, 255)",
+                "post": 14.780,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -14.780,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "257": [{
+                "pre": "(0, 255)",
+                "post": 21.678,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -21.678,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "258": [{
+                "pre": "(0, 255)",
+                "post": 30.167,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -30.167,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "259": [{
+                "pre": "(0, 255)",
+                "post": 39.021,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -39.021,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "260": [{
+                "pre": "(0, 255)",
+                "post": 46.814,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -46.814,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "261": [{
+                "pre": "(0, 255)",
+                "post": 52.192,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.192,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "262": [{
+                "pre": "(0, 255)",
+                "post": 54.995,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.995,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "263": [{
+                "pre": "(0, 255)",
+                "post": 55.725,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.725,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "264": [{
+                "pre": "(0, 255)",
+                "post": 55.668,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.668,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "265": [{
+                "pre": "(0, 255)",
+                "post": 55.054,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.054,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "266": [{
+                "pre": "(0, 255)",
+                "post": 54.488,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.488,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "267": [{
+                "pre": "(0, 255)",
+                "post": 54.374,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.374,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "268": [{
+                "pre": "(0, 255)",
+                "post": 54.665,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.665,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "269": [{
+                "pre": "(0, 255)",
+                "post": 55.271,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.271,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "270": [{
+                "pre": "(0, 255)",
+                "post": 55.568,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.568,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "271": [{
+                "pre": "(0, 255)",
+                "post": 54.990,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.990,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "272": [{
+                "pre": "(0, 255)",
+                "post": 52.289,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.289,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "273": [{
+                "pre": "(0, 255)",
+                "post": 46.430,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -46.430,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "274": [{
+                "pre": "(0, 255)",
+                "post": 37.424,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -37.424,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "275": [{
+                "pre": "(0, 255)",
+                "post": 26.523,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -26.523,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "276": [{
+                "pre": "(0, 255)",
+                "post": 16.424,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -16.424,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "277": [{
+                "pre": "(0, 255)",
+                "post": 9.043,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -9.043,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "282": [{
+                "pre": "(0, 255)",
+                "post": 4.953,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -4.953,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "283": [{
+                "pre": "(0, 255)",
+                "post": 9.081,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -9.081,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "284": [{
+                "pre": "(0, 255)",
+                "post": 14.544,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -14.544,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "285": [{
+                "pre": "(0, 255)",
+                "post": 21.727,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -21.727,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "286": [{
+                "pre": "(0, 255)",
+                "post": 30.893,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -30.893,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "287": [{
+                "pre": "(0, 255)",
+                "post": 40.188,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -40.188,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "288": [{
+                "pre": "(0, 255)",
+                "post": 48.233,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -48.233,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "289": [{
+                "pre": "(0, 255)",
+                "post": 53.169,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.169,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "290": [{
+                "pre": "(0, 255)",
+                "post": 55.178,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.178,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "291": [{
+                "pre": "(0, 255)",
+                "post": 55.386,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.386,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "292": [{
+                "pre": "(0, 255)",
+                "post": 53.988,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.988,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "293": [{
+                "pre": "(0, 255)",
+                "post": 52.037,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.037,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "294": [{
+                "pre": "(0, 255)",
+                "post": 51.479,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.479,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "295": [{
+                "pre": "(0, 255)",
+                "post": 52.595,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.595,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "296": [{
+                "pre": "(0, 255)",
+                "post": 53.705,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.705,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "297": [{
+                "pre": "(0, 255)",
+                "post": 54.871,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.871,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "298": [{
+                "pre": "(0, 255)",
+                "post": 55.233,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.233,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "299": [{
+                "pre": "(0, 255)",
+                "post": 54.560,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.560,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "300": [{
+                "pre": "(0, 255)",
+                "post": 51.224,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.224,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "301": [{
+                "pre": "(0, 255)",
+                "post": 44.955,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -44.955,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "302": [{
+                "pre": "(0, 255)",
+                "post": 35.888,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -35.888,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "303": [{
+                "pre": "(0, 255)",
+                "post": 24.884,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -24.884,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "304": [{
+                "pre": "(0, 255)",
+                "post": 14.438,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -14.438,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "305": [{
+                "pre": "(0, 255)",
+                "post": 7.077,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -7.077,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "311": [{
+                "pre": "(0, 255)",
+                "post": 7.807,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -7.807,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "312": [{
+                "pre": "(0, 255)",
+                "post": 13.263,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -13.263,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "313": [{
+                "pre": "(0, 255)",
+                "post": 21.214,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -21.214,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "314": [{
+                "pre": "(0, 255)",
+                "post": 31.217,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -31.217,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "315": [{
+                "pre": "(0, 255)",
+                "post": 41.263,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -41.263,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "316": [{
+                "pre": "(0, 255)",
+                "post": 49.430,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -49.430,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "317": [{
+                "pre": "(0, 255)",
+                "post": 53.847,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.847,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "318": [{
+                "pre": "(0, 255)",
+                "post": 55.095,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.095,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "319": [{
+                "pre": "(0, 255)",
+                "post": 54.410,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.410,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "320": [{
+                "pre": "(0, 255)",
+                "post": 52.030,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.030,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "321": [{
+                "pre": "(0, 255)",
+                "post": 50.061,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -50.061,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "322": [{
+                "pre": "(0, 255)",
+                "post": 51.384,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.384,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "323": [{
+                "pre": "(0, 255)",
+                "post": 53.244,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.244,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "324": [{
+                "pre": "(0, 255)",
+                "post": 53.976,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.976,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "325": [{
+                "pre": "(0, 255)",
+                "post": 54.966,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.966,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "326": [{
+                "pre": "(0, 255)",
+                "post": 55.209,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.209,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "327": [{
+                "pre": "(0, 255)",
+                "post": 53.964,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.964,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "328": [{
+                "pre": "(0, 255)",
+                "post": 49.502,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -49.502,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "329": [{
+                "pre": "(0, 255)",
+                "post": 42.551,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -42.551,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "330": [{
+                "pre": "(0, 255)",
+                "post": 34.285,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -34.285,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "331": [{
+                "pre": "(0, 255)",
+                "post": 24.337,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -24.337,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "332": [{
+                "pre": "(0, 255)",
+                "post": 13.327,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -13.327,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "333": [{
+                "pre": "(0, 255)",
+                "post": 4.946,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -4.946,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "339": [{
+                "pre": "(0, 255)",
+                "post": 6.407,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -6.407,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "340": [{
+                "pre": "(0, 255)",
+                "post": 12.047,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -12.047,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "341": [{
+                "pre": "(0, 255)",
+                "post": 21.242,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -21.242,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "342": [{
+                "pre": "(0, 255)",
+                "post": 32.337,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -32.337,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "343": [{
+                "pre": "(0, 255)",
+                "post": 42.924,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -42.924,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "344": [{
+                "pre": "(0, 255)",
+                "post": 50.756,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -50.756,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "345": [{
+                "pre": "(0, 255)",
+                "post": 54.487,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.487,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "346": [{
+                "pre": "(0, 255)",
+                "post": 55.069,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.069,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "347": [{
+                "pre": "(0, 255)",
+                "post": 54.094,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.094,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "348": [{
+                "pre": "(0, 255)",
+                "post": 51.992,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.992,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "349": [{
+                "pre": "(0, 255)",
+                "post": 51.525,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.525,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "350": [{
+                "pre": "(0, 255)",
+                "post": 54.452,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.452,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "351": [{
+                "pre": "(0, 255)",
+                "post": 55.420,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.420,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "352": [{
+                "pre": "(0, 255)",
+                "post": 54.921,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.921,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "353": [{
+                "pre": "(0, 255)",
+                "post": 55.553,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.553,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "354": [{
+                "pre": "(0, 255)",
+                "post": 55.623,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.623,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "355": [{
+                "pre": "(0, 255)",
+                "post": 53.192,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.192,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "356": [{
+                "pre": "(0, 255)",
+                "post": 47.497,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -47.497,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "357": [{
+                "pre": "(0, 255)",
+                "post": 40.700,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -40.700,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "358": [{
+                "pre": "(0, 255)",
+                "post": 33.424,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -33.424,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "359": [{
+                "pre": "(0, 255)",
+                "post": 24.886,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -24.886,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "360": [{
+                "pre": "(0, 255)",
+                "post": 13.960,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -13.960,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "367": [{
+                "pre": "(0, 255)",
+                "post": 5.321,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -5.321,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "368": [{
+                "pre": "(0, 255)",
+                "post": 11.703,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -11.703,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "369": [{
+                "pre": "(0, 255)",
+                "post": 22.294,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -22.294,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "370": [{
+                "pre": "(0, 255)",
+                "post": 34.231,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -34.231,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "371": [{
+                "pre": "(0, 255)",
+                "post": 44.627,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -44.627,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "372": [{
+                "pre": "(0, 255)",
+                "post": 51.726,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.726,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "373": [{
+                "pre": "(0, 255)",
+                "post": 54.734,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.734,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "374": [{
+                "pre": "(0, 255)",
+                "post": 55.046,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.046,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "375": [{
+                "pre": "(0, 255)",
+                "post": 54.160,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.160,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "376": [{
+                "pre": "(0, 255)",
+                "post": 53.176,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.176,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "377": [{
+                "pre": "(0, 255)",
+                "post": 54.359,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.359,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "378": [{
+                "pre": "(0, 255)",
+                "post": 56.907,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.907,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "379": [{
+                "pre": "(0, 255)",
+                "post": 55.803,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.803,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "380": [{
+                "pre": "(0, 255)",
+                "post": 54.974,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.974,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "381": [{
+                "pre": "(0, 255)",
+                "post": 56.075,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.075,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "382": [{
+                "pre": "(0, 255)",
+                "post": 55.775,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.775,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "383": [{
+                "pre": "(0, 255)",
+                "post": 52.347,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.347,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "384": [{
+                "pre": "(0, 255)",
+                "post": 46.452,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -46.452,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "385": [{
+                "pre": "(0, 255)",
+                "post": 40.360,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -40.360,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "386": [{
+                "pre": "(0, 255)",
+                "post": 33.717,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -33.717,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "387": [{
+                "pre": "(0, 255)",
+                "post": 25.885,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -25.885,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "388": [{
+                "pre": "(0, 255)",
+                "post": 15.509,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -15.509,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "389": [{
+                "pre": "(0, 255)",
+                "post": 4.912,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -4.912,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "396": [{
+                "pre": "(0, 255)",
+                "post": 11.850,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -11.850,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "397": [{
+                "pre": "(0, 255)",
+                "post": 23.981,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -23.981,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "398": [{
+                "pre": "(0, 255)",
+                "post": 36.111,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -36.111,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "399": [{
+                "pre": "(0, 255)",
+                "post": 45.882,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -45.882,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "400": [{
+                "pre": "(0, 255)",
+                "post": 52.134,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.134,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "401": [{
+                "pre": "(0, 255)",
+                "post": 54.700,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.700,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "402": [{
+                "pre": "(0, 255)",
+                "post": 54.778,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.778,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "403": [{
+                "pre": "(0, 255)",
+                "post": 54.191,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.191,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "404": [{
+                "pre": "(0, 255)",
+                "post": 54.107,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.107,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "405": [{
+                "pre": "(0, 255)",
+                "post": 55.776,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.776,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "406": [{
+                "pre": "(0, 255)",
+                "post": 56.864,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.864,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "407": [{
+                "pre": "(0, 255)",
+                "post": 54.761,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.761,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "408": [{
+                "pre": "(0, 255)",
+                "post": 54.920,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.920,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "409": [{
+                "pre": "(0, 255)",
+                "post": 56.190,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.190,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "410": [{
+                "pre": "(0, 255)",
+                "post": 55.537,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.537,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "411": [{
+                "pre": "(0, 255)",
+                "post": 52.132,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.132,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "412": [{
+                "pre": "(0, 255)",
+                "post": 46.980,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -46.980,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "413": [{
+                "pre": "(0, 255)",
+                "post": 41.252,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -41.252,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "414": [{
+                "pre": "(0, 255)",
+                "post": 34.663,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -34.663,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "415": [{
+                "pre": "(0, 255)",
+                "post": 26.738,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -26.738,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "416": [{
+                "pre": "(0, 255)",
+                "post": 16.500,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -16.500,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "417": [{
+                "pre": "(0, 255)",
+                "post": 5.949,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -5.949,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "423": [{
+                "pre": "(0, 255)",
+                "post": 4.745,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -4.745,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "424": [{
+                "pre": "(0, 255)",
+                "post": 12.678,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -12.678,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "425": [{
+                "pre": "(0, 255)",
+                "post": 25.991,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -25.991,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "426": [{
+                "pre": "(0, 255)",
+                "post": 37.588,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -37.588,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "427": [{
+                "pre": "(0, 255)",
+                "post": 46.218,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -46.218,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "428": [{
+                "pre": "(0, 255)",
+                "post": 51.619,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.619,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "429": [{
+                "pre": "(0, 255)",
+                "post": 54.085,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.085,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "430": [{
+                "pre": "(0, 255)",
+                "post": 54.269,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.269,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "431": [{
+                "pre": "(0, 255)",
+                "post": 54.177,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.177,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "432": [{
+                "pre": "(0, 255)",
+                "post": 54.789,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.789,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "433": [{
+                "pre": "(0, 255)",
+                "post": 56.304,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.304,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "434": [{
+                "pre": "(0, 255)",
+                "post": 56.308,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.308,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "435": [{
+                "pre": "(0, 255)",
+                "post": 54.664,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.664,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "436": [{
+                "pre": "(0, 255)",
+                "post": 55.678,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.678,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "437": [{
+                "pre": "(0, 255)",
+                "post": 56.307,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.307,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "438": [{
+                "pre": "(0, 255)",
+                "post": 54.922,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.922,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "439": [{
+                "pre": "(0, 255)",
+                "post": 52.081,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.081,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "440": [{
+                "pre": "(0, 255)",
+                "post": 47.790,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -47.790,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "441": [{
+                "pre": "(0, 255)",
+                "post": 42.374,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -42.374,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "442": [{
+                "pre": "(0, 255)",
+                "post": 35.417,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -35.417,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "443": [{
+                "pre": "(0, 255)",
+                "post": 26.753,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -26.753,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "444": [{
+                "pre": "(0, 255)",
+                "post": 16.606,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -16.606,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "445": [{
+                "pre": "(0, 255)",
+                "post": 7.008,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -7.008,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "451": [{
+                "pre": "(0, 255)",
+                "post": 5.131,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -5.131,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "452": [{
+                "pre": "(0, 255)",
+                "post": 14.234,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -14.234,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "453": [{
+                "pre": "(0, 255)",
+                "post": 27.811,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -27.811,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "454": [{
+                "pre": "(0, 255)",
+                "post": 38.544,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -38.544,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "455": [{
+                "pre": "(0, 255)",
+                "post": 45.760,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -45.760,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "456": [{
+                "pre": "(0, 255)",
+                "post": 50.305,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -50.305,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "457": [{
+                "pre": "(0, 255)",
+                "post": 52.538,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.538,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "458": [{
+                "pre": "(0, 255)",
+                "post": 53.088,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.088,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "459": [{
+                "pre": "(0, 255)",
+                "post": 53.629,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.629,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "460": [{
+                "pre": "(0, 255)",
+                "post": 55.001,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.001,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "461": [{
+                "pre": "(0, 255)",
+                "post": 56.464,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.464,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "462": [{
+                "pre": "(0, 255)",
+                "post": 56.322,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.322,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "463": [{
+                "pre": "(0, 255)",
+                "post": 55.642,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.642,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "464": [{
+                "pre": "(0, 255)",
+                "post": 56.073,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.073,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "465": [{
+                "pre": "(0, 255)",
+                "post": 55.616,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.616,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "466": [{
+                "pre": "(0, 255)",
+                "post": 54.256,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.256,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "467": [{
+                "pre": "(0, 255)",
+                "post": 52.015,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.015,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "468": [{
+                "pre": "(0, 255)",
+                "post": 48.413,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -48.413,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "469": [{
+                "pre": "(0, 255)",
+                "post": 42.631,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -42.631,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "470": [{
+                "pre": "(0, 255)",
+                "post": 35.181,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -35.181,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "471": [{
+                "pre": "(0, 255)",
+                "post": 26.037,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -26.037,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "472": [{
+                "pre": "(0, 255)",
+                "post": 16.180,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -16.180,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "473": [{
+                "pre": "(0, 255)",
+                "post": 7.657,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -7.657,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "479": [{
+                "pre": "(0, 255)",
+                "post": 6.450,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -6.450,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "480": [{
+                "pre": "(0, 255)",
+                "post": 16.733,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -16.733,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "481": [{
+                "pre": "(0, 255)",
+                "post": 29.556,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -29.556,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "482": [{
+                "pre": "(0, 255)",
+                "post": 38.987,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -38.987,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "483": [{
+                "pre": "(0, 255)",
+                "post": 45.018,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -45.018,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "484": [{
+                "pre": "(0, 255)",
+                "post": 48.697,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -48.697,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "485": [{
+                "pre": "(0, 255)",
+                "post": 50.696,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -50.696,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "486": [{
+                "pre": "(0, 255)",
+                "post": 51.614,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.614,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "487": [{
+                "pre": "(0, 255)",
+                "post": 52.731,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.731,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "488": [{
+                "pre": "(0, 255)",
+                "post": 54.291,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.291,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "489": [{
+                "pre": "(0, 255)",
+                "post": 55.445,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.445,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "490": [{
+                "pre": "(0, 255)",
+                "post": 55.958,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.958,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "491": [{
+                "pre": "(0, 255)",
+                "post": 55.885,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.885,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "492": [{
+                "pre": "(0, 255)",
+                "post": 55.530,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.530,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "493": [{
+                "pre": "(0, 255)",
+                "post": 54.926,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.926,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "494": [{
+                "pre": "(0, 255)",
+                "post": 54.139,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.139,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "495": [{
+                "pre": "(0, 255)",
+                "post": 52.181,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.181,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "496": [{
+                "pre": "(0, 255)",
+                "post": 48.371,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -48.371,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "497": [{
+                "pre": "(0, 255)",
+                "post": 42.057,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -42.057,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "498": [{
+                "pre": "(0, 255)",
+                "post": 33.886,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -33.886,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "499": [{
+                "pre": "(0, 255)",
+                "post": 24.609,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -24.609,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "500": [{
+                "pre": "(0, 255)",
+                "post": 15.317,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -15.317,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "501": [{
+                "pre": "(0, 255)",
+                "post": 8.000,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -8.000,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "507": [{
+                "pre": "(0, 255)",
+                "post": 8.325,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -8.325,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "508": [{
+                "pre": "(0, 255)",
+                "post": 19.139,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -19.139,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "509": [{
+                "pre": "(0, 255)",
+                "post": 31.128,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -31.128,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "510": [{
+                "pre": "(0, 255)",
+                "post": 39.763,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -39.763,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "511": [{
+                "pre": "(0, 255)",
+                "post": 45.077,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -45.077,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "512": [{
+                "pre": "(0, 255)",
+                "post": 48.088,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -48.088,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "513": [{
+                "pre": "(0, 255)",
+                "post": 50.041,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -50.041,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "514": [{
+                "pre": "(0, 255)",
+                "post": 51.406,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.406,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "515": [{
+                "pre": "(0, 255)",
+                "post": 52.424,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.424,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "516": [{
+                "pre": "(0, 255)",
+                "post": 53.207,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.207,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "517": [{
+                "pre": "(0, 255)",
+                "post": 54.567,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.567,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "518": [{
+                "pre": "(0, 255)",
+                "post": 55.588,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.588,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "519": [{
+                "pre": "(0, 255)",
+                "post": 55.477,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.477,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "520": [{
+                "pre": "(0, 255)",
+                "post": 55.099,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.099,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "521": [{
+                "pre": "(0, 255)",
+                "post": 55.102,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.102,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "522": [{
+                "pre": "(0, 255)",
+                "post": 54.511,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.511,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "523": [{
+                "pre": "(0, 255)",
+                "post": 52.319,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.319,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "524": [{
+                "pre": "(0, 255)",
+                "post": 47.656,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -47.656,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "525": [{
+                "pre": "(0, 255)",
+                "post": 40.743,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -40.743,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "526": [{
+                "pre": "(0, 255)",
+                "post": 32.323,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -32.323,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "527": [{
+                "pre": "(0, 255)",
+                "post": 23.146,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -23.146,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "528": [{
+                "pre": "(0, 255)",
+                "post": 14.472,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -14.472,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "529": [{
+                "pre": "(0, 255)",
+                "post": 7.599,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -7.599,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "535": [{
+                "pre": "(0, 255)",
+                "post": 9.840,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -9.840,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "536": [{
+                "pre": "(0, 255)",
+                "post": 20.576,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -20.576,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "537": [{
+                "pre": "(0, 255)",
+                "post": 32.202,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -32.202,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "538": [{
+                "pre": "(0, 255)",
+                "post": 40.772,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -40.772,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "539": [{
+                "pre": "(0, 255)",
+                "post": 46.166,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -46.166,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "540": [{
+                "pre": "(0, 255)",
+                "post": 49.337,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -49.337,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "541": [{
+                "pre": "(0, 255)",
+                "post": 51.406,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.406,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "542": [{
+                "pre": "(0, 255)",
+                "post": 52.737,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.737,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "543": [{
+                "pre": "(0, 255)",
+                "post": 53.608,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.608,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "544": [{
+                "pre": "(0, 255)",
+                "post": 54.278,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.278,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "545": [{
+                "pre": "(0, 255)",
+                "post": 55.156,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.156,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "546": [{
+                "pre": "(0, 255)",
+                "post": 55.732,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.732,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "547": [{
+                "pre": "(0, 255)",
+                "post": 55.525,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.525,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "548": [{
+                "pre": "(0, 255)",
+                "post": 55.301,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.301,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "549": [{
+                "pre": "(0, 255)",
+                "post": 55.547,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.547,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "550": [{
+                "pre": "(0, 255)",
+                "post": 54.506,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.506,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "551": [{
+                "pre": "(0, 255)",
+                "post": 51.256,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.256,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "552": [{
+                "pre": "(0, 255)",
+                "post": 45.735,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -45.735,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "553": [{
+                "pre": "(0, 255)",
+                "post": 38.277,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -38.277,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "554": [{
+                "pre": "(0, 255)",
+                "post": 29.628,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -29.628,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "555": [{
+                "pre": "(0, 255)",
+                "post": 20.745,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -20.745,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "556": [{
+                "pre": "(0, 255)",
+                "post": 12.903,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -12.903,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "557": [{
+                "pre": "(0, 255)",
+                "post": 6.834,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -6.834,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "563": [{
+                "pre": "(0, 255)",
+                "post": 10.331,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -10.331,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "564": [{
+                "pre": "(0, 255)",
+                "post": 20.363,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -20.363,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "565": [{
+                "pre": "(0, 255)",
+                "post": 31.334,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -31.334,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "566": [{
+                "pre": "(0, 255)",
+                "post": 40.765,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -40.765,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "567": [{
+                "pre": "(0, 255)",
+                "post": 47.255,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -47.255,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "568": [{
+                "pre": "(0, 255)",
+                "post": 51.171,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.171,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "569": [{
+                "pre": "(0, 255)",
+                "post": 53.353,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.353,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "570": [{
+                "pre": "(0, 255)",
+                "post": 54.544,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.544,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "571": [{
+                "pre": "(0, 255)",
+                "post": 55.209,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.209,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "572": [{
+                "pre": "(0, 255)",
+                "post": 55.601,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.601,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "573": [{
+                "pre": "(0, 255)",
+                "post": 55.803,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.803,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "574": [{
+                "pre": "(0, 255)",
+                "post": 55.738,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.738,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "575": [{
+                "pre": "(0, 255)",
+                "post": 55.608,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.608,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "576": [{
+                "pre": "(0, 255)",
+                "post": 55.619,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.619,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "577": [{
+                "pre": "(0, 255)",
+                "post": 55.256,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.256,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "578": [{
+                "pre": "(0, 255)",
+                "post": 53.266,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.266,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "579": [{
+                "pre": "(0, 255)",
+                "post": 48.833,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -48.833,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "580": [{
+                "pre": "(0, 255)",
+                "post": 41.954,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -41.954,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "581": [{
+                "pre": "(0, 255)",
+                "post": 33.804,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -33.804,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "582": [{
+                "pre": "(0, 255)",
+                "post": 25.305,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -25.305,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "583": [{
+                "pre": "(0, 255)",
+                "post": 17.460,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -17.460,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "584": [{
+                "pre": "(0, 255)",
+                "post": 11.157,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -11.157,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "585": [{
+                "pre": "(0, 255)",
+                "post": 5.633,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -5.633,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "591": [{
+                "pre": "(0, 255)",
+                "post": 9.197,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -9.197,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "592": [{
+                "pre": "(0, 255)",
+                "post": 17.621,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -17.621,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "593": [{
+                "pre": "(0, 255)",
+                "post": 28.202,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -28.202,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "594": [{
+                "pre": "(0, 255)",
+                "post": 38.397,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -38.397,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "595": [{
+                "pre": "(0, 255)",
+                "post": 46.440,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -46.440,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "596": [{
+                "pre": "(0, 255)",
+                "post": 51.648,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.648,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "597": [{
+                "pre": "(0, 255)",
+                "post": 54.425,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.425,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "598": [{
+                "pre": "(0, 255)",
+                "post": 55.569,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.569,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "599": [{
+                "pre": "(0, 255)",
+                "post": 55.730,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.730,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "600": [{
+                "pre": "(0, 255)",
+                "post": 55.542,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.542,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "601": [{
+                "pre": "(0, 255)",
+                "post": 55.181,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.181,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "602": [{
+                "pre": "(0, 255)",
+                "post": 55.296,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.296,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "603": [{
+                "pre": "(0, 255)",
+                "post": 55.482,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.482,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "604": [{
+                "pre": "(0, 255)",
+                "post": 55.306,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.306,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "605": [{
+                "pre": "(0, 255)",
+                "post": 53.751,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.751,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "606": [{
+                "pre": "(0, 255)",
+                "post": 49.909,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -49.909,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "607": [{
+                "pre": "(0, 255)",
+                "post": 43.618,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -43.618,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "608": [{
+                "pre": "(0, 255)",
+                "post": 35.780,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -35.780,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "609": [{
+                "pre": "(0, 255)",
+                "post": 27.462,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -27.462,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "610": [{
+                "pre": "(0, 255)",
+                "post": 20.015,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -20.015,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "611": [{
+                "pre": "(0, 255)",
+                "post": 13.817,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -13.817,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "612": [{
+                "pre": "(0, 255)",
+                "post": 8.788,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -8.788,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "619": [{
+                "pre": "(0, 255)",
+                "post": 6.888,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -6.888,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "620": [{
+                "pre": "(0, 255)",
+                "post": 13.349,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -13.349,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "621": [{
+                "pre": "(0, 255)",
+                "post": 22.293,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -22.293,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "622": [{
+                "pre": "(0, 255)",
+                "post": 32.456,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -32.456,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "623": [{
+                "pre": "(0, 255)",
+                "post": 41.771,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -41.771,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "624": [{
+                "pre": "(0, 255)",
+                "post": 48.979,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -48.979,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "625": [{
+                "pre": "(0, 255)",
+                "post": 53.526,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.526,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "626": [{
+                "pre": "(0, 255)",
+                "post": 55.760,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.760,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "627": [{
+                "pre": "(0, 255)",
+                "post": 56.428,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.428,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "628": [{
+                "pre": "(0, 255)",
+                "post": 56.225,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.225,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "629": [{
+                "pre": "(0, 255)",
+                "post": 56.067,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.067,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "630": [{
+                "pre": "(0, 255)",
+                "post": 56.108,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -56.108,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "631": [{
+                "pre": "(0, 255)",
+                "post": 55.648,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.648,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "632": [{
+                "pre": "(0, 255)",
+                "post": 53.632,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.632,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "633": [{
+                "pre": "(0, 255)",
+                "post": 49.630,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -49.630,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "634": [{
+                "pre": "(0, 255)",
+                "post": 43.291,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -43.291,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "635": [{
+                "pre": "(0, 255)",
+                "post": 35.723,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -35.723,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "636": [{
+                "pre": "(0, 255)",
+                "post": 27.887,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -27.887,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "637": [{
+                "pre": "(0, 255)",
+                "post": 20.664,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -20.664,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "638": [{
+                "pre": "(0, 255)",
+                "post": 14.774,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -14.774,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "639": [{
+                "pre": "(0, 255)",
+                "post": 10.108,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -10.108,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "640": [{
+                "pre": "(0, 255)",
+                "post": 5.962,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -5.962,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "648": [{
+                "pre": "(0, 255)",
+                "post": 8.665,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -8.665,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "649": [{
+                "pre": "(0, 255)",
+                "post": 14.887,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -14.887,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "650": [{
+                "pre": "(0, 255)",
+                "post": 23.109,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -23.109,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "651": [{
+                "pre": "(0, 255)",
+                "post": 32.366,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -32.366,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "652": [{
+                "pre": "(0, 255)",
+                "post": 41.070,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -41.070,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "653": [{
+                "pre": "(0, 255)",
+                "post": 47.852,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -47.852,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "654": [{
+                "pre": "(0, 255)",
+                "post": 52.281,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -52.281,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "655": [{
+                "pre": "(0, 255)",
+                "post": 54.575,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -54.575,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "656": [{
+                "pre": "(0, 255)",
+                "post": 55.272,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.272,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "657": [{
+                "pre": "(0, 255)",
+                "post": 55.104,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -55.104,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "658": [{
+                "pre": "(0, 255)",
+                "post": 53.940,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -53.940,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "659": [{
+                "pre": "(0, 255)",
+                "post": 51.442,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -51.442,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "660": [{
+                "pre": "(0, 255)",
+                "post": 47.004,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -47.004,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "661": [{
+                "pre": "(0, 255)",
+                "post": 40.842,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -40.842,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "662": [{
+                "pre": "(0, 255)",
+                "post": 33.556,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -33.556,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "663": [{
+                "pre": "(0, 255)",
+                "post": 26.383,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -26.383,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "664": [{
+                "pre": "(0, 255)",
+                "post": 19.967,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -19.967,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "665": [{
+                "pre": "(0, 255)",
+                "post": 14.379,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -14.379,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "666": [{
+                "pre": "(0, 255)",
+                "post": 10.103,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -10.103,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "667": [{
+                "pre": "(0, 255)",
+                "post": 6.624,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -6.624,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "676": [{
+                "pre": "(0, 255)",
+                "post": 4.722,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -4.722,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "677": [{
+                "pre": "(0, 255)",
+                "post": 8.398,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -8.398,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "678": [{
+                "pre": "(0, 255)",
+                "post": 13.682,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -13.682,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "679": [{
+                "pre": "(0, 255)",
+                "post": 20.463,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -20.463,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "680": [{
+                "pre": "(0, 255)",
+                "post": 27.716,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -27.716,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "681": [{
+                "pre": "(0, 255)",
+                "post": 34.850,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -34.850,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "682": [{
+                "pre": "(0, 255)",
+                "post": 40.519,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -40.519,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "683": [{
+                "pre": "(0, 255)",
+                "post": 44.121,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -44.121,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "684": [{
+                "pre": "(0, 255)",
+                "post": 45.550,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -45.550,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "685": [{
+                "pre": "(0, 255)",
+                "post": 45.277,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -45.277,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "686": [{
+                "pre": "(0, 255)",
+                "post": 43.097,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -43.097,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "687": [{
+                "pre": "(0, 255)",
+                "post": 39.252,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -39.252,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "688": [{
+                "pre": "(0, 255)",
+                "post": 34.666,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -34.666,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "689": [{
+                "pre": "(0, 255)",
+                "post": 29.417,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -29.417,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "690": [{
+                "pre": "(0, 255)",
+                "post": 23.688,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -23.688,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "691": [{
+                "pre": "(0, 255)",
+                "post": 18.537,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -18.537,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "692": [{
+                "pre": "(0, 255)",
+                "post": 13.693,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -13.693,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "693": [{
+                "pre": "(0, 255)",
+                "post": 9.792,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -9.792,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "694": [{
+                "pre": "(0, 255)",
+                "post": 6.659,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -6.659,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "706": [{
+                "pre": "(0, 255)",
+                "post": 8.099,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -8.099,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "707": [{
+                "pre": "(0, 255)",
+                "post": 12.387,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -12.387,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "708": [{
+                "pre": "(0, 255)",
+                "post": 17.475,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -17.475,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "709": [{
+                "pre": "(0, 255)",
+                "post": 22.032,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -22.032,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "710": [{
+                "pre": "(0, 255)",
+                "post": 26.008,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -26.008,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "711": [{
+                "pre": "(0, 255)",
+                "post": 28.351,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -28.351,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "712": [{
+                "pre": "(0, 255)",
+                "post": 29.431,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -29.431,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "713": [{
+                "pre": "(0, 255)",
+                "post": 29.123,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -29.123,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "714": [{
+                "pre": "(0, 255)",
+                "post": 27.327,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -27.327,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "715": [{
+                "pre": "(0, 255)",
+                "post": 24.928,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -24.928,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "716": [{
+                "pre": "(0, 255)",
+                "post": 22.458,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -22.458,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "717": [{
+                "pre": "(0, 255)",
+                "post": 19.378,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -19.378,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "718": [{
+                "pre": "(0, 255)",
+                "post": 15.951,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -15.951,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "719": [{
+                "pre": "(0, 255)",
+                "post": 12.385,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -12.385,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "720": [{
+                "pre": "(0, 255)",
+                "post": 9.000,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -9.000,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "721": [{
+                "pre": "(0, 255)",
+                "post": 6.283,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -6.283,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "734": [{
+                "pre": "(0, 255)",
+                "post": 5.047,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -5.047,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "735": [{
+                "pre": "(0, 255)",
+                "post": 7.569,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -7.569,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "736": [{
+                "pre": "(0, 255)",
+                "post": 10.685,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -10.685,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "737": [{
+                "pre": "(0, 255)",
+                "post": 13.105,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -13.105,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "738": [{
+                "pre": "(0, 255)",
+                "post": 15.396,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -15.396,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "739": [{
+                "pre": "(0, 255)",
+                "post": 17.076,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -17.076,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "740": [{
+                "pre": "(0, 255)",
+                "post": 17.645,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -17.645,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "741": [{
+                "pre": "(0, 255)",
+                "post": 17.335,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -17.335,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "742": [{
+                "pre": "(0, 255)",
+                "post": 16.396,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -16.396,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "743": [{
+                "pre": "(0, 255)",
+                "post": 14.530,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -14.530,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "744": [{
+                "pre": "(0, 255)",
+                "post": 13.051,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -13.051,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "745": [{
+                "pre": "(0, 255)",
+                "post": 11.126,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -11.126,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "746": [{
+                "pre": "(0, 255)",
+                "post": 9.054,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -9.054,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "747": [{
+                "pre": "(0, 255)",
+                "post": 6.949,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -6.949,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "748": [{
+                "pre": "(0, 255)",
+                "post": 5.159,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -5.159,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "768": [{
+                "pre": "(0, 255)",
+                "post": 4.949,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -4.949,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "769": [{
+                "pre": "(0, 255)",
+                "post": 5.216,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -5.216,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "770": [{
+                "pre": "(0, 255)",
+                "post": 5.702,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -5.702,
+                "cost": 1,
+                "is_numerical": true
+            }]},{
+            "771": [{
+                "pre": "(0, 255)",
+                "post": 5.259,
+                "cost": 1,
+                "is_numerical": true
+            },{
+                "pre": "(0, 255)",
+                "post": -5.259,
+                "cost": 1,
+                "is_numerical": true
+            }]    
+        }
+    ]
+}

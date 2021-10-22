@@ -15,7 +15,8 @@
 enum class AttackType
 {
     Normal,
-    InfBall
+    InfBall,
+    Flat
 };
 
 class AttackerRule
@@ -47,6 +48,8 @@ public:
 
     template<size_t N>
     Row<N> apply(const Row<N>& row) const noexcept;
+
+    double get_post() const noexcept {return std::get<1>(post_condition_);}
 
     std::string debug_str() const;
 

@@ -81,6 +81,13 @@ public:
             auto& rul = std::get<0>(rules);
             rules_ = std::move(rul);
             type_ = std::get<1>(rules);
+            if (type_ == AttackType::Flat)
+            {
+                is_flat_ = true;
+                flat_deform_ = rules_.front().get_post();
+            }
+            else
+                is_flat_ = false;
             compute_target_features();
         }
     
@@ -102,6 +109,10 @@ public:
 
     void set_budget(int budget) noexcept {budget_ = budget;}
 
+    bool is_flat() const noexcept {return is_flat_;}
+
+    double get_deformation() const noexcept {return flat_deform_;}
+
     // returns attacks against a given instance, when cost has been spent already
     TupleVec<NX> attack(const Row<NX>& x, size_t feature_id, int cost) const;
     // return only the maximum attack
@@ -113,13 +124,13 @@ public:
     template<typename Archive>
     void save(Archive& archive) const
     {
-        archive(budget_, type_, rules_, features_);
+        archive(budget_, type_, rules_, features_, is_flat_, flat_deform_);
     }
 
     template<typename Archive>
     void load(Archive& archive)
     {
-        archive(budget_, type_, rules_, features_);
+        archive(budget_, type_, rules_, features_, is_flat_, flat_deform_);
     }
 
 private:
@@ -129,6 +140,8 @@ private:
     AttackType type_;
     AttkList rules_;
     std::set<size_t> features_; // features which are targeted by rules
+    bool is_flat_;
+    double flat_deform_;
     //AttackDict<NX> attacks_;
 };
 

@@ -74,15 +74,24 @@ std::istream& operator>>(std::istream& is, std::tuple<T1,T2>& pr)
     return is;
 }
 
-static void inner_loop(const json11::Json::array& ft_attk_list, AttkList& out, size_t feature_id)
+static void inner_loop(AttackType type, const json11::Json::array& ft_attk_list, AttkList& out, size_t feature_id)
 {
     for (const auto& ft_attk : ft_attk_list)
     {
-        auto& pre_str = ft_attk["pre"].string_value();
-        std::istringstream iss(pre_str);
         std::tuple<double,double> pre;
-        iss >> pre;
-        double post = ft_attk["post"].number_value();
+        double post;
+        if (type == AttackType::Flat)
+        {
+            pre = {0,0};
+            post = std::abs(ft_attk["deform"].number_value());
+        }
+        else
+        {
+            auto& pre_str = ft_attk["pre"].string_value();
+            std::istringstream iss(pre_str);
+            iss >> pre;
+            post = ft_attk["post"].number_value();
+        }
         auto cost = ft_attk["cost"].int_value();
         auto is_num = ft_attk["is_numerical"].bool_value();
         double pre1 = std::get<0>(pre);
@@ -105,22 +114,31 @@ static void load_helper(const std::map<std::string, size_t>& column_map, AttackT
         {
             feature_id = std::stoul(feature_name);
             auto& ft_attk_list = att_obj.cbegin()->second.array_items();
-            inner_loop(ft_attk_list, out, feature_id);
+            inner_loop(type, ft_attk_list, out, feature_id);
         }
         else if (feature_name == "ID#")
         {
-            for (size_t f_id : id_set)
+            if (type == AttackType::Flat)
             {
-                feature_id = f_id;
+                feature_id = 0;
                 auto& ft_attk_list = att_obj.cbegin()->second.array_items();
-                inner_loop(ft_attk_list, out, feature_id);
+                inner_loop(type, ft_attk_list, out, feature_id);
+            }
+            else
+            {
+                for (size_t f_id : id_set)
+                {
+                    feature_id = f_id;
+                    auto& ft_attk_list = att_obj.cbegin()->second.array_items();
+                    inner_loop(type, ft_attk_list, out, feature_id);
+                }
             }
         }
         else
         {
             feature_id = column_map.at(feature_name);
             auto& ft_attk_list = att_obj.cbegin()->second.array_items();
-            inner_loop(ft_attk_list, out, feature_id);
+            inner_loop(type, ft_attk_list, out, feature_id);
         }
     }
 }
@@ -143,6 +161,8 @@ load_attack_rules(const std::filesystem::path& fn, const std::map<std::string,
         type = AttackType::Normal;
     else if (jstype.string_value() == "inf_ball")
         type = AttackType::InfBall;
+    else if (jstype.string_value() == "flat")
+        type = AttackType::Flat;
     else
         return cpp::failure(fmt::format("{}: not valid attack type", jstype.string_value()));
     auto& attacks = json["attacks"];

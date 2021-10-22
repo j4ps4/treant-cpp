@@ -450,41 +450,7 @@ auto SplitOptimizer<NX,NY>::split_icml2019(
             else
                 split_right.push_back(row_id);
         }
-        // auto attacks = attacker.attack(X.row(row_id), feature_id, 0);
-        // bool all_left = true;
-        // bool all_right = true;
-        // for (auto& [inst, c]: attacks)
-        // {
-        //     if (inst[feature_id] <= feature_value)
-        //         all_right = false;
-        //     else
-        //         all_left = false;
-
-        //     if (!all_left && !all_right)
-        //         break;
-        // }
-
-        // if (all_left)
-        // {
-        //     // it means the splitting predicate is ALWAYS satisfied by this instance, no matter what the attacker does
-        //     // as such, we can safely place this instance among those which surely go to the true (left) branch
-        //     split_left.push_back(row_id);
-        // }
-        // else if (all_right)
-        // {
-        //     // it means the splitting predicate is NEVER satisfied by this instance, no matter what the attacker does
-        //     split_right.push_back(row_id);
-        // }
-        // else
-        // {
-        //     if (X.row(row_id)[feature_id] <= feature_value)
-        //         split_unknown_left.push_back(row_id);
-        //     else
-        //         split_unknown_right.push_back(row_id);
-        // }
     }
-    // Util::log("split_icml2019: split_left: {}, split_right: {}, split_unknown: {}", 
-    //     split_left.size(), split_right.size(), split_unknown_left.size()+split_unknown_right.size());
 
     if (!perturb)
     {
@@ -621,25 +587,60 @@ auto SplitOptimizer<NX,NY>::simulate_split(
     IdxVec split_right;
     IdxVec split_unknown;
 
+    const double deform = attacker.get_deformation();
+    const int budget = attacker.get_budget();
+
     for (auto row_id : rows)
     {
     	// get the cost spent on the i-th instance so far
         int cost = costs.at(row_id);
-        // collect all the attacks the attacker can do on the i-th instance
-        auto attacks = attacker.attack(X.row(row_id), feature_id, cost);
-
         bool all_left = true;
         bool all_right = true;
 
-        for (auto& [inst, c]: attacks)
+        if (attacker.is_flat())
         {
-            if (inst[feature_id] <= feature_value)
+            const auto& row = X.row(row_id);
+            const auto jth_feat = row[feature_id];
+            if (jth_feat <= feature_value)
                 all_right = false;
             else
                 all_left = false;
-            
-            if (!all_left && !all_right)
-                break;
+
+            int multipl = 1;
+            while (cost < budget)
+            {
+                if (jth_feat - multipl*deform <= feature_value)
+                    all_right = false;
+                else
+                    all_left = false;
+                if (!all_left && !all_right)
+                    break;
+                
+                if (jth_feat + multipl*deform <= feature_value)
+                    all_right = false;
+                else
+                    all_left = false;
+                if (!all_left && !all_right)
+                    break;
+                multipl++;
+                cost++;
+            }
+        }
+        else
+        {
+            // collect all the attacks the attacker can do on the i-th instance
+            auto attacks = attacker.attack(X.row(row_id), feature_id, cost);
+
+            for (auto& [inst, c]: attacks)
+            {
+                if (inst[feature_id] <= feature_value)
+                    all_right = false;
+                else
+                    all_left = false;
+                
+                if (!all_left && !all_right)
+                    break;
+            }
         }
 
 		// it means the splitting predicate is ALWAYS satisfied by this instance, no matter what the attacker does

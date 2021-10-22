@@ -101,7 +101,13 @@ template<size_t N>
 TupleVec<N> Attacker<N>::compute_attack(const Row<N>& rw, size_t feature_id, int cost) const
 {
     TupleVec<N> attacks;
-    if (type_ == AttackType::Normal)   
+    switch (type_)
+    {
+    case AttackType::Flat:
+    {
+        Util::die("called compute_attack with Flat attack!!");
+    }
+    case AttackType::Normal:  
     {
         std::deque<PairT<N>> queue = {{rw, cost}};
 
@@ -112,12 +118,14 @@ TupleVec<N> Attacker<N>::compute_attack(const Row<N>& rw, size_t feature_id, int
             attacks.push_back(std::make_tuple(inst, budget));
             compute_normal<N>(attacks, rules_, queue, inst, budget_, budget, feature_id);
         }
+        break;
     }
-    else
+    case AttackType::InfBall:
     {
         attacks.push_back(std::make_tuple(rw, cost));
         for (const auto& rule : rules_)        
             compute_infball<N>(attacks, rule, rw, budget_, cost, feature_id);
+    }
     }
     return attacks;
 }
@@ -171,8 +179,26 @@ void Attacker<NX>::compute_target_features()
 template<size_t NX>
 TupleVec<NX> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id, int cost) const
 {
-
-    if (features_.contains(feature_id))
+    if (is_flat_)
+    {
+        TupleVec<NX> out;
+        out.push_back(std::make_tuple(x, cost));
+        int new_cost = cost + 1;
+        int multipl = 1;
+        while (new_cost <= budget_)
+        {
+            Row<NX> x_p1 = x;
+            x_p1[feature_id] += multipl * flat_deform_;
+            out.push_back(std::make_tuple(x_p1, new_cost));
+            Row<NX> x_p2 = x;
+            x_p2[feature_id] -= multipl * flat_deform_;
+            out.push_back(std::make_tuple(x_p2, new_cost));
+            new_cost++;
+            multipl++;
+        }
+        return out;
+    }
+    else if (features_.contains(feature_id))
     {
         // auto attack_key = std::make_tuple(x, feature_id);
         // if (!attacks_.contains(attack_key))
@@ -230,8 +256,22 @@ TupleVec<NX> Attacker<NX>::max_attack(const Row<NX>& x, size_t feature_id) const
 template<size_t NX>
 TupleVec<NX> Attacker<NX>::single_attack(const Row<NX>& x, size_t feature_id, int budget) const
 {
-    auto rule_it = rules_.cbegin();
     TupleVec<NX> out;
+    if (is_flat_)
+    {
+        if (budget <= 0)
+            return out;
+        Row<NX> x_p1 = x;
+        x_p1[feature_id] += flat_deform_;
+        out.push_back(std::make_tuple(x_p1, budget-1));
+        Row<NX> x_p2 = x;
+        x_p2[feature_id] -= flat_deform_;
+        out.push_back(std::make_tuple(x_p2, budget-1));
+        return out;
+    }
+    else
+    {
+    auto rule_it = rules_.cbegin();
     while (true)
     {
         rule_it = std::find_if(rule_it, rules_.cend(), [feature_id](const auto& rule){
@@ -260,5 +300,5 @@ TupleVec<NX> Attacker<NX>::single_attack(const Row<NX>& x, size_t feature_id, in
             return out;
         }
     }
-
+    }
 }

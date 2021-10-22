@@ -1,0 +1,11 @@
+{
+	"type": "flat",
+    "attacks": [{
+            "ID#": [{
+                "deform": 76.500,
+                "cost": 1,
+                "is_numerical": true
+            }]
+    }]
+}
+

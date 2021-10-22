@@ -267,6 +267,9 @@ int main(int argc, char** argv)
             feature_bl.insert(f);
         auto verb = opts["verbosity"].as<int>();
 
+        if (par)
+            fmt::print("number of hardware threads = {}\n", std::thread::hardware_concurrency());
+
         toLower(dataset); 
         toLower(algostr); 
         auto algo = parse_algo(algostr);

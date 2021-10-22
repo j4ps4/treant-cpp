@@ -194,20 +194,20 @@ double logloss_nlopt<7>(unsigned n, const double* x, double* grad, void* data)
 
     if (grad != nullptr)
     {
-        grad[0] = std::get<0>(cc_0) * -1.0/x[0];
-        grad[1] = std::get<0>(cc_1) * -1.0/x[1];
-        grad[2] = std::get<0>(cc_2) * -1.0/x[2];
-        grad[3] = std::get<0>(cc_3) * -1.0/x[3];
-        grad[4] = std::get<0>(cc_4) * -1.0/x[4];
-        grad[5] = std::get<0>(cc_5) * -1.0/x[5];
-        grad[6] = std::get<0>(cc_6) * -1.0/x[6];
-        grad[7] = std::get<1>(cc_0) * -1.0/x[7];
-        grad[8] = std::get<1>(cc_1) * -1.0/x[8];
-        grad[9] = std::get<1>(cc_2) * -1.0/x[9];
-        grad[10] = std::get<1>(cc_3) * -1.0/x[10];
-        grad[11] = std::get<1>(cc_4) * -1.0/x[11];
-        grad[12] = std::get<1>(cc_5) * -1.0/x[12];
-        grad[13] = std::get<1>(cc_6) * -1.0/x[13];
+        grad[0] = std::get<0>(cc_0) * -1.0/std::max(EPS,x[0]);
+        grad[1] = std::get<0>(cc_1) * -1.0/std::max(EPS,x[1]);
+        grad[2] = std::get<0>(cc_2) * -1.0/std::max(EPS,x[2]);
+        grad[3] = std::get<0>(cc_3) * -1.0/std::max(EPS,x[3]);
+        grad[4] = std::get<0>(cc_4) * -1.0/std::max(EPS,x[4]);
+        grad[5] = std::get<0>(cc_5) * -1.0/std::max(EPS,x[5]);
+        grad[6] = std::get<0>(cc_6) * -1.0/std::max(EPS,x[6]);
+        grad[7] = std::get<1>(cc_0) * -1.0/std::max(EPS,x[7]);
+        grad[8] = std::get<1>(cc_1) * -1.0/std::max(EPS,x[8]);
+        grad[9] = std::get<1>(cc_2) * -1.0/std::max(EPS,x[9]);
+        grad[10] = std::get<1>(cc_3) * -1.0/std::max(EPS,x[10]);
+        grad[11] = std::get<1>(cc_4) * -1.0/std::max(EPS,x[11]);
+        grad[12] = std::get<1>(cc_5) * -1.0/std::max(EPS,x[12]);
+        grad[13] = std::get<1>(cc_6) * -1.0/std::max(EPS,x[13]);
     }
     return std::get<0>(cc_0) * -mlog(x[0])
          + std::get<0>(cc_1) * -mlog(x[1])
@@ -824,12 +824,25 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     if (par)
     {
     thread_pool pool;
-    std::mutex gain_mut;
+
+    const size_t NT = pool.get_thread_count();
+    std::atomic<size_t> id_counter = 0;
+    std::vector<double> best_gains(NT);
+    std::vector<size_t> best_split_feature_ids(NT);
+    std::vector<double> best_split_feature_values(NT);
+    // std::vector<double> next_best_split_feature_values(NT);
+    std::vector<IdxVec> best_split_left_ids(NT);
+    std::vector<IdxVec> best_split_right_ids(NT);
+    std::vector<IdxVec> best_split_unknown_ids(NT);
+    std::vector<NRow> best_pred_lefts(NT);
+    std::vector<NRow> best_pred_rights(NT);
+    std::vector<double> best_residues(NT);
 
     for (const auto& [feature_id, feats] : feature_map)
     {
         pool.parallelize_loop(0, feats.size(), 
             [&](const size_t& low, const size_t& high){ // block [low, high)
+                const size_t my_id = id_counter++;
                 std::vector<double> my_features;
                 for (size_t i = low; i < high; i++)
                     my_features.push_back(feats.at(i));
@@ -907,30 +920,44 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                         //std::exit(0);
 
                         // if gain obtained with this split simulation is greater than the best gain so far
+                        if (gain > best_gains[my_id])
                         {
-                        std::unique_lock gain_lock(gain_mut);
-                        if (gain > best_gain)
-                        {
-                            best_gain = gain;
-                            best_split_feature_id = feature_id;
-                            best_split_feature_value = feature_value;
-                            if (low+feats_idx < feats.size() - 1)
-                                next_best_split_feature_value = feats[low+feats_idx+1];
-                            else
-                                next_best_split_feature_value = best_split_feature_value;
+                            best_gains[my_id] = gain;
+                            best_split_feature_ids[my_id] = feature_id;
+                            best_split_feature_values[my_id] = feature_value;
+                            // if (low+feats_idx < feats.size() - 1)
+                            //     next_best_split_feature_values[my_id] = feats[low+feats_idx+1];
+                            // else
+                            //     next_best_split_feature_values[my_id] = best_split_feature_values[my_id];
                             
-                            best_split_left_id = split_left;
-                            best_split_right_id = split_right;
-                            best_split_unknown_id = split_unknown;
-                            best_pred_left = y_pred_left;
-                            best_pred_right = y_pred_right;
-                            best_residue = residue;
-                        }
+                            best_split_left_ids[my_id] = split_left;
+                            best_split_right_ids[my_id] = split_right;
+                            best_split_unknown_ids[my_id] = split_unknown;
+                            best_pred_lefts[my_id] = y_pred_left;
+                            best_pred_rights[my_id] = y_pred_right;
+                            best_residues[my_id] = residue;
                         }
                     }
                 }
             }
         );
+        const auto max_ptr = std::ranges::max_element(best_gains);
+        const auto argmax = std::ranges::distance(best_gains.begin(), max_ptr);
+        if (best_gains[argmax] > best_gain)
+        {
+            best_gain = best_gains[argmax];
+            best_split_feature_id = best_split_feature_ids[argmax];
+            best_split_feature_value = best_split_feature_values[argmax];
+            best_split_left_id = best_split_left_ids[argmax];
+            best_split_right_id = best_split_right_ids[argmax];
+            best_split_unknown_id = best_split_unknown_ids[argmax];
+            best_pred_left = best_pred_lefts[argmax];
+            best_pred_right = best_pred_rights[argmax];
+            best_residue = best_residues[argmax];
+        }
+        for (size_t i = 0; i < best_gains.size(); i++)
+            best_gains[i] = 0.0;
+        id_counter = 0;
     }
     }
     else

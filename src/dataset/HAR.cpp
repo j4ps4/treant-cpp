@@ -84,7 +84,7 @@ cpp::result<std::shared_ptr<Attacker<HAR_X>>,std::string> new_Attacker(int budge
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
-    auto atkr = std::make_shared<Attacker<HAR_X>>(std::move(rulz), budget);
+    auto atkr = std::make_shared<Attacker<HAR_X>>(std::move(rulz), budget, std::set<size_t>());
 
     return atkr;
 }
@@ -327,7 +327,7 @@ void attack_instance(const std::string& attack_file, const std::vector<double>& 
     if (res.has_error())
         Util::die("{}", res.error());
     auto& rulz = res.value();
-    Attacker<HAR_X> atkr(std::move(rulz), budget);
+    Attacker<HAR_X> atkr(std::move(rulz), budget, std::set<size_t>());
     Row<HAR_X> rw(1, HAR_X);
     if (inst.size() != HAR_X)
         Util::die("expected a vector of length {}, got {}", HAR_X, inst.size());

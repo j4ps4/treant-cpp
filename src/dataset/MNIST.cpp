@@ -99,7 +99,7 @@ cpp::result<std::shared_ptr<Attacker<MNIST_X>>,std::string> new_Attacker(int bud
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
-    auto atkr = std::make_shared<Attacker<MNIST_X>>(std::move(rulz), budget);
+    auto atkr = std::make_shared<Attacker<MNIST_X>>(std::move(rulz), budget, MNIST_BL2);
    
     return atkr;
 }

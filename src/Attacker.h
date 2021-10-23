@@ -70,12 +70,19 @@ using TupleVec = std::vector<PairT<N>>;
 template<size_t N>
 using AttackDict = std::unordered_map<std::tuple<Row<N>,size_t>, TupleVec<N>, row_hash<N>, key_equal<N>>;
 
-
 template<size_t NX>
 class Attacker
 {
+    std::set<size_t> gen_feature_set()
+    {
+        auto gen = [](){static size_t x = 0; return x++;};
+        std::set<size_t> out;
+        std::generate_n(std::inserter(out, out.begin()), NX, gen);
+        return out;
+    }
+
 public:
-    Attacker(LoadType&& rules, int budget) :
+    Attacker(LoadType&& rules, int budget, const std::set<size_t>& blacklist) :
         budget_(budget)
         {
             auto& rul = std::get<0>(rules);
@@ -85,10 +92,16 @@ public:
             {
                 is_flat_ = true;
                 flat_deform_ = rules_.front().get_post();
+                const static std::set<size_t> all_features = gen_feature_set();
+                std::set_difference(all_features.begin(), all_features.end(),
+                    blacklist.begin(), blacklist.end(),
+                    std::inserter(features_, features_.begin()));
             }
             else
+            {
                 is_flat_ = false;
-            compute_target_features();
+                compute_target_features();
+            }
         }
     
     Attacker() = default;

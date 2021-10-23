@@ -39,7 +39,7 @@ std::vector<std::tuple<int,Attacker<NX>*>> parse_batch_file(const std::string& b
 			if (res.has_error())
 				throw std::runtime_error(res.error());
 			auto& rulz = res.value();
-			auto atkr = new Attacker<NX>(std::move(rulz), budget);
+			auto atkr = new Attacker<NX>(std::move(rulz), budget, std::set<size_t>());
 			result.push_back(std::make_tuple(id, atkr));
 		}
 		return result;

@@ -182,6 +182,7 @@ TupleVec<NX> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id, int cost)
     if (is_flat_)
     {
         TupleVec<NX> out;
+        out.reserve(1 + 2 * (budget_ - cost));
         out.push_back(std::make_tuple(x, cost));
         int new_cost = cost + 1;
         int multipl = 1;

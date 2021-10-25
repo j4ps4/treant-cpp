@@ -75,8 +75,8 @@ double ineq_L_LT(unsigned int n, const double* x, double* grad, void* data)
     //     std::exit(1);
     // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
-    const size_t y = (c_data->y);
-    const auto& bound = *(c_data->bound);
+    const size_t y = c_data->y;
+    const auto bound = c_data->bound;
     if (grad != nullptr)
     {
         for (size_t i = 0; i < NY2; i++)
@@ -89,7 +89,7 @@ double ineq_L_LT(unsigned int n, const double* x, double* grad, void* data)
     // <=> logloss(predLeft) - logloss(bound) <= 0
     // -log(predLeft) + log(bound)
     auto predLeft = pred.template head<NY>();
-    return -mlog(predLeft(y)) + mlog(bound(y));
+    return -mlog(predLeft[y]) + mlog(bound);
 }
 template<size_t NY, size_t NY2>
 double ineq_L_GTE(unsigned int n, const double* x, double* grad, void* data)
@@ -101,8 +101,8 @@ double ineq_L_GTE(unsigned int n, const double* x, double* grad, void* data)
     //     std::exit(1);
     // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
-    const auto y = (c_data->y);
-    const auto& bound = *(c_data->bound);
+    const auto y = c_data->y;
+    const auto bound = c_data->bound;
     if (grad != nullptr)
     {
         for (size_t i = 0; i < NY2; i++)
@@ -114,7 +114,7 @@ double ineq_L_GTE(unsigned int n, const double* x, double* grad, void* data)
     // sum(y * -log(predLeft)) >= sum(y * -log(bound))
     // <=> -sum(y * -log(predLeft)) + sum(y * -log(bound)) <= 0
     // <=> sum(y * log(predLeft)) + sum(y * -log(bound)) <= 0
-    return mlog(predLeft(y)) - mlog(bound(y));
+    return mlog(predLeft[y]) - mlog(bound);
 }
 template<size_t NY, size_t NY2>
 double ineq_R_LT(unsigned int n, const double* x, double* grad, void* data)
@@ -126,8 +126,8 @@ double ineq_R_LT(unsigned int n, const double* x, double* grad, void* data)
     //     std::exit(1);
     // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
-    const auto y = (c_data->y);
-    const auto& bound = *(c_data->bound);
+    const auto y = c_data->y;
+    const auto bound = c_data->bound;
     if (grad != nullptr)
     {
         for (size_t i = 0; i < NY2; i++)
@@ -139,7 +139,7 @@ double ineq_R_LT(unsigned int n, const double* x, double* grad, void* data)
     // sum(y * -log(predRight)) <= sum(y * -log(bound))
     // <=> sum(y * -log(predRight)) - sum(y * -log(bound)) <= 0
     // <=> sum(y * -log(predRight)) + sum(y * log(bound)) <= 0
-    return -mlog(predRight(y)) + mlog(bound(y));
+    return -mlog(predRight[y]) + mlog(bound);
 }
 template<size_t NY, size_t NY2>
 double ineq_R_GTE(unsigned int n, const double* x, double* grad, void* data)
@@ -151,8 +151,8 @@ double ineq_R_GTE(unsigned int n, const double* x, double* grad, void* data)
     //     std::exit(1);
     // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
-    const auto& y = (c_data->y);
-    const auto& bound = *(c_data->bound);
+    const auto y = c_data->y;
+    const auto bound = c_data->bound;
     if (grad != nullptr)
     {
         for (size_t i = 0; i < NY2; i++)
@@ -161,7 +161,7 @@ double ineq_R_GTE(unsigned int n, const double* x, double* grad, void* data)
     }
     Eigen::Map<const Row<NY2>> pred(x);
     auto predRight = pred.template tail<NY>();
-    return mlog(predRight(y)) - mlog(bound(y));
+    return mlog(predRight[y]) - mlog(bound);
 }
 template<size_t NY, size_t NY2>
 double ineq_U_LT(unsigned int n, const double* x, double* grad, void* data)
@@ -173,13 +173,13 @@ double ineq_U_LT(unsigned int n, const double* x, double* grad, void* data)
     //     std::exit(1);
     // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
-    const auto y = (c_data->y);
-    const auto& bound = *(c_data->bound);
+    const auto y = c_data->y;
+    const auto bound = c_data->bound;
     Eigen::Map<const Row<NY2>> pred(x);
     auto predLeft = pred.template head<NY>();
     auto predRight = pred.template tail<NY>();
-    const double s1 = -mlog(predLeft(y));
-    const double s2 = -mlog(predRight(y));
+    const double s1 = -mlog(predLeft[y]);
+    const double s2 = -mlog(predRight[y]);
     if (grad != nullptr)
     {
         for (size_t i = 0; i < NY2; i++)
@@ -195,7 +195,7 @@ double ineq_U_LT(unsigned int n, const double* x, double* grad, void* data)
     }
     // max(logloss(predLeft), logloss(predRight)) <= logloss(bound)
     // <=> max(..) - logloss(bound) <= 0
-    return std::max(s1, s2) + mlog(bound(y));
+    return std::max(s1, s2) + mlog(bound);
 }
 template<size_t NY, size_t NY2>
 double ineq_U_GTE(unsigned int n, const double* x, double* grad, void* data)
@@ -207,13 +207,13 @@ double ineq_U_GTE(unsigned int n, const double* x, double* grad, void* data)
     //     std::exit(1);
     // }
     auto c_data = static_cast<Constr_data<NY>*>(data);
-    const auto y = (c_data->y);
-    const auto& bound = *(c_data->bound);
+    const auto y = c_data->y;
+    const auto bound = c_data->bound;
     Eigen::Map<const Row<NY2>> pred(x);
     auto predLeft = pred.template head<NY>();
     auto predRight = pred.template tail<NY>();
-    const double s1 = -mlog(predLeft(y));
-    const double s2 = -mlog(predRight(y));
+    const double s1 = -mlog(predLeft[y]);
+    const double s2 = -mlog(predRight[y]);
     if (grad != nullptr)
     {
         for (size_t i = 0; i < NY2; i++)
@@ -229,7 +229,7 @@ double ineq_U_GTE(unsigned int n, const double* x, double* grad, void* data)
     }
     // min(ll0, ll1) >= logloss(bound)
     // <=> -min(..) + logloss(bound) <= 0
-    return -std::min(s1, s2) - mlog(bound(y));
+    return -std::min(s1, s2) - mlog(bound);
 }
 
 template<size_t NX, size_t NY>
@@ -322,6 +322,6 @@ std::string Constr_data<NY>::debug_str() const
     //     }
     // }
     ss << "y: " << y << "\n";
-    ss << "bound: " << *bound << "\n";
+    ss << "bound: " << bound << "\n";
     return ss.str();
 }

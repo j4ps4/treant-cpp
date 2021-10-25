@@ -764,6 +764,135 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
     return IcmlTupl{pred_left, pred_right, minf};
 }
 
+template<size_t NX, size_t NY>
+auto SplitOptimizer<NX,NY>::propagate(const ConstrVec& cs, Attacker<NX>& attacker, 
+    size_t feature_id, double feature_value) const 
+-> std::tuple<FunVec, ConstrDataVec>
+{
+    FunVec updated_constraints;
+    FunArr updated_constraints_U;
+    FunArr updated_constraints_L;
+    FunArr updated_constraints_R;
+    ConstrDataVec constr_data;
+    ConstrDataArr constr_data_U;
+    ConstrDataArr constr_data_L;
+    ConstrDataArr constr_data_R;
+    for (size_t i = 0; i < 2*NY; i++)
+    {
+        constr_data_U[i] = Constr_data<NY>{SIZE_MAX, INFINITY};
+        constr_data_L[i] = Constr_data<NY>{SIZE_MAX, INFINITY};
+        constr_data_R[i] = Constr_data<NY>{SIZE_MAX, INFINITY};
+    }
+    std::array<double,10> lower_bound_L = {INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY};
+    std::array<double,10> upper_bound_L = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY};
+    std::array<double,10> lower_bound_R = {INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY};
+    std::array<double,10> upper_bound_R = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY};
+    std::array<double,10> lower_bound_U = {INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY};
+    std::array<double,10> upper_bound_U = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY};
+    if (useConstraints_)
+    {
+    // for (const auto& c : cs)
+    // {
+    //     auto c_left = c.propagate_left(attacker, feature_id, feature_value);
+    //     auto c_right = c.propagate_right(attacker, feature_id, feature_value);
+    //     if (c_left && c_right)
+    //         updated_constraints.push_back(c.encode_for_optimizer(Direction::U));
+    //     else if (c_left)
+    //         updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
+    //     else if (c_right)
+    //         updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
+    //     constr_data.push_back(Constr_data<NY>{c.get_y(), c.get_bound()});
+    // }
+    for (const auto& c : cs)
+    {
+        const size_t y = c.get_y();
+        const double bound = c.get_bound();
+        const Ineq ineq = c.get_ineq();
+        auto c_left = c.propagate_left(attacker, feature_id, feature_value);
+        auto c_right = c.propagate_right(attacker, feature_id, feature_value);
+        if (c_left && c_right)
+        {
+            if (ineq == Ineq::LT && bound < lower_bound_U[y])
+            {
+                lower_bound_U[y] = bound;
+                updated_constraints_U[y] = c.encode_for_optimizer(Direction::U);
+                constr_data_U[y] = Constr_data<NY>{y, bound};
+            }
+            else if (ineq == Ineq::GTE && bound > upper_bound_U[y])
+            {
+                upper_bound_U[y] = bound;
+                updated_constraints_U[y+NY] = c.encode_for_optimizer(Direction::U);
+                constr_data_U[y+NY] = Constr_data<NY>{y, bound};
+            }
+        }
+        else if (c_left)
+        {
+            if (ineq == Ineq::LT && bound < lower_bound_L[y])
+            {
+                lower_bound_L[y] = bound;
+                updated_constraints_L[y] = c.encode_for_optimizer(Direction::L);
+                constr_data_L[y] = Constr_data<NY>{y, bound};
+            }
+            else if (ineq == Ineq::GTE && bound > upper_bound_L[y])
+            {
+                upper_bound_L[y] = bound;
+                updated_constraints_L[y+NY] = c.encode_for_optimizer(Direction::L);
+                constr_data_L[y+NY] = Constr_data<NY>{y, bound};
+            }
+        }
+        else if (c_right)
+        {
+            if (ineq == Ineq::LT && bound < lower_bound_R[y])
+            {
+                lower_bound_R[y] = bound;
+                updated_constraints_R[y] = c.encode_for_optimizer(Direction::R);
+                constr_data_R[y] = Constr_data<NY>{y, bound};
+            }
+            else if (ineq == Ineq::GTE && bound > upper_bound_R[y])
+            {
+                upper_bound_R[y] = bound;
+                updated_constraints_R[y+NY] = c.encode_for_optimizer(Direction::R);
+                constr_data_R[y+NY] = Constr_data<NY>{y, bound};
+            }
+        }
+    }
+    for (size_t i = 0; i < NY; i++)
+    {
+        if (constr_data_U[i].y != SIZE_MAX)
+        {
+            updated_constraints.push_back(updated_constraints_U[i]);
+            constr_data.push_back(constr_data_U[i]);
+        }
+        if (constr_data_U[i+NY].y != SIZE_MAX)
+        {
+            updated_constraints.push_back(updated_constraints_U[i+NY]);
+            constr_data.push_back(constr_data_U[i+NY]);
+        }
+        if (constr_data_L[i].y != SIZE_MAX)
+        {
+            updated_constraints.push_back(updated_constraints_L[i]);
+            constr_data.push_back(constr_data_L[i]);
+        } 
+        if (constr_data_L[i+NY].y != SIZE_MAX)
+        {
+            updated_constraints.push_back(updated_constraints_L[i+NY]);
+            constr_data.push_back(constr_data_L[i+NY]);
+        } 
+        if (constr_data_R[i].y != SIZE_MAX)
+        {
+            updated_constraints.push_back(updated_constraints_R[i]);
+            constr_data.push_back(constr_data_R[i]);
+        } 
+        if (constr_data_R[i+NY].y != SIZE_MAX)
+        {
+            updated_constraints.push_back(updated_constraints_R[i+NY]);
+            constr_data.push_back(constr_data_R[i+NY]);
+        } 
+    }
+    }
+    return std::make_tuple(updated_constraints, constr_data);
+}
+
 template<size_t N>
 std::set<size_t> feature_set()
 {
@@ -872,25 +1001,9 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                         split_right = std::get<1>(split_res);
                         split_unknown = std::get<2>(split_res);
 
-                        FunVec updated_constraints;
-                        std::vector<Constr_data<NY>> constr_data;
-                        // if (constraints.size() > 0)
-                        //     Util::info("propagating {} constraints.", constraints.size());
-                        if (useConstraints_)
-                        {
-                            for (const auto& c : constraints)
-                            {
-                                auto c_left = c.propagate_left(attacker, feature_id, feature_value);
-                                auto c_right = c.propagate_right(attacker, feature_id, feature_value);
-                                if (c_left && c_right)
-                                    updated_constraints.push_back(c.encode_for_optimizer(Direction::U));
-                                else if (c_left)
-                                    updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
-                                else if (c_right)
-                                    updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
-                                constr_data.push_back(Constr_data<NY>{c.get_y(), c.get_bound_ptr()});
-                            }
-                        }
+                        auto [updated_constraints, constr_data] = propagate(constraints, attacker, feature_id, feature_value);
+                        // if (updated_constraints.size() > 0)
+                        //     Util::info("propagated {} constraints.", updated_constraints.size());
                         optimizer_res = optimize_loss_under_attack(y, current_prediction_score,
                             split_left, split_right, split_unknown, updated_constraints, constr_data);
                     }
@@ -985,26 +1098,8 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                     split_left = std::get<0>(split_res);
                     split_right = std::get<1>(split_res);
                     split_unknown = std::get<2>(split_res);
+                    auto [updated_constraints, constr_data] = propagate(constraints, attacker, feature_id, feature_value);
 
-                    FunVec updated_constraints;
-                    std::vector<Constr_data<NY>> constr_data;
-                    // if (constraints.size() > 0)
-                    //     Util::info("propagating {} constraints.", constraints.size());
-                    if (useConstraints_)
-                    {
-                        for (const auto& c : constraints)
-                        {
-                            auto c_left = c.propagate_left(attacker, feature_id, feature_value);
-                            auto c_right = c.propagate_right(attacker, feature_id, feature_value);
-                            if (c_left && c_right)
-                                updated_constraints.push_back(c.encode_for_optimizer(Direction::U));
-                            else if (c_left)
-                                updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
-                            else if (c_right)
-                                updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
-                            constr_data.push_back(Constr_data<NY>{c.get_y(), c.get_bound_ptr()});
-                        }
-                    }
                     optimizer_res = optimize_loss_under_attack(y, current_prediction_score,
                         split_left, split_right, split_unknown, updated_constraints, constr_data);
                 }
@@ -1131,27 +1226,29 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 // Util::log("min_left: {}, min_right: {}", min_left, min_right);
                 Eigen::Index u_classid;
                 y.row(u).maxCoeff(&u_classid);
-                size_t u_c = static_cast<size_t>(u_classid);
+                const size_t u_c = static_cast<size_t>(u_classid);
                 if (unknown_to_left(i) > unknown_to_right(i))
                 {
                     // Assign unknown instance to left as the distance is larger
+                    const double bound = best_pred_right[u_classid];
                     best_split_left_id.push_back(u);
                     costs[u] = min_left;
                     if (useConstraints_)
                     {
-                        constraints_left.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::GTE, min_left, best_pred_right));
-                        constraints_right.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::LT, min_left, best_pred_right));
+                        constraints_left.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::GTE, min_left, bound));
+                        constraints_right.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::LT, min_left, bound));
                     }
                 }
                 else
                 {
                     // Assign unknown instance to right as the distance is larger
+                    const double bound = best_pred_left[u_classid];
                     best_split_right_id.push_back(u);
                     costs[u] = min_right;
                     if (useConstraints_)
                     {
-                        constraints_left.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::LT, min_right, best_pred_left));
-                        constraints_right.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::GTE, min_right, best_pred_left));
+                        constraints_left.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::LT, min_right, bound));
+                        constraints_right.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::GTE, min_right, bound));
                     }
                 }
             }

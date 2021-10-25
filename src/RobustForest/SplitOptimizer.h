@@ -39,7 +39,11 @@ class SplitOptimizer
     using CostVec = std::vector<int>;
     using CostMap = std::map<int64_t, int>;
     using ConstrVec = std::vector<Constraint<NX,NY>>;
+    using ConstrArr = std::array<Constraint<NX,NY>, 2*NY>;
+    using ConstrDataVec = std::vector<Constr_data<NY>>;
+    using ConstrDataArr = std::array<Constr_data<NY>, 2*NY>;
     using FunVec = std::vector<std::function<double(unsigned, const double*, double*, void*)>>;
+    using FunArr = std::array<std::function<double(unsigned, const double*, double*, void*)>, 2*NY>;
     using OptimTupl = std::tuple<double,IdxVec,IdxVec,size_t,double,double,NRow,NRow,double,CostMap,CostMap,ConstrVec,ConstrVec>;
 
     #define NY2 SplitOptimizer<NX,NY>::NY2V
@@ -67,6 +71,9 @@ public:
     double get_epsilon() const noexcept {return epsilon_;}
     
 private:
+    std::tuple<FunVec, ConstrDataVec> propagate(const ConstrVec& cs, Attacker<NX>& attacker,
+        size_t feature_id, double feature_value) const;
+
     static double sse(const DF<NY>& y_true,
                    const Row<NY>& y_pred);
 

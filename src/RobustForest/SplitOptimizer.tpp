@@ -42,6 +42,20 @@ double SplitOptimizer<NX,NY>::logloss(const DF<NY>& y_true,
     return accum;
 }
 
+template<size_t NX, size_t NY>
+Eigen::ArrayXd SplitOptimizer<NX,NY>::instance_logloss(const DF<NY>& y_true,
+    const Row<NY>& y_pred)
+{
+    Eigen::ArrayXd out(y_true.rows(), 1);
+
+    const auto y_pred_prime = y_pred.max(EPS).min(1-EPS).log();
+    for (int64_t i = 0; i < y_true.rows(); i++)
+	{
+		out(i) = -((y_true.row(i) * y_pred_prime).sum());
+	}
+    return out;
+}
+
 template<size_t NY>
 struct loss_data
 {
@@ -1171,22 +1185,11 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
         else if (best_split_unknown_id.size() > 0 && algo_ == TrainingAlgo::Robust)
         {
             // Assign unknown instance either to left or right split, according to the worst-case scenario
-            auto norm = [](const DF<NY>& df){return df.pow(2).rowwise().sum().sqrt();};
-            auto rowwisediff = [](const DF<NY>& df, const Row<NY>& row){
-                DF<NY> out(df.rows(), NY);
-                for (int64_t i = 0; i < df.rows(); i++)
-                {
-                    out.row(i) = df.row(i) - row;
-                }
-                return out;
-            };
 
             // get the unknown y-values
             const auto y_true_unknown = DF_index<NY>(y, best_split_unknown_id);
-            const auto unknown_to_left1 = rowwisediff(y_true_unknown, best_pred_left);
-            const auto unknown_to_right1 = rowwisediff(y_true_unknown, best_pred_right);
-            const auto unknown_to_left = norm(unknown_to_left1);
-            const auto unknown_to_right = norm(unknown_to_right1);
+            const auto loss_left = instance_logloss(y_true_unknown, best_pred_left);
+            const auto loss_right = instance_logloss(y_true_unknown, best_pred_right);
             // Util::log("unknown_to_left: ({}x{})", unknown_to_left.rows(), unknown_to_left.cols());
             // Util::log("unknown_to_right: ({}x{})", unknown_to_right.rows(), unknown_to_right.cols());
             if (useConstraints_)
@@ -1227,9 +1230,10 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 Eigen::Index u_classid;
                 y.row(u).maxCoeff(&u_classid);
                 const size_t u_c = static_cast<size_t>(u_classid);
-                if (unknown_to_left(i) > unknown_to_right(i))
+                if (loss_left(i) > loss_right(i) 
+                    || (loss_left(i) == loss_right(i) && X(u, best_split_feature_id) <= best_split_feature_value))
                 {
-                    // Assign unknown instance to left as the distance is larger
+                    // Assign unknown instance to left as the loss is larger
                     const double bound = best_pred_right[u_classid];
                     best_split_left_id.push_back(u);
                     costs[u] = min_left;
@@ -1239,9 +1243,10 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                         constraints_right.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::LT, min_left, bound));
                     }
                 }
-                else
+                else if (loss_right(i) > loss_left(i)
+                    || (loss_left(i) == loss_right(i) && X(u, best_split_feature_id) > best_split_feature_value))
                 {
-                    // Assign unknown instance to right as the distance is larger
+                    // Assign unknown instance to right as the loss is larger
                     const double bound = best_pred_left[u_classid];
                     best_split_right_id.push_back(u);
                     costs[u] = min_right;

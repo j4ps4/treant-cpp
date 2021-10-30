@@ -84,6 +84,8 @@ private:
 
     static double logloss(const DF<NY>& y_true,
                    const Row<NY>& y_pred);
+    static Eigen::ArrayXd instance_logloss(const DF<NY>& y_true,
+                    const Row<NY>& y_pred);
 
     static double logloss_under_attack(const DF<NY>& left,
                                        const DF<NY>& right,

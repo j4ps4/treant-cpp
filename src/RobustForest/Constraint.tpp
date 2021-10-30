@@ -85,11 +85,11 @@ double ineq_L_LT(unsigned int n, const double* x, double* grad, void* data)
     }
     Eigen::Map<const Row<NY2>> pred(x);
     //return -(y * (pred.template head<NY>().log())).sum() + (y * bound.log()).sum();
-    // logloss(predLeft) <= logloss(bound)
-    // <=> logloss(predLeft) - logloss(bound) <= 0
-    // -log(predLeft) + log(bound)
+    // logloss(predLeft) <= bound
+    // <=> logloss(predLeft) - bound <= 0
+    // -log(predLeft) - bound
     auto predLeft = pred.template head<NY>();
-    return -mlog(predLeft[y]) + mlog(bound);
+    return -mlog(predLeft[y]) - bound;
 }
 template<size_t NY, size_t NY2>
 double ineq_L_GTE(unsigned int n, const double* x, double* grad, void* data)
@@ -111,10 +111,10 @@ double ineq_L_GTE(unsigned int n, const double* x, double* grad, void* data)
     }
     Eigen::Map<const Row<NY2>> pred(x);
     auto predLeft = pred.template head<NY>();
-    // sum(y * -log(predLeft)) >= sum(y * -log(bound))
-    // <=> -sum(y * -log(predLeft)) + sum(y * -log(bound)) <= 0
-    // <=> sum(y * log(predLeft)) + sum(y * -log(bound)) <= 0
-    return mlog(predLeft[y]) - mlog(bound);
+    // logloss(predLeft) >= bound
+    // bound - ll(pred) <= 0
+    // log(pred) + bound <= 0
+    return mlog(predLeft[y]) + bound;
 }
 template<size_t NY, size_t NY2>
 double ineq_R_LT(unsigned int n, const double* x, double* grad, void* data)
@@ -139,7 +139,7 @@ double ineq_R_LT(unsigned int n, const double* x, double* grad, void* data)
     // sum(y * -log(predRight)) <= sum(y * -log(bound))
     // <=> sum(y * -log(predRight)) - sum(y * -log(bound)) <= 0
     // <=> sum(y * -log(predRight)) + sum(y * log(bound)) <= 0
-    return -mlog(predRight[y]) + mlog(bound);
+    return -mlog(predRight[y]) - bound;
 }
 template<size_t NY, size_t NY2>
 double ineq_R_GTE(unsigned int n, const double* x, double* grad, void* data)
@@ -161,7 +161,7 @@ double ineq_R_GTE(unsigned int n, const double* x, double* grad, void* data)
     }
     Eigen::Map<const Row<NY2>> pred(x);
     auto predRight = pred.template tail<NY>();
-    return mlog(predRight[y]) - mlog(bound);
+    return mlog(predRight[y]) + bound;
 }
 template<size_t NY, size_t NY2>
 double ineq_U_LT(unsigned int n, const double* x, double* grad, void* data)
@@ -193,9 +193,9 @@ double ineq_U_LT(unsigned int n, const double* x, double* grad, void* data)
             grad[y+NY] = -1.0 / std::max(EPS,x[y+NY]);
         }
     }
-    // max(logloss(predLeft), logloss(predRight)) <= logloss(bound)
-    // <=> max(..) - logloss(bound) <= 0
-    return std::max(s1, s2) + mlog(bound);
+    // max(logloss(predLeft), logloss(predRight)) <= bound
+    // <=> max(..) - bound <= 0
+    return std::max(s1, s2) - bound;
 }
 template<size_t NY, size_t NY2>
 double ineq_U_GTE(unsigned int n, const double* x, double* grad, void* data)
@@ -227,9 +227,9 @@ double ineq_U_GTE(unsigned int n, const double* x, double* grad, void* data)
             grad[y+NY] = 1.0 / std::max(EPS,x[y+NY]);
         }
     }
-    // min(ll0, ll1) >= logloss(bound)
-    // <=> -min(..) + logloss(bound) <= 0
-    return -std::min(s1, s2) - mlog(bound);
+    // min(ll0, ll1) >= bound
+    // <=> -min(..) + bound <= 0
+    return -std::min(s1, s2) + bound;
 }
 
 template<size_t NX, size_t NY>

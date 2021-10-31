@@ -807,8 +807,8 @@ auto SplitOptimizer<NX,NY>::propagate(const ConstrVec& cs, Attacker<NX>& attacke
     {
     for (const auto& c : cs)
     {
-        auto c_left = c.propagate_left(attacker, feature_id, feature_value);
-        auto c_right = c.propagate_right(attacker, feature_id, feature_value);
+        auto c_left = c.crosses_left(attacker, feature_id, feature_value);
+        auto c_right = c.crosses_right(attacker, feature_id, feature_value);
         if (c_left && c_right)
             updated_constraints.push_back(c.encode_for_optimizer(Direction::U));
         else if (c_left)

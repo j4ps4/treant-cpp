@@ -47,6 +47,44 @@ std::optional<Constraint<NX,NY>> Constraint<NX,NY>::propagate_right(Attacker<NX>
     }
 }
 
+template<size_t NX, size_t NY>
+bool Constraint<NX,NY>::crosses_left(Attacker<NX>& attacker, 
+    size_t feature_id, double feature_value) const
+{
+    if (attacker.is_flat())
+    {
+        const double amount = attacker.get_deformation();
+        const int mult = std::max(0, attacker.get_budget() - cost_); 
+        if (x_[feature_id] - mult*amount <= feature_value)
+            return true;
+        else
+            return false;
+    }
+    else
+    {
+        return propagate_left(attacker, feature_id, feature_value).has_value();
+    }
+}
+
+template<size_t NX, size_t NY>
+bool Constraint<NX,NY>::crosses_right(Attacker<NX>& attacker, 
+    size_t feature_id, double feature_value) const
+{
+    if (attacker.is_flat())
+    {
+        const double amount = attacker.get_deformation();
+        const int mult = std::max(0, attacker.get_budget() - cost_); 
+        if (x_[feature_id] + mult*amount > feature_value)
+            return true;
+        else
+            return false;
+    }
+    else
+    {
+        return propagate_right(attacker, feature_id, feature_value).has_value();
+    }
+}
+
 template<size_t N>
 bool check_x(const double* x)
 {

@@ -37,6 +37,8 @@ public:
         x_(x), y_(y), ineq_(ineq), cost_(cost), bound_(bound) {}
     std::optional<Constraint<NX,NY>> propagate_left(Attacker<NX>& attacker, size_t feature_id, double feature_value) const;
     std::optional<Constraint<NX,NY>> propagate_right(Attacker<NX>& attacker, size_t feature_id, double feature_value) const;
+    bool crosses_left(Attacker<NX>& attacker, size_t feature_id, double feature_value) const;
+    bool crosses_right(Attacker<NX>& attacker, size_t feature_id, double feature_value) const;
 
     std::function<double(unsigned, const double*, double*, void*)> encode_for_optimizer(Direction dir) const;
     const size_t get_y() const noexcept {return y_;}

@@ -460,33 +460,40 @@ std::vector<double> RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& 
     }
 
     const size_t N = X.rows();
-    size_t correct = 0;
+    std::atomic<size_t> correct = 0;
+    thread_pool pool;
     // size_t attack_success = 0;
     // size_t total_attacks = 0;
     const auto& feats = attacker.target_features();
-    for (int64_t i = 0; i < N; i++)
-    {
-        Eigen::Index max_ind;
-        Y.row(i).maxCoeff(&max_ind);
-        const auto& inst = X.row(i);
-        const auto true_y = static_cast<size_t>(max_ind);
-        const auto pred_y = predict(inst);
-        if (true_y == pred_y)
-        {
-            correct++;
-            if (att_recur_f<NX,NY>(*this, inst, attacker, feats, attacker.get_budget(), true_y))
-                correct--;
-            // for (auto& att : set)
-            // {
-            //     const auto pred_att = predict(att);
-            //     if (true_y != pred_att)
-            //     {
-            //         correct--;
-            //         break;
-            //     }
-            // }
+    pool.parallelize_loop(0, N, 
+        [&](const size_t& low, const size_t& high){ // block [low, high)
+            if (low >= high)
+                return;
+            for (size_t i = low; i < high; i++)
+            {
+                Eigen::Index max_ind;
+                Y.row(i).maxCoeff(&max_ind);
+                const auto inst = X.row(i);
+                const auto true_y = static_cast<size_t>(max_ind);
+                const auto pred_y = predict(inst);
+                if (true_y == pred_y)
+                {
+                    correct++;
+                    if (att_recur_f<NX,NY>(*this, inst, attacker, feats, attacker.get_budget(), true_y))
+                        correct--;
+                    // for (auto& att : set)
+                    // {
+                    //     const auto pred_att = predict(att);
+                    //     if (true_y != pred_att)
+                    //     {
+                    //         correct--;
+                    //         break;
+                    //     }
+                    // }
+                }
+            }
         }
-    }
+    );
     // double ret = 100.0 - 100.0 * static_cast<double>(score) / static_cast<double>(total_attacks);
     double ret = 100.0 * static_cast<double>(correct) / static_cast<double>(N);
     out.push_back(ret);

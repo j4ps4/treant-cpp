@@ -933,6 +933,9 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     NRow best_pred_right;
     double best_residue;
 
+    thread_pool pool;
+    std::mutex gain_mut;
+
     // create a dictionary containing individual values for each feature_id
     //  (limited to the slice of data located at this node)
     // 1. filter out any blacklisted features from the list of features actually considered
@@ -967,14 +970,12 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
 
     if (par)
     {
-    thread_pool pool;
-    std::mutex gain_mut;
 
     for (const auto& [feature_id, feats] : feature_map)
     {
         pool.parallelize_loop(0, feats.size(), 
             [&](const size_t& low, const size_t& high){ // block [low, high)
-                if (low == high)
+                if (low >= high)
                     return;
                 std::vector<double> my_features;
                 for (size_t i = low; i < high; i++)
@@ -1171,6 +1172,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     // Continue iff there's an actual gain
     if (best_gain > 0.0)
     {
+        const auto NU = best_split_unknown_id.size();
         if (best_split_unknown_id.size() > 0 && algo_ == TrainingAlgo::Icml2019)
         {
             // Assign unknown instance either to left or right split, according to ICML2019 strategy
@@ -1182,81 +1184,105 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                     best_split_right_id.push_back(u);
             }
         }
-        else if (best_split_unknown_id.size() > 0 && algo_ == TrainingAlgo::Robust)
+        if (algo_ == TrainingAlgo::Robust && useConstraints_)
         {
-            // Assign unknown instance either to left or right split, according to the worst-case scenario
+            for (const auto& c : constraints)
+            {
+                auto c_l = c.propagate_left(attacker, best_split_feature_id, best_split_feature_value);
+                if (c_l)
+                    constraints_left.push_back(c_l.value());
+                auto c_r = c.propagate_right(attacker, best_split_feature_id, best_split_feature_value);
+                if (c_r)
+                    constraints_right.push_back(c_r.value());
+            }
+        }
+        if (algo_ == TrainingAlgo::Robust && NU > 0)
+        {
+        pool.parallelize_loop(0, NU, 
+            [&](const size_t& low, const size_t& high){ // block [low, high)
+                if (low >= high)
+                    return;
+                std::vector<size_t> my_indices;
+                ConstrVec my_constraints_left;
+                ConstrVec my_constraints_right;
+                IdxVec my_left_id;
+                IdxVec my_right_id;
+                CostMap my_costs;
+                for (size_t i = low; i < high; i++)
+                    my_indices.push_back(best_split_unknown_id.at(i));
+                // Assign unknown instance either to left or right split, according to the worst-case scenario
 
-            // get the unknown y-values
-            const auto y_true_unknown = DF_index<NY>(y, best_split_unknown_id);
-            const auto loss_left = instance_logloss(y_true_unknown, best_pred_left);
-            const auto loss_right = instance_logloss(y_true_unknown, best_pred_right);
-            // Util::log("unknown_to_left: ({}x{})", unknown_to_left.rows(), unknown_to_left.cols());
-            // Util::log("unknown_to_right: ({}x{})", unknown_to_right.rows(), unknown_to_right.cols());
-            if (useConstraints_)
-            {
-                for (const auto& c : constraints)
+                // get the unknown y-values
+                const auto y_true_unknown = DF_index<NY>(y, my_indices);
+                const auto loss_left = instance_logloss(y_true_unknown, best_pred_left);
+                const auto loss_right = instance_logloss(y_true_unknown, best_pred_right);
+                // Util::log("unknown_to_left: ({}x{})", unknown_to_left.rows(), unknown_to_left.cols());
+                // Util::log("unknown_to_right: ({}x{})", unknown_to_right.rows(), unknown_to_right.cols());
+                for (size_t i = 0; i < my_indices.size(); i++)
                 {
-                    auto c_l = c.propagate_left(attacker, best_split_feature_id, best_split_feature_value);
-                    if (c_l)
-                        constraints_left.push_back(c_l.value());
-                    auto c_r = c.propagate_right(attacker, best_split_feature_id, best_split_feature_value);
-                    if (c_r)
-                        constraints_right.push_back(c_r.value());
-                }
-            }
-            const auto NU = best_split_unknown_id.size();
-            for (size_t i = 0; i < NU; i++)
-            {
-                //using namespace std::ranges;
-                const auto u = best_split_unknown_id[i];
-                auto attacks = attacker.attack(X.row(u), best_split_feature_id, costs.at(u));
-                std::vector<int> min_vec;
-                auto rang1 = std::views::all(attacks) 
-                    | std::views::filter([=](const auto& pair){
-                        return std::get<0>(pair)(best_split_feature_id) <= best_split_feature_value;})
-                    | std::views::transform([](const auto& pair){return std::get<1>(pair);});
-                std::ranges::copy(rang1, std::back_inserter(min_vec));
-                int min_left = *(std::ranges::min_element(min_vec));
-                // Util::log("min_left_vec: {}", min_vec);
-                min_vec.clear();
-                auto rang2 = std::views::all(attacks) 
-                    | std::views::filter([=](const auto& pair){
-                        return std::get<0>(pair)(best_split_feature_id) > best_split_feature_value;})
-                    | std::views::transform([](const auto& pair){return std::get<1>(pair);});
-                std::ranges::copy(rang2, std::back_inserter(min_vec));
-                int min_right = *(std::ranges::min_element(min_vec));
-                // Util::log("min_right_vec: {}", min_vec);
-                // Util::log("min_left: {}, min_right: {}", min_left, min_right);
-                Eigen::Index u_classid;
-                y.row(u).maxCoeff(&u_classid);
-                const size_t u_c = static_cast<size_t>(u_classid);
-                if (loss_left(i) > loss_right(i) 
-                    || (loss_left(i) == loss_right(i) && X(u, best_split_feature_id) <= best_split_feature_value))
-                {
-                    // Assign unknown instance to left as the loss is larger
-                    const double bound = loss_right(i);
-                    best_split_left_id.push_back(u);
-                    costs[u] = min_left;
-                    if (useConstraints_)
+                    //using namespace std::ranges;
+                    const auto u = my_indices[i];
+                    auto attacks = attacker.attack(X.row(u), best_split_feature_id, costs.at(u));
+                    std::vector<int> min_vec;
+                    auto rang1 = std::views::all(attacks) 
+                        | std::views::filter([=](const auto& pair){
+                            return std::get<0>(pair)(best_split_feature_id) <= best_split_feature_value;})
+                        | std::views::transform([](const auto& pair){return std::get<1>(pair);});
+                    std::ranges::copy(rang1, std::back_inserter(min_vec));
+                    int min_left = *(std::ranges::min_element(min_vec));
+                    // Util::log("min_left_vec: {}", min_vec);
+                    min_vec.clear();
+                    auto rang2 = std::views::all(attacks) 
+                        | std::views::filter([=](const auto& pair){
+                            return std::get<0>(pair)(best_split_feature_id) > best_split_feature_value;})
+                        | std::views::transform([](const auto& pair){return std::get<1>(pair);});
+                    std::ranges::copy(rang2, std::back_inserter(min_vec));
+                    int min_right = *(std::ranges::min_element(min_vec));
+                    // Util::log("min_right_vec: {}", min_vec);
+                    // Util::log("min_left: {}, min_right: {}", min_left, min_right);
+                    Eigen::Index u_classid;
+                    y.row(u).maxCoeff(&u_classid);
+                    const size_t u_c = static_cast<size_t>(u_classid);
+                    if (loss_left(i) > loss_right(i) 
+                        || (loss_left(i) == loss_right(i) && X(u, best_split_feature_id) <= best_split_feature_value))
                     {
-                        constraints_left.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::GTE, min_left, bound));
-                        constraints_right.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::LT, min_left, bound));
+                        // Assign unknown instance to left as the loss is larger
+                        const double bound = loss_right(i);
+                        my_left_id.push_back(u);
+                        my_costs[u] = min_left;
+                        if (useConstraints_)
+                        {
+                            my_constraints_left.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::GTE, min_left, bound));
+                            my_constraints_right.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::LT, min_left, bound));
+                        }
+                    }
+                    else if (loss_right(i) > loss_left(i)
+                        || (loss_left(i) == loss_right(i) && X(u, best_split_feature_id) > best_split_feature_value))
+                    {
+                        // Assign unknown instance to right as the loss is larger
+                        const double bound = loss_left(i);
+                        my_right_id.push_back(u);
+                        my_costs[u] = min_right;
+                        if (useConstraints_)
+                        {
+                            my_constraints_left.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::LT, min_right, bound));
+                            my_constraints_right.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::GTE, min_right, bound));
+                        }
                     }
                 }
-                else if (loss_right(i) > loss_left(i)
-                    || (loss_left(i) == loss_right(i) && X(u, best_split_feature_id) > best_split_feature_value))
-                {
-                    // Assign unknown instance to right as the loss is larger
-                    const double bound = loss_left(i);
-                    best_split_right_id.push_back(u);
-                    costs[u] = min_right;
-                    if (useConstraints_)
-                    {
-                        constraints_left.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::LT, min_right, bound));
-                        constraints_right.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::GTE, min_right, bound));
-                    }
-                }
+                std::unique_lock lock(gain_mut);
+                for (auto id : my_left_id)
+                    best_split_left_id.push_back(id);
+                for (auto id : my_right_id)
+                    best_split_right_id.push_back(id);
+                for (auto c : my_constraints_left)
+                    constraints_left.push_back(c);
+                for (auto c : my_constraints_right)
+                    constraints_right.push_back(c);
+                for (auto [u, c] : my_costs)
+                    costs[u] = c;
             }
+        );
         }
         for (auto key : best_split_left_id)
             costs_left[key] = costs.at(key);

@@ -21,7 +21,7 @@ namespace covertype
     void batch_train_and_save(TrainArguments<FOREST_X,FOREST_Y>&& args, const std::string& batch_file);
 
     void load_and_test(const std::filesystem::path& model, const std::string& attack_file,
-        const std::set<size_t>& id_set, int max_budget);
+        const std::set<size_t>& id_set, int max_budget, int n_inst);
     void put_gain_values(const std::filesystem::path& model);
     void classify(const std::filesystem::path& model, const std::vector<double>& inst);
     void attack_instance(const std::string& attack_file, const std::vector<double>& inst,

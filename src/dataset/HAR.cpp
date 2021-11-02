@@ -211,7 +211,7 @@ void batch_train_and_save(TrainArguments<HAR_X,HAR_Y>&& args, const std::string&
 }
 
 void load_and_test(const std::filesystem::path& fn, const std::string& attack_file,
-    const std::set<size_t>& id_set, int max_budget)
+    const std::set<size_t>& id_set, int max_budget, int n_inst)
 {
     auto m_df = har::read_train();
     if (m_df.has_error())
@@ -226,6 +226,12 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
     auto& test_tupl = m_test.value();
     auto& X_test = std::get<0>(test_tupl);
     auto& Y_test = std::get<1>(test_tupl);
+    
+    if (n_inst > 0)
+    {
+        X_test.conservativeResize(n_inst, Eigen::NoChange);
+        Y_test.conservativeResize(n_inst, Eigen::NoChange);
+    }
 
     auto forest = RobustForest<HAR_X,HAR_Y>::load_from_disk(fn);
     forest.print_test_score(X_test, Y_test, Y);
@@ -336,7 +342,7 @@ void attack_instance(const std::string& attack_file, const std::vector<double>& 
     const auto& fids = atkr.target_features();
     for (auto fid : fids)
     {
-        auto attacks = atkr.attack(rw, fid, cost);
+        auto attacks = atkr.single_attack(rw, fid, cost, true);
         fmt::print("target feature {}:\n", fid);
         for (const auto& [row, c] : attacks)
             std::cout << row << ", cost " << c << "\n";

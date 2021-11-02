@@ -103,9 +103,9 @@ TupleVec<N> Attacker<N>::compute_attack(const Row<N>& rw, size_t feature_id, int
     TupleVec<N> attacks;
     switch (type_)
     {
-    case AttackType::Flat:
+    case AttackType::Constant:
     {
-        Util::die("called compute_attack with Flat attack!!");
+        Util::die("called compute_attack with Constant attack!!");
     }
     case AttackType::Normal:  
     {
@@ -134,29 +134,7 @@ template<size_t N>
 void Attacker<N>::compute_attacks(const DF<N>& X) const
 {
     return;
-    // const auto H = X.rows();
-    // for (int64_t i = 0; i < H; i++)
-    // {
-    //     const Row<N>& rw = X.row(i);
-    //     for (auto j : features_)
-    //     {
-    //         auto key = std::make_tuple(rw, j);
-    //         //compute_attack(rw, j, 0);
-    //         attacks_[key] = compute_attack(rw, j, 0);
-    //     }
-    // }
 }
-
-// template<typename... Ts>
-// void Attacker<Ts...>::load_attacks(const std::filesystem::path& fn)
-// {
-//     std::ifstream is(fn, std::ios::binary);
-//     cereal::BinaryInputArchive archive(is);
-//     AttackDict<Ts...> attacks;
-//     archive(attacks);
-//     attacks_ = std::move(attacks);
-//     Util::info("loaded {} attacks.\n", attacks_.size());
-// }
 
 template<size_t N>
 void Attacker<N>::print_rules() const
@@ -176,52 +154,6 @@ void Attacker<NX>::compute_target_features()
     }
 }
 
-template<size_t NX>
-TupleVec<NX> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id, int cost) const
-{
-    if (is_flat_)
-    {
-        TupleVec<NX> out;
-        out.reserve(1 + 2 * (budget_ - cost));
-        out.push_back(std::make_tuple(x, cost));
-        int new_cost = cost + 1;
-        int multipl = 1;
-        while (new_cost <= budget_)
-        {
-            Row<NX> x_p1 = x;
-            x_p1[feature_id] += multipl * flat_deform_;
-            out.push_back(std::make_tuple(x_p1, new_cost));
-            Row<NX> x_p2 = x;
-            x_p2[feature_id] -= multipl * flat_deform_;
-            out.push_back(std::make_tuple(x_p2, new_cost));
-            new_cost++;
-            multipl++;
-        }
-        return out;
-    }
-    else if (features_.contains(feature_id))
-    {
-        // auto attack_key = std::make_tuple(x, feature_id);
-        // if (!attacks_.contains(attack_key))
-        //     attacks_[attack_key] = compute_attack(x, feature_id, 0);
-
-        // auto& attacks_xf = attacks_.at(attack_key);
-        auto attacks_xf = compute_attack(x, feature_id, 0);
-        TupleVec<NX> out;
-        std::copy_if(attacks_xf.begin(), attacks_xf.end(), std::back_inserter(out), [this, cost](auto& pair){
-            return std::get<1>(pair) <= budget_ - cost;
-        });
-        for (auto& pair : out)
-            std::get<1>(pair) += cost;
-        return out;
-    }
-    else
-    {
-        TupleVec<NX> out{{x, cost}};
-        return out;
-    }
-
-}
 
 template<size_t NX>
 TupleVec<NX> Attacker<NX>::max_attack(const Row<NX>& x, size_t feature_id) const
@@ -255,19 +187,25 @@ TupleVec<NX> Attacker<NX>::max_attack(const Row<NX>& x, size_t feature_id) const
 }
 
 template<size_t NX>
-TupleVec<NX> Attacker<NX>::single_attack(const Row<NX>& x, size_t feature_id, int budget) const
+TupleVec<NX> Attacker<NX>::single_attack(const Row<NX>& x, size_t feature_id,
+    int spent, bool keep_orig) const
 {
     TupleVec<NX> out;
-    if (is_flat_)
+    out.reserve(3);
+    if (keep_orig)
     {
-        if (budget <= 0)
-            return out;
+        out.emplace_back(std::make_tuple(x, spent));
+    }
+    if (spent >= budget_)
+        return out;
+    if (is_constant_)
+    {
         Row<NX> x_p1 = x;
         x_p1[feature_id] += flat_deform_;
-        out.push_back(std::make_tuple(x_p1, budget-1));
+        out.emplace_back(std::make_tuple(x_p1, spent+1));
         Row<NX> x_p2 = x;
         x_p2[feature_id] -= flat_deform_;
-        out.push_back(std::make_tuple(x_p2, budget-1));
+        out.emplace_back(std::make_tuple(x_p2, spent+1));
         return out;
     }
     else
@@ -280,20 +218,13 @@ TupleVec<NX> Attacker<NX>::single_attack(const Row<NX>& x, size_t feature_id, in
         });
         if (rule_it != rules_.cend())
         {
-            int cost = rule_it->get_cost();
-            if (cost > budget)
-            {
-                rule_it++;
-                continue;
-            }
             if (!rule_it->template is_applicable<NX>(x))
             {
                 rule_it++;
                 continue;
             }
             auto att = rule_it->template apply<NX>(x);
-            auto tup = std::make_tuple(att, budget-cost);
-            out.push_back(tup);
+            out.emplace_back(std::make_tuple(att, spent+1));
             rule_it++;
         }
         else

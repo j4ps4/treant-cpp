@@ -423,31 +423,22 @@ using RowSetF = std::set<Row<NX>, CompareRows<NX>>;
 
 template<size_t NX, size_t NY>
 static bool att_recur_f(const RobustForest<NX,NY>& rf, const Row<NX>& inst, const Attacker<NX>& attacker, 
-    const std::set<size_t>& features, int budget, size_t true_y)
+    const std::set<size_t>& features, int spent, const int budget, const size_t true_y)
 {
-    if (budget <= 0)
+    if (spent >= budget)
         return false;
     for (auto& f : features)
     {
-        auto attacks = attacker.single_attack(inst, f, budget);
-        for (const auto& [att, new_budg] : attacks)
+        auto attacks = attacker.single_attack(inst, f, spent, false);
+        for (const auto& [att, new_spent] : attacks)
         {
             if (rf.predict(att) != true_y)
                 return true;
-            if (!attacker.is_normal())
-            {
-                std::set<size_t> new_features = features;
-                new_features.erase(f);
-                bool res = att_recur_f<NX,NY>(rf, att, attacker, new_features, new_budg, true_y);
-                if (res)
-                    return true;
-            }
-            else
-            {
-                bool res = att_recur_f<NX,NY>(rf, att, attacker, features, new_budg, true_y);
-                if (res)
-                    return true;
-            }
+            std::set<size_t> new_features = features;
+            new_features.erase(f);
+            bool res = att_recur_f<NX,NY>(rf, att, attacker, new_features, new_spent, budget, true_y);
+            if (res)
+                return true;
         }
     }
     return false;
@@ -471,6 +462,7 @@ std::vector<double> RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& 
     }
 
     const size_t N = X.rows();
+    const int budget = attacker.get_budget();
     std::atomic<size_t> correct = 0;
     thread_pool pool;
     // size_t attack_success = 0;
@@ -490,17 +482,8 @@ std::vector<double> RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& 
                 if (true_y == pred_y)
                 {
                     correct++;
-                    if (att_recur_f<NX,NY>(*this, inst, attacker, feats, attacker.get_budget(), true_y))
+                    if (att_recur_f<NX,NY>(*this, inst, attacker, feats, 0, budget, true_y))
                         correct--;
-                    // for (auto& att : set)
-                    // {
-                    //     const auto pred_att = predict(att);
-                    //     if (true_y != pred_att)
-                    //     {
-                    //         correct--;
-                    //         break;
-                    //     }
-                    // }
                 }
             }
         }

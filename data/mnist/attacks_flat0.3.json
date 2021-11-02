@@ -1,5 +1,5 @@
 {
-	"type": "flat",
+	"type": "constant",
     "attacks": [{
             "ID#": [{
                 "deform": 76.500,

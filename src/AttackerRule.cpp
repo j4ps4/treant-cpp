@@ -80,7 +80,7 @@ static void inner_loop(AttackType type, const json11::Json::array& ft_attk_list,
     {
         std::tuple<double,double> pre;
         double post;
-        if (type == AttackType::Flat)
+        if (type == AttackType::Constant)
         {
             pre = {0,0};
             post = std::abs(ft_attk["deform"].number_value());
@@ -118,7 +118,7 @@ static void load_helper(const std::map<std::string, size_t>& column_map, AttackT
         }
         else if (feature_name == "ID#")
         {
-            if (type == AttackType::Flat)
+            if (type == AttackType::Constant)
             {
                 feature_id = 0;
                 auto& ft_attk_list = att_obj.cbegin()->second.array_items();
@@ -157,12 +157,12 @@ load_attack_rules(const std::filesystem::path& fn, const std::map<std::string,
     if (!err.empty())
         return cpp::failure(fmt::format("while parsing {}: {}", fn.c_str(), err));
     auto& jstype = json["type"];
-    if (jstype == json11::Json() || jstype.string_value() == "normal")
-        type = AttackType::Normal;
-    else if (jstype.string_value() == "inf_ball")
+    if (jstype == json11::Json() || jstype.string_value() == "inf_ball")
         type = AttackType::InfBall;
-    else if (jstype.string_value() == "flat")
-        type = AttackType::Flat;
+    else if (jstype.string_value() == "normal")
+        return cpp::failure(fmt::format("normal attacks not supported"));
+    else if (jstype.string_value() == "constant")
+        type = AttackType::Constant;
     else
         return cpp::failure(fmt::format("{}: not valid attack type", jstype.string_value()));
     auto& attacks = json["attacks"];

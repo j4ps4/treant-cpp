@@ -6,7 +6,7 @@ std::optional<Constraint<NX,NY>> Constraint<NX,NY>::propagate_left(Attacker<NX>&
     size_t feature_id, double feature_value) const
 {
     // retrieve all the attacks
-    auto attacks = attacker.attack(x_, feature_id, cost_);
+    auto attacks = attacker.single_attack(x_, feature_id, cost_, true);
     // retain only those attacks whose feature value is less than or equal to feature value
     auto it = std::remove_if(attacks.begin(), attacks.end(), [&](auto& atk){
         return std::get<0>(atk)[feature_id] > feature_value;
@@ -29,7 +29,7 @@ std::optional<Constraint<NX,NY>> Constraint<NX,NY>::propagate_right(Attacker<NX>
     size_t feature_id, double feature_value) const
 {
     // retrieve all the attacks
-    auto attacks = attacker.attack(x_, feature_id, cost_);
+    auto attacks = attacker.single_attack(x_, feature_id, cost_, true);
     // retain only those attacks whose feature value is greater than feature value
     auto it = std::remove_if(attacks.begin(), attacks.end(), [&](auto& atk){
         return std::get<0>(atk)[feature_id] <= feature_value;
@@ -51,11 +51,14 @@ template<size_t NX, size_t NY>
 bool Constraint<NX,NY>::crosses_left(Attacker<NX>& attacker, 
     size_t feature_id, double feature_value) const
 {
-    if (attacker.is_flat())
+    if (attacker.is_constant())
     {
         const double amount = attacker.get_deformation();
-        const int mult = std::max(0, attacker.get_budget() - cost_); 
-        if (x_[feature_id] - mult*amount <= feature_value)
+        if (x_[feature_id] <= feature_value)
+            return true;
+        if (cost_ >= attacker.get_budget())
+            return false;
+        if (x_[feature_id] - amount <= feature_value)
             return true;
         else
             return false;
@@ -70,11 +73,14 @@ template<size_t NX, size_t NY>
 bool Constraint<NX,NY>::crosses_right(Attacker<NX>& attacker, 
     size_t feature_id, double feature_value) const
 {
-    if (attacker.is_flat())
+    if (attacker.is_constant())
     {
         const double amount = attacker.get_deformation();
-        const int mult = std::max(0, attacker.get_budget() - cost_); 
-        if (x_[feature_id] + mult*amount > feature_value)
+        if (x_[feature_id] > feature_value)
+            return true;
+        if (cost_ >= attacker.get_budget())
+            return false;
+        if (x_[feature_id] + amount > feature_value)
             return true;
         else
             return false;

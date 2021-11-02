@@ -607,11 +607,11 @@ auto SplitOptimizer<NX,NY>::simulate_split(
     for (auto row_id : rows)
     {
     	// get the cost spent on the i-th instance so far
-        int cost = costs.at(row_id);
+        const int cost = costs.at(row_id);
         bool all_left = true;
         bool all_right = true;
 
-        if (attacker.is_flat())
+        if (attacker.is_constant())
         {
             const auto& row = X.row(row_id);
             const auto jth_feat = row[feature_id];
@@ -620,30 +620,23 @@ auto SplitOptimizer<NX,NY>::simulate_split(
             else
                 all_left = false;
 
-            int multipl = 1;
-            while (cost < budget)
+            if (cost < budget)
             {
-                if (jth_feat - multipl*deform <= feature_value)
+                if (jth_feat - deform <= feature_value)
                     all_right = false;
                 else
                     all_left = false;
-                if (!all_left && !all_right)
-                    break;
                 
-                if (jth_feat + multipl*deform <= feature_value)
+                if (jth_feat + deform <= feature_value)
                     all_right = false;
                 else
                     all_left = false;
-                if (!all_left && !all_right)
-                    break;
-                multipl++;
-                cost++;
             }
         }
         else
         {
             // collect all the attacks the attacker can do on the i-th instance
-            auto attacks = attacker.attack(X.row(row_id), feature_id, cost);
+            auto attacks = attacker.single_attack(X.row(row_id), feature_id, cost, true);
 
             for (auto& [inst, c]: attacks)
             {
@@ -723,7 +716,7 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
         optimizer.set_maxeval(maxiter_);
         loss_data<NY> d = {CL, CU, CR};
         // if (split_ == SplitFunction::LogLoss)
-            optimizer.set_min_objective(logloss_nlopt<NY>, &d);
+        optimizer.set_min_objective(logloss_nlopt<NY>, &d);
         // else
         //     throw std::runtime_error("not implemented");
 
@@ -1221,7 +1214,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 {
                     //using namespace std::ranges;
                     const auto u = my_indices[i];
-                    auto attacks = attacker.attack(X.row(u), best_split_feature_id, costs.at(u));
+                    auto attacks = attacker.single_attack(X.row(u), best_split_feature_id, costs.at(u), true);
                     std::vector<int> min_vec;
                     auto rang1 = std::views::all(attacks) 
                         | std::views::filter([=](const auto& pair){

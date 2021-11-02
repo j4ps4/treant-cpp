@@ -16,7 +16,7 @@ enum class AttackType
 {
     Normal,
     InfBall,
-    Flat
+    Constant
 };
 
 class AttackerRule

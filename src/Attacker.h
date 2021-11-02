@@ -88,9 +88,9 @@ public:
             auto& rul = std::get<0>(rules);
             rules_ = std::move(rul);
             type_ = std::get<1>(rules);
-            if (type_ == AttackType::Flat)
+            if (type_ == AttackType::Constant)
             {
-                is_flat_ = true;
+                is_constant_ = true;
                 flat_deform_ = rules_.front().get_post();
                 const static std::set<size_t> all_features = gen_feature_set();
                 std::set_difference(all_features.begin(), all_features.end(),
@@ -99,7 +99,7 @@ public:
             }
             else
             {
-                is_flat_ = false;
+                is_constant_ = false;
                 compute_target_features();
             }
         }
@@ -122,30 +122,28 @@ public:
 
     void set_budget(int budget) noexcept {budget_ = budget;}
 
-    bool is_flat() const noexcept {return is_flat_;}
+    bool is_constant() const noexcept {return is_constant_;}
 
     bool is_normal() const noexcept {return type_ == AttackType::Normal;}
 
     double get_deformation() const noexcept {return flat_deform_;}
 
-    // returns attacks against a given instance, when cost has been spent already
-    TupleVec<NX> attack(const Row<NX>& x, size_t feature_id, int cost) const;
     // return only the maximum attack
     TupleVec<NX> max_attack(const Row<NX>& x, size_t feature_id) const;
 
-    // returns first attack for a given instance, budget is the remaining budget for attacks
-    TupleVec<NX> single_attack(const Row<NX>& x, size_t feature_id, int budget) const;
+    // returns first attacks for a given instance, spent is the amount spent for this instance
+    TupleVec<NX> single_attack(const Row<NX>& x, size_t feature_id, int spent, bool keep_orig) const;
 
     template<typename Archive>
     void save(Archive& archive) const
     {
-        archive(budget_, type_, rules_, features_, is_flat_, flat_deform_);
+        archive(budget_, type_, rules_, features_, is_constant_, flat_deform_);
     }
 
     template<typename Archive>
     void load(Archive& archive)
     {
-        archive(budget_, type_, rules_, features_, is_flat_, flat_deform_);
+        archive(budget_, type_, rules_, features_, is_constant_, flat_deform_);
     }
 
 private:
@@ -155,7 +153,7 @@ private:
     AttackType type_;
     AttkList rules_;
     std::set<size_t> features_; // features which are targeted by rules
-    bool is_flat_;
+    bool is_constant_;
     double flat_deform_;
     //AttackDict<NX> attacks_;
 };

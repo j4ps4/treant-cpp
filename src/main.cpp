@@ -177,18 +177,19 @@ int main(int argc, char** argv)
         auto attack_file = opts["attack-file"].as<std::string>();
         auto budget = opts["budget"].as<int>();
         auto cost = opts["cost"].as<int>();
+        auto n_inst = opts["n-inst"].as<int>();
         if (opts.count("test"))
         {
             auto mod = check_model(opts);
             auto [dataset, path] = parseTest(mod);
             if (dataset == DataSet::Credit)
-                credit::load_and_test(path, attack_file, feature_id, budget);
+                credit::load_and_test(path, attack_file, feature_id, budget, n_inst);
             else if (dataset == DataSet::Har)
-                har::load_and_test(path, attack_file, feature_id, budget);
+                har::load_and_test(path, attack_file, feature_id, budget, n_inst);
             else if (dataset == DataSet::Covertype)
-                covertype::load_and_test(path, attack_file, feature_id, budget);
+                covertype::load_and_test(path, attack_file, feature_id, budget, n_inst);
             else if (dataset == DataSet::Mnist)
-                mnist::load_and_test(path, attack_file, feature_id, budget);
+                mnist::load_and_test(path, attack_file, feature_id, budget, n_inst);
             return 0;
         }
         else if (opts.count("gain"))
@@ -248,7 +249,6 @@ int main(int argc, char** argv)
         auto maxdepth = maxdepth_v.front();
         auto min_inst_v = opts["min-instances-per-node"].as<std::vector<size_t>>();
         auto min_inst = min_inst_v.front();
-        auto n_inst = opts["n-inst"].as<int>();
         auto par_par = opts["par-par"].as<double>();
         auto affine_v = opts["affine"].as<std::vector<bool>>();
         auto affine = affine_v.front();

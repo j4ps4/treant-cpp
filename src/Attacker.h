@@ -124,6 +124,8 @@ public:
 
     bool is_flat() const noexcept {return is_flat_;}
 
+    bool is_normal() const noexcept {return type_ == AttackType::Normal;}
+
     double get_deformation() const noexcept {return flat_deform_;}
 
     // returns attacks against a given instance, when cost has been spent already

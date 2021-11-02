@@ -369,6 +369,8 @@ double RobustDecisionTree<NX,NY>::get_attacked_score(const Attacker<NX>& attacke
 {
     if (!isTrained_)
         Util::die("tree {} is not trained", id_);
+
+    Util::warn("call RobustForest::get_attacker_score instead");
     
     const size_t N = X.rows();
     size_t correct = 0;

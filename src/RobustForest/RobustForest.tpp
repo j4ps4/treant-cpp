@@ -434,9 +434,20 @@ static bool att_recur_f(const RobustForest<NX,NY>& rf, const Row<NX>& inst, cons
         {
             if (rf.predict(att) != true_y)
                 return true;
-            bool res = att_recur_f<NX,NY>(rf, att, attacker, features, new_budg, true_y);
-            if (res)
-                return true;
+            if (!attacker.is_normal())
+            {
+                std::set<size_t> new_features = features;
+                new_features.erase(f);
+                bool res = att_recur_f<NX,NY>(rf, att, attacker, new_features, new_budg, true_y);
+                if (res)
+                    return true;
+            }
+            else
+            {
+                bool res = att_recur_f<NX,NY>(rf, att, attacker, features, new_budg, true_y);
+                if (res)
+                    return true;
+            }
         }
     }
     return false;
@@ -464,11 +475,11 @@ std::vector<double> RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& 
     thread_pool pool;
     // size_t attack_success = 0;
     // size_t total_attacks = 0;
-    const auto& feats = attacker.target_features();
     pool.parallelize_loop(0, N, 
         [&](const size_t& low, const size_t& high){ // block [low, high)
             if (low >= high)
                 return;
+            auto feats = attacker.target_features();
             for (size_t i = low; i < high; i++)
             {
                 Eigen::Index max_ind;

@@ -729,14 +729,11 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
 
         // if (constraints.size() > 0)
         //     fmt::print("using {} constraints.\n", constraints.size());
-        if (useConstraints_)
+        for (size_t i = 0; i < constraints.size(); i++)
         {
-            for (size_t i = 0; i < constraints.size(); i++)
-            {
-                auto fun = constraints[i];
-                auto c_data = &constr_data[i];
-                optimizer.add_inequality_constraint(*(fun.target<double(*)(unsigned,const double*,double*,void*)>()), c_data, 1e-8);
-            }
+            auto fun = constraints[i];
+            auto c_data = &constr_data[i];
+            optimizer.add_inequality_constraint(*(fun.target<double(*)(unsigned,const double*,double*,void*)>()), c_data, 1e-8);
         }
         optimizer.add_equality_constraint(eq_constr1<NY>, nullptr, 1e-8);
         optimizer.add_equality_constraint(eq_constr2<NY>, nullptr, 1e-8);
@@ -752,7 +749,7 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
         // Util::warn("caught NLOPT exception: {}", e.what());
         // if (!constraints.empty())
         // {
-        //     std::unique_lock lock(dbg_mut);
+        //     std::lock_guard lock(dbg_mut);
         //     row_printf<NY>("CL = {}\n", CL);
         //     row_printf<NY>("CR = {}\n", CR);
         //     row_printf<NY>("CU = {}\n", CU);
@@ -780,7 +777,7 @@ auto SplitOptimizer<NX,NY>::optimize_loss_under_attack(
 
 template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::propagate(const ConstrVec& cs, Attacker<NX>& attacker, 
-    size_t feature_id, double feature_value) const 
+    size_t feature_id, double feature_value, bool useConstraints) const 
 -> std::tuple<FunVec, ConstrDataVec>
 {
     FunVec updated_constraints;
@@ -803,7 +800,7 @@ auto SplitOptimizer<NX,NY>::propagate(const ConstrVec& cs, Attacker<NX>& attacke
     // std::array<double,10> upper_bound_R = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY};
     // std::array<double,10> lower_bound_U = {INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY};
     // std::array<double,10> upper_bound_U = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY};
-    if (useConstraints_)
+    if (useConstraints)
     {
     for (const auto& c : cs)
     {
@@ -994,6 +991,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 NRow m_best_pred_left;
                 NRow m_best_pred_right;
                 double m_best_residue;
+                const bool U_C = useConstraints_;
 
                 const size_t n_mf = my_features.size();
                 // Util::log("testing feature {}", feature_id);
@@ -1016,7 +1014,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                         split_right = std::get<1>(split_res);
                         split_unknown = std::get<2>(split_res);
 
-                        auto [updated_constraints, constr_data] = propagate(constraints, attacker, feature_id, feature_value);
+                        auto [updated_constraints, constr_data] = propagate(constraints, attacker, feature_id, feature_value, U_C);
                         // if (updated_constraints.size() > 0)
                         //     Util::info("propagated {} constraints.", updated_constraints.size());
                         optimizer_res = optimize_loss_under_attack(y, current_prediction_score,
@@ -1068,7 +1066,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                     }
                 }
                 {
-                    std::unique_lock gain_lock(gain_mut);
+                    std::lock_guard gain_lock(gain_mut);
                     if (m_best_gain > best_gain)
                     {
                         best_gain = m_best_gain;
@@ -1113,7 +1111,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                     split_left = std::get<0>(split_res);
                     split_right = std::get<1>(split_res);
                     split_unknown = std::get<2>(split_res);
-                    auto [updated_constraints, constr_data] = propagate(constraints, attacker, feature_id, feature_value);
+                    auto [updated_constraints, constr_data] = propagate(constraints, attacker, feature_id, feature_value, useConstraints_);
 
                     optimizer_res = optimize_loss_under_attack(y, current_prediction_score,
                         split_left, split_right, split_unknown, updated_constraints, constr_data);
@@ -1208,6 +1206,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 IdxVec my_left_id;
                 IdxVec my_right_id;
                 CostMap my_costs;
+                const bool U_C = useConstraints_;
                 for (size_t i = low; i < high; i++)
                     my_indices.push_back(best_split_unknown_id.at(i));
                 // Assign unknown instance either to left or right split, according to the worst-case scenario
@@ -1250,7 +1249,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                         const double bound = loss_right(i);
                         my_left_id.push_back(u);
                         my_costs[u] = min_left;
-                        if (useConstraints_)
+                        if (U_C)
                         {
                             my_constraints_left.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::GTE, min_left, bound));
                             my_constraints_right.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::LT, min_left, bound));
@@ -1263,14 +1262,15 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                         const double bound = loss_left(i);
                         my_right_id.push_back(u);
                         my_costs[u] = min_right;
-                        if (useConstraints_)
+                        if (U_C)
                         {
                             my_constraints_left.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::LT, min_right, bound));
                             my_constraints_right.push_back(Constraint<NX,NY>(X.row(u), u_c, Ineq::GTE, min_right, bound));
                         }
                     }
                 }
-                std::unique_lock lock(gain_mut);
+                {
+                std::lock_guard lock(gain_mut);
                 for (auto id : my_left_id)
                     best_split_left_id.push_back(id);
                 for (auto id : my_right_id)
@@ -1281,6 +1281,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                     constraints_right.push_back(c);
                 for (auto [u, c] : my_costs)
                     costs[u] = c;
+                }
             }
         );
         }

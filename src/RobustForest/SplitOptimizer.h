@@ -72,7 +72,7 @@ public:
     
 private:
     std::tuple<FunVec, ConstrDataVec> propagate(const ConstrVec& cs, Attacker<NX>& attacker,
-        size_t feature_id, double feature_value) const;
+        size_t feature_id, double feature_value, bool useConstraints) const;
 
     static double sse(const DF<NY>& y_true,
                    const Row<NY>& y_pred);

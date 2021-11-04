@@ -62,7 +62,8 @@ target_link_libraries(MNIST bz2 fmt json11 cereal nlopt pthread)
 target_link_libraries(${target_name} Credit HAR Covertype MNIST cxxopts fmt)
 
 set(lib_cxx_flags -Og -pg -Wall -Wconversion -Wno-unused-variable -Wno-unused-function -Wno-deprecated)
-set(optim_flags -O3 -Wno-deprecated -mtune=haswell -march=sandybridge -mavx -msse4.2)
+#set(optim_flags -O3 -Wno-deprecated -mtune=haswell -march=sandybridge -mavx -msse4.2)
+set(optim_flags -O3 -Wno-deprecated -mtune=native -march=native)
 
 # TODO find a better way
 target_compile_options(${target_name} PRIVATE $<$<CONFIG:Debug>:${lib_cxx_flags}>)

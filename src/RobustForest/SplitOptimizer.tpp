@@ -603,6 +603,7 @@ auto SplitOptimizer<NX,NY>::simulate_split(
 
     const double deform = attacker.get_deformation();
     const int budget = attacker.get_budget();
+    const bool is_const = attacker.is_constant();
 
     for (auto row_id : rows)
     {
@@ -611,7 +612,7 @@ auto SplitOptimizer<NX,NY>::simulate_split(
         bool all_left = true;
         bool all_right = true;
 
-        if (attacker.is_constant())
+        if (is_const)
         {
             const auto& row = X.row(row_id);
             const auto jth_feat = row[feature_id];
@@ -774,125 +775,125 @@ auto SplitOptimizer<NX,NY>::propagate(const ConstrVec& cs, Attacker<NX>& attacke
 -> std::tuple<FunVec, ConstrDataVec>
 {
     FunVec updated_constraints;
-    // FunArr updated_constraints_U;
-    // FunArr updated_constraints_L;
-    // FunArr updated_constraints_R;
+    FunArr updated_constraints_U;
+    FunArr updated_constraints_L;
+    FunArr updated_constraints_R;
     ConstrDataVec constr_data;
-    // ConstrDataArr constr_data_U;
-    // ConstrDataArr constr_data_L;
-    // ConstrDataArr constr_data_R;
-    // for (size_t i = 0; i < 2*NY; i++)
-    // {
-    //     constr_data_U[i] = Constr_data<NY>{SIZE_MAX, INFINITY};
-    //     constr_data_L[i] = Constr_data<NY>{SIZE_MAX, INFINITY};
-    //     constr_data_R[i] = Constr_data<NY>{SIZE_MAX, INFINITY};
-    // }
-    // std::array<double,10> lower_bound_L = {INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY};
-    // std::array<double,10> upper_bound_L = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY};
-    // std::array<double,10> lower_bound_R = {INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY};
-    // std::array<double,10> upper_bound_R = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY};
-    // std::array<double,10> lower_bound_U = {INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY};
-    // std::array<double,10> upper_bound_U = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY};
+    ConstrDataArr constr_data_U;
+    ConstrDataArr constr_data_L;
+    ConstrDataArr constr_data_R;
+    for (size_t i = 0; i < 2*NY; i++)
+    {
+        constr_data_U[i] = Constr_data<NY>{SIZE_MAX, INFINITY};
+        constr_data_L[i] = Constr_data<NY>{SIZE_MAX, INFINITY};
+        constr_data_R[i] = Constr_data<NY>{SIZE_MAX, INFINITY};
+    }
+    std::array<double,10> upper_bound_L = {INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY};
+    std::array<double,10> lower_bound_L = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY};
+    std::array<double,10> upper_bound_R = {INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY};
+    std::array<double,10> lower_bound_R = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY};
+    std::array<double,10> upper_bound_U = {INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY,INFINITY};
+    std::array<double,10> lower_bound_U = {-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY,-INFINITY};
     if (useConstraints)
     {
+    // for (const auto& c : cs)
+    // {
+    //     auto c_left = c.crosses_left(attacker, feature_id, feature_value);
+    //     auto c_right = c.crosses_right(attacker, feature_id, feature_value);
+    //     if (c_left && c_right)
+    //         updated_constraints.push_back(c.encode_for_optimizer(Direction::U));
+    //     else if (c_left)
+    //         updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
+    //     else if (c_right)
+    //         updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
+    //     constr_data.push_back(Constr_data<NY>{c.get_y(), c.get_bound()});
+    // }
     for (const auto& c : cs)
     {
+        const size_t y = c.get_y();
+        const double bound = c.get_bound();
+        const Ineq ineq = c.get_ineq();
         auto c_left = c.crosses_left(attacker, feature_id, feature_value);
         auto c_right = c.crosses_right(attacker, feature_id, feature_value);
         if (c_left && c_right)
-            updated_constraints.push_back(c.encode_for_optimizer(Direction::U));
+        {
+            if (ineq == Ineq::LT && bound < upper_bound_U[y])
+            {
+                upper_bound_U[y] = bound;
+                updated_constraints_U[y] = c.encode_for_optimizer(Direction::U);
+                constr_data_U[y] = Constr_data<NY>{y, bound};
+            }
+            else if (ineq == Ineq::GTE && bound > lower_bound_U[y])
+            {
+                lower_bound_U[y] = bound;
+                updated_constraints_U[y+NY] = c.encode_for_optimizer(Direction::U);
+                constr_data_U[y+NY] = Constr_data<NY>{y, bound};
+            }
+        }
         else if (c_left)
-            updated_constraints.push_back(c.encode_for_optimizer(Direction::L));
+        {
+            if (ineq == Ineq::LT && bound < upper_bound_L[y])
+            {
+                upper_bound_L[y] = bound;
+                updated_constraints_L[y] = c.encode_for_optimizer(Direction::L);
+                constr_data_L[y] = Constr_data<NY>{y, bound};
+            }
+            else if (ineq == Ineq::GTE && bound > lower_bound_L[y])
+            {
+                lower_bound_L[y] = bound;
+                updated_constraints_L[y+NY] = c.encode_for_optimizer(Direction::L);
+                constr_data_L[y+NY] = Constr_data<NY>{y, bound};
+            }
+        }
         else if (c_right)
-            updated_constraints.push_back(c.encode_for_optimizer(Direction::R));
-        constr_data.push_back(Constr_data<NY>{c.get_y(), c.get_bound()});
+        {
+            if (ineq == Ineq::LT && bound < upper_bound_R[y])
+            {
+                upper_bound_R[y] = bound;
+                updated_constraints_R[y] = c.encode_for_optimizer(Direction::R);
+                constr_data_R[y] = Constr_data<NY>{y, bound};
+            }
+            else if (ineq == Ineq::GTE && bound > lower_bound_R[y])
+            {
+                lower_bound_R[y] = bound;
+                updated_constraints_R[y+NY] = c.encode_for_optimizer(Direction::R);
+                constr_data_R[y+NY] = Constr_data<NY>{y, bound};
+            }
+        }
     }
-    // for (const auto& c : cs)
-    // {
-    //     const size_t y = c.get_y();
-    //     const double bound = c.get_bound();
-    //     const Ineq ineq = c.get_ineq();
-    //     auto c_left = c.propagate_left(attacker, feature_id, feature_value);
-    //     auto c_right = c.propagate_right(attacker, feature_id, feature_value);
-    //     if (c_left && c_right)
-    //     {
-    //         if (ineq == Ineq::LT && bound < lower_bound_U[y])
-    //         {
-    //             lower_bound_U[y] = bound;
-    //             updated_constraints_U[y] = c.encode_for_optimizer(Direction::U);
-    //             constr_data_U[y] = Constr_data<NY>{y, bound};
-    //         }
-    //         else if (ineq == Ineq::GTE && bound > upper_bound_U[y])
-    //         {
-    //             upper_bound_U[y] = bound;
-    //             updated_constraints_U[y+NY] = c.encode_for_optimizer(Direction::U);
-    //             constr_data_U[y+NY] = Constr_data<NY>{y, bound};
-    //         }
-    //     }
-    //     else if (c_left)
-    //     {
-    //         if (ineq == Ineq::LT && bound < lower_bound_L[y])
-    //         {
-    //             lower_bound_L[y] = bound;
-    //             updated_constraints_L[y] = c.encode_for_optimizer(Direction::L);
-    //             constr_data_L[y] = Constr_data<NY>{y, bound};
-    //         }
-    //         else if (ineq == Ineq::GTE && bound > upper_bound_L[y])
-    //         {
-    //             upper_bound_L[y] = bound;
-    //             updated_constraints_L[y+NY] = c.encode_for_optimizer(Direction::L);
-    //             constr_data_L[y+NY] = Constr_data<NY>{y, bound};
-    //         }
-    //     }
-    //     else if (c_right)
-    //     {
-    //         if (ineq == Ineq::LT && bound < lower_bound_R[y])
-    //         {
-    //             lower_bound_R[y] = bound;
-    //             updated_constraints_R[y] = c.encode_for_optimizer(Direction::R);
-    //             constr_data_R[y] = Constr_data<NY>{y, bound};
-    //         }
-    //         else if (ineq == Ineq::GTE && bound > upper_bound_R[y])
-    //         {
-    //             upper_bound_R[y] = bound;
-    //             updated_constraints_R[y+NY] = c.encode_for_optimizer(Direction::R);
-    //             constr_data_R[y+NY] = Constr_data<NY>{y, bound};
-    //         }
-    //     }
-    // }
-    // for (size_t i = 0; i < NY; i++)
-    // {
-    //     if (constr_data_U[i].y != SIZE_MAX)
-    //     {
-    //         updated_constraints.push_back(updated_constraints_U[i]);
-    //         constr_data.push_back(constr_data_U[i]);
-    //     }
-    //     if (constr_data_U[i+NY].y != SIZE_MAX)
-    //     {
-    //         updated_constraints.push_back(updated_constraints_U[i+NY]);
-    //         constr_data.push_back(constr_data_U[i+NY]);
-    //     }
-    //     if (constr_data_L[i].y != SIZE_MAX)
-    //     {
-    //         updated_constraints.push_back(updated_constraints_L[i]);
-    //         constr_data.push_back(constr_data_L[i]);
-    //     } 
-    //     if (constr_data_L[i+NY].y != SIZE_MAX)
-    //     {
-    //         updated_constraints.push_back(updated_constraints_L[i+NY]);
-    //         constr_data.push_back(constr_data_L[i+NY]);
-    //     } 
-    //     if (constr_data_R[i].y != SIZE_MAX)
-    //     {
-    //         updated_constraints.push_back(updated_constraints_R[i]);
-    //         constr_data.push_back(constr_data_R[i]);
-    //     } 
-    //     if (constr_data_R[i+NY].y != SIZE_MAX)
-    //     {
-    //         updated_constraints.push_back(updated_constraints_R[i+NY]);
-    //         constr_data.push_back(constr_data_R[i+NY]);
-    //     } 
-    // }
+    for (size_t i = 0; i < NY; i++)
+    {
+        if (constr_data_U[i].y != SIZE_MAX)
+        {
+            updated_constraints.push_back(updated_constraints_U[i]);
+            constr_data.push_back(constr_data_U[i]);
+        }
+        if (constr_data_U[i+NY].y != SIZE_MAX)
+        {
+            updated_constraints.push_back(updated_constraints_U[i+NY]);
+            constr_data.push_back(constr_data_U[i+NY]);
+        }
+        if (constr_data_L[i].y != SIZE_MAX)
+        {
+            updated_constraints.push_back(updated_constraints_L[i]);
+            constr_data.push_back(constr_data_L[i]);
+        } 
+        if (constr_data_L[i+NY].y != SIZE_MAX)
+        {
+            updated_constraints.push_back(updated_constraints_L[i+NY]);
+            constr_data.push_back(constr_data_L[i+NY]);
+        } 
+        if (constr_data_R[i].y != SIZE_MAX)
+        {
+            updated_constraints.push_back(updated_constraints_R[i]);
+            constr_data.push_back(constr_data_R[i]);
+        } 
+        if (constr_data_R[i+NY].y != SIZE_MAX)
+        {
+            updated_constraints.push_back(updated_constraints_R[i+NY]);
+            constr_data.push_back(constr_data_R[i+NY]);
+        } 
+    }
     }
     return std::make_tuple(updated_constraints, constr_data);
 }

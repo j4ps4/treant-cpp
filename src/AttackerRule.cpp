@@ -74,7 +74,8 @@ std::istream& operator>>(std::istream& is, std::tuple<T1,T2>& pr)
     return is;
 }
 
-static void inner_loop(AttackType type, const json11::Json::array& ft_attk_list, AttkList& out, size_t feature_id)
+static void inner_loop(AttackType type, const json11::Json::array& ft_attk_list, AttkList& out,
+    size_t feature_id, bool fix_constant)
 {
     for (const auto& ft_attk : ft_attk_list)
     {
@@ -82,7 +83,10 @@ static void inner_loop(AttackType type, const json11::Json::array& ft_attk_list,
         double post;
         if (type == AttackType::Constant)
         {
-            pre = {0,0};
+            if (fix_constant)
+                pre = {-1e12, 1e12};
+            else
+                pre = {0,0};
             post = std::abs(ft_attk["deform"].number_value());
         }
         else
@@ -92,13 +96,18 @@ static void inner_loop(AttackType type, const json11::Json::array& ft_attk_list,
             iss >> pre;
             post = ft_attk["post"].number_value();
         }
-        auto cost = ft_attk["cost"].int_value();
+        auto cost = ft_attk["cost"].int_value(); // not used
         auto is_num = ft_attk["is_numerical"].bool_value();
         double pre1 = std::get<0>(pre);
         double pre2 = std::get<1>(pre);
         auto pre_conditions = std::make_tuple(feature_id, pre1, pre2);
         auto post_condition = std::make_pair(feature_id, post);
         out.push_back(AttackerRule(pre_conditions, post_condition, cost, is_num));
+        if (type == AttackType::Constant && fix_constant)
+        {
+            auto post_condition_p = std::make_pair(feature_id, -post);
+            out.push_back(AttackerRule(pre_conditions, post_condition_p, cost, is_num));
+        }
     }
 }
 
@@ -114,15 +123,27 @@ static void load_helper(const std::map<std::string, size_t>& column_map, AttackT
         {
             feature_id = std::stoul(feature_name);
             auto& ft_attk_list = att_obj.cbegin()->second.array_items();
-            inner_loop(type, ft_attk_list, out, feature_id);
+            inner_loop(type, ft_attk_list, out, feature_id, false);
         }
         else if (feature_name == "ID#")
         {
             if (type == AttackType::Constant)
             {
-                feature_id = 0;
-                auto& ft_attk_list = att_obj.cbegin()->second.array_items();
-                inner_loop(type, ft_attk_list, out, feature_id);
+                if (id_set.empty())
+                {
+                    feature_id = 0;
+                    auto& ft_attk_list = att_obj.cbegin()->second.array_items();
+                    inner_loop(type, ft_attk_list, out, feature_id, false);
+                }
+                else
+                {
+                    for (size_t f_id : id_set)
+                    {
+                        feature_id = f_id;
+                        auto& ft_attk_list = att_obj.cbegin()->second.array_items();
+                        inner_loop(type, ft_attk_list, out, feature_id, true);
+                    }
+                }
             }
             else
             {
@@ -130,7 +151,7 @@ static void load_helper(const std::map<std::string, size_t>& column_map, AttackT
                 {
                     feature_id = f_id;
                     auto& ft_attk_list = att_obj.cbegin()->second.array_items();
-                    inner_loop(type, ft_attk_list, out, feature_id);
+                    inner_loop(type, ft_attk_list, out, feature_id, false);
                 }
             }
         }
@@ -138,7 +159,7 @@ static void load_helper(const std::map<std::string, size_t>& column_map, AttackT
         {
             feature_id = column_map.at(feature_name);
             auto& ft_attk_list = att_obj.cbegin()->second.array_items();
-            inner_loop(type, ft_attk_list, out, feature_id);
+            inner_loop(type, ft_attk_list, out, feature_id, false);
         }
     }
 }
@@ -170,6 +191,8 @@ load_attack_rules(const std::filesystem::path& fn, const std::map<std::string,
         return cpp::failure(fmt::format("{}: not valid attacks file", fn.c_str()));
     auto attacks_arr = attacks.array_items();
     load_helper(column_map, type, attacks_arr, out, id_set);
+    if (type == AttackType::Constant && !id_set.empty())
+        type = AttackType::InfBall;
     Util::info("loaded {} rules.", out.size());
     return std::make_tuple(out, type);
 }

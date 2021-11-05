@@ -220,7 +220,7 @@ void train_and_save(TrainArguments<MNIST_X,MNIST_Y>&& args)
 // }
 
 void load_and_test(const std::filesystem::path& fn, const std::string& attack_file,
-    const std::set<size_t>& id_set, int max_budget, int n_inst)
+    std::set<size_t> id_set, int max_budget, int n_inst, int n_feats)
 {
     auto m_X = mnist::read_train_X();
     if (m_X.has_error())
@@ -239,6 +239,16 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
     if (m_test_Y.has_error())
         Util::die("{}", m_test_Y.error());
     auto& Y_test = m_test_Y.value();
+
+    std::set<size_t> all_feats;
+    if (n_feats > 0)
+    {
+        std::mt19937_64 rd;
+        rd.seed(std::time(nullptr));
+        all_feats = Util::feature_set<MNIST_X>();
+        id_set = Util::sample_blacklisted(all_feats, MNIST_BL2, n_feats, rd);
+        fmt::print("id_set = {}\n", id_set);
+    }
 
     if (n_inst > 0)
     {

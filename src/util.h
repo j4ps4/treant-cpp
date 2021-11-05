@@ -5,10 +5,12 @@
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <vector>
+#include <set>
 #include <sstream>
 #include <iomanip>
 #include <chrono>
 #include <mutex>
+#include <random>
 
 extern std::mutex print_mut;
 extern int verbosity;
@@ -84,6 +86,34 @@ inline std::string pretty_timediff(double diff)
     double minss = mins*60;
     double secs2 = secs1-minss;
     return fmt::format("{}h {}m {:.2f}s", hours, mins, secs2);
+}
+
+template<size_t N>
+std::set<size_t> feature_set()
+{
+    auto gen = [](){static size_t x = 0; return x++;};
+    std::set<size_t> out;
+    std::generate_n(std::inserter(out, out.begin()), N, gen);
+    return out;
+}
+
+inline std::set<size_t> sample_blacklisted(const std::set<size_t>& all_features,
+    const std::set<size_t>& blacklist, size_t n_sample, std::mt19937_64& rd, bool do_sampling = true)
+{
+    // 1. filter out any blacklisted features from the list of features actually considered
+    std::set<size_t> not_bl;
+    std::set_difference(all_features.begin(), all_features.end(),
+        blacklist.begin(), blacklist.end(),
+        std::inserter(not_bl, not_bl.begin()));
+    if (!do_sampling)
+        return not_bl;
+    // 2. randomly sample a subset of n features out of the actual features
+    size_t n_sample_prime = std::min(not_bl.size(), n_sample);
+    std::set<size_t> actual_features;
+    std::sample(not_bl.begin(), not_bl.end(), 
+        std::inserter(actual_features, actual_features.begin()), 
+        n_sample_prime, rd);
+    return actual_features;
 }
 
 }

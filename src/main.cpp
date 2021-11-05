@@ -121,7 +121,9 @@ int main(int argc, char** argv)
         cxxopts::value<std::vector<size_t>>()->default_value("20"))
         ("N,n-trees", "amount of trees in ensemble",
         cxxopts::value<size_t>()->default_value("1"))
-        ("n-inst", "number of instances to use in training",
+        ("n-inst", "number of instances to use (for training)",
+        cxxopts::value<int>()->default_value("-1"))
+        ("n-feats", "number of features to sample (for testing)",
         cxxopts::value<int>()->default_value("-1"))
         ("sample-instances", "sample instances when training an ensemble",
         cxxopts::value<bool>()->default_value("false"))
@@ -178,6 +180,7 @@ int main(int argc, char** argv)
         auto budget = opts["budget"].as<int>();
         auto cost = opts["cost"].as<int>();
         auto n_inst = opts["n-inst"].as<int>();
+        auto n_feats = opts["n-feats"].as<int>();
         if (opts.count("test"))
         {
             auto mod = check_model(opts);
@@ -189,7 +192,7 @@ int main(int argc, char** argv)
             else if (dataset == DataSet::Covertype)
                 covertype::load_and_test(path, attack_file, feature_id, budget, n_inst);
             else if (dataset == DataSet::Mnist)
-                mnist::load_and_test(path, attack_file, feature_id, budget, n_inst);
+                mnist::load_and_test(path, attack_file, feature_id, budget, n_inst, n_feats);
             return 0;
         }
         else if (opts.count("gain"))

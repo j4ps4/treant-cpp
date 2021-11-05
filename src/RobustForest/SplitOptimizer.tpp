@@ -898,15 +898,6 @@ auto SplitOptimizer<NX,NY>::propagate(const ConstrVec& cs, Attacker<NX>& attacke
     return std::make_tuple(updated_constraints, constr_data);
 }
 
-template<size_t N>
-std::set<size_t> feature_set()
-{
-    auto gen = [](){static size_t x = 0; return x++;};
-    std::set<size_t> out;
-    std::generate_n(std::inserter(out, out.begin()), N, gen);
-    return out;
-}
-
 template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
     const std::set<size_t>& feature_blacklist, Attacker<NX>& attacker, CostMap& costs, 
@@ -929,23 +920,10 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
 
     // create a dictionary containing individual values for each feature_id
     //  (limited to the slice of data located at this node)
-    // 1. filter out any blacklisted features from the list of features actually considered
-    const static std::set<size_t> all_features = feature_set<NX>();
-    std::set<size_t> not_bl;
-    std::set_difference(all_features.begin(), all_features.end(),
-        feature_blacklist.begin(), feature_blacklist.end(),
-        std::inserter(not_bl, not_bl.begin()));
-    // 2. randomly sample a subset of n features out of the actual features
-    std::set<size_t> actual_features;
-    if (bootstrap_features)
-    {
-        const auto n_sample = std::min(not_bl.size(), n_sample_features);
-        std::sample(not_bl.begin(), not_bl.end(), 
-            std::inserter(actual_features, actual_features.begin()), 
-            n_sample, rd);
-    }
-    else
-        actual_features = not_bl;
+    const static std::set<size_t> all_features = Util::feature_set<NX>();
+
+    std::set<size_t> actual_features = Util::sample_blacklisted(all_features, feature_blacklist, 
+        n_sample_features, rd, bootstrap_features);
 
     std::map<size_t, std::vector<double>> feature_map;
     for (size_t f_id : actual_features)

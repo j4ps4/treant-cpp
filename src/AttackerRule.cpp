@@ -123,6 +123,8 @@ static void load_helper(const std::map<std::string, size_t>& column_map, AttackT
         if (std::ranges::all_of(feature_name, [](const char& c)->bool{return std::isdigit(c);}))
         {
             feature_id = std::stoul(feature_name);
+            if (!id_set.empty() && !id_set.contains(feature_id))
+                continue;
             auto& ft_attk_list = att_obj.cbegin()->second.array_items();
             inner_loop(type, ft_attk_list, out, feature_id, false, epsilon);
         }

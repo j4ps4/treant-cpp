@@ -9,6 +9,8 @@ constexpr size_t MNIST_Y = 10;
 
 #include <string>
 #include <memory>
+#include <cxxopts.hpp>
+
 #include "../result.hpp"
 #include "../DF2/DF_def.h"
 #include "../RobustForest/RobustForest.h"
@@ -16,8 +18,9 @@ constexpr size_t MNIST_Y = 10;
 
 namespace mnist
 {
-    void train_and_save(TrainArguments<MNIST_X,MNIST_Y>&& args);
-    void batch_train_and_save(TrainArguments<MNIST_X,MNIST_Y>&& args, const std::string& batch_file);
+    void train_and_save(const cxxopts::ParseResult& options);
+    void batch_train_and_save(const cxxopts::ParseResult& options, const std::string& batch_file);
+    void argument_sweep(const cxxopts::ParseResult& options);
 
     void load_and_test(const std::filesystem::path& model, const std::string& attack_file,
         std::set<size_t> id_set, int max_budget, int n_inst, int n_feats);

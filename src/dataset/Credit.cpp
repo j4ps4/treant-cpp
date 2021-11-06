@@ -89,8 +89,10 @@ cpp::result<std::shared_ptr<Attacker<CREDIT_X>>,std::string> new_Attacker(int bu
     return atkr;
 }
 
-void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
+void train_and_save(const cxxopts::ParseResult& options)
 {
+    auto args = generate_arg_from_options<CREDIT_X,CREDIT_Y>(options).value();
+
     auto m_df = credit::read_train();
     if (m_df.has_error())
         Util::die("{}", m_df.error());
@@ -152,8 +154,10 @@ void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args)
     forest.dump_to_disk(full_model_name);
 }
 
-void batch_train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, const std::string& batch_file)
+void batch_train_and_save(const cxxopts::ParseResult& options, const std::string& batch_file)
 {
+    auto args = generate_arg_from_options<CREDIT_X,CREDIT_Y>(options).value();
+
     auto m_df = credit::read_train();
     if (m_df.has_error())
         Util::die("{}", m_df.error());
@@ -208,11 +212,102 @@ void batch_train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, const std::s
         std::filesystem::create_directory(models_dir);
     forest.dump_to_disk(full_model_name);
 
-    std::exit(0);
 }
 
-void cross_val_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, CrossvalArguments&& cv_args)
+// void cross_val_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, CrossvalArguments&& cv_args)
+// {
+//     auto m_df = credit::read_train();
+//     if (m_df.has_error())
+//         Util::die("{}", m_df.error());
+//     auto& df_tupl = m_df.value();
+//     auto& X = std::get<0>(df_tupl);
+//     auto& Y = std::get<1>(df_tupl);
+
+//     if (args.n_inst > 0)
+//     {
+//         X.conservativeResize(args.n_inst, Eigen::NoChange);
+//         Y.conservativeResize(args.n_inst, Eigen::NoChange);
+//     }
+
+//     auto m_test = credit::read_test();
+//     if (m_test.has_error())
+//         Util::die("{}", m_test.error());
+//     auto& test_tupl = m_test.value();
+//     auto& X_test = std::get<0>(test_tupl);
+//     auto& Y_test = std::get<1>(test_tupl);
+
+//     Util::log<4>("X: a dataframe of size ({}x{})", X.rows(), X.cols());
+//     Util::log<4>("Y: a dataframe of size ({}x{})", Y.rows(), Y.cols());
+
+//     if (args.algo == TrainingAlgo::Robust)
+//     {
+//         json_file = args.attack_file;
+//         auto m_atkr = credit::new_Attacker(args.budget, X, args.feature_ids);
+//         if (m_atkr.has_error())
+//             Util::die("{}", m_atkr.error());
+//         args.tree_args.attacker = std::move(m_atkr.value());
+//     }
+
+//     if (args.algo == TrainingAlgo::Icml2019)
+//     {
+//         auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter,
+//             args.epsilon, args.feature_ids, args.always_ret, args.use_constraints, EPSILON_COEFF);
+//         args.tree_args.optimizer = std::move(optimz);
+//     }
+//     else
+//     {
+//         auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter, 
+//             args.epsilon, args.feature_ids, args.always_ret, args.use_constraints);
+//         args.tree_args.optimizer = std::move(optimz);
+//     }
+
+//     const auto L1 = cv_args.maxdepth.size();
+//     const auto L2 = cv_args.min_inst.size();
+//     const auto L3 = cv_args.affine.size();
+//     const auto CV_MATRIX_SIZE = L1*L2*L3;
+//     std::vector<TreeArguments<CREDIT_X,CREDIT_Y>> tree_args_v;
+//     tree_args_v.reserve(CV_MATRIX_SIZE);
+//     for (size_t k = 0; k < L3; k++)
+//     {
+//         bool affine = cv_args.affine[k];
+//         for (size_t j = 0; j < L2; j++)
+//         {
+//             auto min_inst = cv_args.min_inst[j];
+//             for (size_t i = 0; i < L1; i++)
+//             {
+//                 auto maxdepth = cv_args.maxdepth[i];
+//                 TreeArguments<CREDIT_X,CREDIT_Y> prototype = args.tree_args;
+//                 prototype.max_depth = maxdepth;
+//                 prototype.min_instances_per_node = min_inst;
+//                 prototype.affine = affine;
+//                 tree_args_v.push_back(std::move(prototype));
+//             }
+//         }
+//     }
+
+//     auto forest = RobustForest<CREDIT_X,CREDIT_Y>(tree_args_v, cv_args.N_folds, cv_args.logfile);
+
+//     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+//     forest.fit(X, Y);
+//     double linear_time = TIME;
+//     fmt::print("time elapsed: ");
+//     fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
+//     forest.print_test_score(X_test, Y_test, Y);
+//     auto model_name = args.output.empty() ? forest.get_model_name() : args.output;
+//     auto full_model_name = models_dir / model_name;
+//     Util::info("saving the best trained model to {}", full_model_name.native());
+//     if (!std::filesystem::exists(models_dir))
+//         std::filesystem::create_directory(models_dir);
+//     forest.dump_to_disk(full_model_name);
+
+//     std::exit(0);
+// }
+
+void argument_sweep(const cxxopts::ParseResult& options)
 {
+    const auto sweep_param = options["sweep-param"].as<std::string>();
+    const auto n_inst = options["n-inst"].as<int>();
+
     auto m_df = credit::read_train();
     if (m_df.has_error())
         Util::die("{}", m_df.error());
@@ -220,10 +315,10 @@ void cross_val_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, CrossvalArgume
     auto& X = std::get<0>(df_tupl);
     auto& Y = std::get<1>(df_tupl);
 
-    if (args.n_inst > 0)
+    if (n_inst > 0)
     {
-        X.conservativeResize(args.n_inst, Eigen::NoChange);
-        Y.conservativeResize(args.n_inst, Eigen::NoChange);
+        X.conservativeResize(n_inst, Eigen::NoChange);
+        Y.conservativeResize(n_inst, Eigen::NoChange);
     }
 
     auto m_test = credit::read_test();
@@ -236,68 +331,48 @@ void cross_val_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, CrossvalArgume
     Util::log<4>("X: a dataframe of size ({}x{})", X.rows(), X.cols());
     Util::log<4>("Y: a dataframe of size ({}x{})", Y.rows(), Y.cols());
 
-    if (args.algo == TrainingAlgo::Robust)
-    {
-        json_file = args.attack_file;
-        auto m_atkr = credit::new_Attacker(args.budget, X, args.feature_ids);
-        if (m_atkr.has_error())
-            Util::die("{}", m_atkr.error());
-        args.tree_args.attacker = std::move(m_atkr.value());
-    }
+    size_t sweep_index = 0;
+    std::optional<TrainArguments<CREDIT_X,CREDIT_Y>> m_arg;
 
-    if (args.algo == TrainingAlgo::Icml2019)
+    for (sweep_index = 0, m_arg = generate_arg_from_options<CREDIT_X,CREDIT_Y>(options, sweep_param, sweep_index);
+                          m_arg = generate_arg_from_options<CREDIT_X,CREDIT_Y>(options, sweep_param, sweep_index), m_arg.has_value(); 
+                          sweep_index++)
     {
-        auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter,
-            args.epsilon, args.feature_ids, args.always_ret, args.use_constraints, EPSILON_COEFF);
-        args.tree_args.optimizer = std::move(optimz);
-    }
-    else
-    {
-        auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(args.split, args.algo, args.maxiter, 
-            args.epsilon, args.feature_ids, args.always_ret, args.use_constraints);
-        args.tree_args.optimizer = std::move(optimz);
-    }
+        auto arg = m_arg.value();
+        fmt::print(fg(fmt::color::green)|fmt::emphasis::bold, 
+            "when {} = {}:\n", sweep_param, get_sweep_value(arg, sweep_param));
 
-    const auto L1 = cv_args.maxdepth.size();
-    const auto L2 = cv_args.min_inst.size();
-    const auto L3 = cv_args.affine.size();
-    const auto CV_MATRIX_SIZE = L1*L2*L3;
-    std::vector<TreeArguments<CREDIT_X,CREDIT_Y>> tree_args_v;
-    tree_args_v.reserve(CV_MATRIX_SIZE);
-    for (size_t k = 0; k < L3; k++)
-    {
-        bool affine = cv_args.affine[k];
-        for (size_t j = 0; j < L2; j++)
+        if (arg.algo == TrainingAlgo::Robust)
         {
-            auto min_inst = cv_args.min_inst[j];
-            for (size_t i = 0; i < L1; i++)
-            {
-                auto maxdepth = cv_args.maxdepth[i];
-                TreeArguments<CREDIT_X,CREDIT_Y> prototype = args.tree_args;
-                prototype.max_depth = maxdepth;
-                prototype.min_instances_per_node = min_inst;
-                prototype.affine = affine;
-                tree_args_v.push_back(std::move(prototype));
-            }
+            json_file = arg.attack_file;
+            auto m_atkr = credit::new_Attacker(arg.budget, X, arg.feature_ids);
+            if (m_atkr.has_error())
+                Util::die("{}", m_atkr.error());
+            arg.tree_args.attacker = std::move(m_atkr.value());
         }
+
+        if (arg.algo == TrainingAlgo::Icml2019)
+        {
+            auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(arg.split, arg.algo, arg.maxiter,
+                arg.epsilon, arg.feature_ids, arg.always_ret, arg.use_constraints, EPSILON_COEFF);
+            arg.tree_args.optimizer = std::move(optimz);
+        }
+        else
+        {
+            auto optimz = std::make_shared<SplitOptimizer<CREDIT_X,CREDIT_Y>>(arg.split, arg.algo, arg.maxiter, 
+                arg.epsilon, arg.feature_ids, arg.always_ret, arg.use_constraints);
+            arg.tree_args.optimizer = std::move(optimz);
+        }
+
+        RobustForest<CREDIT_X,CREDIT_Y> forest(arg.n_trees, std::move(arg.tree_args));
+
+        std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+        forest.fit(X, Y);
+        double linear_time = TIME;
+        fmt::print("time elapsed: ");
+        fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
+        forest.print_test_score(X_test, Y_test, Y);
     }
-
-    auto forest = RobustForest<CREDIT_X,CREDIT_Y>(tree_args_v, cv_args.N_folds, cv_args.logfile);
-
-    std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-    forest.fit(X, Y);
-    double linear_time = TIME;
-    fmt::print("time elapsed: ");
-    fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
-    forest.print_test_score(X_test, Y_test, Y);
-    auto model_name = args.output.empty() ? forest.get_model_name() : args.output;
-    auto full_model_name = models_dir / model_name;
-    Util::info("saving the best trained model to {}", full_model_name.native());
-    if (!std::filesystem::exists(models_dir))
-        std::filesystem::create_directory(models_dir);
-    forest.dump_to_disk(full_model_name);
-
-    std::exit(0);
 }
 
 void load_and_test(const std::filesystem::path& fn, const std::string& attack_file,

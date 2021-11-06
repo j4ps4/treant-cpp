@@ -114,13 +114,15 @@ std::tuple<DF<784>, DF<784>> compute_train_and_validation_sets<784>(const DF<784
 template<size_t NX, size_t NY>
 void RobustForest<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
 {
+    const bool treePar = trees_.front().is_parallel();
     if (n_trees_ > 1 || N_folds_ > 1)
     {
-        thread_pool pool;
-        Util::info("spawning a pool of {} threads...", pool.get_thread_count());
 
         if (type_ == ForestType::Fold)
         {
+            thread_pool pool;
+            Util::info("spawning a pool of {} threads...", pool.get_thread_count());
+
             std::ofstream log_out(logfile_);
             log_out << "maxdepth,min_inst,affine,cv_score\n";
             std::vector<DF<NX>> trainX;
@@ -157,7 +159,7 @@ void RobustForest<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
                     const auto index = i*N_folds_ + j;
                     auto& tree = trees_.at(index);
                     futures.push_back(pool.submit([&,j]{
-                        tree.fit(trainX.at(j), trainY.at(j));
+                        tree.fit(trainX.at(j), trainY.at(j), true);
                         return tree.test_score(validX.at(j), validY.at(j));
                     }));
                 }
@@ -187,23 +189,36 @@ void RobustForest<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
             //     if (i != max_ind)
             //         trees_.erase(trees_.begin()+i);
         }
+        else if (!treePar)
+        {
+            thread_pool pool;
+            Util::info("spawning a pool of {} threads...", pool.get_thread_count());
+
+            for (size_t i = 0; i < n_trees_; i++)
+            {
+                auto& tree = trees_.at(i);
+                pool.push_task([&]{
+                    tree.fit(X_train, y_train, true);
+                });
+            }
+            pool.wait_for_tasks();
+            is_trained_ = true;
+            Util::log<3>("Forest of {} trees has been fit!", n_trees_);
+        }
         else
         {
             for (size_t i = 0; i < n_trees_; i++)
             {
                 auto& tree = trees_.at(i);
-                pool.push_task([&]{
-                    tree.fit(X_train, y_train);
-                });
+                tree.fit(X_train, y_train, true);
             }
-            pool.wait_for_tasks();
             is_trained_ = true;
-            Util::log<3>("{} trees have been fit!", n_trees_);
+            Util::log<3>("Forest of {} trees has been fit!", n_trees_);
         }
     }
     else
     {
-        trees_.front().fit(X_train, y_train);
+        trees_.front().fit(X_train, y_train, false);
         if (trees_.front().is_trained())
             is_trained_ = true;
     }

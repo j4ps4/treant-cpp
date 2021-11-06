@@ -21,13 +21,6 @@ enum class SplitFunction
     SSE
 };
 
-enum class TrainingAlgo
-{
-    Robust,
-    Icml2019,
-    Standard
-};
-
 template<size_t NX, size_t NY>
 class SplitOptimizer
 {

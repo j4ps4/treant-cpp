@@ -89,8 +89,9 @@ cpp::result<std::shared_ptr<Attacker<HAR_X>>,std::string> new_Attacker(int budge
     return atkr;
 }
 
-void train_and_save(TrainArguments<HAR_X,HAR_Y>&& args)
+void train_and_save(const cxxopts::ParseResult& options)
 {
+    auto args = generate_arg_from_options<HAR_X,HAR_Y>(options).value();
     auto m_df = har::read_train();
     if (m_df.has_error())
         Util::die("{}", m_df.error());
@@ -152,8 +153,9 @@ void train_and_save(TrainArguments<HAR_X,HAR_Y>&& args)
     forest.dump_to_disk(full_model_name);
 }
 
-void batch_train_and_save(TrainArguments<HAR_X,HAR_Y>&& args, const std::string& batch_file)
+void batch_train_and_save(const cxxopts::ParseResult& options, const std::string& batch_file)
 {
+    auto args = generate_arg_from_options<HAR_X,HAR_Y>(options).value();
     auto m_df = har::read_train();
     if (m_df.has_error())
         Util::die("{}", m_df.error());
@@ -208,6 +210,78 @@ void batch_train_and_save(TrainArguments<HAR_X,HAR_Y>&& args, const std::string&
     forest.dump_to_disk(full_model_name);
 
     std::exit(0);
+}
+
+void argument_sweep(const cxxopts::ParseResult& options)
+{
+    const auto sweep_param = options["sweep-param"].as<std::string>();
+    const auto n_inst = options["n-inst"].as<int>();
+
+    auto m_df = har::read_train();
+    if (m_df.has_error())
+        Util::die("{}", m_df.error());
+    auto& df_tupl = m_df.value();
+    auto& X = std::get<0>(df_tupl);
+    auto& Y = std::get<1>(df_tupl);
+
+    if (n_inst > 0)
+    {
+        X.conservativeResize(n_inst, Eigen::NoChange);
+        Y.conservativeResize(n_inst, Eigen::NoChange);
+    }
+
+    auto m_test = har::read_test();
+    if (m_test.has_error())
+        Util::die("{}", m_test.error());
+    auto& test_tupl = m_test.value();
+    auto& X_test = std::get<0>(test_tupl);
+    auto& Y_test = std::get<1>(test_tupl);
+
+    Util::log<4>("X: a dataframe of size ({}x{})", X.rows(), X.cols());
+    Util::log<4>("Y: a dataframe of size ({}x{})", Y.rows(), Y.cols());
+
+    size_t sweep_index = 0;
+    std::optional<TrainArguments<HAR_X,HAR_Y>> m_arg;
+
+    for (sweep_index = 0, m_arg = generate_arg_from_options<HAR_X,HAR_Y>(options, sweep_param, sweep_index);
+                          m_arg = generate_arg_from_options<HAR_X,HAR_Y>(options, sweep_param, sweep_index), m_arg.has_value(); 
+                          sweep_index++)
+    {
+        auto arg = m_arg.value();
+        fmt::print(fg(fmt::color::green)|fmt::emphasis::bold, 
+            "when {} = {}:\n", sweep_param, get_sweep_value(arg, sweep_param));
+
+        if (arg.algo == TrainingAlgo::Robust)
+        {
+            json_file = arg.attack_file;
+            auto m_atkr = har::new_Attacker(arg.budget, X, arg.feature_ids);
+            if (m_atkr.has_error())
+                Util::die("{}", m_atkr.error());
+            arg.tree_args.attacker = std::move(m_atkr.value());
+        }
+
+        if (arg.algo == TrainingAlgo::Icml2019)
+        {
+            auto optimz = std::make_shared<SplitOptimizer<HAR_X,HAR_Y>>(arg.split, arg.algo, arg.maxiter,
+                arg.epsilon, arg.feature_ids, arg.always_ret, arg.use_constraints, EPSILON_COEFF);
+            arg.tree_args.optimizer = std::move(optimz);
+        }
+        else
+        {
+            auto optimz = std::make_shared<SplitOptimizer<HAR_X,HAR_Y>>(arg.split, arg.algo, arg.maxiter, 
+                arg.epsilon, arg.feature_ids, arg.always_ret, arg.use_constraints);
+            arg.tree_args.optimizer = std::move(optimz);
+        }
+
+        RobustForest<HAR_X,HAR_Y> forest(arg.n_trees, std::move(arg.tree_args));
+
+        std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+        forest.fit(X, Y);
+        double linear_time = TIME;
+        fmt::print("time elapsed: ");
+        fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
+        forest.print_test_score(X_test, Y_test, Y);
+    }
 }
 
 void load_and_test(const std::filesystem::path& fn, const std::string& attack_file,

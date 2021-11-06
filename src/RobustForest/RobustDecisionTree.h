@@ -66,7 +66,7 @@ public:
 
     bool is_affine() const {return affine_;}
 
-    void fit(const DF<NX>& X_train, const DF<NY>& y_train);
+    void fit(const DF<NX>& X_train, const DF<NY>& y_train, bool quiet);
 
     size_t predict(const Row<NX>& instance) const;
     size_t predict(const std::vector<double>& instance) const;
@@ -88,6 +88,8 @@ public:
     size_t get_max_depth() const noexcept {return max_depth_;}
     size_t get_min_inst() const noexcept {return min_instances_per_node_;}
     bool get_affine() const noexcept {return affine_;}
+
+    bool is_parallel() const noexcept {return useParallel_;}
     
     std::string get_model_name() const;
 

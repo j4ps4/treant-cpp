@@ -72,7 +72,7 @@ Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y
 }
 
 template<size_t NX, size_t NY>
-void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
+void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train, bool quiet)
 {
     if (isTrained_)
     {
@@ -134,8 +134,9 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
     if (!root_->is_dummy())
     {
         isTrained_ = true;
-        Util::log<3>("Fitting Tree ID {} completed (is_trained = {})!",
-            id_, isTrained_);
+        if (!quiet)
+            Util::log<3>("Fitting Tree ID {} completed (is_trained = {})!",
+                id_, isTrained_);
     }
 }
 

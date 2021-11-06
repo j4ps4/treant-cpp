@@ -15,6 +15,13 @@
 extern std::mutex print_mut;
 extern int verbosity;
 
+enum class TrainingAlgo
+{
+    Robust,
+    Icml2019,
+    Standard
+};
+
 namespace Util {
 
 template<typename... Args>
@@ -114,6 +121,18 @@ inline std::set<size_t> sample_blacklisted(const std::set<size_t>& all_features,
         std::inserter(actual_features, actual_features.begin()), 
         n_sample_prime, rd);
     return actual_features;
+}
+
+inline TrainingAlgo parse_algo(const std::string& s)
+{
+    if (s == "robust")
+        return TrainingAlgo::Robust;
+    else if (s == "icml2019")
+        return TrainingAlgo::Icml2019;
+    else if (s == "standard")
+        return TrainingAlgo::Standard;
+    else
+        Util::die("invalid algorithm");
 }
 
 }

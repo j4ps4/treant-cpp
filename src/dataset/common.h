@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cxxopts.hpp>
+
 #include "../RobustForest/RobustDecisionTree.h"
 
 template<size_t NX, size_t NY>
@@ -32,5 +34,12 @@ struct CrossvalArguments
 template<size_t NX>
 std::vector<std::tuple<int,Attacker<NX>*>> parse_batch_file(const std::string& batch_file,
 	const std::string& attack_file, int budget);
+
+template<size_t NX, size_t NY>
+std::optional<TrainArguments<NX,NY>> generate_arg_from_options(const cxxopts::ParseResult& opts,
+    const std::string& sweep_param = "", size_t sweep_index = 0);
+
+template<size_t NX, size_t NY>
+double get_sweep_value(const TrainArguments<NX,NY>& args, const std::string& sweep_param);
 
 #include "common.tpp"

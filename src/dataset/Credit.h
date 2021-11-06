@@ -8,6 +8,7 @@
 constexpr size_t CREDIT_X = 23;
 constexpr size_t CREDIT_Y = 2;
 
+#include <cxxopts.hpp>
 #include <string>
 #include <memory>
 #include "../result.hpp"
@@ -18,9 +19,9 @@ constexpr size_t CREDIT_Y = 2;
 
 namespace credit
 {
-    void train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args);
-    void batch_train_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, const std::string& batch_file);
-    void cross_val_and_save(TrainArguments<CREDIT_X,CREDIT_Y>&& args, CrossvalArguments&& cv_args);
+    void train_and_save(const cxxopts::ParseResult& options);
+    void batch_train_and_save(const cxxopts::ParseResult& options, const std::string& batch_file);
+    void argument_sweep(const cxxopts::ParseResult& options);
 
     void load_and_test(const std::filesystem::path& model, const std::string& attack_file,
         const std::set<size_t>& id_set, int max_budget, int n_inst);

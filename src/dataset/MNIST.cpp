@@ -104,8 +104,10 @@ cpp::result<std::shared_ptr<Attacker<MNIST_X>>,std::string> new_Attacker(int bud
     return atkr;
 }
 
-void train_and_save(TrainArguments<MNIST_X,MNIST_Y>&& args)
+void train_and_save(const cxxopts::ParseResult& options)
 {
+    auto args = generate_arg_from_options<MNIST_X,MNIST_Y>(options).value();
+
     auto m_X = mnist::read_train_X();
     if (m_X.has_error())
         Util::die("{}", m_X.error());
@@ -218,6 +220,82 @@ void train_and_save(TrainArguments<MNIST_X,MNIST_Y>&& args)
 
 //     std::exit(0);
 // }
+
+void argument_sweep(const cxxopts::ParseResult& options)
+{
+    const auto sweep_param = options["sweep-param"].as<std::string>();
+    const auto n_inst = options["n-inst"].as<int>();
+
+    auto m_X = mnist::read_train_X();
+    if (m_X.has_error())
+        Util::die("{}", m_X.error());
+    auto& X = m_X.value();
+    auto m_Y = mnist::read_train_Y();
+    if (m_Y.has_error())
+        Util::die("{}", m_Y.error());
+    auto& Y = m_Y.value();
+
+    if (n_inst > 0)
+    {
+        X.conservativeResize(n_inst, Eigen::NoChange);
+        Y.conservativeResize(n_inst, Eigen::NoChange);
+    }
+
+    auto m_test_X = mnist::read_test_X();
+    if (m_test_X.has_error())
+        Util::die("{}", m_test_X.error());
+    auto& X_test = m_test_X.value();
+    auto m_test_Y = mnist::read_test_Y();
+    if (m_test_Y.has_error())
+        Util::die("{}", m_test_Y.error());
+    auto& Y_test = m_test_Y.value();
+
+    Util::log<4>("X: a dataframe of size ({}x{})", X.rows(), X.cols());
+    Util::log<4>("Y: a dataframe of size ({}x{})", Y.rows(), Y.cols());
+
+    size_t sweep_index = 0;
+    std::optional<TrainArguments<MNIST_X,MNIST_Y>> m_arg;
+
+    for (sweep_index = 0, m_arg = generate_arg_from_options<MNIST_X,MNIST_Y>(options, sweep_param, sweep_index);
+                          m_arg = generate_arg_from_options<MNIST_X,MNIST_Y>(options, sweep_param, sweep_index), m_arg.has_value(); 
+                          sweep_index++)
+    {
+        auto arg = m_arg.value();
+        fmt::print(fg(fmt::color::green)|fmt::emphasis::bold, 
+            "when {} = {}:\n", sweep_param, get_sweep_value(arg, sweep_param));
+
+        if (arg.algo == TrainingAlgo::Robust)
+        {
+            json_file = arg.attack_file;
+            auto m_atkr = mnist::new_Attacker(arg.budget, X, arg.feature_ids);
+            if (m_atkr.has_error())
+                Util::die("{}", m_atkr.error());
+            arg.tree_args.attacker = std::move(m_atkr.value());
+        }
+
+        if (arg.algo == TrainingAlgo::Icml2019)
+        {
+            auto optimz = std::make_shared<SplitOptimizer<MNIST_X,MNIST_Y>>(arg.split, arg.algo, arg.maxiter,
+                arg.epsilon, arg.feature_ids, arg.always_ret, arg.use_constraints, EPSILON_COEFF);
+            arg.tree_args.optimizer = std::move(optimz);
+        }
+        else
+        {
+            auto optimz = std::make_shared<SplitOptimizer<MNIST_X,MNIST_Y>>(arg.split, arg.algo, arg.maxiter, 
+                arg.epsilon, arg.feature_ids, arg.always_ret, arg.use_constraints);
+            arg.tree_args.optimizer = std::move(optimz);
+        }
+
+        RobustForest<MNIST_X,MNIST_Y> forest(arg.n_trees, std::move(arg.tree_args));
+
+        std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+        forest.fit(X, Y);
+        double linear_time = TIME;
+        fmt::print("time elapsed: ");
+        fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
+        forest.print_test_score(X_test, Y_test, Y);
+    }
+}
 
 void load_and_test(const std::filesystem::path& fn, const std::string& attack_file,
     std::set<size_t> id_set, int max_budget, int n_inst, int n_feats)

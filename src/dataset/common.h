@@ -33,7 +33,7 @@ struct CrossvalArguments
 
 template<size_t NX>
 std::vector<std::tuple<int,Attacker<NX>*>> parse_batch_file(const std::string& batch_file,
-	const std::string& attack_file, int budget);
+	const std::string& attack_file, int budget, double epsilon);
 
 template<size_t NX, size_t NY>
 std::optional<TrainArguments<NX,NY>> generate_arg_from_options(const cxxopts::ParseResult& opts,

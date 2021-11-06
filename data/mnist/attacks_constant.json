@@ -1,0 +1,11 @@
+{
+	"type": "constant",
+    "attacks": [{
+            "ID#": [{
+                "deform": 255,
+                "cost": 1,
+                "is_numerical": true
+            }]
+    }]
+}
+

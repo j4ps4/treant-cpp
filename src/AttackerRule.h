@@ -76,16 +76,17 @@ using LoadType = std::tuple<AttkList, AttackType>;
 
 cpp::result<LoadType, std::string> 
 load_attack_rules(const std::filesystem::path& fn, const std::map<std::string,
-    size_t>& column_map, const std::set<size_t>& id_set);
+    size_t>& column_map, const std::set<size_t>& id_set, double epsilon);
 
 template<size_t N>
 bool AttackerRule::is_applicable(const Row<N>& row) const noexcept
 {
-    auto left = std::get<1>(pre_conditions_);
-    auto right = std::get<2>(pre_conditions_);
-    const auto feature = row(get_target_feature());
-    auto res = left <= feature && feature <= right;
-    return res;
+    return true;
+    // auto left = std::get<1>(pre_conditions_);
+    // auto right = std::get<2>(pre_conditions_);
+    // const auto feature = row(get_target_feature());
+    // auto res = left <= feature && feature <= right;
+    // return res;
 }
 
 template<size_t N>

@@ -4,7 +4,7 @@
 
 template<size_t NX>
 std::vector<std::tuple<int,Attacker<NX>*>> parse_batch_file(const std::string& batch_file,
-	const std::string& attack_file, int budget)
+	const std::string& attack_file, int budget, double epsilon)
 {
 	if (attack_file.empty())
 		throw std::invalid_argument("attack file must be given");
@@ -35,7 +35,7 @@ std::vector<std::tuple<int,Attacker<NX>*>> parse_batch_file(const std::string& b
 				id_set.insert(fid);
 			}
 
-			auto res = load_attack_rules(attack_file, {}, id_set);
+			auto res = load_attack_rules(attack_file, {}, id_set, epsilon);
 			if (res.has_error())
 				throw std::runtime_error(res.error());
 			auto& rulz = res.value();

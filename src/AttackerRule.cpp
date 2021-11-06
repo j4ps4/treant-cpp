@@ -75,7 +75,7 @@ std::istream& operator>>(std::istream& is, std::tuple<T1,T2>& pr)
 }
 
 static void inner_loop(AttackType type, const json11::Json::array& ft_attk_list, AttkList& out,
-    size_t feature_id, bool fix_constant)
+    size_t feature_id, bool fix_constant, double epsilon)
 {
     for (const auto& ft_attk : ft_attk_list)
     {
@@ -96,6 +96,7 @@ static void inner_loop(AttackType type, const json11::Json::array& ft_attk_list,
             iss >> pre;
             post = ft_attk["post"].number_value();
         }
+        post = epsilon * post;
         auto cost = ft_attk["cost"].int_value(); // not used
         auto is_num = ft_attk["is_numerical"].bool_value();
         double pre1 = std::get<0>(pre);
@@ -112,7 +113,7 @@ static void inner_loop(AttackType type, const json11::Json::array& ft_attk_list,
 }
 
 static void load_helper(const std::map<std::string, size_t>& column_map, AttackType type,
-    json11::Json::array& attacks, AttkList& out, const std::set<size_t>& id_set)
+    json11::Json::array& attacks, AttkList& out, const std::set<size_t>& id_set, double epsilon)
 {
     for (auto& attack : attacks)
     {
@@ -123,7 +124,7 @@ static void load_helper(const std::map<std::string, size_t>& column_map, AttackT
         {
             feature_id = std::stoul(feature_name);
             auto& ft_attk_list = att_obj.cbegin()->second.array_items();
-            inner_loop(type, ft_attk_list, out, feature_id, false);
+            inner_loop(type, ft_attk_list, out, feature_id, false, epsilon);
         }
         else if (feature_name == "ID#")
         {
@@ -133,7 +134,7 @@ static void load_helper(const std::map<std::string, size_t>& column_map, AttackT
                 {
                     feature_id = 0;
                     auto& ft_attk_list = att_obj.cbegin()->second.array_items();
-                    inner_loop(type, ft_attk_list, out, feature_id, false);
+                    inner_loop(type, ft_attk_list, out, feature_id, false, epsilon);
                 }
                 else
                 {
@@ -141,7 +142,7 @@ static void load_helper(const std::map<std::string, size_t>& column_map, AttackT
                     {
                         feature_id = f_id;
                         auto& ft_attk_list = att_obj.cbegin()->second.array_items();
-                        inner_loop(type, ft_attk_list, out, feature_id, true);
+                        inner_loop(type, ft_attk_list, out, feature_id, true, epsilon);
                     }
                 }
             }
@@ -151,7 +152,7 @@ static void load_helper(const std::map<std::string, size_t>& column_map, AttackT
                 {
                     feature_id = f_id;
                     auto& ft_attk_list = att_obj.cbegin()->second.array_items();
-                    inner_loop(type, ft_attk_list, out, feature_id, false);
+                    inner_loop(type, ft_attk_list, out, feature_id, false, epsilon);
                 }
             }
         }
@@ -159,7 +160,7 @@ static void load_helper(const std::map<std::string, size_t>& column_map, AttackT
         {
             feature_id = column_map.at(feature_name);
             auto& ft_attk_list = att_obj.cbegin()->second.array_items();
-            inner_loop(type, ft_attk_list, out, feature_id, false);
+            inner_loop(type, ft_attk_list, out, feature_id, false, epsilon);
         }
     }
 }
@@ -168,7 +169,7 @@ static void load_helper(const std::map<std::string, size_t>& column_map, AttackT
 
 cpp::result<LoadType, std::string> 
 load_attack_rules(const std::filesystem::path& fn, const std::map<std::string,
-    size_t>& column_map, const std::set<size_t>& id_set)
+    size_t>& column_map, const std::set<size_t>& id_set, double epsilon)
 {
     AttkList out;
     std::string err;
@@ -190,7 +191,7 @@ load_attack_rules(const std::filesystem::path& fn, const std::map<std::string,
     if (attacks == json11::Json())
         return cpp::failure(fmt::format("{}: not valid attacks file", fn.c_str()));
     auto attacks_arr = attacks.array_items();
-    load_helper(column_map, type, attacks_arr, out, id_set);
+    load_helper(column_map, type, attacks_arr, out, id_set, epsilon);
     if (type == AttackType::Constant && !id_set.empty())
         type = AttackType::InfBall;
     Util::info("loaded {} rules.", out.size());

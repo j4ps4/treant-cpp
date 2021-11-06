@@ -57,12 +57,12 @@ cpp::result<std::tuple<DF<FOREST_X>,DF<FOREST_Y>>,std::string> read_test()
 }
 
 cpp::result<std::shared_ptr<Attacker<FOREST_X>>,std::string> new_Attacker(int budget, const DF<FOREST_X>& X,
-    const std::set<size_t>& id_set)
+    const std::set<size_t>& id_set, double epsilon)
 {
     std::filesystem::path& attack_file = default_json_file;
     if (!json_file.empty())
         attack_file = json_file;
-    auto res = load_attack_rules(attack_file, column_map, id_set);
+    auto res = load_attack_rules(attack_file, column_map, id_set, epsilon);
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
@@ -101,7 +101,7 @@ void train_and_save(const cxxopts::ParseResult& options)
     if (args.algo == TrainingAlgo::Robust)
     {
         json_file = args.attack_file;
-        auto m_atkr = covertype::new_Attacker(args.budget, X, args.feature_ids);
+        auto m_atkr = covertype::new_Attacker(args.budget, X, args.feature_ids, args.epsilon);
         if (m_atkr.has_error())
             Util::die("{}", m_atkr.error());
         args.tree_args.attacker = std::move(m_atkr.value());
@@ -164,7 +164,7 @@ void batch_train_and_save(const cxxopts::ParseResult& options, const std::string
     Util::log<4>("X: a dataframe of size ({}x{})", X.rows(), X.cols());
     Util::log<4>("Y: a dataframe of size ({}x{})", Y.rows(), Y.cols());
 
-    auto attackers = parse_batch_file<FOREST_X>(batch_file, args.attack_file, args.budget);
+    auto attackers = parse_batch_file<FOREST_X>(batch_file, args.attack_file, args.budget, args.epsilon);
 
     if (args.algo == TrainingAlgo::Icml2019)
     {
@@ -238,7 +238,7 @@ void argument_sweep(const cxxopts::ParseResult& options)
         if (arg.algo == TrainingAlgo::Robust)
         {
             json_file = arg.attack_file;
-            auto m_atkr = covertype::new_Attacker(arg.budget, X, arg.feature_ids);
+            auto m_atkr = covertype::new_Attacker(arg.budget, X, arg.feature_ids, arg.epsilon);
             if (m_atkr.has_error())
                 Util::die("{}", m_atkr.error());
             arg.tree_args.attacker = std::move(m_atkr.value());
@@ -302,7 +302,7 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
         json_file = attack_file;
         for (int budget : budgets)
         {
-            auto m_atkr = covertype::new_Attacker(budget, X_test, id_set);
+            auto m_atkr = covertype::new_Attacker(budget, X_test, id_set, 0.3);
             if (m_atkr.has_error())
                 Util::die("{}", m_atkr.error());
             auto ptr = m_atkr.value().get();
@@ -387,7 +387,7 @@ void classify(const std::filesystem::path& model, const std::vector<double>& ins
 void attack_instance(const std::string& attack_file, const std::vector<double>& inst,
     const std::set<size_t>& id_set, int budget, int cost)
 {
-    auto res = load_attack_rules(attack_file, column_map, id_set);
+    auto res = load_attack_rules(attack_file, column_map, id_set, 0.3);
     if (res.has_error())
         Util::die("{}", res.error());
     auto& rulz = res.value();

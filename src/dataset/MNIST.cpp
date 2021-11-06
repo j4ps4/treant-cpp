@@ -90,12 +90,12 @@ cpp::result<DF<MNIST_Y>,std::string> read_test_Y()
 }
 
 cpp::result<std::shared_ptr<Attacker<MNIST_X>>,std::string> new_Attacker(int budget, const DF<MNIST_X>& X,
-    const std::set<size_t>& id_set)
+    const std::set<size_t>& id_set, double epsilon)
 {
     std::filesystem::path& attack_file = default_json_file;
     if (!json_file.empty())
         attack_file = json_file;
-    auto res = load_attack_rules(attack_file, column_map, id_set);
+    auto res = load_attack_rules(attack_file, column_map, id_set, epsilon);
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
@@ -138,7 +138,7 @@ void train_and_save(const cxxopts::ParseResult& options)
     if (args.algo == TrainingAlgo::Robust)
     {
         json_file = args.attack_file;
-        auto m_atkr = mnist::new_Attacker(args.budget, X, args.feature_ids);
+        auto m_atkr = mnist::new_Attacker(args.budget, X, args.feature_ids, args.epsilon);
         if (m_atkr.has_error())
             Util::die("{}", m_atkr.error());
         args.tree_args.attacker = std::move(m_atkr.value());
@@ -267,7 +267,7 @@ void argument_sweep(const cxxopts::ParseResult& options)
         if (arg.algo == TrainingAlgo::Robust)
         {
             json_file = arg.attack_file;
-            auto m_atkr = mnist::new_Attacker(arg.budget, X, arg.feature_ids);
+            auto m_atkr = mnist::new_Attacker(arg.budget, X, arg.feature_ids, arg.epsilon);
             if (m_atkr.has_error())
                 Util::die("{}", m_atkr.error());
             arg.tree_args.attacker = std::move(m_atkr.value());
@@ -345,7 +345,7 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
         json_file = attack_file;
         for (int budget : budgets)
         {
-            auto m_atkr = mnist::new_Attacker(budget, X_test, id_set);
+            auto m_atkr = mnist::new_Attacker(budget, X_test, id_set, 0.3);
             if (m_atkr.has_error())
                 Util::die("{}", m_atkr.error());
             auto ptr = m_atkr.value().get();

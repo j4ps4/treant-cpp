@@ -174,18 +174,20 @@ int main(int argc, char** argv)
         auto cost = opts["cost"].as<int>();
         auto n_inst = opts["n-inst"].as<int>();
         auto n_feats = opts["n-feats"].as<int>();
+        auto epsilon_v = opts["epsilon"].as<std::vector<double>>();
+        auto epsilon = epsilon_v.front();
         if (opts.count("test"))
         {
             auto mod = check_model(opts);
             auto [dataset, path] = parseTest(mod);
             if (dataset == DataSet::Credit)
-                credit::load_and_test(path, attack_file, feature_id, budget, n_inst);
+                credit::load_and_test(path, attack_file, feature_id, budget, n_inst, n_feats, epsilon);
             else if (dataset == DataSet::Har)
-                har::load_and_test(path, attack_file, feature_id, budget, n_inst);
+                har::load_and_test(path, attack_file, feature_id, budget, n_inst, n_feats, epsilon);
             else if (dataset == DataSet::Covertype)
-                covertype::load_and_test(path, attack_file, feature_id, budget, n_inst);
+                covertype::load_and_test(path, attack_file, feature_id, budget, n_inst, n_feats, epsilon);
             else if (dataset == DataSet::Mnist)
-                mnist::load_and_test(path, attack_file, feature_id, budget, n_inst, n_feats);
+                mnist::load_and_test(path, attack_file, feature_id, budget, n_inst, n_feats, epsilon);
             return 0;
         }
         else if (opts.count("gain"))
@@ -224,11 +226,11 @@ int main(int argc, char** argv)
             auto dataset = parseAttack(attack_file);
             auto att_inst = opts["attack"].as<std::vector<double>>();
             if (dataset == DataSet::Credit)
-                credit::attack_instance(attack_file, att_inst, feature_id, budget, cost);
+                credit::attack_instance(attack_file, att_inst, feature_id, budget, cost, epsilon);
             else if (dataset == DataSet::Har)
-                har::attack_instance(attack_file, att_inst, feature_id, budget, cost);
+                har::attack_instance(attack_file, att_inst, feature_id, budget, cost, epsilon);
             else if (dataset == DataSet::Covertype)
-                covertype::attack_instance(attack_file, att_inst, feature_id, budget, cost);
+                covertype::attack_instance(attack_file, att_inst, feature_id, budget, cost, epsilon);
             return 0;
         }
 

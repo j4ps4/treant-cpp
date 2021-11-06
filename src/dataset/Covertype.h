@@ -24,10 +24,10 @@ namespace covertype
     void argument_sweep(const cxxopts::ParseResult& options);
 
     void load_and_test(const std::filesystem::path& model, const std::string& attack_file,
-        const std::set<size_t>& id_set, int max_budget, int n_inst);
+        std::set<size_t> id_set, int max_budget, int n_inst, int n_feats, double epsilon);
     void put_gain_values(const std::filesystem::path& model);
     void classify(const std::filesystem::path& model, const std::vector<double>& inst);
     void attack_instance(const std::string& attack_file, const std::vector<double>& inst,
-        const std::set<size_t>& id_set, int budget, int cost);
+        const std::set<size_t>& id_set, int budget, int cost, double epsilon);
     void set_verbosity(int verb);
 }

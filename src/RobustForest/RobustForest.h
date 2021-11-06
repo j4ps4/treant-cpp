@@ -50,8 +50,11 @@ public:
     std::vector<double> get_own_attacked_score(const DF<NX>& X, const DF<NY>& Y) const;
 
     void set_attacker_budget(int budget);
+    void set_attacker_feats(const std::set<size_t>& feats);
 
     std::map<size_t, double> feature_importance(size_t tree_id = 0) const;
+
+    std::set<size_t> most_important_feats(int N) const;
 
 private:
 	TreeArguments<NX,NY> tree_args_;

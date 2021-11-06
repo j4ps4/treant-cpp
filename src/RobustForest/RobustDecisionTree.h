@@ -124,6 +124,13 @@ public:
         attacker_->set_budget(budget);
     }
 
+    void set_attacker_feats(const std::set<size_t>& feats)
+    {
+        if (!attacker_)
+            throw std::runtime_error("attacker = NULL!!!");
+        attacker_->set_feats(feats);
+    }
+
     std::map<size_t, double> feature_importance() const;
 
     template<typename Archive>

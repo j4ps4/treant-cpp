@@ -546,6 +546,12 @@ void RobustForest<NX,NY>::set_attacker_budget(int budget)
 }
 
 template<size_t NX, size_t NY>
+void RobustForest<NX,NY>::set_attacker_feats(const std::set<size_t>& feats)
+{
+    trees_[0].set_attacker_feats(feats);
+}
+
+template<size_t NX, size_t NY>
 std::map<size_t, double> RobustForest<NX,NY>::feature_importance(size_t tree_id) const
 {
     if (type_ == ForestType::Bundle)
@@ -564,4 +570,21 @@ std::map<size_t, double> RobustForest<NX,NY>::feature_importance(size_t tree_id)
         return sum_map;
 
     }
+}
+
+template<size_t NX, size_t NY>
+std::set<size_t> RobustForest<NX,NY>::most_important_feats(int N) const
+{
+    auto feat_map = feature_importance();
+    int n = 0;
+    std::set<size_t> out;
+    for (auto it = std::prev(feat_map.cend()); it != std::prev(feat_map.cbegin()); it = std::prev(it))
+    {
+        if (n >= N)
+            break;
+        auto fid = it->first;
+        out.insert(fid);
+        n++;
+    }
+    return out;
 }

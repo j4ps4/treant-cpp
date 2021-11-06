@@ -269,7 +269,7 @@ void argument_sweep(const cxxopts::ParseResult& options)
 }
 
 void load_and_test(const std::filesystem::path& fn, const std::string& attack_file,
-    const std::set<size_t>& id_set, int max_budget, int n_inst)
+    std::set<size_t> id_set, int max_budget, int n_inst, int n_feats, double epsilon)
 {
     auto m_df = covertype::read_train();
     if (m_df.has_error())
@@ -294,6 +294,12 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
     auto forest = RobustForest<FOREST_X,FOREST_Y>::load_from_disk(fn);
     forest.print_test_score(X_test, Y_test, Y);
 
+    if (n_feats > 0)
+    {
+        id_set = forest.most_important_feats(n_feats);
+        fmt::print("testing with id_set = {}\n", id_set);
+    }
+
     std::vector<int> budgets(max_budget);
     std::iota(budgets.begin(), budgets.end(), 1);
 
@@ -302,7 +308,7 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
         json_file = attack_file;
         for (int budget : budgets)
         {
-            auto m_atkr = covertype::new_Attacker(budget, X_test, id_set, 0.3);
+            auto m_atkr = covertype::new_Attacker(budget, X_test, id_set, epsilon);
             if (m_atkr.has_error())
                 Util::die("{}", m_atkr.error());
             auto ptr = m_atkr.value().get();
@@ -324,6 +330,8 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
     }
     else
     {
+        if (!id_set.empty())
+            forest.set_attacker_feats(id_set);
         for (int budget : budgets)
         {
             forest.set_attacker_budget(budget);
@@ -385,9 +393,9 @@ void classify(const std::filesystem::path& model, const std::vector<double>& ins
 }
 
 void attack_instance(const std::string& attack_file, const std::vector<double>& inst,
-    const std::set<size_t>& id_set, int budget, int cost)
+    const std::set<size_t>& id_set, int budget, int cost, double epsilon)
 {
-    auto res = load_attack_rules(attack_file, column_map, id_set, 0.3);
+    auto res = load_attack_rules(attack_file, column_map, id_set, epsilon);
     if (res.has_error())
         Util::die("{}", res.error());
     auto& rulz = res.value();

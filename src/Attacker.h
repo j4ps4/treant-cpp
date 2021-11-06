@@ -122,6 +122,8 @@ public:
 
     void set_budget(int budget) noexcept {budget_ = budget;}
 
+    void set_feats(const std::set<size_t>& feats) {features_ = feats;}
+
     bool is_constant() const noexcept {return is_constant_;}
 
     bool is_normal() const noexcept {return type_ == AttackType::Normal;}

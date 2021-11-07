@@ -437,24 +437,43 @@ template<size_t NX>
 using RowSetF = std::set<Row<NX>, CompareRows<NX>>;
 
 template<size_t NX, size_t NY>
-static bool att_recur_f(const RobustForest<NX,NY>& rf, const Row<NX>& inst, const Attacker<NX>& attacker, 
-    const std::set<size_t>& features, int spent, const int budget, const size_t true_y)
+static bool att_loop(const RobustForest<NX,NY>& rf, Row<NX>& inst, const Attacker<NX>& attacker, 
+    const std::set<size_t>& features, int spent, const int budget, const size_t true_y, bool is_constant,
+    double constant_deform, const std::map<size_t, double>& deforms)
 {
     if (spent >= budget)
         return false;
     for (auto& f : features)
     {
-        auto attacks = attacker.single_attack(inst, f, spent, false);
-        for (const auto& [att, new_spent] : attacks)
+        double deform;
+        if (is_constant)
+            deform = constant_deform;
+        else
+            deform = deforms.at(f);
+        inst[f] += deform;
+        if (rf.predict(inst) != true_y)
+            return true;
+        std::set<size_t> new_features;
+        if (spent < budget)
         {
-            if (rf.predict(att) != true_y)
-                return true;
-            std::set<size_t> new_features = features;
+            new_features = features;
             new_features.erase(f);
-            bool res = att_recur_f<NX,NY>(rf, att, attacker, new_features, new_spent, budget, true_y);
+            bool res = att_loop<NX,NY>(rf, inst, attacker, new_features, spent+1, budget, true_y,
+                is_constant, constant_deform, deforms);
             if (res)
                 return true;
         }
+        inst[f] -= 2*deform;
+        if (rf.predict(inst) != true_y)
+            return true;
+        if (spent < budget)
+        {
+            bool res = att_loop<NX,NY>(rf, inst, attacker, new_features, spent+1, budget, true_y,
+                is_constant, constant_deform, deforms);
+            if (res)
+                return true;
+        }
+        inst[f] += deform;
     }
     return false;
 }
@@ -486,18 +505,22 @@ std::vector<double> RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& 
         [&](const size_t& low, const size_t& high){ // block [low, high)
             if (low >= high)
                 return;
-            auto feats = attacker.target_features();
+            const auto feats = attacker.target_features();
+            const auto deforms = attacker.get_deformations();
+            const bool is_constant = attacker.is_constant();
+            const double constant_deform = attacker.get_deformation();
             for (size_t i = low; i < high; i++)
             {
                 Eigen::Index max_ind;
                 Y.row(i).maxCoeff(&max_ind);
-                const auto inst = X.row(i);
+                Row<NX> inst = X.row(i);
                 const auto true_y = static_cast<size_t>(max_ind);
                 const auto pred_y = predict(inst);
                 if (true_y == pred_y)
                 {
                     correct++;
-                    if (att_recur_f<NX,NY>(*this, inst, attacker, feats, 0, budget, true_y))
+                    if (att_loop<NX,NY>(*this, inst, attacker, feats, 0, budget, true_y,
+                        is_constant, constant_deform, deforms))
                         correct--;
                 }
             }

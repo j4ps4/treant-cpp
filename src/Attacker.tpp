@@ -234,3 +234,34 @@ TupleVec<NX> Attacker<NX>::single_attack(const Row<NX>& x, size_t feature_id,
     }
     }
 }
+
+template<size_t NX>
+std::map<size_t, double> Attacker<NX>::get_deformations() const
+{
+    std::map<size_t, double> out;
+    for (auto fid : features_)
+    {
+        if (is_constant_)
+            out[fid] = flat_deform_;
+        else
+        {
+            auto rule_it = std::find_if(rules_.cbegin(), rules_.cend(), [fid](const auto& rule){
+                    return rule.get_target_feature() == fid;
+            });
+            if (rule_it == rules_.cend())
+                continue;
+            double deform = std::abs(rule_it->get_post());
+            out[fid] = deform;
+        }
+    }
+    return out;
+}
+
+template<size_t NX>
+void Attacker<NX>::remove_useless_rules()
+{
+    auto it = std::remove_if(rules_.begin(), rules_.end(), [&](auto& rule){
+        return !features_.contains(rule.get_target_feature());
+    });
+    rules_.resize(std::distance(rules_.begin(), it));
+}

@@ -122,7 +122,7 @@ public:
 
     void set_budget(int budget) noexcept {budget_ = budget;}
 
-    void set_feats(const std::set<size_t>& feats) {features_ = feats;}
+    void set_feats(const std::set<size_t>& feats) {features_ = feats; remove_useless_rules();}
 
     bool is_constant() const noexcept {return is_constant_;}
 
@@ -135,6 +135,9 @@ public:
 
     // returns first attacks for a given instance, spent is the amount spent for this instance
     TupleVec<NX> single_attack(const Row<NX>& x, size_t feature_id, int spent, bool keep_orig) const;
+
+    // return the deformations for all features
+    std::map<size_t, double> get_deformations() const;
 
     template<typename Archive>
     void save(Archive& archive) const
@@ -149,6 +152,7 @@ public:
     }
 
 private:
+    void remove_useless_rules();
     void compute_target_features();
     TupleVec<NX> compute_attack(const Row<NX>& rw, size_t feature_id, int cost) const;
     int budget_;

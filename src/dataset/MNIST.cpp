@@ -336,6 +336,8 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
     std::vector<int> budgets(max_budget);
     std::iota(budgets.begin(), budgets.end(), 1);
 
+    std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+
     if (!attack_file.empty())
     {
         json_file = attack_file;
@@ -384,6 +386,10 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
             }
         }
     }
+
+    double linear_time = TIME;
+    fmt::print("time elapsed: ");
+    fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
 }
 
 void put_gain_values(const std::filesystem::path& fn)

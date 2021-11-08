@@ -44,7 +44,7 @@ public:
     
     size_t get_N() const {return n_trees_;}
     
-    void print_test_score(const DF<NX>& X_test, const DF<NY>& Y_test, const DF<NY>& Y_train) const;
+    void print_test_score(const DF<NX>& X_test, const DF<NY>& Y_test, const DF<NY>& Y_train, bool valid) const;
 
     std::vector<double> get_attacked_score(const Attacker<NX>& attacker, const DF<NX>& X, const DF<NY>& Y) const;
     std::vector<double> get_own_attacked_score(const DF<NX>& X, const DF<NY>& Y) const;

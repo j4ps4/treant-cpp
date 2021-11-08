@@ -41,7 +41,7 @@ static const std::map<std::string, size_t> column_map{
     {"Vert_to_hydr",4},
     {"Horz_to_road",5}}};
 
-cpp::result<std::tuple<DF<FOREST_X>,DF<FOREST_Y>>,std::string> read_train()
+cpp::result<std::tuple<DF<FOREST_X>,DF<FOREST_Y>>,std::string> read_train_and_valid()
 {
     auto res = df::read_bz2<FOREST_X,FOREST_Y,0>(train_file.c_str()).flat_map([&](const auto& train){
         return df::read_bz2<FOREST_X,FOREST_Y,0>(valid_file.c_str()).map([&](const auto& valid){
@@ -49,6 +49,16 @@ cpp::result<std::tuple<DF<FOREST_X>,DF<FOREST_Y>>,std::string> read_train()
         });
     });
     return res;
+}
+
+cpp::result<std::tuple<DF<FOREST_X>,DF<FOREST_Y>>,std::string> read_train()
+{
+    return df::read_bz2<FOREST_X,FOREST_Y,0>(train_file.c_str());
+}
+
+cpp::result<std::tuple<DF<FOREST_X>,DF<FOREST_Y>>,std::string> read_valid()
+{
+    return df::read_bz2<FOREST_X,FOREST_Y,0>(valid_file.c_str());
 }
 
 cpp::result<std::tuple<DF<FOREST_X>,DF<FOREST_Y>>,std::string> read_test()
@@ -75,7 +85,7 @@ void train_and_save(const cxxopts::ParseResult& options)
 {
     auto args = generate_arg_from_options<FOREST_X,FOREST_Y>(options).value();
 
-    auto m_df = covertype::read_train();
+    auto m_df = covertype::read_train_and_valid();
     if (m_df.has_error())
         Util::die("{}", m_df.error());
     auto& df_tupl = m_df.value();
@@ -127,7 +137,7 @@ void train_and_save(const cxxopts::ParseResult& options)
     double linear_time = TIME;
     fmt::print("time elapsed: ");
     fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
-    forest.print_test_score(X_test, Y_test, Y);
+    forest.print_test_score(X_test, Y_test, Y, false);
     auto model_name = args.output.empty() ? forest.get_model_name() : args.output;
     auto full_model_name = models_dir / model_name;
     Util::info("saving trained model to {}", full_model_name.native());
@@ -154,7 +164,7 @@ void batch_train_and_save(const cxxopts::ParseResult& options, const std::string
         Y.conservativeResize(args.n_inst, Eigen::NoChange);
     }
 
-    auto m_test = covertype::read_test();
+    auto m_test = covertype::read_valid();
     if (m_test.has_error())
         Util::die("{}", m_test.error());
     auto& test_tupl = m_test.value();
@@ -185,7 +195,7 @@ void batch_train_and_save(const cxxopts::ParseResult& options, const std::string
     double linear_time = TIME;
     fmt::print("time elapsed: ");
     fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
-    forest.print_test_score(X_test, Y_test, Y);
+    forest.print_test_score(X_test, Y_test, Y, true);
 
     auto model_name = args.output.empty() ? forest.get_model_name() : args.output;
     auto full_model_name = models_dir / model_name;
@@ -214,7 +224,7 @@ void argument_sweep(const cxxopts::ParseResult& options)
         Y.conservativeResize(n_inst, Eigen::NoChange);
     }
 
-    auto m_test = covertype::read_test();
+    auto m_test = covertype::read_valid();
     if (m_test.has_error())
         Util::die("{}", m_test.error());
     auto& test_tupl = m_test.value();
@@ -264,14 +274,14 @@ void argument_sweep(const cxxopts::ParseResult& options)
         double linear_time = TIME;
         fmt::print("time elapsed: ");
         fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
-        forest.print_test_score(X_test, Y_test, Y);
+        forest.print_test_score(X_test, Y_test, Y, true);
     }
 }
 
 void load_and_test(const std::filesystem::path& fn, const std::string& attack_file,
     std::set<size_t> id_set, int max_budget, int n_inst, int n_feats, double epsilon)
 {
-    auto m_df = covertype::read_train();
+    auto m_df = covertype::read_train_and_valid();
     if (m_df.has_error())
         Util::die("{}", m_df.error());
     auto& df_tupl = m_df.value();
@@ -292,7 +302,7 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
     }
 
     auto forest = RobustForest<FOREST_X,FOREST_Y>::load_from_disk(fn);
-    forest.print_test_score(X_test, Y_test, Y);
+    forest.print_test_score(X_test, Y_test, Y, false);
 
     if (n_feats > 0)
     {

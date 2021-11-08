@@ -165,7 +165,7 @@ void train_and_save(const cxxopts::ParseResult& options)
     double linear_time = TIME;
     fmt::print("time elapsed: ");
     fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
-    forest.print_test_score(X_test, Y_test, Y);
+    forest.print_test_score(X_test, Y_test, Y, false);
     auto model_name = args.output.empty() ? forest.get_model_name() : args.output;
     auto full_model_name = models_dir / model_name;
     Util::info("saving trained model to {}", full_model_name.native());
@@ -293,7 +293,7 @@ void argument_sweep(const cxxopts::ParseResult& options)
         double linear_time = TIME;
         fmt::print("time elapsed: ");
         fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
-        forest.print_test_score(X_test, Y_test, Y);
+        forest.print_test_score(X_test, Y_test, Y, false);
     }
 }
 
@@ -325,7 +325,7 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
     }
 
     auto forest = RobustForest<MNIST_X,MNIST_Y>::load_from_disk(fn);
-    forest.print_test_score(X_test, Y_test, Y);
+    forest.print_test_score(X_test, Y_test, Y, false);
 
     if (n_feats > 0)
     {

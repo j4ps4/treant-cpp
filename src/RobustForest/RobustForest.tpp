@@ -344,26 +344,36 @@ double RobustForest<NX,NY>::classification_error(const DF<NY>& Y_test,
 
 template<size_t NX, size_t NY>
 void RobustForest<NX,NY>::print_test_score(const DF<NX>& X_test, const DF<NY>& Y_test,
-	const DF<NY>& Y_train) const
+	const DF<NY>& Y_train, bool valid) const
 {
 	if (type_ == ForestType::Bundle)
 	{
+        const char* templ;
+        if (valid)
+            templ = "tree {}: validation score: {:.2f}% (dummy classifier: {:.2f}%)\n";
+        else
+            templ = "tree {}: test score: {:.2f}% (dummy classifier: {:.2f}%)\n";
 		for (const auto& t : trees_)
 		{
 			auto Y_pred = t.predict_proba(X_test);
 			auto test_acc = 100.0 - 100.0 * t.classification_error(Y_test, Y_pred);
 			auto train_dom = dominant_class<NY>(Y_train);
 			auto dummy_score = 100.0 * class_proportion<NY>(Y_test, train_dom);
-			fmt::print("tree {}: test score: {:.2f}% (dummy classifier: {:.2f}%)\n", t.get_id(), test_acc, dummy_score);
+			fmt::print(templ, t.get_id(), test_acc, dummy_score);
 		}
 	}
 	else
 	{
+        const char* templ;
+        if (valid)
+            templ = "validation score: {:.2f}% (dummy classifier: {:.2f}%)\n";
+        else
+            templ = "test score: {:.2f}% (dummy classifier: {:.2f}%)\n";
 		auto Y_pred = predict_proba(X_test);
 		auto test_acc = 100.0 - 100.0 * classification_error(Y_test, Y_pred);
 		auto train_dom = dominant_class<NY>(Y_train);
 		auto dummy_score = 100.0 * class_proportion<NY>(Y_test, train_dom);
-		fmt::print("test score: {:.2f}% (dummy classifier: {:.2f}%)\n", test_acc, dummy_score);
+		fmt::print(templ, test_acc, dummy_score);
 	}
 }
 

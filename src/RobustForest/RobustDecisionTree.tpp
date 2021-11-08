@@ -342,27 +342,27 @@ struct CompareRows
     }
 };
 
-template<size_t NX>
-using RowSet = std::set<Row<NX>, CompareRows<NX>>;
+// template<size_t NX>
+// using RowSet = std::set<Row<NX>, CompareRows<NX>>;
 
-template<size_t NX>
-static void att_recur(RowSet<NX>& set, const Row<NX>& inst, const Attacker<NX>& attacker, 
-    const std::set<size_t>& features, int budget)
-{
-    std::list<Row<NX>> out;
-    for (auto& f : features)
-    {
-        auto attacks = attacker.single_attack(inst, f, budget, false);
-        for (const auto& [att, new_budg] : attacks)
-        {
-            if (!set.contains(att))
-            {
-                set.insert(att);
-                att_recur<NX>(set, att, attacker, features, new_budg);
-            }
-        }
-    }
-}
+// template<size_t NX>
+// static void att_recur(RowSet<NX>& set, const Row<NX>& inst, const Attacker<NX>& attacker, 
+//     const std::set<size_t>& features, int budget)
+// {
+//     std::list<Row<NX>> out;
+//     for (auto& f : features)
+//     {
+//         auto attacks = attacker.single_attack(inst, f, budget, false);
+//         for (const auto& [att, new_budg] : attacks)
+//         {
+//             if (!set.contains(att))
+//             {
+//                 set.insert(att);
+//                 att_recur<NX>(set, att, attacker, features, new_budg);
+//             }
+//         }
+//     }
+// }
 
 template<size_t NX, size_t NY>
 double RobustDecisionTree<NX,NY>::get_attacked_score(const Attacker<NX>& attacker,
@@ -373,34 +373,34 @@ double RobustDecisionTree<NX,NY>::get_attacked_score(const Attacker<NX>& attacke
 
     Util::die("call RobustForest::get_attacker_score() instead");
     
-    const size_t N = X.rows();
-    size_t correct = 0;
-    const auto& feats = attacker.target_features();
-    for (int64_t i = 0; i < X.rows(); i++)
-    {
+    // const size_t N = X.rows();
+    // size_t correct = 0;
+    // const auto& feats = attacker.target_features();
+    // for (int64_t i = 0; i < X.rows(); i++)
+    // {
 
-        Eigen::Index max_ind;
-        Y.row(i).maxCoeff(&max_ind);
-        const auto& inst = X.row(i);
-        const auto true_y = static_cast<size_t>(max_ind);
-        const auto pred_y = predict(inst);
-        if (true_y == pred_y)
-        {
-            correct++;
-            RowSet<NX> set;
-            att_recur<NX>(set, inst, attacker, feats, attacker.get_budget());
-            for (auto& att : set)
-            {
-                const auto pred_att = predict(att);
-                if (true_y != pred_att)
-                {
-                    correct--;
-                    break;
-                }
-            }
-        }
-    }
-    return 100.0 * static_cast<double>(correct) / static_cast<double>(N);
+    //     Eigen::Index max_ind;
+    //     Y.row(i).maxCoeff(&max_ind);
+    //     const auto& inst = X.row(i);
+    //     const auto true_y = static_cast<size_t>(max_ind);
+    //     const auto pred_y = predict(inst);
+    //     if (true_y == pred_y)
+    //     {
+    //         correct++;
+    //         RowSet<NX> set;
+    //         att_recur<NX>(set, inst, attacker, feats, attacker.get_budget());
+    //         for (auto& att : set)
+    //         {
+    //             const auto pred_att = predict(att);
+    //             if (true_y != pred_att)
+    //             {
+    //                 correct--;
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
+    // return 100.0 * static_cast<double>(correct) / static_cast<double>(N);
 }
 
 template<size_t NX, size_t NY>

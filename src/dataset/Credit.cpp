@@ -531,7 +531,7 @@ void attack_instance(const std::string& attack_file, const std::vector<double>& 
     const auto& fids = atkr.target_features();
     for (auto fid : fids)
     {
-        auto attacks = atkr.single_attack(rw, fid, cost, true);
+        auto attacks = atkr.attack(rw, fid, cost);
         fmt::print("target feature {}:\n", fid);
         for (const auto& [row, c] : attacks)
             std::cout << row << ", cost " << c << "\n";

@@ -187,62 +187,89 @@ TupleVec<NX> Attacker<NX>::max_attack(const Row<NX>& x, size_t feature_id) const
 }
 
 template<size_t NX>
-TupleVec<NX> Attacker<NX>::single_attack(const Row<NX>& x, size_t feature_id,
-    int spent, bool keep_orig) const
+TupleArr<NX, 3> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id,
+    int spent) const
 {
-    TupleVec<NX> out;
-    out.reserve(3);
-    if (keep_orig)
-    {
-        out.emplace_back(std::make_tuple(x, spent));
-    }
+    TupleArr<NX, 3> out;
+    out[0] = std::make_tuple(x, spent);
     if (spent >= budget_)
+    {
+        out[1] = std::make_tuple(x, -1);
         return out;
+    }
     if (is_constant_)
     {
+        if (flat_deform_ == 0.0)
+        {
+            out[1] = std::make_tuple(x, -1);
+            return out;
+        }
         Row<NX> x_p1 = x;
         x_p1[feature_id] += flat_deform_;
-        out.emplace_back(std::make_tuple(x_p1, spent+1));
+        out[1] = std::make_tuple(x_p1, spent+1);
         Row<NX> x_p2 = x;
         x_p2[feature_id] -= flat_deform_;
-        out.emplace_back(std::make_tuple(x_p2, spent+1));
+        out[2] = std::make_tuple(x_p2, spent+1);
         return out;
     }
     else
     {
-    auto rule_it = rules_.cbegin();
-    while (true)
-    {
-        rule_it = std::find_if(rule_it, rules_.cend(), [feature_id](const auto& rule){
-            return rule.get_target_feature() == feature_id;
-        });
-        if (rule_it != rules_.cend())
+        const double deform = deformations_.at(feature_id);
+        if (deform == 0.0)
         {
-            if (!rule_it->template is_applicable<NX>(x))
-            {
-                rule_it++;
-                continue;
-            }
-            auto att = rule_it->template apply<NX>(x);
-            out.emplace_back(std::make_tuple(att, spent+1));
-            rule_it++;
-        }
-        else
-        {
+            out[1] = std::make_tuple(x, -1);
             return out;
         }
-    }
+        Row<NX> x_p1 = x;
+        x_p1[feature_id] += deform;
+        out[1] = std::make_tuple(x_p1, spent+1);
+        Row<NX> x_p2 = x;
+        x_p2[feature_id] -= deform;
+        out[2] = std::make_tuple(x_p2, spent+1);
+        return out;
     }
 }
 
 template<size_t NX>
-std::map<size_t, double> Attacker<NX>::get_deformations() const
+TupleArr<NX, 2> Attacker<NX>::adjacent_attack(const Row<NX>& x, size_t feature_id,
+    int spent) const
 {
-    std::map<size_t, double> out;
+    TupleArr<NX, 2> out;
+    if (spent >= budget_)
+    {
+        out[0] = std::make_tuple(x, -1);
+        return out;
+    }
+    if (is_constant_)
+    {
+        Row<NX> x_p1 = x;
+        x_p1[feature_id] += flat_deform_;
+        out[0] = std::make_tuple(x_p1, spent+1);
+        Row<NX> x_p2 = x;
+        x_p2[feature_id] -= flat_deform_;
+        out[1] = std::make_tuple(x_p2, spent+1);
+        return out;
+    }
+    else
+    {
+        const double deform = deformations_.at(feature_id);
+        Row<NX> x_p1 = x;
+        x_p1[feature_id] += deform;
+        out[0] = std::make_tuple(x_p1, spent+1);
+        Row<NX> x_p2 = x;
+        x_p2[feature_id] -= deform;
+        out[1] = std::make_tuple(x_p2, spent+1);
+        return out;
+    }
+}
+
+template<size_t NX>
+void Attacker<NX>::compute_deformations()
+{
     for (auto fid : features_)
     {
         if (is_constant_)
-            out[fid] = flat_deform_;
+            deformations_[fid] = flat_deform_;
         else
         {
             auto rule_it = std::find_if(rules_.cbegin(), rules_.cend(), [fid](const auto& rule){
@@ -251,10 +278,9 @@ std::map<size_t, double> Attacker<NX>::get_deformations() const
             if (rule_it == rules_.cend())
                 continue;
             double deform = std::abs(rule_it->get_post());
-            out[fid] = deform;
+            deformations_[fid] = deform;
         }
     }
-    return out;
 }
 
 template<size_t NX>

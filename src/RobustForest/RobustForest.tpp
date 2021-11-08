@@ -449,7 +449,7 @@ using RowSetF = std::set<Row<NX>, CompareRows<NX>>;
 template<size_t NX, size_t NY>
 static bool att_loop(const RobustForest<NX,NY>& rf, Row<NX>& inst, const Attacker<NX>& attacker, 
     const std::set<size_t>& features, int spent, const int budget, const size_t true_y, bool is_constant,
-    double constant_deform, const std::map<size_t, double>& deforms)
+    double constant_deform)
 {
     if (spent >= budget)
         return false;
@@ -459,7 +459,7 @@ static bool att_loop(const RobustForest<NX,NY>& rf, Row<NX>& inst, const Attacke
         if (is_constant)
             deform = constant_deform;
         else
-            deform = deforms.at(f);
+            deform = attacker.get_deformation(f);
         inst[f] += deform;
         if (rf.predict(inst) != true_y)
             return true;
@@ -469,7 +469,7 @@ static bool att_loop(const RobustForest<NX,NY>& rf, Row<NX>& inst, const Attacke
             new_features = features;
             new_features.erase(f);
             bool res = att_loop<NX,NY>(rf, inst, attacker, new_features, spent+1, budget, true_y,
-                is_constant, constant_deform, deforms);
+                is_constant, constant_deform);
             if (res)
                 return true;
         }
@@ -479,7 +479,7 @@ static bool att_loop(const RobustForest<NX,NY>& rf, Row<NX>& inst, const Attacke
         if (spent < budget)
         {
             bool res = att_loop<NX,NY>(rf, inst, attacker, new_features, spent+1, budget, true_y,
-                is_constant, constant_deform, deforms);
+                is_constant, constant_deform);
             if (res)
                 return true;
         }
@@ -516,7 +516,6 @@ std::vector<double> RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& 
             if (low >= high)
                 return;
             const auto feats = attacker.target_features();
-            const auto deforms = attacker.get_deformations();
             const bool is_constant = attacker.is_constant();
             const double constant_deform = attacker.get_deformation();
             for (size_t i = low; i < high; i++)
@@ -530,7 +529,7 @@ std::vector<double> RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& 
                 {
                     correct++;
                     if (att_loop<NX,NY>(*this, inst, attacker, feats, 0, budget, true_y,
-                        is_constant, constant_deform, deforms))
+                        is_constant, constant_deform))
                         correct--;
                 }
             }

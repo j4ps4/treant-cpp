@@ -637,10 +637,12 @@ auto SplitOptimizer<NX,NY>::simulate_split(
         else
         {
             // collect all the attacks the attacker can do on the i-th instance
-            auto attacks = attacker.single_attack(X.row(row_id), feature_id, cost, true);
+            auto attacks = attacker.attack(X.row(row_id), feature_id, cost);
 
             for (auto& [inst, c]: attacks)
             {
+                if (c == -1)
+                    break;
                 if (inst[feature_id] <= feature_value)
                     all_right = false;
                 else
@@ -1193,11 +1195,11 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 {
                     //using namespace std::ranges;
                     const auto u = my_indices[i];
-                    auto attacks = attacker.single_attack(X.row(u), best_split_feature_id, costs.at(u), true);
+                    auto attacks = attacker.attack(X.row(u), best_split_feature_id, costs.at(u));
                     std::vector<int> min_vec;
                     auto rang1 = std::views::all(attacks) 
                         | std::views::filter([=](const auto& pair){
-                            return std::get<0>(pair)(best_split_feature_id) <= best_split_feature_value;})
+                            return std::get<1>(pair) != -1 && std::get<0>(pair)(best_split_feature_id) <= best_split_feature_value;})
                         | std::views::transform([](const auto& pair){return std::get<1>(pair);});
                     std::ranges::copy(rang1, std::back_inserter(min_vec));
                     int min_left = *(std::ranges::min_element(min_vec));
@@ -1205,7 +1207,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                     min_vec.clear();
                     auto rang2 = std::views::all(attacks) 
                         | std::views::filter([=](const auto& pair){
-                            return std::get<0>(pair)(best_split_feature_id) > best_split_feature_value;})
+                            return std::get<1>(pair) != -1 && std::get<0>(pair)(best_split_feature_id) > best_split_feature_value;})
                         | std::views::transform([](const auto& pair){return std::get<1>(pair);});
                     std::ranges::copy(rang2, std::back_inserter(min_vec));
                     int min_right = *(std::ranges::min_element(min_vec));

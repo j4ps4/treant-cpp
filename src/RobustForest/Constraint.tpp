@@ -6,18 +6,18 @@ std::optional<Constraint<NX,NY>> Constraint<NX,NY>::propagate_left(Attacker<NX>&
     size_t feature_id, double feature_value) const
 {
     // retrieve all the attacks
-    auto attacks = attacker.single_attack(x_, feature_id, cost_, true);
+    auto attacks = attacker.attack(x_, feature_id, cost_);
     // retain only those attacks whose feature value is less than or equal to feature value
-    auto it = std::remove_if(attacks.begin(), attacks.end(), [&](auto& atk){
-        return std::get<0>(atk)[feature_id] > feature_value;
+    const auto it = std::remove_if(attacks.begin(), attacks.end(), [&](auto& atk){
+        return std::get<1>(atk) == -1 || std::get<0>(atk)[feature_id] > feature_value;
     });
-    attacks.resize(std::distance(attacks.begin(), it));
-    if (attacks.empty())
+    //attacks.resize(std::distance(attacks.begin(), it));
+    if (it == attacks.begin())
         return {};
     else
     {
         auto min_cost_it = std::min_element(
-            attacks.begin(), attacks.end(), [](const auto& el1, const auto& el2){
+            attacks.begin(), it, [](const auto& el1, const auto& el2){
                 return std::get<1>(el1) < std::get<1>(el2);
             });
         return Constraint<NX,NY>(x_,y_,ineq_,std::get<1>(*min_cost_it),bound_);
@@ -29,18 +29,18 @@ std::optional<Constraint<NX,NY>> Constraint<NX,NY>::propagate_right(Attacker<NX>
     size_t feature_id, double feature_value) const
 {
     // retrieve all the attacks
-    auto attacks = attacker.single_attack(x_, feature_id, cost_, true);
+    auto attacks = attacker.attack(x_, feature_id, cost_);
     // retain only those attacks whose feature value is greater than feature value
-    auto it = std::remove_if(attacks.begin(), attacks.end(), [&](auto& atk){
-        return std::get<0>(atk)[feature_id] <= feature_value;
+    const auto it = std::remove_if(attacks.begin(), attacks.end(), [&](auto& atk){
+        return std::get<1>(atk) == -1 || std::get<0>(atk)[feature_id] <= feature_value;
     });
-    attacks.resize(std::distance(attacks.begin(), it));
-    if (attacks.empty())
+    //attacks.resize(std::distance(attacks.begin(), it));
+    if (it == attacks.begin())
         return {};
     else
     {
         auto min_cost_it = std::min_element(
-            attacks.begin(), attacks.end(), [](const auto& el1, const auto& el2){
+            attacks.begin(), it, [](const auto& el1, const auto& el2){
                 return std::get<1>(el1) < std::get<1>(el2);
             });
         return Constraint<NX,NY>(x_,y_,ineq_,std::get<1>(*min_cost_it),bound_);
@@ -51,44 +51,40 @@ template<size_t NX, size_t NY>
 bool Constraint<NX,NY>::crosses_left(Attacker<NX>& attacker, 
     size_t feature_id, double feature_value) const
 {
+    double amount;
     if (attacker.is_constant())
-    {
-        const double amount = attacker.get_deformation();
-        if (x_[feature_id] <= feature_value)
-            return true;
-        if (cost_ >= attacker.get_budget())
-            return false;
-        if (x_[feature_id] - amount <= feature_value)
-            return true;
-        else
-            return false;
-    }
+        amount = attacker.get_deformation();
     else
-    {
-        return propagate_left(attacker, feature_id, feature_value).has_value();
-    }
+        amount = attacker.get_deformation(feature_id);
+
+    if (x_[feature_id] <= feature_value)
+        return true;
+    if (cost_ >= attacker.get_budget())
+        return false;
+    if (x_[feature_id] - amount <= feature_value)
+        return true;
+    else
+        return false;
 }
 
 template<size_t NX, size_t NY>
 bool Constraint<NX,NY>::crosses_right(Attacker<NX>& attacker, 
     size_t feature_id, double feature_value) const
 {
+    double amount;
     if (attacker.is_constant())
-    {
-        const double amount = attacker.get_deformation();
-        if (x_[feature_id] > feature_value)
-            return true;
-        if (cost_ >= attacker.get_budget())
-            return false;
-        if (x_[feature_id] + amount > feature_value)
-            return true;
-        else
-            return false;
-    }
+        amount = attacker.get_deformation();
     else
-    {
-        return propagate_right(attacker, feature_id, feature_value).has_value();
-    }
+        amount = attacker.get_deformation(feature_id);
+
+    if (x_[feature_id] > feature_value)
+        return true;
+    if (cost_ >= attacker.get_budget())
+        return false;
+    if (x_[feature_id] + amount > feature_value)
+        return true;
+    else
+        return false;
 }
 
 template<size_t N>

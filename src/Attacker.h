@@ -67,6 +67,8 @@ template<size_t N>
 using PairT = std::tuple<Row<N>, int>;
 template<size_t N>
 using TupleVec = std::vector<PairT<N>>;
+template<size_t N, size_t L>
+using TupleArr = std::array<PairT<N>, L>;
 template<size_t N>
 using AttackDict = std::unordered_map<std::tuple<Row<N>,size_t>, TupleVec<N>, row_hash<N>, key_equal<N>>;
 
@@ -102,6 +104,7 @@ public:
                 is_constant_ = false;
                 compute_target_features();
             }
+            compute_deformations();
         }
     
     Attacker() = default;
@@ -122,7 +125,13 @@ public:
 
     void set_budget(int budget) noexcept {budget_ = budget;}
 
-    void set_feats(const std::set<size_t>& feats) {features_ = feats; remove_useless_rules();}
+    void set_feats(const std::set<size_t>& feats) 
+    {
+        features_ = feats; 
+        remove_useless_rules();
+        deformations_.clear();
+        compute_deformations();
+    }
 
     bool is_constant() const noexcept {return is_constant_;}
 
@@ -134,10 +143,11 @@ public:
     TupleVec<NX> max_attack(const Row<NX>& x, size_t feature_id) const;
 
     // returns first attacks for a given instance, spent is the amount spent for this instance
-    TupleVec<NX> single_attack(const Row<NX>& x, size_t feature_id, int spent, bool keep_orig) const;
+    TupleArr<NX, 3> attack(const Row<NX>& x, size_t feature_id, int spent) const;
+    TupleArr<NX, 2> adjacent_attack(const Row<NX>& x, size_t feature_id, int spent) const;
 
-    // return the deformations for all features
-    std::map<size_t, double> get_deformations() const;
+    // return the deformation for a feature
+    double get_deformation(size_t feature_id) const {return deformations_.at(feature_id);}
 
     template<typename Archive>
     void save(Archive& archive) const
@@ -149,11 +159,13 @@ public:
     void load(Archive& archive)
     {
         archive(budget_, type_, rules_, features_, is_constant_, flat_deform_);
+        compute_deformations();
     }
 
 private:
     void remove_useless_rules();
     void compute_target_features();
+    void compute_deformations();
     TupleVec<NX> compute_attack(const Row<NX>& rw, size_t feature_id, int cost) const;
     int budget_;
     AttackType type_;
@@ -161,6 +173,7 @@ private:
     std::set<size_t> features_; // features which are targeted by rules
     bool is_constant_;
     double flat_deform_;
+    std::unordered_map<size_t, double> deformations_;
     //AttackDict<NX> attacks_;
 };
 

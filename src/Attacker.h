@@ -143,7 +143,7 @@ public:
     TupleVec<NX> max_attack(const Row<NX>& x, size_t feature_id) const;
 
     // returns first attacks for a given instance, spent is the amount spent for this instance
-    TupleArr<NX, 3> attack(const Row<NX>& x, size_t feature_id, int spent) const;
+    std::tuple<TupleArr<NX, 3>, std::ptrdiff_t> attack(const Row<NX>& x, size_t feature_id, int spent) const;
     TupleArr<NX, 2> adjacent_attack(const Row<NX>& x, size_t feature_id, int spent) const;
 
     // return the deformation for a feature

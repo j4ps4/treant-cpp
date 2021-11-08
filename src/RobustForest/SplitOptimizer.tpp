@@ -637,12 +637,10 @@ auto SplitOptimizer<NX,NY>::simulate_split(
         else
         {
             // collect all the attacks the attacker can do on the i-th instance
-            auto attacks = attacker.attack(X.row(row_id), feature_id, cost);
+            auto [attacks, len] = attacker.attack(X.row(row_id), feature_id, cost);
 
-            for (auto& [inst, c]: attacks)
+            for (auto& [inst, c] : std::views::counted(attacks.begin(), len))
             {
-                if (c == -1)
-                    break;
                 if (inst[feature_id] <= feature_value)
                     all_right = false;
                 else
@@ -904,7 +902,8 @@ template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
     const std::set<size_t>& feature_blacklist, Attacker<NX>& attacker, CostMap& costs, 
     ConstrVec& constraints, double current_score, Row<NY> current_prediction_score, 
-    bool bootstrap_features, size_t n_sample_features, std::mt19937_64& rd, bool par) const -> OptimTupl
+    bool bootstrap_features, size_t n_sample_features, std::mt19937_64& rd, 
+    bool par, thread_pool& pool) const -> OptimTupl
 {
     double best_gain = 0.0;
     size_t best_split_feature_id = -1;
@@ -917,7 +916,6 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     NRow best_pred_right;
     double best_residue;
 
-    thread_pool pool;
     std::mutex gain_mut;
 
     // create a dictionary containing individual values for each feature_id
@@ -1195,19 +1193,19 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 {
                     //using namespace std::ranges;
                     const auto u = my_indices[i];
-                    auto attacks = attacker.attack(X.row(u), best_split_feature_id, costs.at(u));
+                    auto [attacks, len] = attacker.attack(X.row(u), best_split_feature_id, costs.at(u));
                     std::vector<int> min_vec;
-                    auto rang1 = std::views::all(attacks) 
+                    auto rang1 = std::views::counted(attacks.begin(), len) 
                         | std::views::filter([=](const auto& pair){
-                            return std::get<1>(pair) != -1 && std::get<0>(pair)(best_split_feature_id) <= best_split_feature_value;})
+                            return std::get<0>(pair)[best_split_feature_id] <= best_split_feature_value;})
                         | std::views::transform([](const auto& pair){return std::get<1>(pair);});
                     std::ranges::copy(rang1, std::back_inserter(min_vec));
                     int min_left = *(std::ranges::min_element(min_vec));
                     // Util::log("min_left_vec: {}", min_vec);
                     min_vec.clear();
-                    auto rang2 = std::views::all(attacks) 
+                    auto rang2 = std::views::counted(attacks.begin(), len) 
                         | std::views::filter([=](const auto& pair){
-                            return std::get<1>(pair) != -1 && std::get<0>(pair)(best_split_feature_id) > best_split_feature_value;})
+                            return std::get<0>(pair)[best_split_feature_id] > best_split_feature_value;})
                         | std::views::transform([](const auto& pair){return std::get<1>(pair);});
                     std::ranges::copy(rang2, std::back_inserter(min_vec));
                     int min_right = *(std::ranges::min_element(min_vec));

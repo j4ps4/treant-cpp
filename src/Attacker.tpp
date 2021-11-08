@@ -187,22 +187,20 @@ TupleVec<NX> Attacker<NX>::max_attack(const Row<NX>& x, size_t feature_id) const
 }
 
 template<size_t NX>
-TupleArr<NX, 3> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id,
+std::tuple<TupleArr<NX, 3>, std::ptrdiff_t> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id,
     int spent) const
 {
     TupleArr<NX, 3> out;
     out[0] = std::make_tuple(x, spent);
     if (spent >= budget_)
     {
-        out[1] = std::make_tuple(x, -1);
-        return out;
+        return std::make_tuple(out, 1);
     }
     if (is_constant_)
     {
         if (flat_deform_ == 0.0)
         {
-            out[1] = std::make_tuple(x, -1);
-            return out;
+            return std::make_tuple(out, 1);
         }
         Row<NX> x_p1 = x;
         x_p1[feature_id] += flat_deform_;
@@ -210,15 +208,14 @@ TupleArr<NX, 3> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id,
         Row<NX> x_p2 = x;
         x_p2[feature_id] -= flat_deform_;
         out[2] = std::make_tuple(x_p2, spent+1);
-        return out;
+        return std::make_tuple(out, 3);
     }
     else
     {
         const double deform = deformations_.at(feature_id);
         if (deform == 0.0)
         {
-            out[1] = std::make_tuple(x, -1);
-            return out;
+            return std::make_tuple(out, 1);
         }
         Row<NX> x_p1 = x;
         x_p1[feature_id] += deform;
@@ -226,7 +223,7 @@ TupleArr<NX, 3> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id,
         Row<NX> x_p2 = x;
         x_p2[feature_id] -= deform;
         out[2] = std::make_tuple(x_p2, spent+1);
-        return out;
+        return std::make_tuple(out, 3);
     }
 }
 

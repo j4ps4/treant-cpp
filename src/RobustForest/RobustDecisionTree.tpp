@@ -9,7 +9,8 @@
 
 template<size_t NX, size_t NY>
 Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
-    std::map<int64_t,int> costs, ConstrVec constraints, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth)
+    std::map<int64_t,int> costs, ConstrVec constraints, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist,
+    size_t depth, thread_pool& pool)
 {
     if (X_train.size() == 0)
         return new Node<NY>();
@@ -46,7 +47,7 @@ Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y
            costs_left, costs_right, 
            constraints_left, constraints_right] = optimizer_->optimize_gain(X_train, y_train, rows, feature_blacklist,
                                       *(attacker_.get()), costs, constraints, current_score, node_prediction,
-                                      bootstrap_features_, n_sample_features_, rd_, useParallel_);
+                                      bootstrap_features_, n_sample_features_, rd_, useParallel_, pool);
 
     Util::log<4>("tree {}: best_gain: {}", id_, best_gain);
     if (best_gain > EPS)
@@ -63,9 +64,9 @@ Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y
             updated_feature_bl.insert(best_split_feature_id);
         }
 
-        node->set_left(fit_(X_train, y_train, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1));
+        node->set_left(fit_(X_train, y_train, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1, pool));
 
-        node->set_right(fit_(X_train, y_train, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1));
+        node->set_right(fit_(X_train, y_train, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1, pool));
 
     }
     return node;
@@ -128,8 +129,9 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
     for (int64_t i = 0; i < rows.size(); i++)
         costs[rows.at(i)] = 0;
 
+    thread_pool pool;
     ConstrVec constraints;
-    root_.reset(fit_(X_train, y_train, rows, costs, constraints, node_prediction, start_feature_bl_, 0));
+    root_.reset(fit_(X_train, y_train, rows, costs, constraints, node_prediction, start_feature_bl_, 0, pool));
 
     if (!root_->is_dummy())
     {

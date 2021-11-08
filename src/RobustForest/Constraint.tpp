@@ -6,10 +6,10 @@ std::optional<Constraint<NX,NY>> Constraint<NX,NY>::propagate_left(Attacker<NX>&
     size_t feature_id, double feature_value) const
 {
     // retrieve all the attacks
-    auto attacks = attacker.attack(x_, feature_id, cost_);
+    auto [attacks, len] = attacker.attack(x_, feature_id, cost_);
     // retain only those attacks whose feature value is less than or equal to feature value
-    const auto it = std::remove_if(attacks.begin(), attacks.end(), [&](auto& atk){
-        return std::get<1>(atk) == -1 || std::get<0>(atk)[feature_id] > feature_value;
+    const auto it = std::remove_if(attacks.begin(), attacks.begin()+len, [&](auto& atk){
+        return std::get<0>(atk)[feature_id] > feature_value;
     });
     //attacks.resize(std::distance(attacks.begin(), it));
     if (it == attacks.begin())
@@ -29,10 +29,10 @@ std::optional<Constraint<NX,NY>> Constraint<NX,NY>::propagate_right(Attacker<NX>
     size_t feature_id, double feature_value) const
 {
     // retrieve all the attacks
-    auto attacks = attacker.attack(x_, feature_id, cost_);
+    auto [attacks, len] = attacker.attack(x_, feature_id, cost_);
     // retain only those attacks whose feature value is greater than feature value
-    const auto it = std::remove_if(attacks.begin(), attacks.end(), [&](auto& atk){
-        return std::get<1>(atk) == -1 || std::get<0>(atk)[feature_id] <= feature_value;
+    const auto it = std::remove_if(attacks.begin(), attacks.begin()+len, [&](auto& atk){
+        return std::get<0>(atk)[feature_id] <= feature_value;
     });
     //attacks.resize(std::distance(attacks.begin(), it));
     if (it == attacks.begin())

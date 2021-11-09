@@ -67,8 +67,8 @@ static const std::map<std::string, size_t> column_map{
 
 cpp::result<std::tuple<DF<HAR_X>,DF<HAR_Y>>,std::string> read_train_and_valid()
 {
-    auto res = df::read_bz2<HAR_X,HAR_Y,0>(train_file.c_str()).flat_map([&](const auto& train){
-        return df::read_bz2<HAR_X,HAR_Y,0>(valid_file.c_str()).map([&](const auto& valid){
+    auto res = df::read_bz2<HAR_X,HAR_Y,1>(train_file.c_str()).flat_map([&](const auto& train){
+        return df::read_bz2<HAR_X,HAR_Y,1>(valid_file.c_str()).map([&](const auto& valid){
             return append2<HAR_X,HAR_Y>(train, valid);
         });
     });
@@ -446,7 +446,7 @@ void attack_instance(const std::string& attack_file, const std::vector<double>& 
     const auto& fids = atkr.target_features();
     for (auto fid : fids)
     {
-        auto [attacks, len] = atkr.attack(rw, fid, cost);
+        auto attacks = atkr.adjacent_attack(rw, fid, cost);
         fmt::print("target feature {}:\n", fid);
         for (const auto& [row, c] : attacks)
             std::cout << row << ", cost " << c << "\n";

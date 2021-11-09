@@ -65,12 +65,11 @@ struct key_equal
 
 template<size_t N>
 using PairT = std::tuple<Row<N>, int>;
-template<size_t N>
-using TupleVec = std::vector<PairT<N>>;
 template<size_t N, size_t L>
 using TupleArr = std::array<PairT<N>, L>;
-template<size_t N>
-using AttackDict = std::unordered_map<std::tuple<Row<N>,size_t>, TupleVec<N>, row_hash<N>, key_equal<N>>;
+using CostArr = std::array<int, 2>;
+// template<size_t N>
+// using AttackDict = std::unordered_map<std::tuple<Row<N>,size_t>, TupleVec<N>, row_hash<N>, key_equal<N>>;
 
 template<size_t NX>
 class Attacker
@@ -113,8 +112,6 @@ public:
 
     bool is_filled() const;
 
-    void compute_attacks(const DF<NX>& X) const;
-    
     void print_rules() const;
 
     const std::set<size_t>& target_features() const {return features_;}
@@ -139,11 +136,10 @@ public:
 
     double get_deformation() const noexcept {return flat_deform_;}
 
-    // return only the maximum attack
-    TupleVec<NX> max_attack(const Row<NX>& x, size_t feature_id) const;
+    // returns the costs necessary to push instance to left and right of feature value
+    // (cost = -1 means not possible)
+    std::tuple<CostArr,CostArr> push_costs(const Row<NX>& x, size_t feature_id, double split_value, int spent) const;
 
-    // returns first attacks for a given instance, spent is the amount spent for this instance
-    std::tuple<TupleArr<NX, 3>, std::ptrdiff_t> attack(const Row<NX>& x, size_t feature_id, int spent) const;
     TupleArr<NX, 2> adjacent_attack(const Row<NX>& x, size_t feature_id, int spent) const;
 
     // return the deformation for a feature
@@ -166,7 +162,6 @@ private:
     void remove_useless_rules();
     void compute_target_features();
     void compute_deformations();
-    TupleVec<NX> compute_attack(const Row<NX>& rw, size_t feature_id, int cost) const;
     int budget_;
     AttackType type_;
     AttkList rules_;

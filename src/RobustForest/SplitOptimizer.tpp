@@ -601,10 +601,6 @@ auto SplitOptimizer<NX,NY>::simulate_split(
     IdxVec split_right;
     IdxVec split_unknown;
 
-    const double deform = attacker.get_deformation();
-    const int budget = attacker.get_budget();
-    const bool is_const = attacker.is_constant();
-
     for (auto row_id : rows)
     {
     	// get the cost spent on the i-th instance so far
@@ -612,44 +608,18 @@ auto SplitOptimizer<NX,NY>::simulate_split(
         bool all_left = true;
         bool all_right = true;
 
-        if (is_const)
-        {
-            const auto& row = X.row(row_id);
-            const auto jth_feat = row[feature_id];
-            if (jth_feat <= feature_value)
-                all_right = false;
-            else
-                all_left = false;
+        // collect all the attacks the attacker can do on the i-th instance
+        auto [costLeft, costRight] = attacker.push_costs(X.row(row_id), feature_id, feature_value, cost);
 
-            if (cost < budget)
-            {
-                if (jth_feat - deform <= feature_value)
-                    all_right = false;
-                else
-                    all_left = false;
-                
-                if (jth_feat + deform <= feature_value)
-                    all_right = false;
-                else
-                    all_left = false;
-            }
-        }
+        if (costLeft[0] != -1)
+            all_right = false;
         else
-        {
-            // collect all the attacks the attacker can do on the i-th instance
-            auto [attacks, len] = attacker.attack(X.row(row_id), feature_id, cost);
+            all_left = false;
 
-            for (auto& [inst, c] : std::views::counted(attacks.begin(), len))
-            {
-                if (inst[feature_id] <= feature_value)
-                    all_right = false;
-                else
-                    all_left = false;
-                
-                if (!all_left && !all_right)
-                    break;
-            }
-        }
+        if (costRight[0] != -1)
+            all_left = false;
+        else
+            all_right = false;
 
 		// it means the splitting predicate is ALWAYS satisfied by this instance, no matter what the attacker does
         if (all_left)
@@ -1193,24 +1163,13 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 {
                     //using namespace std::ranges;
                     const auto u = my_indices[i];
-                    auto [attacks, len] = attacker.attack(X.row(u), best_split_feature_id, costs.at(u));
-                    std::vector<int> min_vec;
-                    auto rang1 = std::views::counted(attacks.begin(), len) 
-                        | std::views::filter([=](const auto& pair){
-                            return std::get<0>(pair)[best_split_feature_id] <= best_split_feature_value;})
-                        | std::views::transform([](const auto& pair){return std::get<1>(pair);});
-                    std::ranges::copy(rang1, std::back_inserter(min_vec));
-                    int min_left = *(std::ranges::min_element(min_vec));
-                    // Util::log("min_left_vec: {}", min_vec);
-                    min_vec.clear();
-                    auto rang2 = std::views::counted(attacks.begin(), len) 
-                        | std::views::filter([=](const auto& pair){
-                            return std::get<0>(pair)[best_split_feature_id] > best_split_feature_value;})
-                        | std::views::transform([](const auto& pair){return std::get<1>(pair);});
-                    std::ranges::copy(rang2, std::back_inserter(min_vec));
-                    int min_right = *(std::ranges::min_element(min_vec));
-                    // Util::log("min_right_vec: {}", min_vec);
-                    // Util::log("min_left: {}, min_right: {}", min_left, min_right);
+                    auto [costLeft, costRight] = attacker.push_costs(X.row(u), best_split_feature_id,
+                        best_split_feature_value, costs.at(u));
+                    int min_left = costLeft[0];
+                    int min_right = costRight[0];
+                    assert(min_left != -1);
+                    assert(min_right != -1);
+
                     Eigen::Index u_classid;
                     y.row(u).maxCoeff(&u_classid);
                     const size_t u_c = static_cast<size_t>(u_classid);

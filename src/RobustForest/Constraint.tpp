@@ -6,21 +6,15 @@ std::optional<Constraint<NX,NY>> Constraint<NX,NY>::propagate_left(Attacker<NX>&
     size_t feature_id, double feature_value) const
 {
     // retrieve all the attacks
-    auto [attacks, len] = attacker.attack(x_, feature_id, cost_);
-    // retain only those attacks whose feature value is less than or equal to feature value
-    const auto it = std::remove_if(attacks.begin(), attacks.begin()+len, [&](auto& atk){
-        return std::get<0>(atk)[feature_id] > feature_value;
-    });
-    //attacks.resize(std::distance(attacks.begin(), it));
-    if (it == attacks.begin())
+    auto [costLeft, costRight] = attacker.push_costs(x_, feature_id, feature_value, cost_);
+    // Not possible
+    if (costLeft[0] == -1)
         return {};
     else
     {
-        auto min_cost_it = std::min_element(
-            attacks.begin(), it, [](const auto& el1, const auto& el2){
-                return std::get<1>(el1) < std::get<1>(el2);
-            });
-        return Constraint<NX,NY>(x_,y_,ineq_,std::get<1>(*min_cost_it),bound_);
+        // minimum cost is always the first element
+        int min_cost = costLeft[0];
+        return Constraint<NX,NY>(x_,y_,ineq_,min_cost,bound_);
     }
 }
 
@@ -29,21 +23,14 @@ std::optional<Constraint<NX,NY>> Constraint<NX,NY>::propagate_right(Attacker<NX>
     size_t feature_id, double feature_value) const
 {
     // retrieve all the attacks
-    auto [attacks, len] = attacker.attack(x_, feature_id, cost_);
+    auto [costLeft, costRight] = attacker.push_costs(x_, feature_id, feature_value, cost_);
     // retain only those attacks whose feature value is greater than feature value
-    const auto it = std::remove_if(attacks.begin(), attacks.begin()+len, [&](auto& atk){
-        return std::get<0>(atk)[feature_id] <= feature_value;
-    });
-    //attacks.resize(std::distance(attacks.begin(), it));
-    if (it == attacks.begin())
+    if (costRight[0] == -1)
         return {};
     else
     {
-        auto min_cost_it = std::min_element(
-            attacks.begin(), it, [](const auto& el1, const auto& el2){
-                return std::get<1>(el1) < std::get<1>(el2);
-            });
-        return Constraint<NX,NY>(x_,y_,ineq_,std::get<1>(*min_cost_it),bound_);
+        int min_cost = costRight[0];
+        return Constraint<NX,NY>(x_,y_,ineq_,min_cost,bound_);
     }
 }
 

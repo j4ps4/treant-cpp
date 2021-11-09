@@ -13,129 +13,6 @@
 
 #include "util.h"
 
-namespace 
-{
-
-template<size_t N>
-bool is_equal_perturbation(const PairT<N>& x, const PairT<N>& y)
-{
-    return (std::get<0>(x) == std::get<0>(y)).all();
-        // && std::get<1>(x) <= std::get<1>(y);
-}
-
-template<size_t N>
-bool check_equal_perturbation(const TupleVec<N>& attacks, const PairT<N>& y)
-{
-    for (size_t i = 0; i < attacks.size(); i++)
-    {
-        auto& row = attacks[i];
-        if (is_equal_perturbation<N>(row, y))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-template<size_t N>
-void compute_normal(const TupleVec<N>& attacks, const AttkList& rules, std::deque<PairT<N>>& queue,
-    const Row<N>& inst, int total_budget, int running_cost, size_t feature_id)
-{
-    for (const auto& rule : rules)
-    {
-    if (rule.get_target_feature() == feature_id && rule.is_applicable<N>(inst))
-    {
-        if (total_budget >= running_cost + rule.get_cost())
-        {
-            auto x_prime = rule.apply<N>(inst);
-            auto cost_prime = running_cost + rule.get_cost();
-            auto pair = std::make_tuple(x_prime, cost_prime);
-            if (!check_equal_perturbation<N>(attacks, pair))
-            {
-                queue.push_front(pair);
-            }
-            std::array<double,2> sarr = {inst(feature_id), x_prime(feature_id)};
-            std::sort(sarr.begin(), sarr.end());
-            auto [low, high] = sarr;
-            auto [pre1, pre2] = rule.get_pre_interval();
-            std::vector<double> z;
-            if (low < pre1 && pre1 < high)
-                z.push_back(pre1);
-            if (low < pre2 && pre2 < high)
-                z.push_back(pre2);
-            for (double zi : z)
-            {
-                x_prime = inst;
-                x_prime(feature_id) = zi;
-                auto pair = std::make_tuple(x_prime, cost_prime);
-                if (!check_equal_perturbation<N>(attacks, pair))
-                    queue.push_front(pair);
-            }
-        }
-    }
-    }
-}
-
-template<size_t N>
-void compute_infball(TupleVec<N>& attacks, const AttackerRule& rule,
-    const Row<N>& inst, int total_budget, int running_cost, size_t feature_id)
-{
-    if (rule.get_target_feature() == feature_id && rule.is_applicable<N>(inst))
-    {
-        if (total_budget >= running_cost + rule.get_cost())
-        {
-            auto x_prime = rule.apply<N>(inst);
-            auto cost_prime = running_cost + rule.get_cost();
-            auto pair = std::make_tuple(x_prime, cost_prime);
-            if (!check_equal_perturbation<N>(attacks, pair))
-            {
-                attacks.push_back(pair);
-            }
-        }
-    }
-}
-
-}
-
-template<size_t N>
-TupleVec<N> Attacker<N>::compute_attack(const Row<N>& rw, size_t feature_id, int cost) const
-{
-    TupleVec<N> attacks;
-    switch (type_)
-    {
-    case AttackType::Constant:
-    {
-        Util::die("called compute_attack with Constant attack!!");
-    }
-    case AttackType::Normal:  
-    {
-        std::deque<PairT<N>> queue = {{rw, cost}};
-
-        while (queue.size() > 0)
-        {
-            auto [inst, budget] = queue.back();
-            queue.pop_back();
-            attacks.push_back(std::make_tuple(inst, budget));
-            compute_normal<N>(attacks, rules_, queue, inst, budget_, budget, feature_id);
-        }
-        break;
-    }
-    case AttackType::InfBall:
-    {
-        attacks.push_back(std::make_tuple(rw, cost));
-        for (const auto& rule : rules_)        
-            compute_infball<N>(attacks, rule, rw, budget_, cost, feature_id);
-    }
-    }
-    return attacks;
-}
-
-template<size_t N>
-void Attacker<N>::compute_attacks(const DF<N>& X) const
-{
-    return;
-}
-
 template<size_t N>
 void Attacker<N>::print_rules() const
 {
@@ -154,77 +31,43 @@ void Attacker<NX>::compute_target_features()
     }
 }
 
-
 template<size_t NX>
-TupleVec<NX> Attacker<NX>::max_attack(const Row<NX>& x, size_t feature_id) const
+std::tuple<CostArr,CostArr> Attacker<NX>::push_costs(const Row<NX>& x, size_t feature_id,
+    double split_value, int spent) const
 {
-
-    if (features_.contains(feature_id))
-    {
-        // auto attack_key = std::make_tuple(x, feature_id);
-        // if (!attacks_.contains(attack_key))
-        //     attacks_[attack_key] = compute_attack(x, feature_id, 0);
-
-        // auto& attacks_xf = attacks_.at(attack_key);
-        auto attacks_xf = compute_attack(x, feature_id, 0);
-        TupleVec<NX> out;
-        auto max_cost_it = std::max_element(attacks_xf.begin(), attacks_xf.end(), [](const auto& pair1, const auto& pair2){
-            return std::get<1>(pair1) < std::get<1>(pair2);
-        });
-        auto max_cost = std::get<1>(*max_cost_it);
-        std::copy_if(attacks_xf.begin(), attacks_xf.end(), std::back_inserter(out), [max_cost](auto& pair){
-            auto c = std::get<1>(pair); return c == 0 || c == max_cost;
-        });
-        
-        return out;
-    }
+    CostArr push_left = {-1,-1};
+    CostArr push_right = {-1,-1};
+    size_t left_idx = 0;
+    size_t right_idx = 0;
+    const double feature = x[feature_id];
+    const bool is_left = feature <= split_value;
+    // No cost needed
+    if (is_left)
+        push_left[left_idx++] = spent;
     else
-    {
-        TupleVec<NX> out{{x, 0}};
-        return out;
-    }
-
-}
-
-template<size_t NX>
-std::tuple<TupleArr<NX, 3>, std::ptrdiff_t> Attacker<NX>::attack(const Row<NX>& x, size_t feature_id,
-    int spent) const
-{
-    TupleArr<NX, 3> out;
-    out[0] = std::make_tuple(x, spent);
+        push_right[right_idx++] = spent;
+    
     if (spent >= budget_)
     {
-        return std::make_tuple(out, 1);
+        return std::make_tuple(push_left, push_right);
     }
-    if (is_constant_)
+
+    const double deform = is_constant_ ? flat_deform_ : deformations_.at(feature_id);
+    if (deform == 0.0)
     {
-        if (flat_deform_ == 0.0)
-        {
-            return std::make_tuple(out, 1);
-        }
-        Row<NX> x_p1 = x;
-        x_p1[feature_id] += flat_deform_;
-        out[1] = std::make_tuple(x_p1, spent+1);
-        Row<NX> x_p2 = x;
-        x_p2[feature_id] -= flat_deform_;
-        out[2] = std::make_tuple(x_p2, spent+1);
-        return std::make_tuple(out, 3);
+        return std::make_tuple(push_left, push_right);
     }
-    else
+    // crosses the threshold to left
+    if (feature - deform <= split_value)
     {
-        const double deform = deformations_.at(feature_id);
-        if (deform == 0.0)
-        {
-            return std::make_tuple(out, 1);
-        }
-        Row<NX> x_p1 = x;
-        x_p1[feature_id] += deform;
-        out[1] = std::make_tuple(x_p1, spent+1);
-        Row<NX> x_p2 = x;
-        x_p2[feature_id] -= deform;
-        out[2] = std::make_tuple(x_p2, spent+1);
-        return std::make_tuple(out, 3);
+        push_left[left_idx++] = spent+1;
     }
+    // crosses the threshold to right
+    if (feature + deform > split_value)
+    {
+        push_right[right_idx++] = spent+1;
+    }
+    return std::make_tuple(push_left, push_right);
 }
 
 template<size_t NX>
@@ -277,6 +120,13 @@ void Attacker<NX>::compute_deformations()
             double deform = std::abs(rule_it->get_post());
             deformations_[fid] = deform;
         }
+    }
+    // fill with zeroes
+    const auto all_feats = Util::feature_set<NX>();
+    for (auto fid : all_feats)
+    {
+        if (!deformations_.contains(fid))
+            deformations_[fid] = 0.0;
     }
 }
 

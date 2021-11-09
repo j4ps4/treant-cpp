@@ -98,9 +98,9 @@ inline std::string pretty_timediff(double diff)
 template<size_t N>
 std::set<size_t> feature_set()
 {
-    auto gen = [](){static size_t x = 0; return x++;};
     std::set<size_t> out;
-    std::generate_n(std::inserter(out, out.begin()), N, gen);
+    for (size_t n = 0; n < N; n++)
+        out.insert(n);
     return out;
 }
 

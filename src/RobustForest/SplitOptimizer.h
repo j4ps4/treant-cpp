@@ -22,6 +22,10 @@ enum class SplitFunction
     SSE
 };
 
+using IdxVec = std::vector<size_t>;
+using CostVec = std::vector<int>;
+using CostMap = std::unordered_map<size_t, int>;
+
 template<size_t NX, size_t NY>
 class SplitOptimizer
 {
@@ -29,9 +33,6 @@ class SplitOptimizer
     using NRow = Row<NY>;
 
     using IcmlTupl = std::tuple<NRow,NRow,double>;
-    using IdxVec = std::vector<size_t>;
-    using CostVec = std::vector<int>;
-    using CostMap = std::map<int64_t, int>;
     using ConstrVec = std::vector<Constraint<NX,NY>>;
     using ConstrArr = std::array<Constraint<NX,NY>, 2*NY>;
     using ConstrDataVec = std::vector<Constr_data<NY>>;

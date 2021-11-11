@@ -8,34 +8,43 @@
 #include "../util.h"
 
 template<size_t NX, size_t NY>
-Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
-    std::map<int64_t,int> costs, ConstrVec constraints, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist,
-    size_t depth, thread_pool& pool)
+Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y_train, const IdxVec rows,
+    CostMap costs, ConstrVec constraints, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist,
+    size_t depth, thread_pool& pool, const bool quiet, size_t& split_num)
 {
     if (X_train.size() == 0)
         return new Node<NY>();
 
+    split_num++;
+    if (!quiet)
+        fmt::print(stderr, "split {}/{} (upper bound)\r", split_num, max_splits_);
+
     DF<NY> y = DF_index<NY>(y_train, rows);
     Node<NY>* node = new Node<NY>(new_node);
     node->set_prediction(node_prediction);
-    Util::log<4>("tree {}: current depth: {}", id_, depth);
+    if (!quiet)
+        Util::log<4>("tree {}: current depth: {}", id_, depth);
     auto current_prediction = node->get_prediction();
     // not needed?
     //auto current_prediction_score = node->get_prediction_score(); 
     auto current_score = optimizer_->evaluate_split(y, node_prediction);
     node->set_loss(current_score);
-    Util::log<4>("tree {}: current node's loss: {:.5f}", id_, current_score);
+
+    if (!quiet)
+        Util::log<4>("tree {}: current node's loss: {:.5f}", id_, current_score);
 
     if (depth == max_depth_)
     {
-        Util::log<4>("tree {}: current depth {} is equal to maximum depth of this tree", id_, depth);
+        if (!quiet)
+            Util::log<4>("tree {}: current depth {} is equal to maximum depth of this tree", id_, depth);
         return node;
     }
 
     if (rows.size() < min_instances_per_node_)
     {
-        Util::log<4>("tree {}: number of instances ended up in the current node ({}) are less than the minimum ({})",
-            id_, rows.size(), min_instances_per_node_);
+        if (!quiet)
+            Util::log<4>("tree {}: number of instances ended up in the current node ({}) are less than the minimum ({})",
+                id_, rows.size(), min_instances_per_node_);
         return node;
     }
     // OptimTupl optimize_gain(const DF<NX>& X, const DF<N>& y, const IdxVec& rows, int n_sample_features, 
@@ -49,7 +58,8 @@ Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y
                                       *(attacker_.get()), costs, constraints, current_score, node_prediction,
                                       bootstrap_features_, n_sample_features_, rd_, useParallel_, pool);
 
-    Util::log<4>("tree {}: best_gain: {}", id_, best_gain);
+    if (!quiet)
+        Util::log<4>("tree {}: best_gain: {}", id_, best_gain);
     if (best_gain > EPS)
     {
         node->set_loss(best_loss);
@@ -64,9 +74,9 @@ Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y
             updated_feature_bl.insert(best_split_feature_id);
         }
 
-        node->set_left(fit_(X_train, y_train, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1, pool));
+        node->set_left(fit_(X_train, y_train, best_split_left, costs_left, constraints_left, best_pred_left, updated_feature_bl, depth+1, pool, quiet, split_num));
 
-        node->set_right(fit_(X_train, y_train, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1, pool));
+        node->set_right(fit_(X_train, y_train, best_split_right, costs_right, constraints_right, best_pred_right, updated_feature_bl, depth+1, pool, quiet, split_num));
 
     }
     return node;
@@ -80,6 +90,8 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
         Util::err("tree {} is already trained", id_);
         return;
     }
+
+    max_splits_ = static_cast<size_t>(std::pow(2, max_depth_+1)) - 1;
 
     std::vector<size_t> rows;
     const size_t NR = X_train.rows();
@@ -125,13 +137,14 @@ void RobustDecisionTree<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train
     else
         node_prediction = y_train.colwise().mean();
 
-    std::map<int64_t,int> costs;
+    CostMap costs;
     for (int64_t i = 0; i < rows.size(); i++)
         costs[rows.at(i)] = 0;
 
     thread_pool pool;
     ConstrVec constraints;
-    root_.reset(fit_(X_train, y_train, rows, costs, constraints, node_prediction, start_feature_bl_, 0, pool));
+    size_t split_num = 0;
+    root_.reset(fit_(X_train, y_train, rows, costs, constraints, node_prediction, start_feature_bl_, 0, pool, quiet, split_num));
 
     if (!root_->is_dummy())
     {

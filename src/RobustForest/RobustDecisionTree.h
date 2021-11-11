@@ -140,9 +140,10 @@ public:
     }
 
 private:
-    Node<NY>* fit_(const DF<NX>& X_train, const DF<NY>& y_train, const std::vector<size_t> rows,
-        std::map<int64_t,int> costs, ConstrVec constraints,
-        const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth, thread_pool& pool);
+    Node<NY>* fit_(const DF<NX>& X_train, const DF<NY>& y_train, const IdxVec rows,
+        CostMap costs, ConstrVec constraints,
+        const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth,
+        thread_pool& pool, const bool quiet, size_t& split_num);
 
     size_t predict_(const Row<NX>& instance, const Node<NY>* node) const;
     Row<NY> predict_proba_(const Row<NX>& instance, const Node<NY>* node) const;
@@ -168,6 +169,7 @@ private:
     double max_samples_;
     double max_features_;
     size_t n_sample_features_;
+    size_t max_splits_;
 };
 
 #include "RobustDecisionTree.tpp"

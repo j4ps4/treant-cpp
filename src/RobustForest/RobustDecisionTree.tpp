@@ -9,7 +9,7 @@
 
 template<size_t NX, size_t NY>
 Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y_train, const IdxVec rows,
-    CostMap costs, ConstrVec constraints, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist,
+    const CostMap& costs, ConstrVec constraints, const Row<NY>& node_prediction, std::set<size_t> feature_blacklist,
     size_t depth, thread_pool& pool, const bool quiet, size_t& split_num)
 {
     if (X_train.size() == 0)

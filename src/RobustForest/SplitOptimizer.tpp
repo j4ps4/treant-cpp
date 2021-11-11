@@ -870,7 +870,7 @@ auto SplitOptimizer<NX,NY>::propagate(const ConstrVec& cs, Attacker<NX>& attacke
 
 template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
-    const std::set<size_t>& feature_blacklist, Attacker<NX>& attacker, CostMap& costs, 
+    const std::set<size_t>& feature_blacklist, Attacker<NX>& attacker, const CostMap& costs, 
     ConstrVec& constraints, double current_score, Row<NY> current_prediction_score, 
     bool bootstrap_features, size_t n_sample_features, std::mt19937_64& rd, 
     bool par, thread_pool& pool) const -> OptimTupl
@@ -1112,6 +1112,11 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
     // Continue iff there's an actual gain
     if (best_gain > 0.0)
     {
+        for (auto left_id : best_split_left_id)
+            costs_left[left_id] = costs.at(left_id);
+        for (auto right_id : best_split_right_id)
+            costs_right[right_id] = costs.at(right_id);
+
         const auto NU = best_split_unknown_id.size();
         if (best_split_unknown_id.size() > 0 && algo_ == TrainingAlgo::Icml2019)
         {
@@ -1203,23 +1208,23 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
                 {
                 std::lock_guard lock(gain_mut);
                 for (auto id : my_left_id)
+                {
                     best_split_left_id.push_back(id);
+                    costs_left[id] = my_costs.at(id);
+                }
                 for (auto id : my_right_id)
+                {
                     best_split_right_id.push_back(id);
+                    costs_right[id] = my_costs.at(id);
+                }
                 for (auto c : my_constraints_left)
                     constraints_left.push_back(c);
                 for (auto c : my_constraints_right)
                     constraints_right.push_back(c);
-                for (auto [u, c] : my_costs)
-                    costs[u] = c;
                 }
             }
         );
         }
-        for (auto key : best_split_left_id)
-            costs_left[key] = costs.at(key);
-        for (auto key : best_split_right_id)
-            costs_right[key] = costs.at(key);
     }
     // if (!constraints_left.empty() || !constraints_right.empty())
     // {

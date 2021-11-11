@@ -141,7 +141,7 @@ public:
 
 private:
     Node<NY>* fit_(const DF<NX>& X_train, const DF<NY>& y_train, const IdxVec rows,
-        CostMap costs, ConstrVec constraints,
+        const CostMap& costs, ConstrVec constraints,
         const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth,
         thread_pool& pool, const bool quiet, size_t& split_num);
 

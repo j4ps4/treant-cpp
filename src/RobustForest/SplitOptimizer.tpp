@@ -871,7 +871,7 @@ auto SplitOptimizer<NX,NY>::propagate(const ConstrVec& cs, Attacker<NX>& attacke
 template<size_t NX, size_t NY>
 auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
     const std::set<size_t>& feature_blacklist, Attacker<NX>& attacker, const CostMap& costs, 
-    ConstrVec& constraints, double current_score, Row<NY> current_prediction_score, 
+    const ConstrVec& constraints, double current_score, Row<NY> current_prediction_score, 
     bool bootstrap_features, size_t n_sample_features, std::mt19937_64& rd, 
     bool par, thread_pool& pool) const -> OptimTupl
 {

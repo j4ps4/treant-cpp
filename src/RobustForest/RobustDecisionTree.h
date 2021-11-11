@@ -140,8 +140,8 @@ public:
     }
 
 private:
-    Node<NY>* fit_(const DF<NX>& X_train, const DF<NY>& y_train, const IdxVec rows,
-        const CostMap& costs, ConstrVec constraints,
+    Node<NY>* fit_(const DF<NX>& X_train, const DF<NY>& y_train, const IdxVec& rows,
+        const CostMap& costs, const ConstrVec& constraints,
         const Row<NY>& node_prediction, std::set<size_t> feature_blacklist, size_t depth,
         thread_pool& pool, const bool quiet, size_t& split_num);
 

@@ -315,6 +315,117 @@ RobustDecisionTree<NX,NY> RobustDecisionTree<NX,NY>::load_from_disk(const std::f
 }
 
 template<size_t NX, size_t NY>
+std::string RobustDecisionTree<NX,NY>::to_string() const
+{
+    try 
+    {
+        std::ostringstream os(std::ios::binary);
+        cereal::BinaryOutputArchive archive(os);
+        archive(
+            root_,
+            attacker_,
+            optimizer_,
+            start_feature_bl_,
+            id_,
+            max_depth_,
+            min_instances_per_node_,
+            isTrained_,
+            affine_,
+            useParallel_,
+            par_par_,
+            bootstrap_samples_,
+            bootstrap_features_,
+            replace_samples_,
+            replace_features_,
+            max_samples_,
+            max_features_,
+            n_sample_features_,
+            max_splits_,
+            seed_
+        );
+        return os.str();
+    }
+    catch (std::exception& e)
+    {
+        Util::die("failed to serialize the model: {}", e.what());
+    }
+
+}
+
+template<size_t NX, size_t NY>
+RobustDecisionTree<NX, NY> RobustDecisionTree<NX,NY>::from_string(const std::string& str)
+{
+    try
+    {
+        std::istringstream is(str, std::ios::binary);
+        cereal::BinaryInputArchive archive(is);
+
+        std::unique_ptr<Node<NY>> root;
+        Attacker<NX> attacker;
+        SplitOptimizer<NX,NY> optimizer;
+        std::set<size_t> start_feature_bl;
+        int id;
+        size_t max_depth;
+        size_t min_instances_per_node;
+        bool isTrained;
+        bool affine;
+        bool useParallel;
+        double par_par;
+        bool bootstrap_samples;
+        bool bootstrap_features;
+        bool replace_samples;
+        bool replace_features;
+        double max_samples;
+        double max_features;
+        size_t n_sample_features;
+        size_t max_splits;
+        uint64_t seed;
+        archive(
+            root,
+            attacker,
+            optimizer,
+            start_feature_bl,
+            id,
+            max_depth,
+            min_instances_per_node,
+            isTrained,
+            affine,
+            useParallel,
+            par_par,
+            bootstrap_samples,
+            bootstrap_features,
+            replace_samples,
+            replace_features,
+            max_samples,
+            max_features,
+            n_sample_features,
+            max_splits,
+            seed
+        );
+        RobustDecisionTree<NX,NY> tree(root, id, max_depth, min_instances_per_node, isTrained, affine,
+            attacker, seed);
+        tree.optimizer_ = optimizer;
+        tree.start_feature_bl_ = start_feature_bl;
+        tree.useParallel_ = useParallel;
+        tree.par_par_ = par_par;
+        tree.bootstrap_samples_ = bootstrap_samples;
+        tree.bootstrap_features_ = bootstrap_features;
+        tree.replace_samples_ = replace_samples;
+        tree.replace_features_ = replace_features;
+        tree.max_samples_ = max_samples;
+        tree.max_features_ = max_features;
+        tree.n_sample_features_ = n_sample_features;
+        tree.max_splits_ = max_splits;
+        return tree;
+    }
+    catch (std::exception& e)
+    {
+        Util::die("failed to deserialize model: {}", e.what());
+    }
+
+}
+
+template<size_t NX, size_t NY>
 std::string RobustDecisionTree<NX,NY>::get_model_name() const
 {
 	std::string algo_str;

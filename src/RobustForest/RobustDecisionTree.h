@@ -45,21 +45,24 @@ public:
         useParallel_(args.useParallel), par_par_(args.par_par), bootstrap_samples_(args.bootstrap_samples),
         bootstrap_features_(args.bootstrap_features), replace_samples_(args.replace_samples),
         replace_features_(args.replace_features), max_samples_(args.max_samples),
-        max_features_(args.max_features), rd_(seed), isTrained_(false)
+        max_features_(args.max_features), seed_(seed), isTrained_(false)
     {
+        rd_.seed(seed_);
     }
 
     RobustDecisionTree(std::unique_ptr<Node<NY>>& root, int id, size_t max_depth,
         size_t min_instances_per_node, bool isTrained, bool affine, 
-        Attacker<NX>& attacker) :
+        Attacker<NX>& attacker, uint64_t seed = 0) :
             attacker_(attacker),
             id_(id),
             max_depth_(max_depth),
             min_instances_per_node_(min_instances_per_node),
             isTrained_(isTrained),
-            affine_(affine)
+            affine_(affine),
+            seed_(seed)
         {
             root_.swap(root);
+            rd_.seed(seed_);
         }
     
     RobustDecisionTree() = default;
@@ -83,6 +86,10 @@ public:
     void dump_to_disk(const std::filesystem::path& fn) const;
 
     static RobustDecisionTree<NX, NY> load_from_disk(const std::filesystem::path& fn);
+
+    std::string to_string() const;
+
+    static RobustDecisionTree<NX, NY> from_string(const std::string& str);
 
     int get_id() const noexcept {return id_;}
     size_t get_max_depth() const noexcept {return max_depth_;}
@@ -164,6 +171,7 @@ private:
     double max_features_;
     size_t n_sample_features_;
     size_t max_splits_;
+    uint64_t seed_;
 };
 
 #include "RobustDecisionTree.tpp"

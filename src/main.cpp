@@ -95,7 +95,7 @@ int main(int argc, char** argv)
         cxxopts::value<std::string>())
         ("L,log-file", "output log file",
         cxxopts::value<std::string>()->default_value(""))
-        ("attack-file", "json file describing the attacks",
+        ("A,attack-file", "json file describing the attacks",
         cxxopts::value<std::string>()->default_value(""));
 
     options.add_options("tree")

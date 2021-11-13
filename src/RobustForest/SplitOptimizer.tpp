@@ -907,9 +907,6 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
         feature_map[f_id] = feats;
     }
 
-    if (par)
-    {
-
     for (const auto& [feature_id, feats] : feature_map)
     {
         pool.parallelize_loop(0, feats.size(), 
@@ -1025,86 +1022,7 @@ auto SplitOptimizer<NX,NY>::optimize_gain(const DF<NX>& X, const DF<NY>& y, cons
             }
         );
     }
-    }
-    else
-    {
-        IdxVec split_left;
-        IdxVec split_right;
-        IdxVec split_unknown;
-        std::optional<IcmlTupl> optimizer_res;
-        for (const auto& [feature_id, feats] : feature_map)
-        {
-            // Util::log("testing feature {}", feature_id);
-            for (size_t feats_idx = 0; feats_idx < feats.size(); feats_idx++)
-            {
-                // Util::log("feats: {}", feats);
-                double feature_value = feats[feats_idx];
-                if (algo_ == TrainingAlgo::Icml2019)
-                {
-                    auto split_res = split_icml2019(X, y, rows, attacker, costs, feature_id, feature_value);
-                    split_left = std::get<0>(split_res);
-                    split_right = std::get<1>(split_res);
-                    split_unknown = std::get<2>(split_res);
-                    optimizer_res = std::get<3>(split_res);
-                }
-                else if (algo_ == TrainingAlgo::Robust)
-                {
-                    auto split_res = simulate_split(X, rows, attacker, costs, feature_id, feature_value);
-                    split_left = std::get<0>(split_res);
-                    split_right = std::get<1>(split_res);
-                    split_unknown = std::get<2>(split_res);
-                    auto [updated_constraints, constr_data] = propagate(constraints, attacker, feature_id, feature_value, useConstraints_);
 
-                    optimizer_res = optimize_loss_under_attack(y, current_prediction_score,
-                        split_left, split_right, split_unknown, updated_constraints, constr_data);
-                }
-                else // Standard decision tree
-                {
-                    auto split_res = simple_split(X, y, rows, feature_id, feature_value);
-                    split_left = std::get<0>(split_res);
-                    split_right = std::get<1>(split_res);
-                    optimizer_res = std::get<2>(split_res);
-                }
-                if (optimizer_res)
-                {
-                    auto optim_res = optimizer_res.value();
-                    auto y_pred_left = std::get<0>(optim_res);
-                    auto y_pred_right = std::get<1>(optim_res);
-                    auto residue = std::get<2>(optim_res);
-
-                    // std::cout << "pred_left: " << y_pred_left;
-                    // std::cout << ", pred_right: " << y_pred_right;
-                    // std::cout << ", fun: " << residue << "\n";
-                    // std::exit(0);
-
-                    // compute gain
-                    //Util::log("current score: {}", current_score);
-                    double gain = current_score - residue;
-                    //Util::log("current gain: {}, best gain: {}, residue: {}", gain, best_gain, residue);
-                    //std::exit(0);
-
-                    // if gain obtained with this split simulation is greater than the best gain so far
-                    if (gain > best_gain)
-                    {
-                        best_gain = gain;
-                        best_split_feature_id = feature_id;
-                        best_split_feature_value = feature_value;
-                        if (feats_idx < feats.size() - 1)
-                            next_best_split_feature_value = feats[feats_idx+1];
-                        else
-                            next_best_split_feature_value = best_split_feature_value;
-                        
-                        best_split_left_id = split_left;
-                        best_split_right_id = split_right;
-                        best_split_unknown_id = split_unknown;
-                        best_pred_left = y_pred_left;
-                        best_pred_right = y_pred_right;
-                        best_residue = residue;
-                    }
-                }
-            }
-        }
-    }
     CostMap costs_left;
     CostMap costs_right;
     ConstrVec constraints_left;

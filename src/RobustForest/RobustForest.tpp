@@ -1,10 +1,32 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/memory.hpp>
 #include <cereal/types/vector.hpp>
+#include <mpi.h>
 
 #include "../thread_pool.hpp"
 
 #include "../util.h"
+
+static void send_data(const std::string& data, int dest, int tag)
+{
+    const int SZ = data.size() * sizeof(std::string::value_type);
+    int sent = MPI_Send(data.data(), SZ, MPI_BYTE, dest, tag, MPI_COMM_WORLD);
+    if (sent != SZ)
+      throw std::runtime_error("MPI_Send failed");
+}
+
+static std::string recv_data(int source, int tag)
+{
+    MPI_Status status;
+    MPI_Probe(source, tag, MPI_COMM_WORLD, &status);
+    int amount;
+    MPI_Get_count(&status, MPI_BYTE, &amount);
+    const int SZ = amount / sizeof(std::string::value_type);
+    std::string buf(SZ, '\0');
+    MPI_Recv(buf.data(), amount, MPI_BYTE, source, tag, MPI_COMM_WORLD,
+             MPI_STATUS_IGNORE);
+    return buf;
+}
 
 template<size_t NX, size_t NY>
 RobustForest<NX,NY>::RobustForest(size_t N, TreeArguments<NX,NY>&& args) :
@@ -189,31 +211,46 @@ void RobustForest<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
             //     if (i != max_ind)
             //         trees_.erase(trees_.begin()+i);
         }
-        else if (!treePar)
-        {
-            thread_pool pool;
-            Util::info("spawning a pool of {} threads...", pool.get_thread_count());
-
-            for (size_t i = 0; i < n_trees_; i++)
-            {
-                auto& tree = trees_.at(i);
-                pool.push_task([&]{
-                    tree.fit(X_train, y_train, true);
-                });
-            }
-            pool.wait_for_tasks();
-            is_trained_ = true;
-            Util::log<3>("Forest of {} trees has been fit!", n_trees_);
-        }
         else
         {
-            for (size_t i = 0; i < n_trees_; i++)
-            {
-                auto& tree = trees_.at(i);
-                tree.fit(X_train, y_train, true);
+            MPI_Init(NULL, NULL);
+
+            int world_size;
+            MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+            if (world_size != n_trees_) {
+                fmt::print(stderr, "world size (= {}) must equal the amount of trees (= {})\n", world_size, n_trees_);
+                MPI_Abort(MPI_COMM_WORLD, 1);
             }
-            is_trained_ = true;
-            Util::log<3>("Forest of {} trees has been fit!", n_trees_);
+            int world_rank;
+            MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
+            if (world_rank == 0)
+            {
+                for (size_t i = 1; i < n_trees_; i++)
+                {
+                    const auto tree_string = trees_.at(i).to_string();
+                    send_data(tree_string, i, 0);
+                }
+                trees_.front().fit(X_train, y_train, true);
+                for (size_t i = 1; i < n_trees_; i++)
+                {
+                    const auto tree_string = recv_data(i, 1);
+                    auto tree = RobustDecisionTree<NX,NY>::from_string(tree_string);
+                    trees_[i] = std::move(tree);
+                }
+                is_trained_ = true;
+                Util::log<3>("Forest of {} trees has been fit!", n_trees_);
+            }
+            else
+            {
+                auto tree_string = recv_data(0, 0);
+                auto tree = RobustDecisionTree<NX,NY>::from_string(tree_string);
+                tree.fit(X_train, y_train, true);
+                tree_string = tree.to_string();
+                send_data(tree_string, 0, 1);
+            }
+
+            MPI_Finalize();
         }
     }
     else

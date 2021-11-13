@@ -8,7 +8,7 @@ elseif(NOT CMAKE_BUILD_TYPE STREQUAL Debug AND
     message(FATAL_ERROR "Invalid build type!")
 endif()
 
-set(CMAKE_CXX_COMPILER "g++")
+set(CMAKE_CXX_COMPILER "mpic++")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 project(treant-cpp CXX)

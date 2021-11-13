@@ -16,8 +16,8 @@
 template<size_t NX, size_t NY>
 struct TreeArguments
 {
-    Attacker<NX> attacker;
-    SplitOptimizer<NX,NY> optimizer;
+    std::shared_ptr<Attacker<NX>> attacker;
+    std::shared_ptr<SplitOptimizer<NX,NY>> optimizer;
     std::set<size_t> feature_bl;
     int id;
     size_t max_depth;
@@ -45,24 +45,21 @@ public:
         useParallel_(args.useParallel), par_par_(args.par_par), bootstrap_samples_(args.bootstrap_samples),
         bootstrap_features_(args.bootstrap_features), replace_samples_(args.replace_samples),
         replace_features_(args.replace_features), max_samples_(args.max_samples),
-        max_features_(args.max_features), seed_(seed), isTrained_(false)
+        max_features_(args.max_features), rd_(seed), isTrained_(false)
     {
-        rd_.seed(seed_);
     }
 
     RobustDecisionTree(std::unique_ptr<Node<NY>>& root, int id, size_t max_depth,
         size_t min_instances_per_node, bool isTrained, bool affine, 
-        Attacker<NX>& attacker, uint64_t seed = 0) :
+        std::shared_ptr<Attacker<NX>>& attacker) :
             attacker_(attacker),
             id_(id),
             max_depth_(max_depth),
             min_instances_per_node_(min_instances_per_node),
             isTrained_(isTrained),
-            affine_(affine),
-            seed_(seed)
+            affine_(affine)
         {
             root_.swap(root);
-            rd_.seed(seed_);
         }
     
     RobustDecisionTree() = default;
@@ -84,11 +81,9 @@ public:
     double test_score(const DF<NX>& X_test, const DF<NY>& Y_test) const;
 
     void dump_to_disk(const std::filesystem::path& fn) const;
-
-    static RobustDecisionTree<NX, NY> load_from_disk(const std::filesystem::path& fn);
-
     std::string to_string() const;
 
+    static RobustDecisionTree<NX, NY> load_from_disk(const std::filesystem::path& fn);
     static RobustDecisionTree<NX, NY> from_string(const std::string& str);
 
     int get_id() const noexcept {return id_;}
@@ -109,27 +104,33 @@ public:
 
     int get_attacker_budget() const 
     {
-        return attacker_.get_budget();
+        if (!attacker_)
+            throw std::runtime_error("attacker = NULL!!!");
+        return attacker_->get_budget();
     }
     
-    const Attacker<NX>& get_attacker() const 
+    const Attacker<NX>* get_attacker() const 
     {
-        return attacker_;
+        return attacker_.get();
     }
 
-    const SplitOptimizer<NX,NY>& get_optimizer() const 
+    const SplitOptimizer<NX,NY>* get_optimizer() const 
     {
-        return optimizer_;
+        return optimizer_.get();
     }
 
     void set_attacker_budget(int budget) 
     {
-        attacker_.set_budget(budget);
+        if (!attacker_)
+            throw std::runtime_error("attacker = NULL!!!");
+        attacker_->set_budget(budget);
     }
 
     void set_attacker_feats(const std::set<size_t>& feats)
     {
-        attacker_.set_feats(feats);
+        if (!attacker_)
+            throw std::runtime_error("attacker = NULL!!!");
+        attacker_->set_feats(feats);
     }
 
     std::map<size_t, double> feature_importance() const;
@@ -152,8 +153,8 @@ private:
     void feature_importance_(const Node<NY>* node, std::map<size_t,double>& dict) const;
     
     std::unique_ptr<Node<NY>> root_;
-    Attacker<NX> attacker_;
-    SplitOptimizer<NX,NY> optimizer_;
+    std::shared_ptr<Attacker<NX>> attacker_;
+    std::shared_ptr<SplitOptimizer<NX,NY>> optimizer_;
     std::set<size_t> start_feature_bl_;
     std::mt19937_64 rd_;
     int id_;
@@ -171,7 +172,6 @@ private:
     double max_features_;
     size_t n_sample_features_;
     size_t max_splits_;
-    uint64_t seed_;
 };
 
 #include "RobustDecisionTree.tpp"

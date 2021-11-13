@@ -138,7 +138,7 @@ std::optional<TrainArguments<NX,NY>> generate_arg_from_options(const cxxopts::Pa
         feature_prop = feature_prop_v.front();
 
 
-    TrainArguments<NX,NY> args = {.tree_args = {.attacker=Attacker<NX>(), .optimizer=SplitOptimizer<NX,NY>(), .feature_bl=feature_bl,
+    TrainArguments<NX,NY> args = {.tree_args = {.attacker=nullptr, .optimizer=nullptr, .feature_bl=feature_bl,
                 .id=0, .max_depth=maxdepth, .min_instances_per_node=min_inst, .affine=affine,
                 .useParallel=par, .par_par=par_par, .bootstrap_samples=bootstrap_samples, 
                 .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 

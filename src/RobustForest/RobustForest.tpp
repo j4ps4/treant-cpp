@@ -62,7 +62,7 @@ RobustForest<NX,NY>::RobustForest(size_t N, TreeArguments<NX,NY>&& args,
 		int id = std::get<0>(atkrs.at(i));
 		auto atkr = std::get<1>(atkrs.at(i));
 		new_args.id = id;
-		new_args.attacker = *atkr;
+		new_args.attacker.reset(atkr);
 		trees_.emplace_back(std::move(new_args), seed++);
 	}
 }
@@ -224,13 +224,9 @@ void RobustForest<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
             int world_rank;
             MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
+            // Master
             if (world_rank == 0)
             {
-                for (size_t i = 1; i < n_trees_; i++)
-                {
-                    const auto tree_string = trees_.at(i).to_string();
-                    send_data(tree_string, i, 0);
-                }
                 trees_.front().fit(X_train, y_train, true);
                 for (size_t i = 1; i < n_trees_; i++)
                 {
@@ -240,17 +236,19 @@ void RobustForest<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
                 }
                 is_trained_ = true;
                 Util::log<3>("Forest of {} trees has been fit!", n_trees_);
+                MPI_Finalize();
             }
+            // Servant
             else
             {
-                auto tree_string = recv_data(0, 0);
-                auto tree = RobustDecisionTree<NX,NY>::from_string(tree_string);
+                auto& tree = trees_[world_rank];
                 tree.fit(X_train, y_train, true);
-                tree_string = tree.to_string();
+                const auto tree_string = tree.to_string();
                 send_data(tree_string, 0, 1);
+                MPI_Finalize();
+                std::exit(0);
             }
 
-            MPI_Finalize();
         }
     }
     else
@@ -419,9 +417,9 @@ std::string RobustForest<NX,NY>::get_model_name() const
 {
 	std::string algo_str;
     const auto optim = trees_.front().get_optimizer();
-    const auto algo = optim.get_algorithm();
+    const auto algo = optim->get_algorithm();
     if (algo == TrainingAlgo::Icml2019)
-		algo_str = fmt::format("ICML2019-E{}", optim.get_epsilon());
+		algo_str = fmt::format("ICML2019-E{}", optim->get_epsilon());
     else if (algo == TrainingAlgo::Robust)
     	algo_str = "Robust";
     else
@@ -590,8 +588,8 @@ std::vector<double> RobustForest<NX,NY>::get_own_attacked_score(const DF<NX>& X,
     }
     else
     {
-        const auto& attacker = trees_[0].get_attacker();
-        return get_attacked_score(attacker, X, Y);
+        const auto attacker = trees_[0].get_attacker();
+        return get_attacked_score(*attacker, X, Y);
     }
 }
 

@@ -16,8 +16,8 @@
 template<size_t NX, size_t NY>
 struct TreeArguments
 {
-    std::shared_ptr<Attacker<NX>> attacker;
-    std::shared_ptr<SplitOptimizer<NX,NY>> optimizer;
+    Attacker<NX> attacker;
+    SplitOptimizer<NX,NY> optimizer;
     std::set<size_t> feature_bl;
     int id;
     size_t max_depth;
@@ -51,7 +51,7 @@ public:
 
     RobustDecisionTree(std::unique_ptr<Node<NY>>& root, int id, size_t max_depth,
         size_t min_instances_per_node, bool isTrained, bool affine, 
-        std::shared_ptr<Attacker<NX>>& attacker) :
+        Attacker<NX>& attacker) :
             attacker_(attacker),
             id_(id),
             max_depth_(max_depth),
@@ -102,33 +102,27 @@ public:
 
     int get_attacker_budget() const 
     {
-        if (!attacker_)
-            throw std::runtime_error("attacker = NULL!!!");
-        return attacker_->get_budget();
+        return attacker_.get_budget();
     }
     
-    const Attacker<NX>* get_attacker() const 
+    const Attacker<NX>& get_attacker() const 
     {
-        return attacker_.get();
+        return attacker_;
     }
 
-    const SplitOptimizer<NX,NY>* get_optimizer() const 
+    const SplitOptimizer<NX,NY>& get_optimizer() const 
     {
-        return optimizer_.get();
+        return optimizer_;
     }
 
     void set_attacker_budget(int budget) 
     {
-        if (!attacker_)
-            throw std::runtime_error("attacker = NULL!!!");
-        attacker_->set_budget(budget);
+        attacker_.set_budget(budget);
     }
 
     void set_attacker_feats(const std::set<size_t>& feats)
     {
-        if (!attacker_)
-            throw std::runtime_error("attacker = NULL!!!");
-        attacker_->set_feats(feats);
+        attacker_.set_feats(feats);
     }
 
     std::map<size_t, double> feature_importance() const;
@@ -151,8 +145,8 @@ private:
     void feature_importance_(const Node<NY>* node, std::map<size_t,double>& dict) const;
     
     std::unique_ptr<Node<NY>> root_;
-    std::shared_ptr<Attacker<NX>> attacker_;
-    std::shared_ptr<SplitOptimizer<NX,NY>> optimizer_;
+    Attacker<NX> attacker_;
+    SplitOptimizer<NX,NY> optimizer_;
     std::set<size_t> start_feature_bl_;
     std::mt19937_64 rd_;
     int id_;

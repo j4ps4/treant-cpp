@@ -40,7 +40,7 @@ RobustForest<NX,NY>::RobustForest(size_t N, TreeArguments<NX,NY>&& args,
 		int id = std::get<0>(atkrs.at(i));
 		auto atkr = std::get<1>(atkrs.at(i));
 		new_args.id = id;
-		new_args.attacker.reset(atkr);
+		new_args.attacker = *atkr;
 		trees_.emplace_back(std::move(new_args), seed++);
 	}
 }
@@ -382,11 +382,9 @@ std::string RobustForest<NX,NY>::get_model_name() const
 {
 	std::string algo_str;
     const auto optim = trees_.front().get_optimizer();
-    if (!optim)
-        return "null-forest";
-    const auto algo = optim->get_algorithm();
+    const auto algo = optim.get_algorithm();
     if (algo == TrainingAlgo::Icml2019)
-		algo_str = fmt::format("ICML2019-E{}", optim->get_epsilon());
+		algo_str = fmt::format("ICML2019-E{}", optim.get_epsilon());
     else if (algo == TrainingAlgo::Robust)
     	algo_str = "Robust";
     else
@@ -555,7 +553,7 @@ std::vector<double> RobustForest<NX,NY>::get_own_attacked_score(const DF<NX>& X,
     }
     else
     {
-        const auto& attacker = *trees_[0].get_attacker();
+        const auto& attacker = trees_[0].get_attacker();
         return get_attacked_score(attacker, X, Y);
     }
 }

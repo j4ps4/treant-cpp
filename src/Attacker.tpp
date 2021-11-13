@@ -24,6 +24,7 @@ void Attacker<N>::print_rules() const
 template<size_t NX>
 void Attacker<NX>::compute_target_features()
 {
+    features_.clear();
     for (const auto& r : rules_)
     {
         auto f = r.get_target_feature();
@@ -106,6 +107,7 @@ TupleArr<NX, 2> Attacker<NX>::adjacent_attack(const Row<NX>& x, size_t feature_i
 template<size_t NX>
 void Attacker<NX>::compute_deformations()
 {
+    deformations_.clear();
     for (auto fid : features_)
     {
         if (is_constant_)

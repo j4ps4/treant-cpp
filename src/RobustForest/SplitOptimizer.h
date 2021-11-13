@@ -53,8 +53,15 @@ public:
             throw std::runtime_error("epsilonCoeff too short");
     }
 
+    SplitOptimizer() = default;
+
     double evaluate_split(const DF<NY>& y_true,
                           const NRow& y_pred) const;
+
+    SplitOptimizer(const SplitOptimizer<NX,NY>& other) = default;
+    SplitOptimizer(SplitOptimizer<NX,NY>&& other) = default;
+    SplitOptimizer& operator=(const SplitOptimizer<NX,NY>& other) = default;
+    SplitOptimizer& operator=(SplitOptimizer<NX,NY>&& other) = default;
 
     OptimTupl optimize_gain(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows, 
         const std::set<size_t>& feature_blacklist, Attacker<NX>& attacker, const CostMap& costs, 
@@ -110,15 +117,15 @@ private:
         size_t feature_id, double feature_value
     ) const;
     
-    const SplitFunction split_;
-    const TrainingAlgo algo_;
-    const int maxiter_;
-    const nlopt::algorithm optim_algo_ = nlopt::LD_SLSQP;
-    const double epsilon_;
-	const std::set<size_t> chen_perturb_ids_;
-    const std::vector<double> epsilonCoeff_;
-    const bool alwaysRet_;
-    const bool useConstraints_;
+    SplitFunction split_;
+    TrainingAlgo algo_;
+    int maxiter_;
+    nlopt::algorithm optim_algo_ = nlopt::LD_SLSQP;
+    double epsilon_;
+	std::set<size_t> chen_perturb_ids_;
+    std::vector<double> epsilonCoeff_;
+    bool alwaysRet_;
+    bool useConstraints_;
 };
 
 #include "SplitOptimizer.tpp"

@@ -27,7 +27,7 @@ Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y
     auto current_prediction = node->get_prediction();
     // not needed?
     //auto current_prediction_score = node->get_prediction_score(); 
-    auto current_score = optimizer_->evaluate_split(y, node_prediction);
+    auto current_score = optimizer_.evaluate_split(y, node_prediction);
     node->set_loss(current_score);
 
     if (!quiet)
@@ -54,8 +54,8 @@ Node<NY>* RobustDecisionTree<NX,NY>::fit_(const DF<NX>& X_train, const DF<NY>& y
            best_split_feature_value, next_best_split_feature_id,
            best_pred_left, best_pred_right, best_loss,
            costs_left, costs_right, 
-           constraints_left, constraints_right] = optimizer_->optimize_gain(X_train, y_train, rows, feature_blacklist,
-                                      *(attacker_.get()), costs, constraints, current_score, node_prediction,
+           constraints_left, constraints_right] = optimizer_.optimize_gain(X_train, y_train, rows, feature_blacklist,
+                                      attacker_, costs, constraints, current_score, node_prediction,
                                       bootstrap_features_, n_sample_features_, rd_, useParallel_, pool);
 
     if (!quiet)
@@ -303,7 +303,7 @@ RobustDecisionTree<NX,NY> RobustDecisionTree<NX,NY>::load_from_disk(const std::f
         size_t min_instances_per_node;
         bool isTrained;
         bool affine;
-        std::shared_ptr<Attacker<NX>> attacker;
+        Attacker<NX> attacker;
         archive(root, id, max_depth, min_instances_per_node, isTrained, affine, attacker);
         return RobustDecisionTree<NX,NY>(root, id, max_depth, min_instances_per_node, isTrained, affine,
             attacker);
@@ -318,9 +318,7 @@ template<size_t NX, size_t NY>
 std::string RobustDecisionTree<NX,NY>::get_model_name() const
 {
 	std::string algo_str;
-    if (!optimizer_)
-        return "null-tree";
-    const auto algo = optimizer_->get_algorithm();
+    const auto algo = optimizer_.get_algorithm();
     if (algo == TrainingAlgo::Icml2019)
 		algo_str = "ICML2019";
     else if (algo == TrainingAlgo::Robust)
@@ -330,7 +328,7 @@ std::string RobustDecisionTree<NX,NY>::get_model_name() const
     if (algo == TrainingAlgo::Standard)
     	return fmt::format("{}-D{}.tree", algo_str, max_depth_);
     else
-    	return fmt::format("{}-B{}-D{}.tree", algo_str, attacker_->get_budget(), max_depth_);
+    	return fmt::format("{}-B{}-D{}.tree", algo_str, attacker_.get_budget(), max_depth_);
 }
 
 template<size_t NX, size_t NY>
@@ -421,7 +419,7 @@ double RobustDecisionTree<NX,NY>::get_attacked_score(const Attacker<NX>& attacke
 template<size_t NX, size_t NY>
 double RobustDecisionTree<NX,NY>::get_own_attacked_score(const DF<NX>& X, const DF<NY>& Y) const
 {
-    return get_attacked_score(*attacker_, X, Y);
+    return get_attacked_score(attacker_, X, Y);
 }
 
 template<size_t NX, size_t NY>

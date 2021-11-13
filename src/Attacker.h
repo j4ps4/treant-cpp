@@ -109,6 +109,9 @@ public:
     Attacker() = default;
 
     Attacker(const Attacker<NX>& other) = default;
+    Attacker(Attacker<NX>&& other) = default;
+    Attacker& operator=(Attacker<NX>&& other) = default;
+    Attacker& operator=(const Attacker<NX>& other) = default;
 
     bool is_filled() const;
 
@@ -126,7 +129,6 @@ public:
     {
         features_ = feats; 
         remove_useless_rules();
-        deformations_.clear();
         compute_deformations();
     }
 
@@ -143,7 +145,14 @@ public:
     TupleArr<NX, 2> adjacent_attack(const Row<NX>& x, size_t feature_id, int spent) const;
 
     // return the deformation for a feature
-    double get_deformation(size_t feature_id) const {return deformations_.at(feature_id);}
+    double get_deformation(size_t feature_id) const 
+    {
+        if (deformations_.empty())
+        {
+            Util::die("no deformations -- empty attacker?");
+        }
+        return  deformations_.at(feature_id);
+    }
 
     template<typename Archive>
     void save(Archive& archive) const
@@ -166,7 +175,7 @@ private:
     AttackType type_;
     AttkList rules_;
     std::set<size_t> features_; // features which are targeted by rules
-    bool is_constant_;
+    bool is_constant_ = false;
     double flat_deform_;
     std::unordered_map<size_t, double> deformations_;
     //AttackDict<NX> attacks_;

@@ -66,7 +66,7 @@ cpp::result<std::tuple<DF<FOREST_X>,DF<FOREST_Y>>,std::string> read_test()
     return df::read_bz2<FOREST_X,FOREST_Y,0>(test_file.c_str());
 }
 
-cpp::result<std::shared_ptr<Attacker<FOREST_X>>,std::string> new_Attacker(int budget, const DF<FOREST_X>& X,
+cpp::result<Attacker<FOREST_X>,std::string> new_Attacker(int budget, const DF<FOREST_X>& X,
     const std::set<size_t>& id_set, double epsilon)
 {
     std::filesystem::path& attack_file = default_json_file;
@@ -76,7 +76,7 @@ cpp::result<std::shared_ptr<Attacker<FOREST_X>>,std::string> new_Attacker(int bu
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
-    auto atkr = std::make_shared<Attacker<FOREST_X>>(std::move(rulz), budget, std::set<size_t>());
+    Attacker<FOREST_X> atkr(std::move(rulz), budget, std::set<size_t>());
    
     return atkr;
 }
@@ -119,13 +119,13 @@ void train_and_save(const cxxopts::ParseResult& options)
 
     if (args.algo == TrainingAlgo::Icml2019)
     {
-        auto optimz = std::make_shared<SplitOptimizer<FOREST_X,FOREST_Y>>(args.split, args.algo, args.maxiter,
+        SplitOptimizer<FOREST_X,FOREST_Y> optimz(args.split, args.algo, args.maxiter,
             args.epsilon, args.feature_ids, args.always_ret, args.use_constraints, EPSILON_COEFF);
         args.tree_args.optimizer = std::move(optimz);
     }
     else
     {
-        auto optimz = std::make_shared<SplitOptimizer<FOREST_X,FOREST_Y>>(args.split, args.algo, args.maxiter, 
+        SplitOptimizer<FOREST_X,FOREST_Y> optimz(args.split, args.algo, args.maxiter, 
             args.epsilon, args.feature_ids, args.always_ret, args.use_constraints);
         args.tree_args.optimizer = std::move(optimz);
     }
@@ -178,13 +178,13 @@ void batch_train_and_save(const cxxopts::ParseResult& options, const std::string
 
     if (args.algo == TrainingAlgo::Icml2019)
     {
-        auto optimz = std::make_shared<SplitOptimizer<FOREST_X,FOREST_Y>>(args.split, args.algo, args.maxiter,
+        SplitOptimizer<FOREST_X,FOREST_Y> optimz(args.split, args.algo, args.maxiter,
             args.epsilon, args.feature_ids, args.always_ret, args.use_constraints, EPSILON_COEFF);
         args.tree_args.optimizer = std::move(optimz);
     }
     else
     {
-        auto optimz = std::make_shared<SplitOptimizer<FOREST_X,FOREST_Y>>(args.split, args.algo, args.maxiter, 
+        SplitOptimizer<FOREST_X,FOREST_Y> optimz(args.split, args.algo, args.maxiter, 
             args.epsilon, args.feature_ids, args.always_ret, args.use_constraints);
         args.tree_args.optimizer = std::move(optimz);
     }
@@ -241,7 +241,7 @@ void argument_sweep(const cxxopts::ParseResult& options)
                           m_arg = generate_arg_from_options<FOREST_X,FOREST_Y>(options, sweep_param, sweep_index), m_arg.has_value(); 
                           sweep_index++)
     {
-        auto arg = m_arg.value();
+        auto& arg = m_arg.value();
         fmt::print(fg(fmt::color::green)|fmt::emphasis::bold, 
             "when {} = {}:\n", sweep_param, get_sweep_value(arg, sweep_param));
 
@@ -256,13 +256,13 @@ void argument_sweep(const cxxopts::ParseResult& options)
 
         if (arg.algo == TrainingAlgo::Icml2019)
         {
-            auto optimz = std::make_shared<SplitOptimizer<FOREST_X,FOREST_Y>>(arg.split, arg.algo, arg.maxiter,
+            SplitOptimizer<FOREST_X,FOREST_Y> optimz(arg.split, arg.algo, arg.maxiter,
                 arg.epsilon, arg.feature_ids, arg.always_ret, arg.use_constraints, EPSILON_COEFF);
             arg.tree_args.optimizer = std::move(optimz);
         }
         else
         {
-            auto optimz = std::make_shared<SplitOptimizer<FOREST_X,FOREST_Y>>(arg.split, arg.algo, arg.maxiter, 
+            SplitOptimizer<FOREST_X,FOREST_Y> optimz(arg.split, arg.algo, arg.maxiter, 
                 arg.epsilon, arg.feature_ids, arg.always_ret, arg.use_constraints);
             arg.tree_args.optimizer = std::move(optimz);
         }
@@ -323,8 +323,8 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
             auto m_atkr = covertype::new_Attacker(budget, X_test, id_set, epsilon);
             if (m_atkr.has_error())
                 Util::die("{}", m_atkr.error());
-            auto ptr = m_atkr.value().get();
-            auto scores = forest.get_attacked_score(*ptr, X_test, Y_test);
+            auto& atkr = m_atkr.value();
+            auto scores = forest.get_attacked_score(atkr, X_test, Y_test);
             if (forest.get_type() == ForestType::Bundle)
             {
                 for (size_t i = 0; i < scores.size(); i++)

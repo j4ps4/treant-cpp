@@ -4,10 +4,6 @@
 #include <array>
 #include <stddef.h>
 
-#define CREDIT 1
-constexpr size_t CREDIT_X = 23;
-constexpr size_t CREDIT_Y = 2;
-
 #include <cxxopts.hpp>
 #include <string>
 #include <memory>
@@ -20,7 +16,7 @@ constexpr size_t CREDIT_Y = 2;
 namespace credit
 {
     void train_and_save(const cxxopts::ParseResult& options);
-    void batch_train_and_save(const cxxopts::ParseResult& options, const std::string& batch_file);
+    void batch_train_and_save(const cxxopts::ParseResult& options);
     void argument_sweep(const cxxopts::ParseResult& options);
 
     void load_and_test(const cxxopts::ParseResult& options, const std::filesystem::path& model_path, int mpi_np, int mpi_rank);

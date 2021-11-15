@@ -151,7 +151,7 @@ public:
         {
             Util::die("no deformations -- empty attacker?");
         }
-        return  deformations_.at(feature_id);
+        return deformations_.at(feature_id);
     }
 
     template<typename Archive>

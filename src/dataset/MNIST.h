@@ -4,9 +4,6 @@
 #include <array>
 #include <stddef.h>
 
-constexpr size_t MNIST_X = 28*28;
-constexpr size_t MNIST_Y = 10;
-
 #include <string>
 #include <memory>
 #include <cxxopts.hpp>
@@ -19,7 +16,7 @@ constexpr size_t MNIST_Y = 10;
 namespace mnist
 {
     void train_and_save(const cxxopts::ParseResult& options);
-    void batch_train_and_save(const cxxopts::ParseResult& options, const std::string& batch_file);
+    void batch_train_and_save(const cxxopts::ParseResult& options);
     void argument_sweep(const cxxopts::ParseResult& options);
 
     void load_and_test(const cxxopts::ParseResult& options, const std::filesystem::path& model_path, int mpi_np, int mpi_rank);

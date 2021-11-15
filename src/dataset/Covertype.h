@@ -6,10 +6,6 @@
 
 #include <cxxopts.hpp>
 
-#define FOREST 1
-constexpr size_t FOREST_X = 54;
-constexpr size_t FOREST_Y = 7;
-
 #include <string>
 #include <memory>
 #include "../result.hpp"

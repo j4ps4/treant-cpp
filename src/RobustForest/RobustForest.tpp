@@ -589,7 +589,6 @@ double RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& attacker, con
         }
     );
 
-    MPI_Barrier(MPI_COMM_WORLD);
     // Master
     if (world_rank == 0)
     {

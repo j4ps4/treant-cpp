@@ -6,6 +6,9 @@
 #include "../DF2/DF_read.h"
 #include "../DF2/DF_util.h"
 
+constexpr size_t MNIST_X = 28*28;
+constexpr size_t MNIST_Y = 10;
+
 std::mutex print_mut;
 int verbosity = 3;
 
@@ -17,7 +20,7 @@ namespace mnist
 //     168,476,560,644,645,671,672,673,699,700,701,727,728,729,730,754,755,
 //     756,757,758,759,780,781,782,783};
 
-const static std::set<size_t> MNIST_BL2{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,
+const static std::set<size_t> DEFAULT_BL{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,
 22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,
 54,55,56,57,58,59,60,61,62,63,64,78,79,80,81,82,83,84,85,86,87,88,89,90,107,108,109,110,111,112,
 113,114,115,116,117,137,138,139,140,141,142,143,144,166,167,168,169,170,171,194,195,196,197,198,
@@ -72,6 +75,46 @@ std::filesystem::path json_file;
 
 static const std::map<std::string, size_t> column_map{};
 
+cpp::result<std::tuple<DF<MNIST_X>,DF<MNIST_Y>>,std::string> read_train_and_valid()
+{
+    auto res = df::read_idx<MNIST_X>(train_file_X.c_str()).flat_map([&](const auto& train_X){
+        return df::read_idx_enc<MNIST_Y>(train_file_Y.c_str()).map([&](const auto& train_Y){
+            return std::make_tuple(train_X, train_Y);
+        });
+    });
+    return res;
+}
+
+cpp::result<std::tuple<DF<MNIST_X>,DF<MNIST_Y>>,std::string> read_train()
+{
+    auto res = df::read_idx<MNIST_X>(train_file_X.c_str()).flat_map([&](const auto& train_X){
+        return df::read_idx_enc<MNIST_Y>(train_file_Y.c_str()).map([&](const auto& train_Y){
+            return std::make_tuple(train_X, train_Y);
+        });
+    });
+    return res;
+}
+
+cpp::result<std::tuple<DF<MNIST_X>,DF<MNIST_Y>>,std::string> read_valid()
+{
+    auto res = df::read_idx<MNIST_X>(test_file_X.c_str()).flat_map([&](const auto& test_X){
+        return df::read_idx_enc<MNIST_Y>(test_file_Y.c_str()).map([&](const auto& test_Y){
+            return std::make_tuple(test_X, test_Y);
+        });
+    });
+    return res;
+}
+
+cpp::result<std::tuple<DF<MNIST_X>,DF<MNIST_Y>>,std::string> read_test()
+{
+    auto res = df::read_idx<MNIST_X>(test_file_X.c_str()).flat_map([&](const auto& test_X){
+        return df::read_idx_enc<MNIST_Y>(test_file_Y.c_str()).map([&](const auto& test_Y){
+            return std::make_tuple(test_X, test_Y);
+        });
+    });
+    return res;
+}
+
 cpp::result<DF<MNIST_X>,std::string> read_train_X()
 {
     return df::read_idx<MNIST_X>(train_file_X.c_str());
@@ -99,79 +142,14 @@ cpp::result<std::shared_ptr<Attacker<MNIST_X>>,std::string> new_Attacker(int bud
     if (res.has_error())
         return cpp::failure(res.error());
     auto& rulz = res.value();
-    auto atkr = std::make_shared<Attacker<MNIST_X>>(std::move(rulz), budget, MNIST_BL2);
+    auto atkr = std::make_shared<Attacker<MNIST_X>>(std::move(rulz), budget, DEFAULT_BL);
    
     return atkr;
 }
 
 void train_and_save(const cxxopts::ParseResult& options)
 {
-    auto args = generate_arg_from_options<MNIST_X,MNIST_Y>(options).value();
-
-    auto m_X = mnist::read_train_X();
-    if (m_X.has_error())
-        Util::die("{}", m_X.error());
-    auto& X = m_X.value();
-    auto m_Y = mnist::read_train_Y();
-    if (m_Y.has_error())
-        Util::die("{}", m_Y.error());
-    auto& Y = m_Y.value();
-
-    if (args.n_inst > 0)
-    {
-        X.conservativeResize(args.n_inst, Eigen::NoChange);
-        Y.conservativeResize(args.n_inst, Eigen::NoChange);
-    }
-
-    auto m_test_X = mnist::read_test_X();
-    if (m_test_X.has_error())
-        Util::die("{}", m_test_X.error());
-    auto& X_test = m_test_X.value();
-    auto m_test_Y = mnist::read_test_Y();
-    if (m_test_Y.has_error())
-        Util::die("{}", m_test_Y.error());
-    auto& Y_test = m_test_Y.value();
-
-    Util::log<4>("X: a dataframe of size ({}x{})", X.rows(), X.cols());
-    Util::log<4>("Y: a dataframe of size ({}x{})", Y.rows(), Y.cols());
-
-    if (args.algo == TrainingAlgo::Robust)
-    {
-        json_file = args.attack_file;
-        auto m_atkr = mnist::new_Attacker(args.budget, X, args.feature_ids, args.epsilon);
-        if (m_atkr.has_error())
-            Util::die("{}", m_atkr.error());
-        args.tree_args.attacker = std::move(m_atkr.value());
-    }
-
-    if (args.algo == TrainingAlgo::Icml2019)
-    {
-        auto optimz = std::make_shared<SplitOptimizer<MNIST_X,MNIST_Y>>(args.split, args.algo, args.maxiter,
-            args.epsilon, args.feature_ids, args.always_ret, args.use_constraints, EPSILON_COEFF);
-        args.tree_args.optimizer = std::move(optimz);
-    }
-    else
-    {
-        auto optimz = std::make_shared<SplitOptimizer<MNIST_X,MNIST_Y>>(args.split, args.algo, args.maxiter,
-            args.epsilon, args.feature_ids, args.always_ret, args.use_constraints);
-        args.tree_args.optimizer = std::move(optimz);
-    }
-    args.tree_args.feature_bl = MNIST_BL2;
-
-    RobustForest<MNIST_X,MNIST_Y> forest(args.n_trees, std::move(args.tree_args));
-
-    std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-    forest.fit(X, Y);
-    double linear_time = TIME;
-    fmt::print("time elapsed: ");
-    fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
-    forest.print_test_score(X_test, Y_test, Y, false);
-    auto model_name = args.output.empty() ? forest.get_model_name() : args.output;
-    auto full_model_name = models_dir / model_name;
-    Util::info("saving trained model to {}", full_model_name.native());
-    if (!std::filesystem::exists(models_dir))
-        std::filesystem::create_directory(models_dir);
-    forest.dump_to_disk(full_model_name);
+    TRAIN_AND_SAVE(mnist, MNIST_X, MNIST_Y)
 }
 
 // void batch_train_and_save(TrainArguments<MNIST_X,MNIST_Y>&& args, const std::string& batch_file)
@@ -299,96 +277,7 @@ void argument_sweep(const cxxopts::ParseResult& options)
 
 void load_and_test(const cxxopts::ParseResult& options, const std::filesystem::path& model_path, int mpi_np, int mpi_rank)
 {
-    auto m_X = mnist::read_train_X();
-    if (m_X.has_error())
-        Util::die("{}", m_X.error());
-    auto& X = m_X.value();
-    auto m_Y = mnist::read_train_Y();
-    if (m_Y.has_error())
-        Util::die("{}", m_Y.error());
-    auto& Y = m_Y.value();
-
-    auto m_test_X = mnist::read_test_X();
-    if (m_test_X.has_error())
-        Util::die("{}", m_test_X.error());
-    auto& X_test = m_test_X.value();
-    auto m_test_Y = mnist::read_test_Y();
-    if (m_test_Y.has_error())
-        Util::die("{}", m_test_Y.error());
-    auto& Y_test = m_test_Y.value();
-
-    if (n_inst > 0)
-    {
-        X_test.conservativeResize(n_inst, Eigen::NoChange);
-        Y_test.conservativeResize(n_inst, Eigen::NoChange);
-    }
-
-    auto forest = RobustForest<MNIST_X,MNIST_Y>::load_from_disk(fn);
-    forest.print_test_score(X_test, Y_test, Y, false);
-
-    if (n_feats > 0)
-    {
-        id_set = forest.most_important_feats(n_feats);
-        fmt::print("testing with id_set = {}\n", id_set);
-    }
-
-    std::vector<int> budgets(max_budget);
-    std::iota(budgets.begin(), budgets.end(), 1);
-
-    std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-
-    if (!attack_file.empty())
-    {
-        json_file = attack_file;
-        for (int budget : budgets)
-        {
-            auto m_atkr = mnist::new_Attacker(budget, X_test, id_set, epsilon);
-            if (m_atkr.has_error())
-                Util::die("{}", m_atkr.error());
-            auto ptr = m_atkr.value().get();
-            auto scores = forest.get_attacked_score(*ptr, X_test, Y_test);
-            if (forest.get_type() == ForestType::Bundle)
-            {
-                for (size_t i = 0; i < scores.size(); i++)
-                {
-                    auto score = scores[i];
-                    fmt::print("budget {}: tree {}: test score {:.2f}%\n", budget, i, score);
-                }
-            }
-            else
-            {
-                auto score = scores[0];
-                fmt::print("budget {}: test score {:.2f}%\n", budget, score);
-            }
-        }
-    }
-    else
-    {
-        if (!id_set.empty())
-            forest.set_attacker_feats(id_set);
-        for (int budget : budgets)
-        {
-            forest.set_attacker_budget(budget);
-            auto scores = forest.get_own_attacked_score(X_test, Y_test);
-            if (forest.get_type() == ForestType::Bundle)
-            {
-                for (size_t i = 0; i < scores.size(); i++)
-                {
-                    auto score = scores[i];
-                    fmt::print("budget {}: tree {}: test score {:.2f}%\n", budget, i, score);
-                }
-            }
-            else
-            {
-                auto score = scores[0];
-                fmt::print("budget {}: test score {:.2f}%\n", budget, score);
-            }
-        }
-    }
-
-    double linear_time = TIME;
-    fmt::print("time elapsed: ");
-    fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));
+    LOAD_AND_TEST(mnist, MNIST_X, MNIST_Y)
 }
 
 void put_gain_values(const std::filesystem::path& fn)
@@ -411,7 +300,7 @@ void put_gain_values(const std::filesystem::path& fn)
         const auto N = forest.get_N();
         for (size_t i = 0; i < N; i++)
         {
-            auto gains = forest.feature_importance(i);
+            auto gains = forest.feature_importance();
 
             std::map<double,size_t> ordered;
             for (auto [fid, gain] : gains)

@@ -170,7 +170,7 @@ int main(int argc, char** argv)
         if (opts.count("help"))
         {
             fmt::print("{}\n", options.help({"mode","file","tree"}));
-            exit(0);
+            goto EXIT;
         }
         if (opts.count("test"))
         {
@@ -183,7 +183,7 @@ int main(int argc, char** argv)
                 covertype::load_and_test(opts, path, world_size, world_rank);
             else if (dataset == DataSet::Mnist)
                 mnist::load_and_test(opts, path, world_size, world_rank);
-            return 0;
+            goto EXIT;
         }
         else if (opts.count("gain"))
         {
@@ -196,7 +196,7 @@ int main(int argc, char** argv)
                 covertype::put_gain_values(path);
             else if (dataset == DataSet::Mnist)
                 mnist::put_gain_values(path);
-            return 0;
+            goto EXIT;
         }
         else if (opts.count("classify"))
         {
@@ -210,7 +210,7 @@ int main(int argc, char** argv)
                 covertype::classify(path, inst_vec);
             else if (dataset == DataSet::Mnist)
                 mnist::classify(path, inst_vec);
-            return 0;
+            goto EXIT;
         }
         // else if (opts.count("attack"))
         // {
@@ -295,7 +295,7 @@ int main(int argc, char** argv)
     {
         Util::die("{}", e.what());
     }
-    
+EXIT: 
     MPI_Finalize();
     return 0;
 }

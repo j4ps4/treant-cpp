@@ -300,8 +300,7 @@ void argument_sweep(const cxxopts::ParseResult& options)
     }
 }
 
-void load_and_test(const std::filesystem::path& fn, const std::string& attack_file,
-    std::set<size_t> id_set, int max_budget, int n_inst, int n_feats, double epsilon)
+void load_and_test(const cxxopts::ParseResult& options, const std::filesystem::path& model_path, int mpi_np, int mpi_rank)
 {
     auto m_df = har::read_train_and_valid();
     if (m_df.has_error())

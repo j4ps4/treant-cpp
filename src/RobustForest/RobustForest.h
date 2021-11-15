@@ -46,13 +46,13 @@ public:
     
     void print_test_score(const DF<NX>& X_test, const DF<NY>& Y_test, const DF<NY>& Y_train, bool valid) const;
 
-    std::vector<double> get_attacked_score(const Attacker<NX>& attacker, const DF<NX>& X, const DF<NY>& Y) const;
-    std::vector<double> get_own_attacked_score(const DF<NX>& X, const DF<NY>& Y) const;
+    double get_attacked_score(const Attacker<NX>& attacker, const DF<NX>& X, const DF<NY>& Y) const;
+    double get_own_attacked_score(const DF<NX>& X, const DF<NY>& Y) const;
 
     void set_attacker_budget(int budget);
     void set_attacker_feats(const std::set<size_t>& feats);
 
-    std::map<size_t, double> feature_importance(size_t tree_id = 0) const;
+    std::map<size_t, double> feature_importance() const;
 
     std::set<size_t> most_important_feats(int N) const;
 

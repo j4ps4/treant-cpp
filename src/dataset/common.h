@@ -9,7 +9,9 @@ struct TrainArguments
 {
 	TreeArguments<NX,NY> tree_args;
 	std::string attack_file;
+	std::string batch_file;
 	int n_inst;
+	int n_feats;
 	int budget;
 	std::set<size_t> feature_ids;
 	std::string output;
@@ -20,6 +22,7 @@ struct TrainArguments
 	double epsilon;
 	bool always_ret;
 	bool use_constraints;
+	int verbosity;
 };
 
 struct CrossvalArguments

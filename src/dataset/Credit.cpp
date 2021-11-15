@@ -385,9 +385,9 @@ void argument_sweep(const cxxopts::ParseResult& options)
     }
 }
 
-void load_and_test(const std::filesystem::path& fn, const std::string& attack_file,
-    std::set<size_t> id_set, int max_budget, int n_inst, int n_feats, double epsilon)
+void load_and_test(const cxxopts::ParseResult& options, const std::filesystem::path& model_path, int mpi_np, int mpi_rank)
 {
+    auto args = generate_arg_from_options<CREDIT_X,CREDIT_Y>(options).value();
     auto m_df = credit::read_train_and_valid();
     if (m_df.has_error())
         Util::die("{}", m_df.error());
@@ -402,16 +402,16 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
     auto& X_test = std::get<0>(test_tupl);
     auto& Y_test = std::get<1>(test_tupl);
     
-    if (n_inst > 0)
+    if (args.n_inst > 0)
     {
-        X_test.conservativeResize(n_inst, Eigen::NoChange);
-        Y_test.conservativeResize(n_inst, Eigen::NoChange);
+        X_test.conservativeResize(args.n_inst, Eigen::NoChange);
+        Y_test.conservativeResize(args.n_inst, Eigen::NoChange);
     }
 
-    auto forest = RobustForest<CREDIT_X,CREDIT_Y>::load_from_disk(fn);
+    auto forest = RobustForest<CREDIT_X,CREDIT_Y>::load_from_disk(args.mo);
     forest.print_test_score(X_test, Y_test, Y, false);
 
-    if (n_feats > 0)
+    if (args.n_feats > 0)
     {
         id_set = forest.most_important_feats(n_feats);
         fmt::print("testing with id_set = {}\n", id_set);

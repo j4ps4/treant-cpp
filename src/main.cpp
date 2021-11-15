@@ -5,6 +5,7 @@
 #include <cctype>
 #include <tuple>
 #include <filesystem>
+#include <mpi.h>
 
 #include "dataset/Credit.h"
 #include "dataset/Covertype.h"
@@ -17,9 +18,14 @@ enum class DataSet
     Credit, Har, Covertype, Mnist
 };
 
-std::tuple<DataSet, std::filesystem::path> parseTest(const std::string& s)
+std::tuple<DataSet, std::filesystem::path> parseTest(const cxxopts::ParseResult& opts)
 {
-    const std::filesystem::path p(s);
+    auto check_model = [](const auto& opts)->std::string{
+        if (!opts.count("model"))
+            throw std::invalid_argument("missing --model");
+        return opts["model"].template as<std::string>();
+    };
+    const std::filesystem::path p(check_model(opts));
     auto beg = p.begin();
     std::advance(beg, 1);
     const auto& dirname = *beg;
@@ -35,9 +41,12 @@ std::tuple<DataSet, std::filesystem::path> parseTest(const std::string& s)
         Util::die("model path is not valid");
 }
 
-DataSet parseAttack(const std::string& s)
+DataSet parseAttack(const cxxopts::ParseResult& opts)
 {
-    const std::filesystem::path p(s);
+    auto attack_file = opts["attack-file"].as<std::string>();
+    if (attack_file.empty())
+        throw std::invalid_argument("missing --attack-file");
+    const std::filesystem::path p(attack_file);
     auto beg = p.begin();
     std::advance(beg, 1);
     const auto& dirname = *beg;
@@ -150,50 +159,35 @@ int main(int argc, char** argv)
     
     try
     {
+        MPI_Init(NULL, NULL);
+
+        int world_size;
+        MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+        int world_rank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
         auto opts = options.parse(argc, argv);
         if (opts.count("help"))
         {
             fmt::print("{}\n", options.help({"mode","file","tree"}));
             exit(0);
         }
-
-        auto check_model = [](const auto& arg)->std::string{
-            if (!arg.count("model"))
-                throw std::invalid_argument("missing --model");
-            return arg["model"].template as<std::string>();
-        };
-
-        auto feature_id_vec = opts["feature-ids"].as<std::vector<size_t>>();
-        std::set<size_t> feature_id;
-        for (auto f : feature_id_vec)
-            feature_id.insert(f);
-
-        auto attack_file = opts["attack-file"].as<std::string>();
-        auto budget_v = opts["budget"].as<std::vector<int>>();
-        auto budget = budget_v.front();
-        auto cost = opts["cost"].as<int>();
-        auto n_inst = opts["n-inst"].as<int>();
-        auto n_feats = opts["n-feats"].as<int>();
-        auto epsilon_v = opts["epsilon"].as<std::vector<double>>();
-        auto epsilon = epsilon_v.front();
         if (opts.count("test"))
         {
-            auto mod = check_model(opts);
-            auto [dataset, path] = parseTest(mod);
+            auto [dataset, path] = parseTest(opts);
             if (dataset == DataSet::Credit)
-                credit::load_and_test(path, attack_file, feature_id, budget, n_inst, n_feats, epsilon);
+                credit::load_and_test(opts, path, world_size, world_rank);
             else if (dataset == DataSet::Har)
-                har::load_and_test(path, attack_file, feature_id, budget, n_inst, n_feats, epsilon);
+                har::load_and_test(opts, path, world_size, world_rank);
             else if (dataset == DataSet::Covertype)
-                covertype::load_and_test(path, attack_file, feature_id, budget, n_inst, n_feats, epsilon);
+                covertype::load_and_test(opts, path, world_size, world_rank);
             else if (dataset == DataSet::Mnist)
-                mnist::load_and_test(path, attack_file, feature_id, budget, n_inst, n_feats, epsilon);
+                mnist::load_and_test(opts, path, world_size, world_rank);
             return 0;
         }
         else if (opts.count("gain"))
         {
-            auto mod = check_model(opts);
-            auto [dataset, path] = parseTest(mod);
+            auto [dataset, path] = parseTest(opts);
             if (dataset == DataSet::Credit)
                 credit::put_gain_values(path);
             else if (dataset == DataSet::Har)
@@ -206,8 +200,7 @@ int main(int argc, char** argv)
         }
         else if (opts.count("classify"))
         {
-			auto mod = check_model(opts);
-            auto [dataset, path] = parseTest(mod);
+            auto [dataset, path] = parseTest(opts);
             auto inst_vec = opts["classify"].as<std::vector<double>>();
             if (dataset == DataSet::Credit)
                 credit::classify(path, inst_vec);
@@ -219,27 +212,23 @@ int main(int argc, char** argv)
                 mnist::classify(path, inst_vec);
             return 0;
         }
-        else if (opts.count("attack"))
-        {
-            if (attack_file.empty())
-                throw std::invalid_argument("missing --attack-file");
-            auto dataset = parseAttack(attack_file);
-            auto att_inst = opts["attack"].as<std::vector<double>>();
-            if (dataset == DataSet::Credit)
-                credit::attack_instance(attack_file, att_inst, feature_id, budget, cost, epsilon);
-            else if (dataset == DataSet::Har)
-                har::attack_instance(attack_file, att_inst, feature_id, budget, cost, epsilon);
-            else if (dataset == DataSet::Covertype)
-                covertype::attack_instance(attack_file, att_inst, feature_id, budget, cost, epsilon);
-            return 0;
-        }
+        // else if (opts.count("attack"))
+        // {
+        //     auto dataset = parseAttack(opts);
+        //     auto att_inst = opts["attack"].as<std::vector<double>>();
+        //     if (dataset == DataSet::Credit)
+        //         credit::attack_instance(attack_file, att_inst, feature_id, budget, cost, epsilon);
+        //     else if (dataset == DataSet::Har)
+        //         har::attack_instance(attack_file, att_inst, feature_id, budget, cost, epsilon);
+        //     else if (dataset == DataSet::Covertype)
+        //         covertype::attack_instance(attack_file, att_inst, feature_id, budget, cost, epsilon);
+        //     return 0;
+        // }
 
         if (!opts.count("data"))
                 throw std::invalid_argument("missing --data");
         auto dataset = opts["data"].as<std::string>();
-        auto algostr = opts["algo"].as<std::string>();
         auto par = opts["par"].as<bool>();
-        auto verb = opts["verbosity"].as<int>();
 
         if (par)
             fmt::print("number of hardware threads = {}\n", std::thread::hardware_concurrency());
@@ -248,11 +237,9 @@ int main(int argc, char** argv)
 
         if (dataset == "credit")
         {
-            credit::set_verbosity(verb);
             if (opts.count("batch"))
             {
-                auto batch_file = opts["batch"].as<std::string>();
-                credit::batch_train_and_save(opts, batch_file);
+                credit::batch_train_and_save(opts);
             }
             else if (opts.count("sweep"))
             {
@@ -263,11 +250,9 @@ int main(int argc, char** argv)
         }
         else if (dataset == "har")
         {
-            har::set_verbosity(verb);
             if (opts.count("batch"))
             {
-                auto batch_file = opts["batch"].as<std::string>();
-                har::batch_train_and_save(opts, batch_file);
+                har::batch_train_and_save(opts);
             }
             else if (opts.count("sweep"))
             {
@@ -278,11 +263,9 @@ int main(int argc, char** argv)
         }
         else if (dataset == "covertype")
         {
-            covertype::set_verbosity(verb);
             if (opts.count("batch"))
             {
-                auto batch_file = opts["batch"].as<std::string>();
-                covertype::batch_train_and_save(opts, batch_file);
+                covertype::batch_train_and_save(opts);
             }
             else if (opts.count("sweep"))
             {
@@ -293,7 +276,6 @@ int main(int argc, char** argv)
         }
         else if (dataset == "mnist")
         {
-            mnist::set_verbosity(verb);
             if (opts.count("sweep"))
             {
                 mnist::argument_sweep(opts);
@@ -314,5 +296,6 @@ int main(int argc, char** argv)
         Util::die("{}", e.what());
     }
     
+    MPI_Finalize();
     return 0;
 }

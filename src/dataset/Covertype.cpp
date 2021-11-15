@@ -84,6 +84,7 @@ cpp::result<std::shared_ptr<Attacker<FOREST_X>>,std::string> new_Attacker(int bu
 void train_and_save(const cxxopts::ParseResult& options)
 {
     auto args = generate_arg_from_options<FOREST_X,FOREST_Y>(options).value();
+    verbosity = args.verbosity;
 
     auto m_df = covertype::read_train_and_valid();
     if (m_df.has_error())
@@ -146,10 +147,11 @@ void train_and_save(const cxxopts::ParseResult& options)
     forest.dump_to_disk(full_model_name);
 }
 
-void batch_train_and_save(const cxxopts::ParseResult& options, const std::string& batch_file)
+void batch_train_and_save(const cxxopts::ParseResult& options)
 {
 
     auto args = generate_arg_from_options<FOREST_X,FOREST_Y>(options).value();
+    verbosity = args.verbosity;
 
     auto m_df = covertype::read_train();
     if (m_df.has_error())
@@ -174,7 +176,7 @@ void batch_train_and_save(const cxxopts::ParseResult& options, const std::string
     Util::log<4>("X: a dataframe of size ({}x{})", X.rows(), X.cols());
     Util::log<4>("Y: a dataframe of size ({}x{})", Y.rows(), Y.cols());
 
-    auto attackers = parse_batch_file<FOREST_X>(batch_file, args.attack_file, args.budget, args.epsilon);
+    auto attackers = parse_batch_file<FOREST_X>(args.batch_file, args.attack_file, args.budget, args.epsilon);
 
     if (args.algo == TrainingAlgo::Icml2019)
     {
@@ -210,6 +212,7 @@ void argument_sweep(const cxxopts::ParseResult& options)
 {
     const auto sweep_param = options["sweep-param"].as<std::string>();
     const auto n_inst = options["n-inst"].as<int>();
+    verbosity = options["verbosity"].as<int>();
 
     auto m_df = covertype::read_train();
     if (m_df.has_error())
@@ -278,9 +281,11 @@ void argument_sweep(const cxxopts::ParseResult& options)
     }
 }
 
-void load_and_test(const std::filesystem::path& fn, const std::string& attack_file,
-    std::set<size_t> id_set, int max_budget, int n_inst, int n_feats, double epsilon)
+void load_and_test(const cxxopts::ParseResult& options, const std::filesystem::path& model_path, int mpi_np, int mpi_rank)
 {
+    auto args = generate_arg_from_options<FOREST_X,FOREST_Y>(options).value();
+    verbosity = args.verbosity;
+
     auto m_df = covertype::read_train_and_valid();
     if (m_df.has_error())
         Util::die("{}", m_df.error());
@@ -295,75 +300,62 @@ void load_and_test(const std::filesystem::path& fn, const std::string& attack_fi
     auto& X_test = std::get<0>(test_tupl);
     auto& Y_test = std::get<1>(test_tupl);
     
-    if (n_inst > 0)
+    if (args.n_inst > 0)
     {
-        X_test.conservativeResize(n_inst, Eigen::NoChange);
-        Y_test.conservativeResize(n_inst, Eigen::NoChange);
+        X_test.conservativeResize(args.n_inst, Eigen::NoChange);
+        Y_test.conservativeResize(args.n_inst, Eigen::NoChange);
     }
 
-    auto forest = RobustForest<FOREST_X,FOREST_Y>::load_from_disk(fn);
-    forest.print_test_score(X_test, Y_test, Y, false);
+    auto forest = RobustForest<FOREST_X,FOREST_Y>::load_from_disk(model_path);
 
-    if (n_feats > 0)
+    if (mpi_rank == 0)
+        forest.print_test_score(X_test, Y_test, Y, false);
+
+    if (args.n_feats > 0)
     {
-        id_set = forest.most_important_feats(n_feats);
-        fmt::print("testing with id_set = {}\n", id_set);
+        args.feature_ids = forest.most_important_feats(args.n_feats);
+        if (mpi_rank == 0)
+            fmt::print("testing with id_set = {}\n", args.feature_ids);
     }
 
-    std::vector<int> budgets(max_budget);
+    std::vector<int> budgets(args.budget);
     std::iota(budgets.begin(), budgets.end(), 1);
 
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
 
-    if (!attack_file.empty())
+    if (!args.attack_file.empty())
     {
-        json_file = attack_file;
+        json_file = args.attack_file;
         for (int budget : budgets)
         {
-            auto m_atkr = covertype::new_Attacker(budget, X_test, id_set, epsilon);
+            auto m_atkr = covertype::new_Attacker(budget, X_test, args.feature_ids, args.epsilon);
             if (m_atkr.has_error())
                 Util::die("{}", m_atkr.error());
             auto ptr = m_atkr.value().get();
-            auto scores = forest.get_attacked_score(*ptr, X_test, Y_test);
-            if (forest.get_type() == ForestType::Bundle)
+            auto score = forest.get_attacked_score(*ptr, X_test, Y_test);
+            if (mpi_rank == 0)
             {
-                for (size_t i = 0; i < scores.size(); i++)
-                {
-                    auto score = scores[i];
-                    fmt::print("budget {}: tree {}: test score {:.2f}%\n", budget, i, score);
-                }
-            }
-            else
-            {
-                auto score = scores[0];
                 fmt::print("budget {}: test score {:.2f}%\n", budget, score);
             }
         }
     }
     else
     {
-        if (!id_set.empty())
-            forest.set_attacker_feats(id_set);
+        if (!args.feature_ids.empty())
+            forest.set_attacker_feats(args.feature_ids);
         for (int budget : budgets)
         {
             forest.set_attacker_budget(budget);
-            auto scores = forest.get_own_attacked_score(X_test, Y_test);
-            if (forest.get_type() == ForestType::Bundle)
+            auto score = forest.get_own_attacked_score(X_test, Y_test);
+            if (mpi_rank == 0)
             {
-                for (size_t i = 0; i < scores.size(); i++)
-                {
-                    auto score = scores[i];
-                    fmt::print("budget {}: tree {}: test score {:.2f}%\n", budget, i, score);
-                }
-            }
-            else
-            {
-                auto score = scores[0];
                 fmt::print("budget {}: test score {:.2f}%\n", budget, score);
             }
         }
     }
 
+    if (mpi_rank != 0)
+        return;
     double linear_time = TIME;
     fmt::print("time elapsed: ");
     fmt::print(fg(fmt::color::yellow_green), "{}\n", Util::pretty_timediff(linear_time));

@@ -10,9 +10,12 @@
 static void send_data(const std::string& data, int dest, int tag)
 {
     const int SZ = data.size() * sizeof(std::string::value_type);
-    int sent = MPI_Send(data.data(), SZ, MPI_BYTE, dest, tag, MPI_COMM_WORLD);
-    if (sent != SZ)
-      throw std::runtime_error("MPI_Send failed");
+    int err = MPI_Send(data.data(), SZ, MPI_BYTE, dest, tag, MPI_COMM_WORLD);
+    if (err != MPI_SUCCESS)
+    {
+        auto str = fmt::format("MPI_Send error code {}", err);
+        throw std::runtime_error(str);
+    }
 }
 
 static std::string recv_data(int source, int tag)
@@ -26,6 +29,24 @@ static std::string recv_data(int source, int tag)
     MPI_Recv(buf.data(), amount, MPI_BYTE, source, tag, MPI_COMM_WORLD,
              MPI_STATUS_IGNORE);
     return buf;
+}
+
+static void send_ulong(const size_t& val, int dest, int tag)
+{
+    int err = MPI_Send(&val, 1, MPI_UNSIGNED_LONG, dest, tag, MPI_COMM_WORLD);
+    if (err != MPI_SUCCESS)
+    {
+        auto str = fmt::format("MPI_Send error code {}", err);
+        throw std::runtime_error(str);
+    }
+}
+
+static size_t recv_ulong(int source, int tag)
+{
+    size_t val;
+    MPI_Recv(&val, 1, MPI_UNSIGNED_LONG, source, tag, MPI_COMM_WORLD,
+             MPI_STATUS_IGNORE);
+    return val;
 }
 
 template<size_t NX, size_t NY>
@@ -126,6 +147,24 @@ static std::tuple<DF<N>, DF<N>> compute_train_and_validation_sets(const DF<N>& o
     }
 }
 
+template<size_t N>
+static DF<N> splice(const DF<N>& orig, size_t splice_idx, size_t N_splices)
+{
+    const size_t rows = orig.rows();
+    const size_t splice_size = rows / N_splices;
+    if (splice_idx < N_splices - 1)
+    {
+        const auto start = splice_size*splice_idx;
+        DF<N> spliced = orig(Eigen::seqN(start, splice_size), Eigen::all);
+        return spliced;
+    }
+    else
+    {
+        DF<N> spliced = orig(Eigen::lastN(splice_size), Eigen::all);
+        return spliced;
+    }
+}
+
 template<>
 std::tuple<DF<784>, DF<784>> compute_train_and_validation_sets<784>(const DF<784>& orig, 
     size_t set_idx, size_t total_N)
@@ -213,7 +252,6 @@ void RobustForest<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
         }
         else
         {
-            MPI_Init(NULL, NULL);
 
             int world_size;
             MPI_Comm_size(MPI_COMM_WORLD, &world_size);
@@ -236,7 +274,6 @@ void RobustForest<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
                 }
                 is_trained_ = true;
                 Util::log<3>("Forest of {} trees has been fit!", n_trees_);
-                MPI_Finalize();
             }
             // Servant
             else
@@ -286,8 +323,6 @@ size_t RobustForest<NX,NY>::predict(const Row<NX>& instance) const
 {
     if (is_trained_)
     {
-        if (type_ == ForestType::Bundle)
-            Util::warn("predict: forest is bundle, calculating mode doesn't make sense");
 
 		std::vector<size_t> predictions(n_trees_);
 		for (int64_t j = 0; j < n_trees_; j++)
@@ -329,8 +364,6 @@ DF<NY> RobustForest<NX,NY>::predict_proba(const DF<NX>& X_test) const
 {
     if (is_trained_)
     {
-        if (type_ == ForestType::Bundle)
-            Util::warn("predict_proba: forest is bundle, calculating mean doesn't make sense");
 
         const auto rows = X_test.rows();
         DF<NY> out = Eigen::ArrayXXd::Zero(rows, NY);
@@ -381,35 +414,16 @@ template<size_t NX, size_t NY>
 void RobustForest<NX,NY>::print_test_score(const DF<NX>& X_test, const DF<NY>& Y_test,
 	const DF<NY>& Y_train, bool valid) const
 {
-	if (type_ == ForestType::Bundle)
-	{
-        const char* templ;
-        if (valid)
-            templ = "tree {}: validation score: {:.2f}% (dummy classifier: {:.2f}%)\n";
-        else
-            templ = "tree {}: test score: {:.2f}% (dummy classifier: {:.2f}%)\n";
-		for (const auto& t : trees_)
-		{
-			auto Y_pred = t.predict_proba(X_test);
-			auto test_acc = 100.0 - 100.0 * t.classification_error(Y_test, Y_pred);
-			auto train_dom = dominant_class<NY>(Y_train);
-			auto dummy_score = 100.0 * class_proportion<NY>(Y_test, train_dom);
-			fmt::print(templ, t.get_id(), test_acc, dummy_score);
-		}
-	}
-	else
-	{
-        const char* templ;
-        if (valid)
-            templ = "validation score: {:.2f}% (dummy classifier: {:.2f}%)\n";
-        else
-            templ = "test score: {:.2f}% (dummy classifier: {:.2f}%)\n";
-		auto Y_pred = predict_proba(X_test);
-		auto test_acc = 100.0 - 100.0 * classification_error(Y_test, Y_pred);
-		auto train_dom = dominant_class<NY>(Y_train);
-		auto dummy_score = 100.0 * class_proportion<NY>(Y_test, train_dom);
-		fmt::print(templ, test_acc, dummy_score);
-	}
+    const char* templ;
+    if (valid)
+        templ = "validation score: {:.2f}% (dummy classifier: {:.2f}%)\n";
+    else
+        templ = "test score: {:.2f}% (dummy classifier: {:.2f}%)\n";
+    auto Y_pred = predict_proba(X_test);
+    auto test_acc = 100.0 - 100.0 * classification_error(Y_test, Y_pred);
+    auto train_dom = dominant_class<NY>(Y_train);
+    auto dummy_score = 100.0 * class_proportion<NY>(Y_test, train_dom);
+    fmt::print(templ, test_acc, dummy_score);
 }
 
 template<size_t NX, size_t NY>
@@ -522,29 +536,35 @@ static bool att_loop(const RobustForest<NX,NY>& rf, Row<NX>& inst, const Attacke
 }
 
 template<size_t NX, size_t NY>
-std::vector<double> RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& attacker, const DF<NX>& X, const DF<NY>& Y) const
+double RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& attacker, const DF<NX>& X, const DF<NY>& Y) const
 {
     if (!is_trained_)
         Util::die("forest is not trained");
 
-    std::vector<double> out;
-    
-    if (type_ == ForestType::Bundle)
-    {
-        for (size_t i = 0; i < n_trees_; i++)
-        {
-            out.push_back(trees_[i].get_attacked_score(attacker, X, Y));
-        }
-        return out;
-    }
+    int world_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+    int world_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
+    DF<NX> splice_X;
+    DF<NY> splice_Y;
+    if (world_size == 1)
+    {
+        splice_X = X;
+        splice_Y = Y;
+    }
+    else
+    {
+        splice_X = splice<NX>(X, world_rank, world_size);
+        splice_Y = splice<NY>(Y, world_rank, world_size);
+    }
     const size_t N = X.rows();
+    const size_t N_splice = splice_X.rows();
     const int budget = attacker.get_budget();
     std::atomic<size_t> correct = 0;
     thread_pool pool;
-    // size_t attack_success = 0;
-    // size_t total_attacks = 0;
-    pool.parallelize_loop(0, N, 
+
+    pool.parallelize_loop(0, N_splice, 
         [&](const size_t& low, const size_t& high){ // block [low, high)
             if (low >= high)
                 return;
@@ -554,8 +574,8 @@ std::vector<double> RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& 
             for (size_t i = low; i < high; i++)
             {
                 Eigen::Index max_ind;
-                Y.row(i).maxCoeff(&max_ind);
-                Row<NX> inst = X.row(i);
+                splice_Y.row(i).maxCoeff(&max_ind);
+                Row<NX> inst = splice_X.row(i);
                 const auto true_y = static_cast<size_t>(max_ind);
                 const auto pred_y = predict(inst);
                 if (true_y == pred_y)
@@ -568,46 +588,40 @@ std::vector<double> RobustForest<NX,NY>::get_attacked_score(const Attacker<NX>& 
             }
         }
     );
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    // Master
+    if (world_rank == 0)
+    {
+        for (size_t i = 1; i < world_size; i++)
+        {
+            size_t other_correct = recv_ulong(i, 0);
+            correct += other_correct;
+        }
+    }
+    // Servant
+    else
+    {
+        size_t my_correct = correct;
+        send_ulong(my_correct, 0, 0);
+    }
     // double ret = 100.0 - 100.0 * static_cast<double>(score) / static_cast<double>(total_attacks);
+    MPI_Barrier(MPI_COMM_WORLD);
     double ret = 100.0 * static_cast<double>(correct) / static_cast<double>(N);
-    out.push_back(ret);
-    return out;
+    return ret;
 }
 
 template<size_t NX, size_t NY>
-std::vector<double> RobustForest<NX,NY>::get_own_attacked_score(const DF<NX>& X, const DF<NY>& Y) const
+double RobustForest<NX,NY>::get_own_attacked_score(const DF<NX>& X, const DF<NY>& Y) const
 {
-    if (type_ == ForestType::Bundle)
-    {
-        std::vector<double> out;
-        for (size_t i = 0; i < n_trees_; i++)
-        {
-            out.push_back(trees_[i].get_own_attacked_score(X, Y));
-        }
-        return out;
-    }
-    else
-    {
-        const auto attacker = trees_[0].get_attacker();
-        return get_attacked_score(*attacker, X, Y);
-    }
+    const auto attacker = trees_[0].get_attacker();
+    return get_attacked_score(*attacker, X, Y);
 }
 
 template<size_t NX, size_t NY>
 void RobustForest<NX,NY>::set_attacker_budget(int budget)
 {
-    if (type_ == ForestType::Bundle)
-    {
-        for (size_t i = 0; i < n_trees_; i++)
-        {
-            trees_[i].set_attacker_budget(budget);
-        }
-    }
-    else
-    {
-        trees_[0].set_attacker_budget(budget);
-    }
-
+    trees_[0].set_attacker_budget(budget);
 }
 
 template<size_t NX, size_t NY>
@@ -617,24 +631,18 @@ void RobustForest<NX,NY>::set_attacker_feats(const std::set<size_t>& feats)
 }
 
 template<size_t NX, size_t NY>
-std::map<size_t, double> RobustForest<NX,NY>::feature_importance(size_t tree_id) const
+std::map<size_t, double> RobustForest<NX,NY>::feature_importance() const
 {
-    if (type_ == ForestType::Bundle)
-        return trees_[tree_id].feature_importance();
-    else
+    std::map<size_t, double> sum_map;
+    for (size_t i = 0; i < n_trees_; i++)
     {
-        std::map<size_t, double> sum_map;
-        for (size_t i = 0; i < n_trees_; i++)
-        {
-            auto import = trees_[i].feature_importance();
-            for (const auto& [fid, gain] : import)
-                sum_map[fid] += gain;
-        }
-        for (const auto& [fid, gain] : sum_map)
-            sum_map[fid] = gain / static_cast<double>(n_trees_);
-        return sum_map;
-
+        auto import = trees_[i].feature_importance();
+        for (const auto& [fid, gain] : import)
+            sum_map[fid] += gain;
     }
+    for (const auto& [fid, gain] : sum_map)
+        sum_map[fid] = gain / static_cast<double>(n_trees_);
+    return sum_map;
 }
 
 template<size_t NX, size_t NY>

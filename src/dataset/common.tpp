@@ -59,6 +59,9 @@ std::optional<TrainArguments<NX,NY>> generate_arg_from_options(const cxxopts::Pa
     for (auto f : feature_id_vec)
         feature_id.insert(f);
     auto attack_file = opts["attack-file"].as<std::string>();
+    std::string batch_file;
+    if (opts.count("batch"))
+        batch_file = opts["batch"].as<std::string>();
     auto cost = opts["cost"].as<int>();
     auto n_inst = opts["n-inst"].as<int>();
     auto n_feats = opts["n-feats"].as<int>();
@@ -144,9 +147,9 @@ std::optional<TrainArguments<NX,NY>> generate_arg_from_options(const cxxopts::Pa
                 .bootstrap_features=bootstrap_features, .replace_samples=replace_samples, 
                 .replace_features=replace_features, .max_samples=instance_prop, 
                 .max_features=feature_prop},
-        .attack_file = attack_file, .n_inst = n_inst, .budget = budget, .feature_ids = feature_id,
+        .attack_file = attack_file, .batch_file = batch_file, .n_inst = n_inst, .n_feats = n_feats, .budget = budget, .feature_ids = feature_id,
         .output = outputstr, .split=SplitFunction::LogLoss, .algo=algo, .maxiter=maxiter,
-        .n_trees=n_trees, .epsilon=epsilon, .always_ret=always_ret, .use_constraints=use_constraints};
+        .n_trees=n_trees, .epsilon=epsilon, .always_ret=always_ret, .use_constraints=use_constraints, .verbosity = verb};
     return args;
 }
 

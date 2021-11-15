@@ -22,8 +22,7 @@ namespace mnist
     void batch_train_and_save(const cxxopts::ParseResult& options, const std::string& batch_file);
     void argument_sweep(const cxxopts::ParseResult& options);
 
-    void load_and_test(const std::filesystem::path& model, const std::string& attack_file,
-        std::set<size_t> id_set, int max_budget, int n_inst, int n_feats, double epsilon);
+    void load_and_test(const cxxopts::ParseResult& options, const std::filesystem::path& model_path, int mpi_np, int mpi_rank);
     void put_gain_values(const std::filesystem::path& model);
     void classify(const std::filesystem::path& model, const std::vector<double>& inst);
     void attack_instance(const std::string& attack_file, const std::vector<double>& inst,

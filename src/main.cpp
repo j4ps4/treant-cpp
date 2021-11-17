@@ -88,6 +88,8 @@ int main(int argc, char** argv)
         cxxopts::value<std::vector<double>>())
         ("attack", "attack given instance, comma separated list of values",
         cxxopts::value<std::vector<double>>())
+        ("blackbox", "perform a blackbox attack against n-th instance in the test set",
+        cxxopts::value<size_t>())
         ("batch", "train a number of trees in batch mode, using given batch file",
         cxxopts::value<std::string>())
         ("V,verbosity", "output verbosity: 0 (nothing) - 4 (everything)",
@@ -212,6 +214,24 @@ int main(int argc, char** argv)
                 mnist::classify(path, inst_vec);
             goto EXIT;
         }
+        else if (opts.count("blackbox"))
+        {
+            bool ret;
+            auto [dataset, path] = parseTest(opts);
+            auto index = opts["blackbox"].as<size_t>();
+            // if (dataset == DataSet::Credit)
+            //     credit::classify(path, inst_vec);
+            // else if (dataset == DataSet::Har)
+            //     har::classify(path, inst_vec);
+            // else if (dataset == DataSet::Covertype)
+            //     covertype::classify(path, inst_vec);
+            if (dataset == DataSet::Mnist)
+                ret = mnist::blackbox(path, index);
+            if (ret)
+                goto EXIT;
+            else
+                goto EXIT_FAIL;
+        }
         // else if (opts.count("attack"))
         // {
         //     auto dataset = parseAttack(opts);
@@ -298,4 +318,7 @@ int main(int argc, char** argv)
 EXIT: 
     MPI_Finalize();
     return 0;
+EXIT_FAIL:
+    MPI_Finalize;
+    return 1;
 }

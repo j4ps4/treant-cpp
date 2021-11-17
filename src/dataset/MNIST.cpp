@@ -342,4 +342,50 @@ void classify(const std::filesystem::path& model, const std::vector<double>& ins
 //     }
 // }
 
+bool blackbox(const std::filesystem::path& model, size_t index)
+{
+    auto m_df = mnist::read_train_and_valid();
+    if (m_df.has_error())
+        Util::die("{}", m_df.error());
+    auto& df_tupl = m_df.value();
+    auto& X = std::get<0>(df_tupl);
+    auto& Y = std::get<1>(df_tupl);
+
+    auto m_test = mnist::read_test();
+    if (m_test.has_error())
+        Util::die("{}", m_test.error());
+    auto& test_tupl = m_test.value();
+    auto& X_test = std::get<0>(test_tupl);
+    auto& Y_test = std::get<1>(test_tupl);
+
+    auto forest = RobustForest<MNIST_X,MNIST_Y>::load_from_disk(model);
+
+    fmt::print(stderr, "Blackbox attack against instance #{}:\n", index);
+
+    if (index >= X_test.rows())
+    {
+        fmt::print("Index too large. ({} > {})\n", index+1, X_test.rows());
+        return false;
+    }
+    const auto& inst = X_test.row(index);
+    Eigen::Index y_true;
+    Y_test.row(index).maxCoeff(&y_true);
+    if (forest.predict(inst) != y_true)
+    {
+        fmt::print("Misclassification.\n");
+        return false;
+    }
+
+    fmt::print(stderr, "Original label: {}\n", y_true);
+
+    auto [deformed, distortion] = forest.blackbox_attack(X, Y, X_test, Y_test, index, true);
+
+    auto pred = forest.predict(deformed);
+    auto probs = forest.predict_proba(deformed);
+    auto prob = probs[pred];
+    fmt::print("true label = {}, predicted label = {}, propability = {:.4f}, distortion = {:.4f}, deformed = {}\n",
+        y_true, pred, prob, distortion, row_str<MNIST_X,12>(deformed));
+    return true;
+}
+
 }

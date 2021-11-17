@@ -30,6 +30,7 @@ public:
 
     size_t predict(const Row<NX>& instance) const;
     size_t predict(const std::vector<double>& instance) const;
+    Row<NY> predict_proba(const Row<NX>& instance) const;
     DF<NY> predict_proba(const DF<NX>& X_test) const;
 
     static double classification_error(const DF<NY>& Y_test, const DF<NY>& Y_pred);
@@ -57,7 +58,7 @@ public:
     std::set<size_t> most_important_feats(int N) const;
 
     std::tuple<Row<NX>, double> blackbox_attack(const DF<NX>& X_train, const DF<NY>& Y_train,
-        const DF<NX>& X_test, const DF<NY>& Y_test, size_t index, double alpha = 0.2, double beta = 0.001,
+        const DF<NX>& X_test, const DF<NY>& Y_test, size_t index, bool quiet, double alpha = 2.0, double beta = 0.005,
         size_t iterations = 1000) const;
 
 private:

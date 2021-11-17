@@ -49,10 +49,27 @@ size_t dominant_class(const DF<NY>& y)
     return max_ind;
 }
 
-template<size_t N>
+template<size_t N, int P=4>
 std::string row_str(const Row<N>& row)
 {
-    return fmt::format("{}", row);
+    std::ostringstream ss;
+    ss.precision(P);
+    ss << "[";
+    for (int i = 0; i < N-1; i++)
+        ss << row[i] << ", ";
+    ss << row[N-1] << "]";
+    return ss.str();
+}
+
+std::string row_str(const std::vector<double>& row)
+{
+    std::ostringstream ss;
+    ss.precision(4);
+    ss << "[";
+    for (int i = 0; i < row.size()-1; i++)
+        ss << row[i] << ", ";
+    ss << row[row.size()-1] << "]";
+    return ss.str();
 }
 
 template<size_t N>

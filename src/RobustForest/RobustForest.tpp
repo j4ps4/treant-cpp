@@ -7,6 +7,8 @@
 
 #include "../util.h"
 
+#define quiet_print(things...) if (!quiet) fmt::print(stderr, things)
+
 static void send_data(const std::string& data, int dest, int tag)
 {
     const int SZ = data.size() * sizeof(std::string::value_type);
@@ -366,6 +368,18 @@ size_t RobustForest<NX,NY>::predict(const std::vector<double>& instance) const
 }
 
 template<size_t NX, size_t NY>
+Row<NY> RobustForest<NX,NY>::predict_proba(const Row<NX>& instance) const
+{
+    DF<NY> temp(n_trees_, NY);
+    for (int64_t j = 0; j < n_trees_; j++)
+    {
+        temp.row(j) = trees_[j].predict_proba_single(instance);
+    }
+    Row<NY> out = temp.colwise().mean();
+    return out;
+}
+
+template<size_t NX, size_t NY>
 DF<NY> RobustForest<NX,NY>::predict_proba(const DF<NX>& X_test) const
 {
     if (is_trained_)
@@ -668,18 +682,31 @@ std::set<size_t> RobustForest<NX,NY>::most_important_feats(int N) const
 }
 
 template<size_t NX>
-static Row<NX> randn(std::random_device& rd)
+static Row<NX> randn(std::mt19937_64& rd)
 {
-    std::normal_distribution dist(0, 1.0);
+    std::normal_distribution dist(0.0, 1.0);
     Row<NX> out = Row<NX>::Zero();
     for (int i = 0; i < NX; i++)
         out[i] = dist(rd);
     return out;
 }
 
+template<size_t NX, int N>
+static double lpNorm(const Row<NX>& row)
+{
+    return Eigen::Map<const Eigen::Vector<double, NX>>(row.data()).template lpNorm<N>();
+}
+
+// template<size_t NX, int N>
+// static double lpNorm(const Row<NX>& row)
+// {
+//     return sqrt(row.pow(2).sum());
+// }
+
+
 template<size_t NX, size_t NY>
 std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X_train, const DF<NY>& Y_train,
-    const DF<NX>& X_test, const DF<NY>& Y_test, size_t index, double alpha, double beta,
+    const DF<NX>& X_test, const DF<NY>& Y_test, size_t index, bool quiet, double alpha, double beta,
     size_t iterations) const
 {
     const Row<NX>& x0 = X_test.row(index);
@@ -688,18 +715,21 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
     size_t y0 = y0_i;
     if (predict(x0) != y0)
     {
-        fmt::print("Fail to classify the image. No need to attack.\n");
+        quiet_print("Fail to classify the image. No need to attack.\n");
         return std::make_tuple(x0, 0.0);
     }
+    quiet_print("Running untargeted attack on MNIST test image #{} for alpha={} beta={}\n", index, alpha, beta);
 
     int num_samples = 1000;
-    Row<NX> best_theta = Row<NX>::One()*INFINITY;
-    Row<NX> theta;
+    Row<NX> best_theta = Row<NX>::Ones()*INFINITY;
+    Row<NX> theta = Row<NX>::Zero();
     double g_theta = INFINITY;
     int query_count = 0;
     double initial_lbd;
 
-    fmt::print("Searching for the initial direction on {} samples...\n", num_samples);
+    const double UP = NX == 784 ? 255.0 : x0.maxCoeff();
+
+    quiet_print("Searching for the initial direction on {} samples...\n", num_samples);
     auto now = std::chrono::high_resolution_clock::now();
 
     std::set<size_t> samples;
@@ -708,6 +738,7 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
     std::iota(pop.begin(), pop.end(), 0UL);
     std::sample(pop.begin(), pop.end(), std::inserter(samples, samples.begin()), 
         num_samples, rd);
+
 
     for (size_t i = 0; i < X_train.rows(); i++)
     {
@@ -718,18 +749,19 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
         if (predict(xi) != y0)
         {
             theta = xi - x0;
-            initial_lbd = theta.template lpNorm<2>();
-            theta = theta / initial_lbd;
+            initial_lbd = lpNorm<NX, 2>(theta);
+            theta /= initial_lbd;
             auto [lbd, count] = fine_grained_binary_search(x0, y0, theta, initial_lbd, g_theta);
             query_count += count;
             if (lbd < g_theta)
             {
                 best_theta = theta; g_theta = lbd;
+                //fmt::print(stderr, "--------> Found distortion {:.4f} ({:4f} normalized)\n", g_theta, g_theta/UP);
             }
         }
     }
     double linear_time = TIME;
-    fmt::print("Found best distortion {.4f} in {.4f} seconds using {} queries\n", g_theta, linear_time, query_count);
+    quiet_print("Found best distortion {:.4f} in {:.4f} seconds using {} queries\n", g_theta, linear_time, query_count);
 
     now = std::chrono::high_resolution_clock::now();
     theta = best_theta;
@@ -738,7 +770,7 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
     int opt_count = 0;
     double stopping = 0.01;
     double prev_obj = 100000; 
-    Row<NX> min_ttt = Row<NX>::One() * INFINITY;
+    Row<NX> min_ttt = Row<NX>::Ones() * INFINITY;
     for (size_t i = 0; i < iterations; i++)
     {
         Row<NX> gradient = Row<NX>::Zero();
@@ -747,9 +779,11 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
         for (int j = 0; j < q; j++)
         {
             Row<NX> u = randn<NX>(rd);
-            u.normalize();
+            double norm = lpNorm<NX, 2>(u);
+            u /= norm;
             Row<NX> ttt = theta + beta*u;
-            ttt.normalize();
+            norm = lpNorm<NX, 2>(ttt);
+            ttt /= norm;
             auto [g1_ret, count] = fine_grained_binary_search_local(x0, y0, ttt, g2, beta/500);
             g1 = g1_ret;
             opt_count += count;
@@ -764,8 +798,9 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
 
         if ((i+1) % 50 == 0)
         {
-            double norm = (g2*theta).template lpNorm<2>();
-            fmt::print("Iteration {}: g(theta + beta*u) = {.4f} g(theta) = {.4f} distortion {.4f} num_queries {}",
+            Row<NX> temp = g2*theta;
+            double norm = lpNorm<NX, 2>(temp);
+            quiet_print("Iteration {}: g(theta + beta*u) = {:.4f} g(theta) = {:.4f} distortion {:.4f} num_queries {}\n",
                 i+1, g1, g2, norm, opt_count);
             if (g2 > (prev_obj - stopping))
                 break;
@@ -777,7 +812,8 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
         for (int j = 0; j < 15; j++)
         {
             Row<NX> new_theta = theta - alpha * gradient;
-            new_theta.normalize();
+            double norm = lpNorm<NX, 2>(new_theta);
+            new_theta /= norm;;
             auto [new_g2, count] = fine_grained_binary_search_local(x0, y0, new_theta, min_g2, beta/500);
             opt_count += count;
             alpha = alpha * 2;
@@ -796,7 +832,8 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
             {
                 alpha = alpha * 0.25;
                 Row<NX> new_theta = theta - alpha * gradient;
-                new_theta.normalize();
+                double norm = lpNorm<NX, 2>(new_theta);
+                new_theta /= norm;
                 auto [new_g2, count] = fine_grained_binary_search_local(x0, y0, new_theta, min_g2, beta/500);
                 opt_count += count;
                 if (new_g2 < g2)
@@ -828,7 +865,7 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
         if (alpha < 1e-4)
         {
             alpha = 1.0;
-            fmt::print("Warning: not moving, g2 {} g_theta {}\n", g2, g_theta);
+            quiet_print("Warning: not moving, g2 {} g_theta {}\n", g2, g_theta);
             beta = beta * 0.1;
             if (beta < 0.0005)
                 break;
@@ -838,8 +875,8 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
     linear_time = TIME;
     Row<NX> deformed = x0 + g_theta*best_theta;
     auto target = predict(deformed);
-    fmt::print("\nAdversarial Example Found Successfully: distortion {.4f} target {} queries {} \nTime: {.4f} seconds\n",
-        g_theta, target, query_count + opt_count, linear_time);
+    quiet_print("\nAdversarial Example Found Successfully: distortion {:.4f} ({:.4f}) target {} queries {} \nTime: {:.4f} seconds\n",\
+        g_theta, g_theta/UP, target, query_count + opt_count, linear_time);
     return std::make_tuple(deformed, g_theta);
 }
 

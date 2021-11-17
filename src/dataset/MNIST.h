@@ -25,4 +25,5 @@ namespace mnist
     void attack_instance(const std::string& attack_file, const std::vector<double>& inst,
         const std::set<size_t>& id_set, int budget, int cost, double epsilon);
     void set_verbosity(int verb);
+    bool blackbox(const std::filesystem::path& model, size_t index);
 }

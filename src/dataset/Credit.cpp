@@ -6,6 +6,7 @@
 #include "../DF2/DF_read.h"
 #include "../DF2/DF_util.h"
 #include "../util.h"
+#include "templates.tpp"
 
 constexpr size_t CREDIT_X = 23;
 constexpr size_t CREDIT_Y = 2;

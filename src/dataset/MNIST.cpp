@@ -5,6 +5,7 @@
 #include "../AttackerRule.h"
 #include "../DF2/DF_read.h"
 #include "../DF2/DF_util.h"
+#include "templates.tpp"
 
 constexpr size_t MNIST_X = 28*28;
 constexpr size_t MNIST_Y = 10;

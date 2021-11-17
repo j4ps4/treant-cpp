@@ -6,6 +6,7 @@
 #include "../DF2/DF_read.h"
 #include "../DF2/DF_util.h"
 #include "../util.h"
+#include "templates.tpp"
 
 constexpr size_t HAR_X = 30; // 561
 constexpr size_t HAR_Y = 6;

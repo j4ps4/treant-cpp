@@ -74,6 +74,13 @@ public:
     double get_epsilon() const noexcept {return epsilon_;}
     
 private:
+
+    void pool_worker(const DF<NX>& X, const DF<NY>& y, const IdxVec& rows,
+    const std::set<size_t>& feature_blacklist, Attacker<NX>& attacker, const CostMap& costs, 
+    const ConstrVec& constraints, double current_score, const Row<NY>& current_prediction_score, const size_t& low, const size_t& high, size_t feature_id, const std::vector<double>& feats,
+    std::mutex& gain_mut, double& best_gain, size_t& best_split_feature_id, double& best_split_feature_value, IdxVec& best_split_left_id,
+    IdxVec& best_split_right_id, IdxVec& best_split_unknown_id, NRow& best_pred_left, NRow& best_pred_right, double& best_residue) const;
+
     std::tuple<FunVec, ConstrDataVec> propagate(const ConstrVec& cs, Attacker<NX>& attacker,
         size_t feature_id, double feature_value, bool useConstraints) const;
 

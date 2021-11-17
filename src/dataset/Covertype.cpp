@@ -5,6 +5,7 @@
 #include "../AttackerRule.h"
 #include "../DF2/DF_read.h"
 #include "../DF2/DF_util.h"
+#include "templates.tpp"
 
 constexpr size_t FOREST_X = 54;
 constexpr size_t FOREST_Y = 7;

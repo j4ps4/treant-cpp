@@ -9,7 +9,7 @@ import torch.nn as nn
 # import torchvision.transforms as transforms
 from torch.autograd import Variable
 import torch.nn.functional as F
-from models import Treant, MNIST, load_mnist_data, load_har_data
+from models import Treant, MNIST, load_mnist_data, load_har_data, show_image
 
 
 def attack_untargeted(model, train_dataset, x0, y0, alpha = 0.2, beta = 0.001, iterations = 1000):
@@ -208,9 +208,9 @@ def attack_mnist(model_name, alpha=0.2, beta=0.001, isTarget= False, num_attacks
     outfile=open("mnist_attacks.txt","w")
 
     model = MNIST(model=model_name)
-    if torch.cuda.is_available():
-        net.cuda()
-        net = torch.nn.DataParallel(net, device_ids=[0])
+    # if torch.cuda.is_available():
+    #     net.cuda()
+    #     net = torch.nn.DataParallel(net, device_ids=[0])
         
     #load_model(net, 'models/mnist_gpu.pt')
     #load_model(net, 'models/mnist_cpu.pt')
@@ -223,28 +223,29 @@ def attack_mnist(model_name, alpha=0.2, beta=0.001, isTarget= False, num_attacks
         print("Original label: ", label)
         print("Predicted label: ", model.predict(image))
         if target == None:
-            adversarial = attack_untargeted(model, dataset, image, label, alpha = alpha, beta = beta, iterations = 1000)
+            adversarial = attack_untargeted(model, dataset, image, label, alpha = alpha, beta = beta, iterations = 50)
         else:
             print("Targeted attack: %d" % target)
             adversarial = attack_targeted(model, dataset, image, label, target, alpha = alpha, beta = beta, iterations = 1000)
-        #show_image(adversarial.numpy())
+        show_image(adversarial.numpy())
         prediction=model.predict(adversarial)
-        if label == model.predict(image):
-            outfile.write("\noriginal X: "+str(image))
-            outfile.write("\nadversarial X: "+str(adversarial))
-            outfile.write("\nY: "+str(prediction))
-        print("Predicted label for adversarial example: ", prediction)
+        print("true label: {}, predicted label: {}".format(label, prediction))
+        # if label == model.predict(image):
+        #     outfile.write("\noriginal X: "+str(image))
+        #     outfile.write("\nadversarial X: "+str(adversarial))
+        #     outfile.write("\nY: "+str(prediction))
+        # print("Predicted label for adversarial example: ", prediction)
         return torch.norm(adversarial - image)
 
-    print("\n\n Running {} attack on {} random  MNIST test images for alpha= {} beta= {}\n\n".format("targetted" if isTarget else "untargetted", num_attacks, alpha, beta))
+    print("Running {} attack on {} random  MNIST test images for alpha= {} beta= {}".format("targetted" if isTarget else "untargetted", num_attacks, alpha, beta))
     total_distortion = 0.0
 
     samples = [6312, 6891, 4243, 8377, 7962, 6635, 4970, 7809, 5867, 9559, 3579, 8269, 2282, 4618, 2290, 1554, 4105, 9862, 2408, 5082, 1619, 1209, 5410, 7736, 9172, 1650, 5181, 3351, 9053, 7816, 7254, 8542, 4268, 1021, 8990, 231, 1529, 6535, 19, 8087, 5459, 3997, 5329, 1032, 3131, 9299, 3910, 2335, 8897, 7340, 1495, 5244,8323, 8017, 1787, 4939, 9032, 4770, 2045, 8970, 5452, 8853, 3330, 9883, 8966, 9628, 4713, 7291, 9770, 6307, 5195, 9432, 3967, 4757, 3013, 3103, 3060, 541, 4261, 7808, 1132, 1472, 2134, 634, 1315, 8858, 6411, 8595, 4516, 8550, 3859, 3526]
     #true_labels = [3, 1, 6, 6, 9, 2, 7, 5, 5, 3, 3, 4, 5, 6, 7, 9, 1, 6, 3, 4, 0, 6, 5, 9, 7, 0, 3, 1, 6, 6, 9, 6, 4, 7, 6, 3, 4, 3, 4, 3, 0, 7, 3, 5, 3, 9, 3, 1, 9, 1, 3, 0, 2, 9, 9, 2, 2, 3, 3, 3, 0, 5, 2, 5, 2, 7, 2, 2, 5, 7, 4, 9, 9, 0, 0, 7, 9, 4, 5, 5, 2, 3, 5, 9, 3, 0, 9, 0, 1, 2, 9, 9]
-    for idx in samples:
+    for idx in samples[0:num_attacks]:
         #idx = random.randint(100, len(test_dataset)-1)
         image, label = test_dataset[idx]
-        print("\n\n\n\n======== Image %d =========" % idx)
+        print("\n======== Image %d =========" % idx)
         #target = None if not isTarget else random.choice(list(range(label)) + list(range(label+1, 10)))
         target = None if not isTarget else (1+label) % 10
         total_distortion += single_attack(image, label, outfile, target)

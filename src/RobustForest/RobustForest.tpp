@@ -323,13 +323,19 @@ size_t RobustForest<NX,NY>::predict(const Row<NX>& instance) const
 {
     if (is_trained_)
     {
-
-		std::vector<size_t> predictions(n_trees_);
-		for (int64_t j = 0; j < n_trees_; j++)
-		{
-			predictions[j] = trees_[j].predict(instance);
-		}
-		return mode(predictions);
+        if (n_trees_ == 1)
+        {
+            return trees_.front().predict(instance);
+        }
+        else
+        {
+            std::vector<size_t> predictions(n_trees_);
+            for (int64_t j = 0; j < n_trees_; j++)
+            {
+                predictions[j] = trees_[j].predict(instance);
+            }
+            return mode(predictions);
+        }
     }
     else
     {
@@ -659,4 +665,267 @@ std::set<size_t> RobustForest<NX,NY>::most_important_feats(int N) const
         n++;
     }
     return out;
+}
+
+template<size_t NX>
+static Row<NX> randn(std::random_device& rd)
+{
+    std::normal_distribution dist(0, 1.0);
+    Row<NX> out = Row<NX>::Zero();
+    for (int i = 0; i < NX; i++)
+        out[i] = dist(rd);
+    return out;
+}
+
+template<size_t NX, size_t NY>
+std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X_train, const DF<NY>& Y_train,
+    const DF<NX>& X_test, const DF<NY>& Y_test, size_t index, double alpha, double beta,
+    size_t iterations) const
+{
+    const Row<NX>& x0 = X_test.row(index);
+    Eigen::Index y0_i;
+    Y_test.row(index).maxCoeff(&y0_i);
+    size_t y0 = y0_i;
+    if (predict(x0) != y0)
+    {
+        fmt::print("Fail to classify the image. No need to attack.\n");
+        return std::make_tuple(x0, 0.0);
+    }
+
+    int num_samples = 1000;
+    Row<NX> best_theta = Row<NX>::One()*INFINITY;
+    Row<NX> theta;
+    double g_theta = INFINITY;
+    int query_count = 0;
+    double initial_lbd;
+
+    fmt::print("Searching for the initial direction on {} samples...\n", num_samples);
+    auto now = std::chrono::high_resolution_clock::now();
+
+    std::set<size_t> samples;
+    std::mt19937_64 rd(0);
+    IdxVec pop(X_train.rows());
+    std::iota(pop.begin(), pop.end(), 0UL);
+    std::sample(pop.begin(), pop.end(), std::inserter(samples, samples.begin()), 
+        num_samples, rd);
+
+    for (size_t i = 0; i < X_train.rows(); i++)
+    {
+        if (!samples.contains(i))
+            continue;
+        const Row<NX>& xi = X_train.row(i);
+        query_count++;
+        if (predict(xi) != y0)
+        {
+            theta = xi - x0;
+            initial_lbd = theta.template lpNorm<2>();
+            theta = theta / initial_lbd;
+            auto [lbd, count] = fine_grained_binary_search(x0, y0, theta, initial_lbd, g_theta);
+            query_count += count;
+            if (lbd < g_theta)
+            {
+                best_theta = theta; g_theta = lbd;
+            }
+        }
+    }
+    double linear_time = TIME;
+    fmt::print("Found best distortion {.4f} in {.4f} seconds using {} queries\n", g_theta, linear_time, query_count);
+
+    now = std::chrono::high_resolution_clock::now();
+    theta = best_theta;
+    double g1 = 1.0;
+    double g2 = g_theta;
+    int opt_count = 0;
+    double stopping = 0.01;
+    double prev_obj = 100000; 
+    Row<NX> min_ttt = Row<NX>::One() * INFINITY;
+    for (size_t i = 0; i < iterations; i++)
+    {
+        Row<NX> gradient = Row<NX>::Zero();
+        const int q = 10;
+        double min_g1 = INFINITY;
+        for (int j = 0; j < q; j++)
+        {
+            Row<NX> u = randn<NX>(rd);
+            u.normalize();
+            Row<NX> ttt = theta + beta*u;
+            ttt.normalize();
+            auto [g1_ret, count] = fine_grained_binary_search_local(x0, y0, ttt, g2, beta/500);
+            g1 = g1_ret;
+            opt_count += count;
+            gradient += (g1-g2)/beta * u;
+            if (g1 < min_g1)
+            {
+                min_g1 = g1;
+                min_ttt = ttt;
+            }
+        }
+        gradient = 1.0/q * gradient;
+
+        if ((i+1) % 50 == 0)
+        {
+            double norm = (g2*theta).template lpNorm<2>();
+            fmt::print("Iteration {}: g(theta + beta*u) = {.4f} g(theta) = {.4f} distortion {.4f} num_queries {}",
+                i+1, g1, g2, norm, opt_count);
+            if (g2 > (prev_obj - stopping))
+                break;
+            prev_obj = g2;
+        }
+
+        Row<NX> min_theta = theta;
+        double min_g2 = g2;
+        for (int j = 0; j < 15; j++)
+        {
+            Row<NX> new_theta = theta - alpha * gradient;
+            new_theta.normalize();
+            auto [new_g2, count] = fine_grained_binary_search_local(x0, y0, new_theta, min_g2, beta/500);
+            opt_count += count;
+            alpha = alpha * 2;
+            if (new_g2 < min_g2)
+            {
+                min_theta = new_theta;
+                min_g2 = new_g2;
+            }
+            else
+                break;
+        }
+
+        if (min_g2 >= g2)
+        {
+            for (int j = 0; j < 15; j++)
+            {
+                alpha = alpha * 0.25;
+                Row<NX> new_theta = theta - alpha * gradient;
+                new_theta.normalize();
+                auto [new_g2, count] = fine_grained_binary_search_local(x0, y0, new_theta, min_g2, beta/500);
+                opt_count += count;
+                if (new_g2 < g2)
+                {
+                    min_theta = new_theta;
+                    min_g2 = new_g2;
+                    break;
+                }
+            }
+        }
+
+        if (min_g2 <= min_g1)
+        {
+            theta = min_theta;
+            g2 = min_g2;
+        }
+        else
+        {
+            theta = min_ttt;
+            g2 = min_g1;
+        }
+
+        if (g2 < g_theta)
+        {
+            best_theta = theta;
+            g_theta = g2;
+        }
+
+        if (alpha < 1e-4)
+        {
+            alpha = 1.0;
+            fmt::print("Warning: not moving, g2 {} g_theta {}\n", g2, g_theta);
+            beta = beta * 0.1;
+            if (beta < 0.0005)
+                break;
+        }
+    }
+
+    linear_time = TIME;
+    Row<NX> deformed = x0 + g_theta*best_theta;
+    auto target = predict(deformed);
+    fmt::print("\nAdversarial Example Found Successfully: distortion {.4f} target {} queries {} \nTime: {.4f} seconds\n",
+        g_theta, target, query_count + opt_count, linear_time);
+    return std::make_tuple(deformed, g_theta);
+}
+
+template<size_t NX, size_t NY>
+std::tuple<double, int> RobustForest<NX,NY>::fine_grained_binary_search(const Row<NX>& x0, const size_t y0, const Row<NX>& theta,
+    double initial_lbd, double current_best) const
+{
+    int nquery = 0;
+    double lbd;
+    if (initial_lbd > current_best)
+    {
+        Row<NX> deformed = x0 + current_best*theta;
+        if (predict(deformed) == y0)
+        {
+            nquery++;
+            return {INFINITY, nquery};
+        }
+        lbd = current_best;
+    }
+    else
+        lbd = initial_lbd;
+
+    double lbd_hi = lbd;
+    double lbd_lo = 0.0;
+
+    while ((lbd_hi - lbd_lo) > 1e-5)
+    {
+        double lbd_mid = (lbd_lo + lbd_hi)/2.0;
+        nquery++;
+        Row<NX> deformed = x0 + lbd_mid*theta;
+        if (predict(deformed) != y0)
+            lbd_hi = lbd_mid;
+        else 
+            lbd_lo = lbd_mid;
+    }
+    return {lbd_hi, nquery};
+}
+
+template<size_t NX, size_t NY>
+std::tuple<double, int> RobustForest<NX,NY>::fine_grained_binary_search_local(const Row<NX>& x0, const size_t y0,
+    const Row<NX>& theta, double initial_lbd, double tol) const
+{
+    int nquery = 0;
+    double lbd = initial_lbd;
+    double lbd_hi, lbd_lo;
+
+    Row<NX> deformed = x0 + lbd*theta;
+    if (predict(deformed) == y0)
+    {
+        lbd_lo = lbd;
+        lbd_hi = lbd*1.01;
+        nquery += 1;
+        deformed = x0+lbd_hi*theta;
+        while (predict(deformed) == y0)
+        {
+            lbd_hi = lbd_hi*1.01;
+            nquery += 1;
+            if (lbd_hi > 20)
+                return {INFINITY, nquery};
+            deformed = x0+lbd_hi*theta;
+        }
+    }
+    else
+    {
+        lbd_hi = lbd;
+        lbd_lo = lbd*0.99;
+        nquery += 1;
+        deformed = x0+lbd_lo*theta;
+        while (predict(deformed) != y0)
+        {
+            lbd_lo = lbd_lo*0.99;
+            nquery += 1;
+            deformed = x0+lbd_lo*theta;
+        }
+    }
+
+    while ((lbd_hi - lbd_lo) > tol)
+    {
+        double lbd_mid = (lbd_lo + lbd_hi)/2.0;
+        nquery += 1;
+        deformed = x0+lbd_mid*theta;
+        if (predict(deformed) != y0)
+            lbd_hi = lbd_mid;
+        else
+            lbd_lo = lbd_mid;
+    }
+
+    return {lbd_hi, nquery};
 }

@@ -129,7 +129,7 @@ learning_rate = 0.001
 
 class MNIST():
     def __init__(self,model):
-        self.cmdlst = ["./treant", "--model", "data/mnist/models/"+model, "--classify"]
+        self.cmdlst = ["mpirun", "-np", "1", "./treant", "--model", model, "--classify"]
 
     def predict(self, inst):
         inst=inst*255

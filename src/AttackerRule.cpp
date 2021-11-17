@@ -196,7 +196,6 @@ load_attack_rules(const std::filesystem::path& fn, const std::map<std::string,
     load_helper(column_map, type, attacks_arr, out, id_set, epsilon);
     if (type == AttackType::Constant && !id_set.empty())
         type = AttackType::InfBall;
-    Util::info("loaded {} rules.", out.size());
     return std::make_tuple(out, type);
 }
 

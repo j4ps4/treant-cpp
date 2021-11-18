@@ -58,8 +58,8 @@ public:
     std::set<size_t> most_important_feats(int N) const;
 
     std::tuple<Row<NX>, double> blackbox_attack(const DF<NX>& X_train, const DF<NY>& Y_train,
-        const DF<NX>& X_test, const DF<NY>& Y_test, size_t index, bool quiet, double alpha = 2.0, double beta = 0.005,
-        size_t iterations = 1000) const;
+        const DF<NX>& X_test, const DF<NY>& Y_test, size_t index, bool quiet, size_t iterations = 1000,
+        bool isStandard = false, double alpha = 2.0, double beta = 0.005) const;
 
 private:
     std::tuple<double, int> fine_grained_binary_search(const Row<NX>& x0, const size_t y0, const Row<NX>& theta,

@@ -343,8 +343,11 @@ void classify(const std::filesystem::path& model, const std::vector<double>& ins
 //     }
 // }
 
-bool blackbox(const std::filesystem::path& model, size_t index)
+bool blackbox(const std::filesystem::path& model, const cxxopts::ParseResult& options)
 {
+    const auto index = options["blackbox"].as<size_t>();
+    const int n_inst = options.count("n-inst") ? options["n-inst"].as<int>() : 1000;
+    const int noise_level = options["verbosity"].as<int>();
     auto m_df = mnist::read_train_and_valid();
     if (m_df.has_error())
         Util::die("{}", m_df.error());
@@ -358,6 +361,8 @@ bool blackbox(const std::filesystem::path& model, size_t index)
     auto& test_tupl = m_test.value();
     auto& X_test = std::get<0>(test_tupl);
     auto& Y_test = std::get<1>(test_tupl);
+
+    const bool isStandard = model.string().find("standard") != std::string::npos;
 
     auto forest = RobustForest<MNIST_X,MNIST_Y>::load_from_disk(model);
 
@@ -379,13 +384,18 @@ bool blackbox(const std::filesystem::path& model, size_t index)
 
     fmt::print(stderr, "Original label: {}\n", y_true);
 
-    auto [deformed, distortion] = forest.blackbox_attack(X, Y, X_test, Y_test, index, true);
+    auto [deformed, distortion] = forest.blackbox_attack(X, Y, X_test, Y_test, index,
+        noise_level <= 3, n_inst, isStandard);
 
     auto pred = forest.predict(deformed);
     auto probs = forest.predict_proba(deformed);
     auto prob = probs[pred];
-    fmt::print("true label = {}, predicted label = {}, propability = {:.4f}, distortion = {:.4f}, deformed = {}\n",
-        y_true, pred, prob, distortion, row_str<MNIST_X,12>(deformed));
+    if (noise_level > 4)
+        fmt::print("true label = {}, predicted label = {}, propability = {:.4f}, distortion = {:.4f}, deformed = {}\n",
+            y_true, pred, prob, distortion, row_str<MNIST_X,12>(deformed));
+    else
+        fmt::print("true label = {}, predicted label = {}, propability = {:.4f}, distortion = {:.4f}\n",
+            y_true, pred, prob, distortion);
     return true;
 }
 

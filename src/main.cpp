@@ -218,7 +218,6 @@ int main(int argc, char** argv)
         {
             bool ret;
             auto [dataset, path] = parseTest(opts);
-            auto index = opts["blackbox"].as<size_t>();
             // if (dataset == DataSet::Credit)
             //     credit::classify(path, inst_vec);
             // else if (dataset == DataSet::Har)
@@ -226,7 +225,7 @@ int main(int argc, char** argv)
             // else if (dataset == DataSet::Covertype)
             //     covertype::classify(path, inst_vec);
             if (dataset == DataSet::Mnist)
-                ret = mnist::blackbox(path, index);
+                ret = mnist::blackbox(path, opts);
             if (ret)
                 goto EXIT;
             else

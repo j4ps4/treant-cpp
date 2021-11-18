@@ -706,8 +706,8 @@ static double lpNorm(const Row<NX>& row)
 
 template<size_t NX, size_t NY>
 std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X_train, const DF<NY>& Y_train,
-    const DF<NX>& X_test, const DF<NY>& Y_test, size_t index, bool quiet, double alpha, double beta,
-    size_t iterations) const
+    const DF<NX>& X_test, const DF<NY>& Y_test, size_t index, bool quiet, size_t iterations, bool isStandard,
+    double alpha, double beta) const
 {
     const Row<NX>& x0 = X_test.row(index);
     Eigen::Index y0_i;
@@ -771,6 +771,10 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
     double stopping = 0.01;
     double prev_obj = 100000; 
     Row<NX> min_ttt = Row<NX>::Ones() * INFINITY;
+
+    if (isStandard)
+        goto EXIT;
+
     for (size_t i = 0; i < iterations; i++)
     {
         Row<NX> gradient = Row<NX>::Zero();
@@ -872,6 +876,7 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
         }
     }
 
+EXIT:
     linear_time = TIME;
     Row<NX> deformed = x0 + g_theta*best_theta;
     auto target = predict(deformed);

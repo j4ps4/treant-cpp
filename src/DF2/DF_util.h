@@ -79,6 +79,15 @@ void row_printf(const char* fmt, const Row<N>& row)
 }
 
 template<size_t N>
+Row<N> copy_from_vector(const std::vector<double>& row)
+{
+    Row<N> out;
+    for (int i = 0; i < N; i++)
+        out[i] = row[i];
+    return out;
+}
+
+template<size_t N>
 struct fmt::formatter<Row<N>>
 {
 

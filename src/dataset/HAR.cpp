@@ -278,7 +278,7 @@ void put_gain_values(const std::filesystem::path& fn)
     }
 }
 
-void classify(const std::filesystem::path& model, const std::vector<double>& inst)
+void classify_inst(const std::filesystem::path& model, const std::vector<double>& inst)
 {
     auto forest = RobustForest<HAR_X,HAR_Y>::load_from_disk(model);
     auto prediction = forest.predict(inst);

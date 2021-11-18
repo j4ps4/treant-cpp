@@ -313,11 +313,31 @@ void put_gain_values(const std::filesystem::path& fn)
     }
 }
 
-void classify(const std::filesystem::path& model, const std::vector<double>& inst)
+void classify_inst(const std::filesystem::path& model, const std::vector<double>& inst)
 {
     auto forest = RobustForest<MNIST_X,MNIST_Y>::load_from_disk(model);
     auto prediction = forest.predict(inst);
     fmt::print("{}\n", prediction);
+}
+
+void classify(const std::filesystem::path& model, const size_t inst_id)
+{
+    auto forest = RobustForest<MNIST_X,MNIST_Y>::load_from_disk(model);
+
+    auto m_test = mnist::read_test();
+    if (m_test.has_error()) \
+        Util::die("{}", m_test.error());
+    auto& test_tupl = m_test.value();
+    auto& X_test = std::get<0>(test_tupl);
+    auto& Y_test = std::get<1>(test_tupl);
+    const auto& row = X_test.row(inst_id);
+    Eigen::Index y_true;
+    Y_test.row(inst_id).maxCoeff(&y_true);
+
+    auto prediction = forest.predict(row);
+    auto probs = forest.predict_proba_row(row);
+    auto prob = probs[prediction];
+    fmt::print("true label = {}, predicted label = {}, propability = {:.4f}\n", y_true, prediction, prob);
 }
 
 // void attack_instance(const std::string& attack_file, const std::vector<double>& inst,
@@ -388,7 +408,7 @@ bool blackbox(const std::filesystem::path& model, const cxxopts::ParseResult& op
         noise_level <= 3, n_inst, isStandard);
 
     auto pred = forest.predict(deformed);
-    auto probs = forest.predict_proba(deformed);
+    auto probs = forest.predict_proba_row(deformed);
     auto prob = probs[pred];
     if (noise_level > 4)
         fmt::print("true label = {}, predicted label = {}, propability = {:.4f}, distortion = {:.4f}, deformed = {}\n",

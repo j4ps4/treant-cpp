@@ -84,7 +84,9 @@ int main(int argc, char** argv)
         cxxopts::value<bool>()->default_value("false"))
         ("cross-val", "perform N-fold cross-validation",
         cxxopts::value<size_t>())
-        ("classify", "classify given instance, comma separated list of values",
+        ("classify", "classify test sets instance #",
+        cxxopts::value<size_t>())
+        ("classify-inst", "classify given instance, comma separated list of values",
         cxxopts::value<std::vector<double>>())
         ("attack", "attack given instance, comma separated list of values",
         cxxopts::value<std::vector<double>>())
@@ -200,18 +202,32 @@ int main(int argc, char** argv)
                 mnist::put_gain_values(path);
             goto EXIT;
         }
+        else if (opts.count("classify-inst"))
+        {
+            auto [dataset, path] = parseTest(opts);
+            auto inst_vec = opts["classify-inst"].as<std::vector<double>>();
+            if (dataset == DataSet::Credit)
+                credit::classify_inst(path, inst_vec);
+            else if (dataset == DataSet::Har)
+                har::classify_inst(path, inst_vec);
+            else if (dataset == DataSet::Covertype)
+                covertype::classify_inst(path, inst_vec);
+            else if (dataset == DataSet::Mnist)
+                mnist::classify_inst(path, inst_vec);
+            goto EXIT;
+        }
         else if (opts.count("classify"))
         {
             auto [dataset, path] = parseTest(opts);
-            auto inst_vec = opts["classify"].as<std::vector<double>>();
-            if (dataset == DataSet::Credit)
-                credit::classify(path, inst_vec);
-            else if (dataset == DataSet::Har)
-                har::classify(path, inst_vec);
-            else if (dataset == DataSet::Covertype)
-                covertype::classify(path, inst_vec);
-            else if (dataset == DataSet::Mnist)
-                mnist::classify(path, inst_vec);
+            auto inst_id = opts["classify"].as<size_t>();
+            // if (dataset == DataSet::Credit)
+            //     credit::classify(path, inst_vec);
+            // else if (dataset == DataSet::Har)
+            //     har::classify(path, inst_vec);
+            // else if (dataset == DataSet::Covertype)
+            //     covertype::classify(path, inst_vec);
+            if (dataset == DataSet::Mnist)
+                mnist::classify(path, inst_id);
             goto EXIT;
         }
         else if (opts.count("blackbox"))

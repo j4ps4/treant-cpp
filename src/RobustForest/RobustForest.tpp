@@ -368,7 +368,7 @@ size_t RobustForest<NX,NY>::predict(const std::vector<double>& instance) const
 }
 
 template<size_t NX, size_t NY>
-Row<NY> RobustForest<NX,NY>::predict_proba(const Row<NX>& instance) const
+Row<NY> RobustForest<NX,NY>::predict_proba_row(const Row<NX>& instance) const
 {
     DF<NY> temp(n_trees_, NY);
     for (int64_t j = 0; j < n_trees_; j++)
@@ -720,7 +720,7 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
     }
     quiet_print("Running untargeted attack on MNIST test image #{} for alpha={} beta={}\n", index, alpha, beta);
 
-    int num_samples = 1000;
+    int num_samples = iterations;
     Row<NX> best_theta = Row<NX>::Ones()*INFINITY;
     Row<NX> theta = Row<NX>::Zero();
     double g_theta = INFINITY;
@@ -775,7 +775,7 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
     if (isStandard)
         goto EXIT;
 
-    for (size_t i = 0; i < iterations; i++)
+    for (size_t i = 0; i < 1000; i++)
     {
         Row<NX> gradient = Row<NX>::Zero();
         const int q = 10;

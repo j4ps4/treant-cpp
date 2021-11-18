@@ -30,7 +30,7 @@ public:
 
     size_t predict(const Row<NX>& instance) const;
     size_t predict(const std::vector<double>& instance) const;
-    Row<NY> predict_proba(const Row<NX>& instance) const;
+    Row<NY> predict_proba_row(const Row<NX>& instance) const;
     DF<NY> predict_proba(const DF<NX>& X_test) const;
 
     static double classification_error(const DF<NY>& Y_test, const DF<NY>& Y_pred);

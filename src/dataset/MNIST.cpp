@@ -317,7 +317,9 @@ void classify_inst(const std::filesystem::path& model, const std::vector<double>
 {
     auto forest = RobustForest<MNIST_X,MNIST_Y>::load_from_disk(model);
     auto prediction = forest.predict(inst);
-    fmt::print("{}\n", prediction);
+    auto probs = forest.predict_proba_row(inst);
+    auto prob = probs[prediction];
+    fmt::print("predicted label = {}, propability = {:.4f}\n", prediction, prob);
 }
 
 void classify(const std::filesystem::path& model, const size_t inst_id)
@@ -366,7 +368,7 @@ void classify(const std::filesystem::path& model, const size_t inst_id)
 bool blackbox(const std::filesystem::path& model, const cxxopts::ParseResult& options)
 {
     const auto index = options["blackbox"].as<size_t>();
-    const int n_inst = options.count("n-inst") ? options["n-inst"].as<int>() : 1000;
+    const int samples = options["budget"].as<std::vector<int>>().front();
     const int noise_level = options["verbosity"].as<int>();
     auto m_df = mnist::read_train_and_valid();
     if (m_df.has_error())
@@ -382,40 +384,63 @@ bool blackbox(const std::filesystem::path& model, const cxxopts::ParseResult& op
     auto& X_test = std::get<0>(test_tupl);
     auto& Y_test = std::get<1>(test_tupl);
 
-    const bool isStandard = model.string().find("standard") != std::string::npos;
-
     auto forest = RobustForest<MNIST_X,MNIST_Y>::load_from_disk(model);
 
-    fmt::print(stderr, "Blackbox attack against instance #{}:\n", index);
-
-    if (index >= X_test.rows())
+    if (!options.count("n-inst"))
     {
-        fmt::print("Index too large. ({} > {})\n", index+1, X_test.rows());
-        return false;
+        fmt::print(stderr, "Blackbox attack against instance #{}:\n", index);
+        if (index >= X_test.rows())
+        {
+            fmt::print("Index too large. ({} > {})\n", index+1, X_test.rows());
+            return false;
+        }
+        const auto& inst = X_test.row(index);
+        Eigen::Index y_true;
+        Y_test.row(index).maxCoeff(&y_true);
+        if (forest.predict(inst) != y_true)
+        {
+            fmt::print("Misclassification.\n");
+            return false;
+        }
+
+        fmt::print(stderr, "Original label: {}\n", y_true);
+
+        auto [deformed, distortion] = forest.blackbox_attack(X, Y, X_test, Y_test, index,
+            noise_level <= 3, samples);
+
+        auto pred = forest.predict(deformed);
+        auto probs = forest.predict_proba_row(deformed);
+        auto prob = probs[pred];
+        if (noise_level > 4)
+            fmt::print("true label = {}, predicted label = {}, propability = {:.4f}, distortion = {:.4f}, deformed = {}\n",
+                y_true, pred, prob, distortion, row_str<MNIST_X,12>(deformed));
+        else
+            fmt::print("true label = {}, predicted label = {}, propability = {:.4f}, distortion = {:.4f}\n",
+                y_true, pred, prob, distortion);
     }
-    const auto& inst = X_test.row(index);
-    Eigen::Index y_true;
-    Y_test.row(index).maxCoeff(&y_true);
-    if (forest.predict(inst) != y_true)
-    {
-        fmt::print("Misclassification.\n");
-        return false;
-    }
-
-    fmt::print(stderr, "Original label: {}\n", y_true);
-
-    auto [deformed, distortion] = forest.blackbox_attack(X, Y, X_test, Y_test, index,
-        noise_level <= 3, n_inst, isStandard);
-
-    auto pred = forest.predict(deformed);
-    auto probs = forest.predict_proba_row(deformed);
-    auto prob = probs[pred];
-    if (noise_level > 4)
-        fmt::print("true label = {}, predicted label = {}, propability = {:.4f}, distortion = {:.4f}, deformed = {}\n",
-            y_true, pred, prob, distortion, row_str<MNIST_X,12>(deformed));
     else
-        fmt::print("true label = {}, predicted label = {}, propability = {:.4f}, distortion = {:.4f}\n",
-            y_true, pred, prob, distortion);
+    {
+        const int n_inst = options["n-inst"].as<int>();
+        fmt::print(stderr, "Blackbox attack against first {} instances:\n", n_inst);
+        double total = 0.0;
+        int corrects = 0;
+        for (int ix = 0; ix < n_inst; ix++)
+        {
+            const auto& inst = X_test.row(ix);
+            Eigen::Index y_true;
+            Y_test.row(ix).maxCoeff(&y_true);
+            if (forest.predict(inst) != y_true)
+            {
+                continue;
+            }
+            corrects++;
+            auto [deformed, distortion] = forest.blackbox_attack(X, Y, X_test, Y_test, ix,
+                noise_level <= 3, samples);
+            total += distortion;
+        }
+        total = total / corrects;
+        fmt::print("avg. distortion = {}\n", total);
+    }
     return true;
 }
 

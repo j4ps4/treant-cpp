@@ -31,6 +31,7 @@ public:
     size_t predict(const Row<NX>& instance) const;
     size_t predict(const std::vector<double>& instance) const;
     Row<NY> predict_proba_row(const Row<NX>& instance) const;
+    Row<NY> predict_proba_row(const std::vector<double>& instance) const;
     DF<NY> predict_proba(const DF<NX>& X_test) const;
 
     static double classification_error(const DF<NY>& Y_test, const DF<NY>& Y_pred);
@@ -58,8 +59,8 @@ public:
     std::set<size_t> most_important_feats(int N) const;
 
     std::tuple<Row<NX>, double> blackbox_attack(const DF<NX>& X_train, const DF<NY>& Y_train,
-        const DF<NX>& X_test, const DF<NY>& Y_test, size_t index, bool quiet, size_t iterations = 1000,
-        bool isStandard = false, double alpha = 2.0, double beta = 0.005) const;
+        const DF<NX>& X_test, const DF<NY>& Y_test, size_t index, bool quiet, size_t num_samples = 1000,
+        double alpha = 2.0, double beta = 0.005) const;
 
 private:
     std::tuple<double, int> fine_grained_binary_search(const Row<NX>& x0, const size_t y0, const Row<NX>& theta,

@@ -171,7 +171,7 @@ template<>
 std::tuple<DF<784>, DF<784>> compute_train_and_validation_sets<784>(const DF<784>& orig, 
     size_t set_idx, size_t total_N)
 {
-    throw std::runtime_error("get reckt");
+    throw std::runtime_error("not supported");
 }
 
 template<size_t NX, size_t NY>
@@ -377,6 +377,18 @@ Row<NY> RobustForest<NX,NY>::predict_proba_row(const Row<NX>& instance) const
     }
     Row<NY> out = temp.colwise().mean();
     return out;
+}
+
+template<size_t NX, size_t NY>
+Row<NY> RobustForest<NX,NY>::predict_proba_row(const std::vector<double>& instance) const
+{
+    if (instance.size() != NX)
+        throw std::runtime_error(fmt::format("predict: expected a vector of length {}, got {}", 
+            NX, instance.size()));
+    Row<NX> converted(1, NX);
+    for (int64_t i = 0; i < NX; i++)
+        converted(i) = instance.at(i);
+    return predict_proba_row(converted);
 }
 
 template<size_t NX, size_t NY>
@@ -706,7 +718,7 @@ static double lpNorm(const Row<NX>& row)
 
 template<size_t NX, size_t NY>
 std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X_train, const DF<NY>& Y_train,
-    const DF<NX>& X_test, const DF<NY>& Y_test, size_t index, bool quiet, size_t iterations, bool isStandard,
+    const DF<NX>& X_test, const DF<NY>& Y_test, size_t index, bool quiet, size_t num_samples,
     double alpha, double beta) const
 {
     const Row<NX>& x0 = X_test.row(index);
@@ -720,7 +732,7 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
     }
     quiet_print("Running untargeted attack on MNIST test image #{} for alpha={} beta={}\n", index, alpha, beta);
 
-    int num_samples = iterations;
+    const size_t iterations = 1000;
     Row<NX> best_theta = Row<NX>::Ones()*INFINITY;
     Row<NX> theta = Row<NX>::Zero();
     double g_theta = INFINITY;
@@ -734,11 +746,18 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
 
     std::set<size_t> samples;
     std::mt19937_64 rd(0);
-    IdxVec pop(X_train.rows());
-    std::iota(pop.begin(), pop.end(), 0UL);
-    std::sample(pop.begin(), pop.end(), std::inserter(samples, samples.begin()), 
-        num_samples, rd);
-
+    if (num_samples >= X_train.rows())
+    {
+        for (size_t i = 0; i < X_train.rows(); i++)
+            samples.insert(i);
+    }
+    else
+    {
+        IdxVec pop(X_train.rows());
+        std::iota(pop.begin(), pop.end(), 0UL);
+        std::sample(pop.begin(), pop.end(), std::inserter(samples, samples.begin()), 
+            num_samples, rd);
+    }
 
     for (size_t i = 0; i < X_train.rows(); i++)
     {
@@ -755,7 +774,8 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
             query_count += count;
             if (lbd < g_theta)
             {
-                best_theta = theta; g_theta = lbd;
+                best_theta = theta; 
+                g_theta = lbd;
                 //fmt::print(stderr, "--------> Found distortion {:.4f} ({:4f} normalized)\n", g_theta, g_theta/UP);
             }
         }
@@ -772,10 +792,7 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
     double prev_obj = 100000; 
     Row<NX> min_ttt = Row<NX>::Ones() * INFINITY;
 
-    if (isStandard)
-        goto EXIT;
-
-    for (size_t i = 0; i < 1000; i++)
+    for (size_t i = 0; i < iterations; i++)
     {
         Row<NX> gradient = Row<NX>::Zero();
         const int q = 10;
@@ -791,6 +808,8 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
             auto [g1_ret, count] = fine_grained_binary_search_local(x0, y0, ttt, g2, beta/500);
             g1 = g1_ret;
             opt_count += count;
+            if (g1_ret <= EPS)
+                goto EXIT;
             gradient += (g1-g2)/beta * u;
             if (g1 < min_g1)
             {
@@ -820,6 +839,8 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
             new_theta /= norm;;
             auto [new_g2, count] = fine_grained_binary_search_local(x0, y0, new_theta, min_g2, beta/500);
             opt_count += count;
+            // if (g2_ret <= EPS)
+            //     goto EXIT;
             alpha = alpha * 2;
             if (new_g2 < min_g2)
             {
@@ -840,6 +861,8 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
                 new_theta /= norm;
                 auto [new_g2, count] = fine_grained_binary_search_local(x0, y0, new_theta, min_g2, beta/500);
                 opt_count += count;
+                // if (new_g2 <= EPS)
+                //     goto EXIT;
                 if (new_g2 < g2)
                 {
                     min_theta = new_theta;
@@ -875,7 +898,6 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
                 break;
         }
     }
-
 EXIT:
     linear_time = TIME;
     Row<NX> deformed = x0 + g_theta*best_theta;
@@ -954,6 +976,8 @@ std::tuple<double, int> RobustForest<NX,NY>::fine_grained_binary_search_local(co
         {
             lbd_lo = lbd_lo*0.99;
             nquery += 1;
+            if (lbd_lo < EPS)
+                return {EPS, nquery};
             deformed = x0+lbd_lo*theta;
         }
     }

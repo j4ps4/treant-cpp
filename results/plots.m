@@ -26,8 +26,8 @@ xticks(budget);
 nexttile;
 budget = [0 1 2 3];
 standard = [61.86 4.10 3.05 2.81];
-chen = [36.70 29.86 29.27 NaN];
-treant = [37.70 25.91 25.81 NaN];
+chen = [36.70 29.86 29.27 29.25];
+treant = [37.70 25.91 25.81 25.80];
 
 plot(budget, standard, "-o", MarkerFaceColor=col1);
 hold on;
@@ -84,8 +84,8 @@ xticks(budget);
 nexttile;
 budget = [0 1 2];
 standard = [88.17 9.39 2.07];
-chen = [88.46 82.38 NaN];
-treantnc = [54.34 50.94 NaN];
+chen = [88.46 82.38 80.83];
+treantnc = [54.34 50.94 50.55];
 
 plot(budget, standard, "-o", MarkerFaceColor=col1);
 hold on;

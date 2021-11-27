@@ -839,8 +839,8 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
             new_theta /= norm;;
             auto [new_g2, count] = fine_grained_binary_search_local(x0, y0, new_theta, min_g2, beta/500);
             opt_count += count;
-            // if (g2_ret <= EPS)
-            //     goto EXIT;
+            if (new_g2 <= EPS)
+                break;
             alpha = alpha * 2;
             if (new_g2 < min_g2)
             {
@@ -861,8 +861,8 @@ std::tuple<Row<NX>, double> RobustForest<NX,NY>::blackbox_attack(const DF<NX>& X
                 new_theta /= norm;
                 auto [new_g2, count] = fine_grained_binary_search_local(x0, y0, new_theta, min_g2, beta/500);
                 opt_count += count;
-                // if (new_g2 <= EPS)
-                //     goto EXIT;
+                if (new_g2 <= EPS)
+                    break;
                 if (new_g2 < g2)
                 {
                     min_theta = new_theta;

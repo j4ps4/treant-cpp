@@ -10,6 +10,7 @@ It has only been tested on linux with gcc11 and above.
 
 ## Compilation
 `cmake .`
+
 `make`
 
 ## Supported algorithms

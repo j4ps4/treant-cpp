@@ -257,37 +257,46 @@ void RobustForest<NX,NY>::fit(const DF<NX>& X_train, const DF<NY>& y_train)
 
             int world_size;
             MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-            if (world_size != n_trees_) {
-                fmt::print(stderr, "world size (= {}) must equal the amount of trees (= {})\n", world_size, n_trees_);
-                MPI_Abort(MPI_COMM_WORLD, 1);
-            }
-            int world_rank;
-            MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-
-            // Master
-            if (world_rank == 0)
+            if (world_size > 1)
             {
-                trees_.front().fit(X_train, y_train, true);
-                for (size_t i = 1; i < n_trees_; i++)
-                {
-                    const auto tree_string = recv_data(i, 1);
-                    auto tree = RobustDecisionTree<NX,NY>::from_string(tree_string);
-                    trees_[i] = std::move(tree);
+                if (world_size != n_trees_) {
+                    fmt::print(stderr, "world size (= {}) must equal the amount of trees (= {})\n", world_size, n_trees_);
+                    MPI_Abort(MPI_COMM_WORLD, 1);
                 }
+                int world_rank;
+                MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
+                // Master
+                if (world_rank == 0)
+                {
+                    trees_.front().fit(X_train, y_train, true);
+                    for (size_t i = 1; i < n_trees_; i++)
+                    {
+                        const auto tree_string = recv_data(i, 1);
+                        auto tree = RobustDecisionTree<NX,NY>::from_string(tree_string);
+                        trees_[i] = std::move(tree);
+                    }
+                    is_trained_ = true;
+                    Util::log<3>("Forest of {} trees has been fit!", n_trees_);
+                }
+                // Servant
+                else
+                {
+                    auto& tree = trees_[world_rank];
+                    tree.fit(X_train, y_train, true);
+                    const auto tree_string = tree.to_string();
+                    send_data(tree_string, 0, 1);
+                    MPI_Finalize();
+                    std::exit(0);
+                }
+            }
+            else
+            {
+                for (size_t i = 0; i < n_trees_; i++)
+                    trees_[i].fit(X_train, y_train, true);
                 is_trained_ = true;
                 Util::log<3>("Forest of {} trees has been fit!", n_trees_);
             }
-            // Servant
-            else
-            {
-                auto& tree = trees_[world_rank];
-                tree.fit(X_train, y_train, true);
-                const auto tree_string = tree.to_string();
-                send_data(tree_string, 0, 1);
-                MPI_Finalize();
-                std::exit(0);
-            }
-
         }
     }
     else
